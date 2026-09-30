@@ -1,0 +1,18 @@
+SESSION DASHBOARD
+
+Purpose
+
+Session Dashboard is a native Windows desktop app for planning and tracking a focused block of time. It makes a session's start, finish, elapsed time, remaining time, and progress visible at a glance, while keeping notes and a checklist close by.
+
+Features
+
+- Start a session immediately with a chosen duration, or schedule it with local start and end dates and times. Sessions can cross midnight and last up to seven days.
+- Track waiting, active, stopped, and completed sessions using timestamps. The dashboard shows a live clock, countdown, elapsed time, percentage complete, a 540-pixel progress display, and an interval timeline. Time continues to elapse while the app is closed or the computer is asleep.
+- Use the included Lecture, Focused work, Meeting, and Studying presets, or create, update, and delete presets. Presets retain their title, duration, interval, scheduled clock times, and colors.
+- Edit notes for individual timeline intervals. Notes are grouped by interval and remain available with the saved session.
+- Optionally connect to a Hedy account with API access and cloud sync. The app can list and link Hedy sessions, periodically retrieve transcript updates, and file newly received text under the active dashboard interval. The full transcript and interval notes are saved locally. Remembering the API key is optional and protects it for the current Windows user.
+- Keep personal notes and a checklist across sessions. Show or hide either panel.
+- Customize the accent and pixel colors with six-digit hex values, choose a preset theme, use compact mode or fullscreen, and keep the window always on top.
+- Open the bundled, offline story game, *The Last Greenhouse*. Choices lead through a branching story with six reachable endings; progress and discovered endings are saved. The session countdown stays visible and continues while the story is open.
+- Save settings, presets, notes, checklist, session, and story progress locally in `%LOCALAPPDATA%\SessionDashboard\state.json`. Saves are atomic and retain a backup for recovery.
+- Run as a self-contained Windows x64 WPF application; the published executable includes the .NET runtime.
