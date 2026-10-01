@@ -123,7 +123,7 @@ internal static partial class Program
         Click(window, "Fullscreen");
         Assert(window.WindowStyle == WindowStyle.None && window.FullscreenButton.Content.Equals("Restore"), "Fullscreen is reachable from permanent menu");
         Click(window, "Restore");
-        Assert(window.WindowStyle == WindowStyle.SingleBorderWindow, "Restore brings back native window controls");
+        Assert(window.WindowStyle == WindowStyle.None, "Restore retains dark custom chrome");
         Click(window, "Minimize");
         Assert(window.WindowState == WindowState.Minimized, "Minimize menu action works");
         window.WindowState = WindowState.Normal;

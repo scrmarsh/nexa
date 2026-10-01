@@ -6,12 +6,20 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <AssemblyName>SessionDashboard</AssemblyName>
-    <Version>1.1.0</Version>
+    <AssemblyName>Nexa</AssemblyName>
+    <RootNamespace>SessionDashboard</RootNamespace>
+    <Product>Nexa</Product>
+    <Title>Nexa</Title>
+    <Description>Your workspace, your way.</Description>
+    <ApplicationIcon>assets\nexa-icon.ico</ApplicationIcon>
+    <Version>1.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="tests\**\*.cs" />
+    <Resource Include="assets\nexa-icon.ico" />
+    <Resource Include="assets\nexa-icon-256.png" />
+    <Resource Include="assets\nexa-logo-full-dark.svg" />
   </ItemGroup>
 
 </Project>

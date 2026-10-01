@@ -43,7 +43,8 @@ public sealed class TaskItem
     public bool Done { get; set; }
 }
 
-public sealed class AppState
+// This allowlisted payload contains dashboard data only, never account credentials.
+public class DashboardData
 {
     public List<Preset> Presets { get; set; } =
     [
@@ -64,6 +65,17 @@ public sealed class AppState
     public string StoryNode { get; set; } = "arrival";
     public List<string> StoryHistory { get; set; } = [];
     public List<string> StoryEndings { get; set; } = [];
+    public DashboardDraft Draft { get; set; } = new();
+    public double WindowWidth { get; set; } = 1220;
+    public double WindowHeight { get; set; } = 880;
+    public bool WidgetLayoutInitialized { get; set; }
+    public List<WidgetInstance> Widgets { get; set; } = [];
+}
+
+public sealed class AppState : DashboardData
+{
+    [System.Text.Json.Serialization.JsonIgnore]
+    public WorkspaceDocument? Workspace { get; set; }
     public string HedyRegion { get; set; } = "US";
     public string HedyProtectedKey { get; set; } = "";
 }
@@ -75,20 +87,44 @@ public static class InputRules
     public static bool ValidSession(Session session) => !string.IsNullOrWhiteSpace(session.Title) && session.End > session.Start && (session.End - session.Start).TotalDays <= 7 && session.IntervalMinutes is >= 1 and <= 10080;
 }
 
-public sealed class StateStore(string path)
+public sealed class StateStore
 {
     private static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
-    public string FilePath { get; } = path;
+    private readonly object writeLock = new();
+    private bool preserveUnreadable;
+    private bool blocked;
+    public string FilePath { get; }
+    public string UserId { get; }
     public string? Warning { get; private set; }
+    public StateStore(string path, string? userId = null)
+    {
+        FilePath = path;
+        UserId = userId ?? System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value;
+    }
 
     public AppState Load()
     {
+        Warning = null; blocked = false;
         foreach (var candidate in new[] { FilePath, FilePath + ".bak" })
         {
             if (!File.Exists(candidate)) continue;
             try
             {
-                var state = JsonSerializer.Deserialize<AppState>(File.ReadAllText(candidate), Options) ?? throw new JsonException("Empty settings.");
+                var json = File.ReadAllText(candidate);
+                using var document = JsonDocument.Parse(json);
+                if (document.RootElement.ValueKind == JsonValueKind.Object && document.RootElement.TryGetProperty("FormatVersion", out _))
+                {
+                    var workspace = JsonSerializer.Deserialize<WorkspaceDocument>(json, Options) ?? throw new JsonException();
+                    var recoveredSnapshot = Continuity.RecoverSnapshots(workspace, UserId);
+                    Continuity.ValidateWorkspace(workspace, UserId);
+                    if (!workspace.CleanShutdown) Warning = $"Nexa restored your last autosaved session from {workspace.SavedAt.LocalDateTime:g}.";
+                    if (recoveredSnapshot) { preserveUnreadable = true; Warning = "Nexa recovered damaged dashboard data from its latest valid autosave snapshot."; }
+                    if (candidate != FilePath) Warning = "Recovered your last backup after the save file could not be read.";
+                    var loaded = Continuity.Activate(workspace, UserId);
+                    LoadCredentials(loaded);
+                    return loaded;
+                }
+                var state = JsonSerializer.Deserialize<AppState>(json, Options) ?? throw new JsonException("Empty settings.");
                 if (state.Presets == null || state.Tasks == null || state.StoryHistory == null || state.StoryEndings == null) throw new JsonException("Incomplete settings.");
                 state.Presets.RemoveAll(p => p == null || string.IsNullOrWhiteSpace(p.Name) || p.Minutes is < 1 or > 10080 || p.IntervalMinutes is < 1 or > 10080);
                 state.Tasks.RemoveAll(t => t == null || string.IsNullOrWhiteSpace(t.Text));
@@ -116,21 +152,75 @@ public sealed class StateStore(string path)
                 if (candidate != FilePath) Warning = "Recovered your last backup after the settings file could not be read.";
                 return state;
             }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
-            { Warning = "Settings could not be read. Defaults loaded; the original file will be preserved on the next save."; }
+            catch (UnauthorizedAccessException)
+            { blocked = true; throw; }
+            catch (Exception ex) when (ex is IOException or JsonException or InvalidOperationException)
+            { preserveUnreadable = true; Warning = "Settings could not be read. Defaults loaded; the original file will be preserved on the next save."; }
         }
         return new AppState();
     }
 
     public void Save(AppState state)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
-        if (Warning != null && File.Exists(FilePath))
-            File.Copy(FilePath, FilePath + ".recovered-" + DateTime.Now.ToString("yyyyMMddHHmmssfff"), true);
-        var temp = FilePath + ".tmp";
-        File.WriteAllText(temp, JsonSerializer.Serialize(state, Options));
-        if (File.Exists(FilePath)) File.Replace(temp, FilePath, Warning == null ? FilePath + ".bak" : null);
-        else File.Move(temp, FilePath);
-        Warning = null;
+        Write(Prepare(state));
+    }
+    // Called on the UI thread. Background writes receive a detached immutable capture.
+    internal SavePayload Prepare(AppState state)
+    {
+        if (blocked) throw new UnauthorizedAccessException("Saving this workspace is blocked because its owner could not be verified.");
+        Continuity.CaptureCurrent(state, UserId, DateTimeOffset.Now);
+        Continuity.ValidateWorkspace(state.Workspace!, UserId);
+        return new(Continuity.Clone(state.Workspace!), state.HedyRegion, state.HedyProtectedKey);
+    }
+    internal void Write(SavePayload payload)
+    {
+        lock (writeLock)
+        {
+            Continuity.ValidateWorkspace(payload.Workspace, UserId);
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(FilePath))!);
+            if (preserveUnreadable && File.Exists(FilePath))
+                File.Copy(FilePath, FilePath + ".recovered-" + DateTime.Now.ToString("yyyyMMddHHmmssfff"), true);
+            // Keep the DPAPI-protected Hedy credential outside all dashboard and history payloads.
+            var credentials = JsonSerializer.Serialize(new Credentials { UserId = UserId, Region = payload.Region, ProtectedKey = payload.ProtectedKey }, Options);
+            var credentialPath = FilePath + ".credentials";
+            if (!File.Exists(credentialPath) || File.ReadAllText(credentialPath) != credentials) AtomicWrite(credentialPath, credentials, false);
+            AtomicWrite(FilePath, JsonSerializer.Serialize(payload.Workspace, Options), !preserveUnreadable);
+            preserveUnreadable = false; Warning = null;
+        }
+    }
+    internal static void AtomicWrite(string path, string text, bool backup)
+    {
+        var temp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
+            {
+                using var writer = new StreamWriter(stream, System.Text.Encoding.UTF8, 4096, true);
+                writer.Write(text); writer.Flush(); stream.Flush(true);
+            }
+            if (File.Exists(path)) File.Replace(temp, path, backup ? path + ".bak" : null);
+            else File.Move(temp, path);
+        }
+        finally { if (File.Exists(temp)) File.Delete(temp); }
+    }
+    private void LoadCredentials(AppState state)
+    {
+        try
+        {
+            var path = FilePath + ".credentials";
+            if (!File.Exists(path)) return;
+            var value = JsonSerializer.Deserialize<Credentials>(File.ReadAllText(path));
+            if (value?.UserId != UserId) return;
+            state.HedyRegion = value.Region; state.HedyProtectedKey = value.ProtectedKey;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
+        { Warning = "Your dashboard was restored. Reconnect Hedy because its saved credential could not be read."; }
+    }
+    internal sealed record SavePayload(WorkspaceDocument Workspace, string Region, string ProtectedKey);
+    private sealed class Credentials
+    {
+        public string UserId { get; set; } = "";
+        public string Region { get; set; } = "US";
+        public string ProtectedKey { get; set; } = "";
     }
 }

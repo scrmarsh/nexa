@@ -20,10 +20,12 @@ internal static partial class Program
             CheckModels();
             CheckStoryGraph();
             CheckRevisionModels();
+            CheckContinuityModels();
             var app = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown };
             app.InitializeComponent();
             CheckDashboard();
             CheckRevisionUi();
+            CheckContinuityUi();
             Console.WriteLine($"PASS: {passed} checks. Artifacts: {output}");
             app.Shutdown();
             return 0;

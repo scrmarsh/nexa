@@ -112,7 +112,7 @@ public partial class MainWindow
     private void OpenIntervalNotes(Session session, int first, int count)
     {
         if (noteWindows.TryGetValue((session, first), out var existing)) { existing.Activate(); return; }
-        var editor = new Window { Title = count == 1 ? $"Interval {first + 1} · Notes" : $"Intervals {first + 1}–{first + count} · Notes", Width = 640, Height = 620, MinWidth = 400, MinHeight = 350, Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = Brush("BackgroundBrush"), Foreground = Brush("TextBrush") };
+        var editor = new NexaDialog { Title = count == 1 ? $"Nexa · Interval {first + 1} · Notes" : $"Nexa · Intervals {first + 1}–{first + count} · Notes", Width = 640, Height = 620, MinWidth = 400, MinHeight = 350, Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = Brush("BackgroundBrush"), Foreground = Brush("TextBrush") };
         var panel = new StackPanel { Margin = new Thickness(22) };
         for (var i = first; i < first + count; i++)
         {
@@ -136,7 +136,7 @@ public partial class MainWindow
     {
         foreach (var pair in noteWindows.Where(pair => pair.Key.Item1 == session))
         {
-            var panel = (StackPanel)((ScrollViewer)pair.Value.Content).Content;
+            var panel = (StackPanel)((ScrollViewer)((NexaDialog)pair.Value).Body!).Content;
             foreach (var text in panel.Children.OfType<TextBox>().Where(t => t.IsReadOnly && t.Tag is int))
                 text.Text = session.HedyIntervalNotes.GetValueOrDefault((int)text.Tag) ?? "No new Hedy text received during this interval.";
         }

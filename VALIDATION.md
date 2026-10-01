@@ -1,42 +1,49 @@
-# Validation — September 30, 2026
+﻿# Validation — October 1, 2026 (v1.2.0)
 
-## Build and package
+## Result
 
-- `dotnet build SessionDashboard.csproj -c Release --no-restore`: passed with **0 warnings and 0 errors**.
-- `dotnet publish SessionDashboard.csproj -p:PublishProfile=WindowsStandalone --no-restore`: passed.
-- Output: `publish/win-x64/SessionDashboard.exe`, **64,847,502 bytes**, Windows x64, single-file, self-contained.
-- The generated runtime configuration includes `Microsoft.NETCore.App` and `Microsoft.WindowsDesktop.App` version 10.0.12.
-- SHA-256: `E2D3C419C71A607C93CD6A1B5AB8AA77ACA5ECC3325FB565E5D877DEFFCB9CEF`.
+The isolated WPF check runner passed **130 checks**:
 
-The first runtime-package restore failed under the restricted network environment. The approved retry downloaded the required packages and publishing succeeded.
+```powershell
+dotnet run --project tests/SessionDashboard.Checks.csproj -c Release --no-restore
+```
 
-## Automated checks
+Artifacts: `test-output/20261001-143559/`. Dashboard, history preview, compact and small-window screenshots were rendered; the dashboard and history preview were visually inspected. All fixtures use isolated files and leave personal app data untouched.
 
-`dotnet run --project tests/SessionDashboard.Checks.csproj -c Release --no-restore` passed **51 checks**. The runner exercises real WPF controls and their event handlers, as well as application models and file persistence.
+The sandbox could not access DPAPI's user-profile context. Running the checks with the loaded Windows profile passed the existing credential-protection checks. Early runs also caught and fixed history-preview refresh and background-save dispatcher issues.
 
-Coverage includes:
+## Continuity coverage
 
-- Future, running, overnight, completed, and stopped sessions; elapsed and remaining time; clamped progress after a simulated late restart; countdown rounding and durations longer than 24 hours.
-- Title/duration/color validation; invalid input preserving the active session; explicit overnight scheduling; partial final intervals.
-- Creating, editing, selecting, and deleting presets through WPF buttons, with disk readback.
-- Notes and completed checklist items surviving saves; optional notes visibility; custom colors; topmost property; compact mode and compact restoration.
-- Saved session timestamps; settings round trips; invalid JSON fallback; backup recovery; preservation of unreadable source files.
-- Active pixel animation, stopping animation for future sessions, and clearing it at completion.
-- Every story scene reachable, all six endings reachable, no broken destinations or cycles, choice-dependent outcomes, saved journals, and replay preserving discovered endings.
-- Opening story mode with the countdown visible; pumping the WPF dispatcher for 1.3 seconds to verify that countdown text changes during the story; immediate choice persistence; closing and recreating the window to restore the scene; reaching an ending through UI buttons.
+- Actual 30-second autosave during 31 seconds of continuous text changes, preventing the 600 ms debounce from being the reason for the save.
+- Debounced background saving, idle no-op, timestamp indicator and opacity fade after three seconds.
+- An edit arriving during background I/O remains dirty after the older capture completes.
+- Close/reopen flushes pending notes and retains the same session identity.
+- Independent dashboard notes, pending task input, title and interval drafts survive switching.
+- Reset archives a deep copy, clears session content, and preserves dashboard identity, theme and panel settings.
+- Continue creates an editable copy with provenance and archives displaced work; editing it cannot change history.
+- Merge appends notes and labelled interval/Hedy content, deduplicates tasks, preserves layout by default, and ignores a repeated merge of the same source.
+- The real history dialog groups sessions by date and shows a read-only preview without changing current content.
+- Versioned configuration-only export omits private notes, transcripts, owner IDs and credentials. Import creates a fresh owned dashboard. Private data needs explicit acceptance; invalid versions, unknown credential fields and malformed collections are rejected.
+- Simulated distinct owners cannot load, query, continue or merge another owner's records; one dashboard cannot continue another dashboard's history.
+- Unclean-shutdown metadata restores the latest saved state with a recovery notice. A damaged current payload recovers from its latest valid snapshot; corrupt primary files recover their backup.
+- Recovery snapshots remain capped at three per current dashboard. Archives contain one final state without redundant snapshots.
+- Forced filesystem failure leaves edits dirty, displays `Save failed`, and prevents a reset from replacing current work. Retrying after storage recovery succeeds.
+- Existing timer, preset, Hedy, story, fullscreen, compact mode and control-handler regression checks pass.
 
-Final automated-test artifacts: `test-output/20260930-111945/`. PNGs include dashboard, small dashboard, compact view, story scene, and story ending. Test files are isolated from normal app settings.
+## Windows package
 
-## Published executable startup
+```powershell
+dotnet publish SessionDashboard.csproj -p:PublishProfile=WindowsStandalone --ignore-failed-sources
+```
 
-The final **published EXE**, not just a development build, was launched with `--verify-startup test-output\packaged-startup`.
+Published successfully to `publish/win-x64/SessionDashboard.exe`, a self-contained Windows x64 single-file application (64,885,916 bytes). The first no-restore attempt lacked the runtime-specific assets target; restoring and publishing succeeded using available packages. NuGet vulnerability metadata was unavailable due to an SSL connection error (`NU1900`); no application dependencies were added.
 
-Its real WPF `ContentRendered` event produced `test-output/packaged-startup/startup.json` with `Success: true`, `Pixels: 540`, `Presets: 4`, and `ProcessArchitecture: X64`. The diagnostic rendered `startup.png` and then shut the app down. It did not create or modify normal user settings.
+SHA-256: `FB4F04D7C74A302989E0C608E2CE2A2FFAF25080CF9BCEA9AE5B097A0A35B11A`.
 
-An earlier check based on `Process.MainWindowHandle` could not identify the window of a process launched hidden. It was replaced with the explicit, opt-in WPF startup diagnostic above; the earlier check is not counted as a pass.
+The published executable was launched hidden with `--verify-startup test-output\continuity-packaged-startup`. Its real WPF `ContentRendered` check exited with code 0 and reported `Success: true`, `Pixels: 540`, `Presets: 4`, and `ProcessArchitecture: X64`. Diagnostic output uses isolated state.
 
-Dashboard, small-window, compact, story, and packaged-startup renders were visually inspected. A cropped diagnostic screenshot was corrected by including the root element's layout margins in the image dimensions.
+## Scope and limits
 
-## Limits
+This implementation covers this WPF project's notes, tasks, timers, interval/Hedy data, story, presets, settings and input drafts. This project has no Pantry tracker, Church widgets, draggable widget framework or application login. User isolation uses Windows-account local storage, owner validation and a per-user app-instance mutex.
 
-Validation ran on this Windows x64 machine with .NET SDK 10.0.401. A separate clean machine without .NET installed was not available; self-contained deployment was verified through the publish configuration, bundled runtime metadata, and successful launch of the resulting EXE. Physical sleep/wake, a full seven-day real-time session, screen-reader behavior, and every monitor/DPI combination were not manually exercised. Sleep/restart time behavior was checked using timestamps. The app should be used in one instance at a time because instances share the same local save file.
+User isolation and crash recovery were exercised with controlled owner IDs and unclean/corrupted save fixtures, not a real Windows account switch or forced power loss. Windows sign-out saving is wired through WPF session-ending events but was not triggered on the host. Native file-picker interaction and confirmation dialogs were not automated; the import/export, reset and merge operations behind them were tested. A separate clean Windows machine, screen-reader behavior and every DPI/monitor combination were not available.

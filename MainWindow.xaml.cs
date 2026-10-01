@@ -12,7 +12,7 @@ namespace SessionDashboard;
 public partial class MainWindow : Window
 {
     private readonly StateStore store;
-    internal readonly AppState state;
+    internal AppState state;
     private readonly DispatcherTimer clock = new() { Interval = TimeSpan.FromMilliseconds(250) };
     private readonly DispatcherTimer saveDelay = new() { Interval = TimeSpan.FromMilliseconds(600) };
     private readonly List<Border> pixels = [];
@@ -38,6 +38,7 @@ public partial class MainWindow : Window
         this.store = store;
         state = store.Load();
         InitializeComponent();
+        NexaChrome.Apply(this);
         for (var i = 0; i < 540; i++)
         {
             var pixel = new Border { Margin = new Thickness(2), CornerRadius = new CornerRadius(2), Background = Brush("PixelOffBrush") };
@@ -61,23 +62,25 @@ public partial class MainWindow : Window
         BuildTimeline();
         InitializeHedy();
         ready = true;
-        SetCompact(state.Compact);
         UpdateClock();
         Feedback.Text = store.Warning ?? "Saved on this PC • Your workspace is ready";
         clock.Tick += (_, _) => UpdateClock();
-        saveDelay.Tick += (_, _) => { saveDelay.Stop(); SaveNow(); };
+        saveDelay.Tick += async (_, _) => { saveDelay.Stop(); await SaveInBackground(); };
+        InitializeContinuity();
+        InitializeWidgets();
         clock.Start();
         Closing += (_, e) =>
         {
-            if (dirty && !SaveNow() && MessageBox.Show(this, "Your latest changes could not be saved. Close anyway?", "Unsaved changes", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) e.Cancel = true;
+            if (!SaveForClose()) e.Cancel = true;
         };
-        Closed += (_, _) => { clock.Stop(); saveDelay.Stop(); StopHedy(); };
+        Closed += (_, _) => { clock.Stop(); saveDelay.Stop(); autosave.Stop(); closing = true; StopHedy(); };
     }
 
     private Brush Brush(string key) => (Brush)FindResource(key);
     private void Changed(string? message = null)
     {
-        dirty = true;
+        if (!ready) return;
+        dirty = true; revision++;
         saveDelay.Stop();
         saveDelay.Start();
         if (message != null) Feedback.Text = message;
@@ -85,9 +88,17 @@ public partial class MainWindow : Window
 
     internal bool SaveNow()
     {
-        try { store.Save(state); dirty = false; Feedback.Text = "Saved on this PC • " + DateTime.Now.ToString("t"); return true; }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        { Feedback.Text = "Could not save changes: " + ex.Message; return false; }
+        saveDelay.Stop(); saveTicket++;
+        try
+        {
+            // Await only worker I/O here; its completion does not depend on the dispatcher.
+            try { pendingWrite?.GetAwaiter().GetResult(); } catch (Exception ex) when (SaveException(ex)) { }
+            CaptureDraft(); ShowSaveStatus("Saving...");
+            store.Save(state); dirty = false;
+            ShowSaveStatus("Saved at " + DateTime.Now.ToString("t"), fade: true); return true;
+        }
+        catch (Exception ex) when (SaveException(ex))
+        { dirty = true; ShowSaveStatus("Save failed", warning: true); Feedback.Text = "Could not save changes: " + ex.Message; return false; }
     }
 
     private void Error(string text) => Feedback.Text = text;
@@ -132,10 +143,14 @@ public partial class MainWindow : Window
 
     private void BeginSession(Session session)
     {
-        PauseHedySync();
-        completionDismissed = false; flashUntil = DateTimeOffset.MinValue;
-        state.Session = session;
-        BuildTimeline(); UpdateClock(); Changed(); SaveNow();
+        if (!SaveNow()) return;
+        CloseNoteEditors();
+        var candidate = CopyWorkspaceState();
+        var dashboard = Continuity.Current(candidate.Workspace!, store.UserId);
+        Continuity.Archive(dashboard);
+        dashboard.Current = new DashboardSession { UserId = store.UserId, DashboardId = dashboard.DashboardId, Data = Continuity.Capture(candidate), Title = session.Title };
+        dashboard.Current.Data.Session = session;
+        CommitWorkspace(candidate.Workspace!);
     }
 
     private void EndClick(object sender, RoutedEventArgs e)
@@ -282,7 +297,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            WindowState = WindowState.Normal; WindowStyle = WindowStyle.SingleBorderWindow; ResizeMode = ResizeMode.CanResize;
+            WindowState = WindowState.Normal; WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.CanResize;
             Left = restoreBounds.Left; Top = restoreBounds.Top; Width = restoreBounds.Width; Height = restoreBounds.Height;
             WindowState = restoreWindowState; fullscreen = false; FullscreenButton.Content = "Fullscreen";
         }
@@ -296,7 +311,7 @@ public partial class MainWindow : Window
     private void SetCompact(bool compact)
     {
         if (fullscreen) ToggleFullscreen();
-        if (compact && FullContent.Visibility == Visibility.Visible) { fullWidth = Width; fullHeight = Height; }
+        if (compact && FullContent.Visibility == Visibility.Visible && ready) { state.WindowWidth = fullWidth = Width; state.WindowHeight = fullHeight = Height; }
         state.Compact = compact;
         Feedback.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
         Toolbar.Visibility = FullContent.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
@@ -316,6 +331,7 @@ public partial class MainWindow : Window
 
     internal void UpdateClock(DateTimeOffset? at = null)
     {
+        UpdateWidgetClocks(at ?? DateTimeOffset.Now);
         var session = state.Session;
         var now = at ?? DateTimeOffset.Now;
         var progress = session?.Progress(now) ?? 0;
@@ -341,6 +357,13 @@ public partial class MainWindow : Window
             DurationLabel.Text = $"{(session.End - session.Start).TotalMinutes:0.#} min";
             IntervalLabel.Text = $"{session.IntervalMinutes} min";
             EndButton.IsEnabled = session.StoppedAt == null && now < session.End;
+        }
+        else
+        {
+            SessionTitle.Text = state.Workspace == null ? "Make room for focus" : Continuity.Current(state.Workspace, store.UserId).Name;
+            SessionRange.Text = "Choose a preset or create your own session.";
+            StatusLabel.Text = "READY WHEN YOU ARE"; Countdown.Text = ElapsedLabel.Text = "00:00:00";
+            CountdownCaption.Text = "TIME REMAINING"; DurationLabel.Text = IntervalLabel.Text = "—"; EndButton.IsEnabled = false;
         }
         PercentLabel.Text = $"{progress * 100:0.0}%";
         var head = (int)Math.Floor(progress * pixels.Count);
