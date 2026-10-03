@@ -36,6 +36,8 @@ public sealed class WidgetInstance
     public List<string> CalculationHistory { get; set; } = [];
     public decimal Value { get; set; }
     public int WaterBottleGoal { get; set; } = 8;
+    public string CounterMode { get; set; } = "Standard";
+    public string DisplayMode { get; set; } = "Auto";
     public List<TaskItem> Items { get; set; } = [];
     public List<TrackerRecord> Records { get; set; } = [];
     public List<ScripturePin> ScripturePins { get; set; } = [];
@@ -89,58 +91,81 @@ public static class WidgetLibrary
         new("Audio Recorder", "Session", "Record locally; keep audio alongside your Session Timeline.", "recorder", MinHeight: 240, DefaultHeight: 288, MinWidth: 280, CanMinimize: false),
         new("Calculator", "Productivity", "Quick calculations with a small recent history.", "calculator", MinHeight: 480, DefaultHeight: 528, MinWidth: 280, CanMinimize: false),
         new("Break timer", "Session", "A short independent countdown.", "timer", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
-        new("Focus Reset", "Study", "A short offline reset to return to your session.", "focus", MinHeight: 120, DefaultHeight: 144, DefaultSpan: 6, MinWidth: 240), new("Notes", "Productivity", "Capture your ideas with autosave.", "text"),
-        new("Tasks", "Productivity", "An actionable checklist.", "list"),
-        new("Checklist", "Productivity", "Track completed steps.", "list"),
+        new("Focus Reset", "Mindfulness", "A short offline reset to return to your session.", "focus", MinHeight: 120, DefaultHeight: 144, DefaultSpan: 6, MinWidth: 240), new("Notes", "Productivity", "Capture your ideas with autosave.", "text"),
+        new("Task List", "Productivity", "A reusable checklist with editable titles and independent items.", "list", MinHeight: 216, DefaultHeight: 288, MinWidth: 260),
         new("Quick links", "Productivity", "Save and open web links.", "links"),
-        new("Agenda", "Productivity", "Plan your discussion.", "text"),
-        new("Action items", "Productivity", "Follow-ups for your meeting.", "list"),
-        new("Distraction counter", "Productivity", "Count distractions without losing focus.", "counter", MinHeight: 192, DefaultSpan: 5, DefaultHeight: 192, MinWidth: 220),
         new("Counter", "Tracking", "A configurable count and increment.", "counter", MinHeight: 192, DefaultSpan: 5, DefaultHeight: 192, MinWidth: 220),
         new("Water Bottle Counter", "Tracking", "Count water bottles in this Space and track a simple goal.", "waterBottles", MinHeight: 216, DefaultSpan: 5, DefaultHeight: 240, MinWidth: 220, CanMinimize: false),
         new("Record tracker", "Tracking", "Records with categories and custom fields.", "tracker", 4, 336),
         new("Statistics", "Tracking", "Totals from trackers on this dashboard.", "statistics"),
-        new("Custom fields", "Tracking", "Labelled session information.", "text"),
         new("Hedy Notes", "Integrations", "Connect Hedy for live session notes.", "hedy", 4, 480),
         new("Class timeline", "School", "Class intervals and notes.", "timeline", 4, 288),
-        new("Assignment tracker", "School", "Keep assignments and completion state.", "list"),
-        new("Questions to ask", "School", "Questions to revisit.", "list"),
-        new("Topics", "School", "Topics reviewed in this session.", "list"),
         new("Bible", "Church", "Read and search the integrated NLT, CSB and NKJV Bibles; select text to pin.", "bible", MinHeight: 480, DefaultHeight: 552, CanMinimize: false),
         new("Scripture pins", "Church", "Save selected Scripture, its translation and your notes.", "scripture", DefaultHeight: 336, CanMinimize: false),
-        new("Prayer requests", "Church", "A private prayer checklist.", "list"),
-        new("Main passage", "Church", "Your main reference and passage notes.", "text"),
-        new("Custom text", "Other", "A flexible text panel.", "text"),
-        new("Custom counter", "Other", "Name and configure your own counter.", "counter", MinHeight: 192, DefaultSpan: 5, DefaultHeight: 192, MinWidth: 220),
         new("Flashcards", "Study", "Create, import and study offline decks.", "flashcards", MinHeight: 288, DefaultSpan: 10, DefaultHeight: 384, CanMinimize: false),
         new("Website shortcut", "Other", "Open a saved website in your browser.", "links")
     ];
-    private static string CanonicalKind(string kind) => kind switch { "Pomodoro" => "Timer", "Hedy" => "Hedy Notes", _ => kind };
+    private static string CanonicalKind(string kind) => kind switch
+    {
+        "Pomodoro" => "Timer", "Hedy" => "Hedy Notes",
+        "Task" or "Tasks" or "Checklist" or "Action items" or "Action Items" or "Agenda" or "Main passage" or "Main Passage" or "Prayer requests" or "Prayer Requests" or "Assignment tracker" or "Questions to ask" => "Task List",
+        "Topics" or "Custom fields" or "Custom Fields" or "Custom text" => "Notes",
+        "Custom counter" or "Custom Counter" or "Distraction counter" or "Distraction Counter" => "Counter",
+        _ => kind
+    };
     public static WidgetDefinition Definition(string kind) => Definitions.Single(d => d.Name == CanonicalKind(kind));
     public static WidgetInstance Create(string kind, string panelKey = "")
     {
         var d = Definition(kind);
-        return new() { Kind = CanonicalKind(kind), Title = kind == "Session timeline" ? "Session Timeline" : CanonicalKind(kind), PanelKey = panelKey, GridColumns = 20, Span = d.DefaultSpan, Height = Math.Max(d.DefaultHeight, d.MinHeight), TimerMinutes = kind == "Break timer" ? 5 : 25 };
+        var canonical = CanonicalKind(kind);
+        var title = kind is "Task" or "Tasks" ? "Task List" : kind == "Session timeline" ? "Session Timeline" : kind == canonical ? canonical : kind;
+        return new() { Kind = canonical, Title = title, PanelKey = panelKey, GridColumns = 20, Span = d.DefaultSpan, Height = Math.Max(d.DefaultHeight, d.MinHeight), TimerMinutes = kind == "Break timer" ? 5 : 25,
+            CounterMode = kind is "Distraction counter" or "Distraction Counter" ? "Distraction" : "Standard", DisplayMode = canonical is "Clock" or "Timer" or "Break timer" ? "Compact" : "Auto" };
     }
     public static void EnsureLayout(DashboardData data)
     {
         if (data.WidgetLayoutInitialized) { PrepareLayout(data); return; }
         data.WidgetLayoutInitialized = true;
-        data.Widgets = [Create("Pixel timer", "pixels"), Create("Session timeline", "timeline"), Create("Notes", "notes"), Create("Tasks", "tasks")];
+        data.Widgets = [Create("Pixel timer", "pixels"), Create("Session timeline", "timeline"), Create("Notes", "notes"), Create("Task List", "tasks")];
         Arrange(data.Widgets, false);
     }
     public static bool PrepareLayout(DashboardData data)
     {
         var changed = false;
-        foreach (var retired in data.Widgets.Where(w => w.Kind == "Pomodoro")) { retired.Kind = "Timer"; if (retired.Title == "Pomodoro") retired.Title = "Timer"; changed = true; }
-        foreach (var hedy in data.Widgets.Where(w => w.Kind == "Hedy").ToList())
-        {
-            hedy.Kind = "Hedy Notes";
-            if (hedy.Title == "Hedy") hedy.Title = "Hedy Notes";
-            changed = true;
-        }
         foreach (var widget in data.Widgets)
         {
+            var previousKind = widget.Kind;
+            var canonical = CanonicalKind(previousKind);
+            if (canonical != previousKind)
+            {
+                if (canonical == "Task List" && (previousKind is "Agenda" or "Main passage" or "Main Passage") &&
+                    !string.IsNullOrWhiteSpace(widget.Text) && !widget.Items.Any(item => item.Text == widget.Text))
+                    widget.Items.Add(new TaskItem { Text = widget.Text });
+                if (canonical == "Notes" && previousKind == "Topics" && widget.Items.Count > 0)
+                {
+                    var previousTopics = string.Join("\n", widget.Items.Select(item => $"[{(item.Done ? "x" : " ")}] {item.Text}"));
+                    widget.Text = MergeLegacyText(widget.Text, previousTopics);
+                }
+                if (canonical == "Notes" && (previousKind is "Custom fields" or "Custom Fields") && widget.Fields.Count > 0)
+                    widget.Text = MergeLegacyText(widget.Text, string.Join("\n", widget.Fields.Select(field => field + ":")));
+                if (previousKind is "Distraction counter" or "Distraction Counter") widget.CounterMode = "Distraction";
+                widget.Kind = canonical;
+                if (previousKind is "Pomodoro" or "Hedy" && widget.Title == previousKind) widget.Title = canonical;
+                if (previousKind is "Task" or "Tasks" && widget.Title == previousKind) widget.Title = "Task List";
+                changed = true;
+            }
+            if (widget.Kind == "Notes" && widget.PanelKey == "notes")
+            {
+                var combined = MergeLegacyText(data.Notes, widget.Text);
+                if (widget.Text != combined || data.Notes != combined) { widget.Text = data.Notes = combined; changed = true; }
+            }
+            if (widget.Kind == "Task List" && widget.PanelKey == "tasks")
+            {
+                foreach (var item in data.Tasks)
+                    if (!widget.Items.Any(existing => existing.Text == item.Text && existing.Done == item.Done))
+                    { widget.Items.Add(item); changed = true; }
+                data.Tasks = widget.Items;
+            }
             var definition = Definition(widget.Kind);
             if (!definition.CanMinimize && widget.IsMicro) { widget.IsMicro = false; changed = true; }
             if (!widget.CustomSize && widget.Span == 10 && widget.Height == 288 && definition.DefaultSpan != 10)
@@ -150,6 +175,11 @@ public static class WidgetLibrary
         }
         return changed;
     }
+    private static string MergeLegacyText(string first, string second) =>
+        string.IsNullOrWhiteSpace(first) ? second : string.IsNullOrWhiteSpace(second) || first.Contains(second, StringComparison.Ordinal) ? first :
+        second.Contains(first, StringComparison.Ordinal) ? second : first + "\n\n" + second;
+    public static int MinimumWidth(WidgetInstance widget) => widget.DisplayMode == "Expanded" && widget.Kind is ("Clock" or "Timer" or "Break timer") ? 340 : Definition(widget.Kind).MinWidth;
+    public static int MinimumHeight(WidgetInstance widget) => widget.DisplayMode == "Expanded" && widget.Kind is ("Clock" or "Timer" or "Break timer") ? 288 : Definition(widget.Kind).MinHeight;
     public static void Arrange(List<WidgetInstance> widgets, bool singleColumn)
     {
         UpgradeGrid(widgets);
@@ -227,7 +257,8 @@ public static class WidgetLibrary
                 w.Items.Any(t => t == null || t.Text == null) || w.Records.Any(r => r == null || r.Name == null || r.Categories == null || r.Values == null) ||
                 w.FlashcardDecks.Count > 1000 || w.FlashcardDecks.Any(deck => deck == null || deck.Id == Guid.Empty || string.IsNullOrWhiteSpace(deck.Name) || deck.Name.Length > 200 || deck.Cards == null || deck.Cards.Count > 10000 || deck.Cards.Any(card => card == null || card.Id == Guid.Empty || card.Front == null || card.Back == null || card.StudyState == null || card.Front.Length > 10000 || card.Back.Length > 10000)) ||
                 w.Column < 0 || w.GridColumns is not (12 or 20) || w.Span < 1 || w.Column + w.Span > w.GridColumns || w.Row is < 0 or > 30000 || w.Height < 24 || w.Height > 1440 || w.TimerMinutes is < 1 or > 10080 || w.TimerDurationSeconds is < 1 or > 604800 || !double.IsFinite(w.StopwatchElapsedSeconds) || w.StopwatchElapsedSeconds < 0 ||
-                w.Categories.Any(c => c == null) || w.Fields.Any(f => f == null) || w.Increment == 0) throw new InvalidDataException("Invalid widget configuration.");
+                w.Categories.Any(c => c == null) || w.Fields.Any(f => f == null) || w.Increment == 0 ||
+                w.CounterMode is not ("Standard" or "Distraction") || w.DisplayMode is not ("Auto" or "Compact" or "Expanded") || w.WaterBottleGoal is < 1 or > 100) throw new InvalidDataException("Invalid widget configuration.");
             if (w.PanelKey.Length > 0 && (!new[] { "pixels", "setup", "timeline", "notes", "tasks", "hedy" }.Contains(w.PanelKey) || !panels.Add(w.PanelKey))) throw new InvalidDataException("Invalid linked panel.");
         }
     }

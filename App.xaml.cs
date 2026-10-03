@@ -38,7 +38,7 @@ public partial class App : Application
                 try
                 {
                     var profile=store.LoadProfile();
-                    if(profile.OnboardingCompleted) { await splash.EnterHome(store); return; }
+                    if(profile.OnboardingCompleted) { var home = await splash.EnterHome(store); _ = CheckStartupUpdatesAsync(store, home); return; }
                     await Task.Delay(600);
                     var welcome=new OnboardingWindow(store) { Owner=splash };
                     splash.Hide();
@@ -63,6 +63,23 @@ public partial class App : Application
         }
     }
     protected override void OnExit(ExitEventArgs e) { workspaceMutex?.Dispose(); base.OnExit(e); }
+    private static async Task CheckStartupUpdatesAsync(StateStore store, Window home)
+    {
+        if (!store.LoadUpdatePreferences().CheckOnStartup) return;
+        try
+        {
+            using var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(12) };
+            var release = await new ExperimentalUpdater(client).CheckAsync(new Version(AppVersion));
+            var preferences = store.LoadUpdatePreferences();
+            var offered = release == null ? "" : release.Version.ToString(3) + " " + release.Channel;
+            var alreadyOffered = preferences.LastOfferedVersion == offered;
+            preferences.LastSuccessfulCheckUtc = DateTimeOffset.UtcNow;
+            preferences.LastOfferedVersion = offered;
+            store.SaveUpdatePreferences(preferences);
+            if (release != null && !alreadyOffered && home.IsVisible) home.Title += $" · {release.Name} available in Settings → Updates";
+        }
+        catch (Exception ex) when (ex is System.Net.Http.HttpRequestException or TaskCanceledException or System.Text.Json.JsonException or InvalidDataException or UnauthorizedAccessException or IOException or KeyNotFoundException or InvalidOperationException or FormatException) { }
+    }
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
     {
         if (MainWindow is MainWindow window && !window.SaveForClose()) e.Cancel = true;

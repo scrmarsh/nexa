@@ -1,5 +1,13 @@
 # Changelog
 
+## Nexa 0.1.12 Alpha — Widget System Cleanup & Experimental Updates (2026-10-03)
+
+The Add Widget library now presents Task List, Notes and Counter in place of overlapping tools. Existing Agenda, Main Passage, Prayer Requests and other compatible widgets retain titles, positions and saved content when opened. Focus Reset is under Mindfulness. Clock and Timer offer Compact and Expanded controls with appropriate minimum sizes.
+
+Settings → Experimental Features → Updates shows the installed version, release notes and a manual release check. Optional startup checks are off by default. Install is offered only for a published GitHub Releases setup asset matching the version and a published SHA-256 digest; the download is verified before an external installer is launched after confirmation. The updater does not modify Nexa's local user store or overwrite its running executable.
+
+The update flow requires a separately published setup installer named `Nexa-{version}-{Alpha|Beta|Stable}-Setup.exe` with a GitHub asset SHA-256 digest. This repository does not yet produce or publish that installer automatically, so live installation awaits such a release asset. Pixel Swarm and the planned 0.1.13 redesign are unchanged.
+
 Development releases formerly numbered 1.0.1–1.0.8 are listed here as 0.1.1–0.1.8 Alpha. Alpha continues with 0.1.10, 0.1.11 and later patches; 0.2.x is reserved for an intentional Beta, and the eventual first stable release is 1.0.0. Original Git history and tags are unchanged.
 
 ## Nexa 0.1.11 Alpha — Bug Fixes, UI Refinements & Pixel Timer Performance (2026-10-03)

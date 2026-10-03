@@ -20,7 +20,7 @@ internal sealed partial class SettingsDialog
         var timed=new CheckBox { Content="Start guided spaces with a timed session",IsChecked=profile.TimedSessions,Margin=new Thickness(0,12,0,8) }; page.Children.Add(timed);
         var minutes=new TextBox { Text=profile.DefaultMinutes.ToString(),MaxLength=5 }; Field(page,"Default session minutes",minutes);
         var tools=new WrapPanel();
-        foreach(var tool in new[] { "Pixel timer","Notes","Clock","Tasks","Focus Reset","Bible","Scripture pins","Agenda","Calendar","Flashcards","Session timeline" }) tools.Children.Add(new CheckBox { Content=tool,IsChecked=profile.PreferredWidgets.Contains(tool),Margin=new Thickness(0,8,12,8) }); Field(page,"Preferred tools",tools);
+        foreach(var tool in new[] { "Pixel timer","Notes","Clock","Task List","Focus Reset","Bible","Scripture pins","Calendar","Flashcards","Session timeline" }) tools.Children.Add(new CheckBox { Content=tool,IsChecked=profile.PreferredWidgets.Contains(tool) || (tool=="Task List" && (profile.PreferredWidgets.Contains("Tasks") || profile.PreferredWidgets.Contains("Agenda"))),Margin=new Thickness(0,8,12,8) }); Field(page,"Preferred tools",tools);
         var status=new TextBlock { Text="Setup: "+(profile.OnboardingCompleted?"Completed":"Not completed"),Margin=new Thickness(0,12,0,12),TextWrapping=TextWrapping.Wrap }; page.Children.Add(status);
         void SaveProfile() => QueueSave("profile", () =>
         {

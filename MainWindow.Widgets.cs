@@ -102,12 +102,18 @@ public partial class MainWindow
             titleEditor.KeyDown+=(_,e)=> { if(e.Key==Key.F2) { ConfigureWidget(widget); e.Handled=true; } };
             var options=new ContextMenu(); var edit=new MenuItem { Header="Edit widget options" }; edit.Click+=(_,_)=>ConfigureWidget(widget); options.Items.Add(edit);
             var focus = new MenuItem { Header = "Focus this widget" }; focus.Click += (_, _) => FocusWidget(widget.Id); options.Items.Add(focus);
+            if (widget.Kind == "Counter")
+            {
+                var distraction = new MenuItem { Header = "Distraction mode", IsCheckable = true, IsChecked = widget.CounterMode == "Distraction" };
+                distraction.Click += (_, _) => { widget.CounterMode = distraction.IsChecked ? "Distraction" : "Standard"; Changed(); SaveNow(); RenderWidgets(); };
+                options.Items.Add(distraction);
+            }
             titleEditor.ContextMenu=options;
             header.Children.Add(titleEditor);
             UIElement content;
             if (widget.Kind == "Pixel timer" && state.Widgets.First(w => w.Kind == "Pixel timer").Id == widget.Id)
             { Detach(PixelPanel); PixelPanel.Margin = new Thickness(0); PixelPanel.Padding = new Thickness(14); PixelPanel.BorderThickness = new Thickness(0); PixelPanel.Background = DashboardBrush("PanelBrush"); content = PixelPanel; }
-            else if (widget.PanelKey.Length > 0 && widget.PanelKey is not ("setup" or "timeline" or "hedy") && legacyPanels.TryGetValue(widget.PanelKey, out var legacy))
+            else if (widget.PanelKey.Length > 0 && widget.PanelKey is not ("setup" or "timeline" or "hedy" or "notes" or "tasks") && legacyPanels.TryGetValue(widget.PanelKey, out var legacy))
             {
                 Detach(legacy); legacy.Margin = new Thickness(0); legacy.Padding = new Thickness(14); legacy.BorderThickness = new Thickness(0); legacy.Background = DashboardBrush("PanelBrush"); content = legacy;
             }
@@ -173,9 +179,26 @@ public partial class MainWindow
     }
     private double RowUnit => 24;
     private double GridUnit => (Math.Max(1, WidgetCanvas.ActualWidth) + WidgetGap) / 20;
-    private int MinimumWidthSteps(WidgetInstance widget) => Math.Clamp((int)Math.Ceiling((Math.Min(WidgetLibrary.Definition(widget.Kind).MinWidth, widget.Span <= 7 ? 240 : double.PositiveInfinity) + WidgetGap) / GridUnit), 1, 20);
+    private int MinimumWidthSteps(WidgetInstance widget) => Math.Clamp((int)Math.Ceiling((Math.Min(WidgetLibrary.MinimumWidth(widget), widget.Span <= 7 && widget.DisplayMode != "Expanded" ? 240 : double.PositiveInfinity) + WidgetGap) / GridUnit), 1, 20);
     private int DisplaySpan(WidgetInstance widget) => WidgetCanvas.ActualWidth < 640 + WidgetGap ? 20 : widget.IsMicro && !expandedMicroWidgets.Contains(widget.Id) ? 4 : Math.Clamp(widget.Span, MinimumWidthSteps(widget), 20);
-    private static double MinimumWidgetHeight(WidgetInstance widget) => WidgetLibrary.Definition(widget.Kind).MinHeight;
+    private static double MinimumWidgetHeight(WidgetInstance widget) => WidgetLibrary.MinimumHeight(widget);
+    private void AddDisplayModeControls(StackPanel panel, WidgetInstance widget)
+    {
+        var modes = new WrapPanel { Margin = new Thickness(0, 6, 0, 0) };
+        foreach (var mode in new[] { "Compact", "Expanded" })
+        {
+            var button = new Button { Content = mode, FontSize = 11, Padding = new Thickness(5, 2, 5, 2), Margin = new Thickness(0, 0, 5, 0), Opacity = widget.DisplayMode == mode ? 1 : .6 };
+            button.Click += (_, _) =>
+            {
+                widget.DisplayMode = mode;
+                widget.Height = Math.Max(widget.Height, WidgetLibrary.MinimumHeight(widget));
+                widget.Span = Math.Max(widget.Span, MinimumWidthSteps(widget));
+                Changed(); RenderWidgets(); SaveNow();
+            };
+            modes.Children.Add(button);
+        }
+        panel.Children.Add(modes);
+    }
     private List<List<WidgetInstance>> WidgetRows()
     {
         var rows = new List<List<WidgetInstance>>();
@@ -420,6 +443,7 @@ public partial class MainWindow
     {
         var panel = new StackPanel { Margin = new Thickness(16, 6, 16, 16) };
         var editor = WidgetLibrary.Definition(widget.Kind).Editor;
+        if (editor == "clock") { panel.VerticalAlignment = VerticalAlignment.Center; panel.Margin = new Thickness(8, 2, 8, 2); }
         switch (editor)
         {
             case "calculator": BuildCalculator(panel, widget); break;
@@ -434,7 +458,7 @@ public partial class MainWindow
                 System.Windows.Automation.AutomationProperties.SetName(text, widget.Title);
                 text.Loaded += (_, _) => FitTextBoxHeight(text, 110);
                 text.SizeChanged += (_, e) => { if (e.WidthChanged) FitTextBoxHeight(text, 110); };
-                text.TextChanged += (_, _) => { widget.Text = text.Text; FitTextBoxHeight(text, 110); Changed(); Dispatcher.BeginInvoke(new Action(ArrangeWidgetFrames)); }; panel.Children.Add(text);
+                text.TextChanged += (_, _) => { widget.Text = text.Text; if (widget.Kind == "Notes" && widget.PanelKey == "notes") state.Notes = text.Text; FitTextBoxHeight(text, 110); Changed(); Dispatcher.BeginInvoke(new Action(ArrangeWidgetFrames)); }; panel.Children.Add(text);
                 if (editor is "bible" or "links")
                 {
                     var open = new Button { Content = editor == "bible" ? "Open passage online" : "Open first link", Margin = new Thickness(0, 10, 0, 0) };
@@ -449,6 +473,16 @@ public partial class MainWindow
                 {
                     var row = new DockPanel { Margin = new Thickness(0, 8, 0, 0) }; var remove = new Button { Content = "×", Padding = new Thickness(6, 2, 6, 2) }; DockPanel.SetDock(remove, Dock.Right); row.Children.Add(remove);
                     remove.Click += (_, _) => { widget.Items.Remove(item); Changed(); RenderWidgets(); };
+                    void MoveItem(int offset)
+                    {
+                        var current = widget.Items.IndexOf(item); var target = current + offset;
+                        if (current < 0 || target < 0 || target >= widget.Items.Count) return;
+                        widget.Items.RemoveAt(current); widget.Items.Insert(target, item); Changed(); RenderWidgets();
+                    }
+                    var down = new Button { Content = "↓", Padding = new Thickness(5, 2, 5, 2), ToolTip = "Move item down" };
+                    down.Click += (_, _) => MoveItem(1); DockPanel.SetDock(down, Dock.Right); row.Children.Add(down);
+                    var up = new Button { Content = "↑", Padding = new Thickness(5, 2, 5, 2), ToolTip = "Move item up" };
+                    up.Click += (_, _) => MoveItem(-1); DockPanel.SetDock(up, Dock.Right); row.Children.Add(up);
                     var check = new CheckBox { Content = new TextBlock { Text = item.Text, TextWrapping = TextWrapping.Wrap }, IsChecked = item.Done }; check.Click += (_, _) => { item.Done = check.IsChecked == true; if (item.Done) PlayInterfaceSound(); Changed(); }; row.Children.Add(check); panel.Children.Add(row);
                 }
                 break;
@@ -462,11 +496,16 @@ public partial class MainWindow
                     var button = new Button { Content = direction == 1 ? "+ " + widget.Increment : "− " + widget.Increment, Margin = new Thickness(3) };
                     button.Click += (_, _) => { try { widget.Value += direction * widget.Increment; number.Text = widget.Value.ToString(CultureInfo.CurrentCulture); Changed(); } catch (OverflowException) { Error("Counter limit reached."); } }; counts.Children.Add(button);
                 }
-                panel.Children.Add(counts); if (widget.Kind == "Distraction counter") AddDistractionMessage(panel, widget); break;
+                panel.Children.Add(counts);
+                var resetCounter = new Button { Content = "Reset", Margin = new Thickness(3, 8, 3, 0), HorizontalAlignment = HorizontalAlignment.Right };
+                resetCounter.Click += (_, _) => { widget.Value = widget.StartingValue; number.Text = widget.Value.ToString(CultureInfo.CurrentCulture); Changed(); };
+                panel.Children.Add(resetCounter);
+                if (widget.CounterMode == "Distraction") AddDistractionMessage(panel, widget);
+                break;
             case "timer": case "stopwatch":
                 BuildTimeWidget(panel, widget, editor == "stopwatch"); break;
             case "clock": case "progress":
-                var label = new TextBlock { FontFamily = new FontFamily("Consolas"), FontSize = 26, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 0, 0, 8) }; panel.Children.Add(label);
+                var label = new TextBlock { FontFamily = new FontFamily("Consolas"), FontSize = 26, HorizontalAlignment = HorizontalAlignment.Center, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 0, 0, 8), TextTrimming = TextTrimming.CharacterEllipsis }; panel.Children.Add(label);
                 if (editor == "clock") label.MouseLeftButtonUp += (_, e) =>
                 {
                     var menu = new ContextMenu();
@@ -479,7 +518,8 @@ public partial class MainWindow
                 if (editor == "clock")
                 {
                     analog = new AnalogClock { Visibility = Visibility.Collapsed, Margin = new Thickness(0, 6, 0, 0) }; panel.Children.Add(analog);
-                    panel.SizeChanged += (_, e) => analog.Visibility = e.NewSize.Width >= 330 && e.NewSize.Height >= 210 ? Visibility.Visible : Visibility.Collapsed;
+                    AddDisplayModeControls(panel, widget);
+                    panel.SizeChanged += (_, e) => { label.FontSize = e.NewSize.Width < 230 ? 20 : e.NewSize.Width < 320 ? 24 : 30; analog.Visibility = widget.DisplayMode == "Compact" ? Visibility.Collapsed : widget.DisplayMode == "Expanded" || e.NewSize.Width >= 330 && e.NewSize.Height >= 210 ? Visibility.Visible : Visibility.Collapsed; };
                 }
                 var progress = new ProgressBar { Minimum = 0, Maximum = 1, Height = 6, Foreground = DashboardBrush("AccentBrush"), Background = DashboardBrush("LineBrush"), BorderThickness = new Thickness(0) };
                 panel.Children.Add(progress);
@@ -616,7 +656,7 @@ public partial class MainWindow
     private static string WidgetIcon(string editor) => editor switch
     {
         "timer" or "stopwatch" => "\uE916", "clock" => "\uE823", "bible" or "scripture" => "\uE736",
-        "counter" => "\uE8EF", "checklist" => "\uE9D5", "tracker" => "\uE80A",
+        "counter" => "\uE8EF", "checklist" or "list" => "\uE9D5", "tracker" => "\uE80A",
         "links" => "\uE71B", "timeline" => "\uE81C", "progress" => "\uE9D9",
         _ => "\uE70B"
     };

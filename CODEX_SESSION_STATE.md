@@ -1,9 +1,12 @@
 # Nexa Codex Session State
 
-## Current Goal
+## Current Goal — 0.1.12 Alpha
+Consolidate overlapping widgets and add opt-in Experimental Updates. Isolated Debug and Release builds pass; `--alpha012` 24 checks, `--continuityaudit` 42, and `--swarm` 37 pass. Release startup probe succeeds. Final Git review/commit remain. Preserve all existing user stores and unrelated dirty files. Update source is official GitHub Releases; a matching setup asset and SHA-256 digest are required. No installer packaging pipeline exists in this repository yet.
+
+## Previous Goal (0.1.11)
 Build Nexa 0.1.11 Alpha — Bug Fixes, UI Refinements & Pixel Timer Performance. Preserve user data and session continuity; no 0.1.12 widget consolidation or 0.1.13 Pixel Swarm redesign.
 
-## Current Phase
+## Previous Phase (0.1.11)
 0.1.11 follow-up implementation and targeted verification complete. Final Git review/commit and launch of the updated build are in progress. No push requested.
 
 ## Nexa 0.1.11 Follow-up

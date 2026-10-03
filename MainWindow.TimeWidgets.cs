@@ -40,6 +40,7 @@ public partial class MainWindow
         });
         Control("Reset", () => { if (stopwatch) { widget.StopwatchElapsedSeconds = 0; widget.StopwatchStartedAt = null; } else widget.TimerStart = widget.TimerEnd = widget.TimerStopped = null; });
         panel.Children.Add(controls);
+        if (!stopwatch) AddDisplayModeControls(panel, widget);
         if (!stopwatch)
         {
             var duration = new WrapPanel { Margin = new Thickness(0, 6, 0, 0) };
@@ -64,7 +65,14 @@ public partial class MainWindow
                 widget.TimerStart = widget.TimerEnd = widget.TimerStopped = null;
                 error.Text = ""; Changed(); SaveNow(); Update(DateTimeOffset.Now);
             };
-            duration.Children.Add(apply); panel.Children.Add(duration); panel.Children.Add(error);
+            duration.Children.Add(apply); duration.Visibility = widget.DisplayMode == "Compact" ? Visibility.Collapsed : Visibility.Visible;
+            panel.Children.Add(duration); panel.Children.Add(error);
+            if (widget.DisplayMode == "Compact")
+            {
+                var editDuration = new Button { Content = "Change duration", Padding = new Thickness(6, 3, 6, 3), HorizontalAlignment = HorizontalAlignment.Left };
+                editDuration.Click += (_, _) => { duration.Visibility = Visibility.Visible; editDuration.Visibility = Visibility.Collapsed; };
+                panel.Children.Add(editDuration);
+            }
         }
         void Update(DateTimeOffset now)
         {

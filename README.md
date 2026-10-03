@@ -1,3 +1,11 @@
+## Nexa 0.1.12 Alpha — Widget System Cleanup & Experimental Updates
+
+Add **Task List** for independent checklists with add, complete, remove and reorder controls; its title can be edited on the card. Notes absorbs Topics and Custom Fields, while Counter includes an optional Distraction mode in its title menu. Old widget kinds migrate when opened, preserving their content and placement. Focus Reset appears under Mindfulness. Clock and Timer provide Compact and Expanded controls, and expanded cards retain usable minimum sizes.
+
+**Settings → Updates** under Experimental Features can check [the official Nexa releases](https://github.com/scrmarsh/SessionDashboard/releases) manually. Startup checks are optional and default off. A newer release can show its notes and download a published `Nexa-{version}-{Alpha|Beta|Stable}-Setup.exe` only when GitHub reports its SHA-256 digest. Nexa checks the download before asking Windows to start the external installer. No background download or automatic install occurs. A setup asset must be published separately; this source tree currently has no installer packaging pipeline.
+
+This release keeps local Spaces, sessions, notes and integration credentials in their existing stores. The updater keeps its preference and verified downloads in an owner-scoped LocalAppData directory. See [validation](VALIDATION.md).
+
 ## Nexa 0.1.11 Alpha — Bug Fixes, UI Refinements & Pixel Timer Performance
 
 The Pixel Timer now keeps even, fixed-size device-aligned pixels while resizing, maximizing and entering fullscreen. Nexa reuses pixel visuals and leaves the running session timestamps alone. Fullscreen returns to the prior window size or maximized state.
@@ -57,7 +65,7 @@ Credentials are encrypted with Windows DPAPI, scoped to the local user, and excl
 
 Nexa helps you stay present in class, study, church or meetings. The existing session clock now powers a full-width Pixel Timer banner with remaining time, total duration, progress and the next interval. **I'm bored** still opens Pixel Swarm across the window; timing and autosave keep running.
 
-New defaults are calm: Class has Notes and Clock; Study/Focus have Notes and Focus Reset; Church has Bible, Notes and Scripture Pins; Meeting has Notes and Agenda. All include the Pixel Timer. Existing Spaces retain their widgets and saved configuration, and the complete widget catalog remains available.
+New defaults are calm: Class has Notes and Clock; Study/Focus have Notes and Focus Reset; Church has Bible, Notes and Scripture Pins; Meeting has Notes and Task List. All include the Pixel Timer. Existing Spaces retain their widgets and saved configuration, and the complete widget catalog remains available.
 
 Drag a grip to move a card directly; cards settle into a compact grid when released. Resize with any card edge or corner. Click the countdown to edit timing, the clock to toggle seconds, or a widget title to rename it. Secondary widget controls appear on hover or keyboard focus.
 
@@ -69,7 +77,7 @@ Common controls use reusable vector icons. A Per-Monitor V2 manifest and WPF lay
 
 # Nexa
 
-Current release: **Nexa 0.1.11 Alpha** · Windows desktop · October 3, 2026
+Current release: **Nexa 0.1.12 Alpha** · Windows desktop · October 3, 2026
 
 **Nexa is a local desktop app for building flexible Spaces with sessions, movable widgets, notes, Scripture, flashcards, recordings and saved history.** Build a Space around the information you need, edit it directly, and continue your saved work later.
 
@@ -149,10 +157,10 @@ The small **DEV** control on Home opens a Space with all available widgets and a
 
 ## Launch and build
 
-A standard Release build writes `bin\Release\net10.0-windows\Nexa.exe`. The updated isolated Nexa 0.1.11 Alpha build is in `bin\Alpha011Final\Nexa.exe`, keeping any running older release undisturbed. Launch it from the project directory:
+A standard Release build writes `bin\Release\net10.0-windows\Nexa.exe`. The isolated Nexa 0.1.12 Alpha build is in `bin\Alpha012\Nexa.exe`, keeping any running older release undisturbed. Launch it from the project directory:
 
 ```powershell
-& '.\bin\Alpha011Final\Nexa.exe'
+& '.\bin\Alpha012\Nexa.exe'
 ```
 
 Build with the .NET 10 SDK:

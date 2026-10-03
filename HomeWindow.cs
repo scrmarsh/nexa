@@ -234,7 +234,7 @@ internal sealed partial class HomeWindow : NexaDialog
                     "Pixel timer" => "pixels",
                     "Session timeline" => "timeline",
                     "Notes" => "notes",
-                    "Tasks" => "tasks",
+                    "Tasks" or "Task List" => "tasks",
                     "Hedy" => "hedy",
                     _ => ""
                 };

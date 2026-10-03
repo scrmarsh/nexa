@@ -39,6 +39,7 @@ internal sealed partial class SettingsDialog : NexaPanel
         nav.Children.Add(new TextBlock { Text = "Experimental Features", Foreground = Brush("MutedBrush"), FontSize = 12, FontWeight = FontWeights.SemiBold, Margin = new Thickness(12, 0, 0, 12) });
         AddPage(nav, "Account & Data", ComingSoon("Account & Data", "Optional account and data tools are in development. Import and export commands remain available from a Space."));
         AddPage(nav, "Integrations", BuildIntegrations());
+        AddPage(nav, "Updates", BuildUpdates());
         Content = root; SelectSection(initialSection);
         InitializeAutosave();
         sessionStatusTimer.Tick += (_, _) =>

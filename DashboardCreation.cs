@@ -79,7 +79,7 @@ internal sealed class DashboardCreation : NexaPanel
             if(chosen.Name=="New Space" && profile?.PreferredWidgets.Contains("Pixel timer")==true) widgetNames=widgetNames.Prepend("Pixel timer");
             foreach (var kind in widgetNames)
             {
-                var key = kind switch { "Pixel timer" => "pixels", "Session controls" => "setup", "Notes" => "notes", "Tasks" => "tasks", "Session timeline" => "timeline", "Hedy" => "hedy", _ => "" };
+                var key = kind switch { "Pixel timer" => "pixels", "Session controls" => "setup", "Notes" => "notes", "Tasks" or "Task List" => "tasks", "Session timeline" => "timeline", "Hedy" => "hedy", _ => "" };
                 var widget = WidgetLibrary.Create(kind, key);
                 if (kind == "Pixel timer") widget.Title = "Timer";
                 data.Widgets.Add(widget);

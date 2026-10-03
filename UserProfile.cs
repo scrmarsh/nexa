@@ -84,8 +84,8 @@ internal static class GuidedSetup
     internal static string[] Recommendations(string type) => type switch
     {
         "Church" => ["Pixel timer", "Bible", "Notes", "Scripture pins"],
-        "Study" => ["Pixel timer", "Notes", "Focus Reset", "Tasks"],
-        "Meeting" => ["Pixel timer", "Notes", "Agenda", "Tasks"],
+        "Study" => ["Pixel timer", "Notes", "Focus Reset", "Task List"],
+        "Meeting" => ["Pixel timer", "Notes", "Task List"],
         "Custom" => ["Pixel timer", "Notes"],
         _ => ["Pixel timer", "Notes", "Clock"]
     };
@@ -93,7 +93,7 @@ internal static class GuidedSetup
     {
         var color=profile.Theme switch { AppTheme.Violet=>"#AA80FF", AppTheme.Aurora=>"#63D8BC", AppTheme.Ember=>"#FFAA70", _=>"#7395FF" };
         var data = new DashboardData { WidgetLayoutInitialized=true, AccentColor=color,PixelColor=color,Draft = new DashboardDraft { Title=name } };
-        foreach(var kind in tools.Distinct()) data.Widgets.Add(WidgetLibrary.Create(kind,kind switch { "Pixel timer"=>"pixels", "Notes"=>"notes", "Tasks"=>"tasks", "Session timeline"=>"timeline", _=>"" }));
+        foreach(var kind in tools.Distinct()) data.Widgets.Add(WidgetLibrary.Create(kind,kind switch { "Pixel timer"=>"pixels", "Notes"=>"notes", "Tasks" or "Task List"=>"tasks", "Session timeline"=>"timeline", _=>"" }));
         WidgetLibrary.Arrange(data.Widgets,false);
         if(profile.TimedSessions) { var now=DateTimeOffset.Now; data.Session=new Session { Title=name, Start=now, End=now.AddMinutes(profile.DefaultMinutes), ConfiguredDurationMinutes=profile.DefaultMinutes, IntervalMinutes=5 }; }
         return Continuity.NewDashboard(name,profile.PreferredDashboard,data,userId);
