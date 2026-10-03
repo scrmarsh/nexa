@@ -1,3 +1,15 @@
+## Nexa 1.0.8 — Widget + Dashboard Stability (2026-10-03)
+
+- Responsive Pixel Timer canvas reaches both usable edges with more/fewer square pixels; optional Circle shape uses the same session clock. Duration and progress sit left, pixels right, and I'm bored bottom left. Interval data remains; permanent interval UI is removed. Completion stays in the theme color without white glow or flashing.
+- Pixel Swarm uses the dashboard palette while session timing and autosave continue.
+- Active resize anchors the selected widget and pushes neighbors; drops, clicked-location additions and generated previews share grid packing. Existing layouts are preserved until edited; no placement schema change.
+- Remove-widget toast provides ten-second Undo, Ctrl+Z and Ctrl+Shift+Z redo. Text editing retains its own undo. Removed notes/tasks remain in local data and history.
+- Dashboard-only save spinner and successful local-time stamp; hidden scrollbar chrome, full-screen top spacing, secondary Home profile greeting and functional persisted image backgrounds.
+- Settings / Widgets includes pixel shape, optional slow focus backdrop pulse and distraction escalation. Advanced card options remain available by double-click, F2 or right-click on the editable title; dedicated Configure buttons are gone. Developer settings can play the existing completion chime with master sound preferences respected.
+- Stopwatch adds milliseconds and a matching analog display using shared timestamp-based elapsed time. Calculator supports arithmetic, decimals, postfix percent, keyboard input, copy and eight recent calculations.
+- Standalone Session Timeline defaults to its correct name, supports local manual entries and retains interval access. Recommended shortcuts lead Add Widget. Hedy Notes is separate; legacy Hedy widgets are renamed in place without merging or deleting content. Hedy settings and old links route to Integrations.
+- Audio Recorder surfaces the existing Windows recorder with consent, pause/resume/stop, elapsed/status, owner-scoped unique local files and Timeline entries. Failed capture saves can be retried; close/switch finalizes audio in the outgoing session. No audio is uploaded. Transcription/summary interfaces are foundation only; no provider or credentials are invented.
+- Preferences and new entry/history fields load additively. No onboarding/Create Space redesign, database reset, new dependency or integration-account migration.
 ## Nexa 1.0.7 — Lightweight UI & Interaction Polish (2026-10-03)
 
 - Stationary Settings button with a recognizable centered vector gear that alone rotates on hover.

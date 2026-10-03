@@ -47,12 +47,12 @@ public partial class MainWindow
         var stack = new StackPanel { VerticalAlignment=VerticalAlignment.Center, HorizontalAlignment=HorizontalAlignment.Center, MaxWidth=620 };
         stack.Children.Add(message);
         var cancel = new Button { Content="Return to session", HorizontalAlignment=HorizontalAlignment.Center, Margin=new Thickness(0,20,0,0) }; stack.Children.Add(cancel);
-        var overlay = new Border { Background=new SolidColorBrush(Color.FromArgb(235,12,17,28)), Child=stack };
+        var overlay = new Border { Background=FocusBackdropBrush(), Child=stack };
         focusOverlay=overlay; root.Children.Add(overlay); Panel.SetZIndex(overlay,4000);
         var elapsed=System.Diagnostics.Stopwatch.StartNew();
         var guide=new DispatcherTimer { Interval=TimeSpan.FromMilliseconds(200) };
         var recapped=false;
-        void Stop(object? s, EventArgs args) { guide.Stop(); elapsed.Stop(); root.Children.Remove(overlay); focusOverlay=null; Closed-=Stop; UpdateClock(); }
+        void Stop(object? s, EventArgs args) { guide.Stop(); elapsed.Stop(); overlay.Background.BeginAnimation(System.Windows.Media.Brush.OpacityProperty, null); root.Children.Remove(overlay); focusOverlay=null; Closed-=Stop; UpdateClock(); }
         void Advance()
         {
             var seconds=elapsed.Elapsed.TotalSeconds;
@@ -62,7 +62,7 @@ public partial class MainWindow
             {
                 recapped=true;
                 var remaining=state.Session?.Remaining(DateTimeOffset.Now);
-                var notes=new[] { state.Notes,HedyTranscriptBox.Text }.Concat(state.Widgets.Where(w=>w.Kind is "Notes" or "Hedy" or "Session timeline").Select(w=>w.Text));
+                var notes=new[] { state.Notes,HedyTranscriptBox.Text }.Concat(state.Widgets.Where(w=>w.Kind is "Notes" or "Hedy" or "Hedy Notes" or "Session timeline").Select(w=>w.Text));
                 var last=notes.Where(n=>!string.IsNullOrWhiteSpace(n)).SelectMany(n=>n.Split('\n',StringSplitOptions.RemoveEmptyEntries)).LastOrDefault()?.Trim();
                 if(last?.Length>180) last=last[..180]+"...";
                 message.Text="You're back.\n"+(remaining.HasValue ? $"{Math.Ceiling(remaining.Value.TotalMinutes):0} minutes left.\n" : "")+(last==null ? state.Session?.Title ?? TitleInput.Text : "Last note:\n"+last);

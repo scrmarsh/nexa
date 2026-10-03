@@ -10,11 +10,14 @@ namespace SessionDashboard;
 
 public partial class MainWindow
 {
-    private const string RecorderAlias = "NexaLocalRecorder";
+    private readonly string RecorderAlias = "NexaLocal_" + Guid.NewGuid().ToString("N");
     private readonly DispatcherTimer recordingTimer = new() { Interval = TimeSpan.FromSeconds(1) };
     private DateTimeOffset recordingStarted;
     private double recordedBeforePause;
     private bool recordingActive, recordingPaused, microphoneConsentGranted;
+    private Session? recordingSession;
+    internal Func<string, int> RecordingCommand = Command;
+    private string RecordingFolder => Path.Combine(Path.GetDirectoryName(store.FilePath)!, "Recordings", Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(store.UserId)))[..16]);
     [DllImport("winmm.dll", CharSet = CharSet.Unicode)] private static extern int mciSendString(string command, StringBuilder? buffer, int bufferSize, IntPtr callback);
 
     private void InitializeLocalRecording()
@@ -29,13 +32,13 @@ public partial class MainWindow
     }
     private void UpdateRecordingSource()
     {
-        var local = NotesSourcePicker.SelectedIndex == 1; HedyControls.Visibility = local ? Visibility.Collapsed : Visibility.Visible; LocalRecordingControls.Visibility = local ? Visibility.Visible : Visibility.Collapsed;
-        if (local && state.Session is { } session && !string.IsNullOrWhiteSpace(session.LocalRecordingPath)) RecordingStatus.Text = "Saved locally · " + Path.GetFileName(session.LocalRecordingPath);
+        var local = NotesSourcePicker.SelectedIndex == 1; HedyControls.Visibility = Visibility.Visible; LocalRecordingControls.Visibility = local ? Visibility.Visible : Visibility.Collapsed;
+        if (!recordingActive) RecordingStatus.Text = state.Session is { } session && !string.IsNullOrWhiteSpace(session.LocalRecordingPath) ? "Saved locally · " + Path.GetFileName(session.LocalRecordingPath) : "Ready · Start a session, then Record.";
     }
     private void StartLocalRecordingClick(object sender, RoutedEventArgs e)
     {
         if (state.Session is not { } session) { RecordingStatus.Text = "Start or resume a session before recording."; return; }
-        if (recordingPaused) { if (Command($"record {RecorderAlias}") == 0) { recordingPaused = false; recordingStarted = DateTimeOffset.Now; recordingTimer.Start(); PauseRecordingButton.Content = "Pause"; RecordingStatus.Text = "Microphone active · Recording"; } return; }
+        if (recordingPaused) { if (RecordingCommand($"record {RecorderAlias}") == 0) { recordingPaused = false; recordingStarted = DateTimeOffset.Now; recordingTimer.Start(); PauseRecordingButton.Content = "Pause"; RecordingStatus.Text = "Microphone active · Recording"; MicrophoneIndicator.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "AccentBrush"); } return; }
         if (recordingActive) return;
         if (!microphoneConsentGranted)
         {
@@ -52,8 +55,10 @@ public partial class MainWindow
     }
     private void BeginLocalRecording()
     {
-        Command($"close {RecorderAlias}"); var open = Command($"open new type waveaudio alias {RecorderAlias}"); if (open != 0) { RecordingStatus.Text = "Microphone could not be opened. Check Windows microphone permission."; return; }
-        if (Command($"record {RecorderAlias}") != 0) { Command($"close {RecorderAlias}"); RecordingStatus.Text = "Recording could not start. Check Windows microphone permission."; return; }
+        if (state.Session == null || recordingActive) return;
+        RecordingCommand($"close {RecorderAlias}"); var open = RecordingCommand($"open new type waveaudio alias {RecorderAlias}"); if (open != 0) { RecordingStatus.Text = "Microphone could not be opened. Check Windows microphone permission."; return; }
+        if (RecordingCommand($"record {RecorderAlias}") != 0) { RecordingCommand($"close {RecorderAlias}"); RecordingStatus.Text = "Recording could not start. Check Windows microphone permission."; return; }
+        recordingSession = state.Session;
         recordingActive = true; recordingPaused = false; recordedBeforePause = 0; recordingStarted = DateTimeOffset.Now; recordingTimer.Start(); RecordButton.IsEnabled = false; PauseRecordingButton.IsEnabled = StopRecordingButton.IsEnabled = true; PauseRecordingButton.Content = "Pause"; RecordingStatus.Text = "Microphone active · Recording"; MicrophoneIndicator.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "AccentBrush");
     }
     private void PauseLocalRecordingClick(object sender, RoutedEventArgs e)
@@ -61,30 +66,40 @@ public partial class MainWindow
         if (!recordingActive) return;
         if (!recordingPaused)
         {
-            if (Command($"pause {RecorderAlias}") != 0) return; recordedBeforePause += (DateTimeOffset.Now - recordingStarted).TotalSeconds; recordingPaused = true; recordingTimer.Stop(); PauseRecordingButton.Content = "Resume"; RecordingStatus.Text = "Recording paused"; MicrophoneIndicator.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "MutedBrush");
+            if (RecordingCommand($"pause {RecorderAlias}") != 0) return; recordedBeforePause += (DateTimeOffset.Now - recordingStarted).TotalSeconds; recordingPaused = true; recordingTimer.Stop(); PauseRecordingButton.Content = "Resume"; RecordingStatus.Text = "Recording paused"; MicrophoneIndicator.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "MutedBrush");
         }
         else StartLocalRecordingClick(sender, e);
     }
     private void StopLocalRecordingClick(object sender, RoutedEventArgs e) => StopLocalRecording(true);
-    private void StopLocalRecording(bool save)
+    private bool StopLocalRecording(bool save)
     {
-        if (!recordingActive) return; if (!recordingPaused) recordedBeforePause += (DateTimeOffset.Now - recordingStarted).TotalSeconds; recordingTimer.Stop(); Command($"stop {RecorderAlias}");
-        if (save && state.Session is { } session)
+        if (!recordingActive) return true;
+        if (RecordingCommand($"stop {RecorderAlias}") != 0) { RecordingStatus.Text = "Could not stop the recorder. Try again."; return false; }
+        if (!recordingPaused) recordedBeforePause += (DateTimeOffset.Now - recordingStarted).TotalSeconds;
+        recordingPaused = true; recordingTimer.Stop(); PauseRecordingButton.Content = "Resume";
+        if (save && recordingSession is { } session)
         {
-            var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SessionDashboard", "Recordings"); Directory.CreateDirectory(folder); var path = Path.Combine(folder, Continuity.Current(state.Workspace!, store.UserId).Current.SessionId + ".wav");
-            if (Command($"save {RecorderAlias} \"{path}\"") == 0) { session.LocalRecordingPath = path; session.LocalRecordingSeconds = recordedBeforePause; RecordingStatus.Text = "Saved locally · " + Path.GetFileName(path); Changed(); SaveNow(); } else RecordingStatus.Text = "The recording could not be saved.";
+            try
+            {
+                Directory.CreateDirectory(RecordingFolder); var path = Path.Combine(RecordingFolder, Guid.NewGuid() + ".wav");
+                if (RecordingCommand($"save {RecorderAlias} \"{path}\"") != 0) { RecordingStatus.Text = "Recording is held in memory. Could not save; try Stop again."; return false; }
+                session.LocalRecordingPath = path; session.LocalRecordingSeconds = recordedBeforePause;
+                session.TimelineEntries.Add(new() { Source = "recorder", AudioPath = path, Text = $"Local audio · {TimeSpan.FromSeconds(recordedBeforePause):hh\\:mm\\:ss} · {Path.GetFileName(path)}" });
+                RecordingStatus.Text = "Saved locally · " + Path.GetFileName(path); Changed(); SaveNow();
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException) { RecordingStatus.Text = "Recording is held in memory. Could not save; try Stop again."; return false; }
         }
-        Command($"close {RecorderAlias}"); recordingActive = recordingPaused = false; RecordButton.IsEnabled = true; PauseRecordingButton.IsEnabled = StopRecordingButton.IsEnabled = false; PauseRecordingButton.Content = "Pause"; MicrophoneIndicator.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "MutedBrush"); UpdateRecordingStatus();
+        RecordingCommand($"close {RecorderAlias}"); recordingSession = null; recordingActive = recordingPaused = false; RecordButton.IsEnabled = true; PauseRecordingButton.IsEnabled = StopRecordingButton.IsEnabled = false; PauseRecordingButton.Content = "Pause"; MicrophoneIndicator.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "MutedBrush"); UpdateRecordingStatus(); return true;
     }
     private void DeleteLocalRecordingClick(object sender, RoutedEventArgs e)
     {
-        if (recordingActive) StopLocalRecording(false); if (state.Session is not { } session) return;
-        try { if (!string.IsNullOrWhiteSpace(session.LocalRecordingPath) && File.Exists(session.LocalRecordingPath)) File.Delete(session.LocalRecordingPath); session.LocalRecordingPath = ""; session.LocalRecordingSeconds = 0; session.HedyTranscript = ""; session.HedyIntervalNotes.Clear(); HedyTranscriptBox.Clear(); RecordingStatus.Text = "Recording and transcript deleted."; Changed(); SaveNow(); BuildTimeline(); }
+        if (recordingActive && !StopLocalRecording(false)) return; if (state.Session is not { } session) return;
+        try { if (!string.IsNullOrWhiteSpace(session.LocalRecordingPath) && File.Exists(session.LocalRecordingPath)) { var path = Path.GetFullPath(session.LocalRecordingPath); if (!path.StartsWith(Path.GetFullPath(RecordingFolder) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) { RecordingStatus.Text = "Manage this legacy recording in its original folder."; return; } File.Delete(path); } session.LocalRecordingPath = ""; session.LocalRecordingSeconds = 0; RecordingStatus.Text = "Recording deleted. Session notes are preserved."; Changed(); SaveNow(); BuildTimeline(); }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { RecordingStatus.Text = "The local recording could not be deleted: " + ex.Message; }
     }
     private void UpdateRecordingStatus()
     {
-        var seconds = recordedBeforePause + (recordingActive && !recordingPaused ? (DateTimeOffset.Now - recordingStarted).TotalSeconds : 0); RecordingElapsed.Text = TimeSpan.FromSeconds(seconds).ToString(@"mm\:ss");
+        var seconds = recordingActive ? recordedBeforePause + (!recordingPaused ? Math.Max(0, (DateTimeOffset.Now - recordingStarted).TotalSeconds) : 0) : state.Session?.LocalRecordingSeconds ?? 0; RecordingElapsed.Text = TimeSpan.FromSeconds(seconds).ToString(@"hh\:mm\:ss");
     }
     private static int Command(string command) => mciSendString(command, null, 0, IntPtr.Zero);
 }

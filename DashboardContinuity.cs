@@ -214,6 +214,7 @@ public static class Continuity
             var details = string.Join("\n", timer.IntervalNotes.OrderBy(p => p.Key).Select(p => $"Interval {p.Key + 1}: {p.Value}")
                 .Concat(timer.HedyIntervalNotes.OrderBy(p => p.Key).Select(p => $"Hedy interval {p.Key + 1}: {p.Value}")));
             details = Append(details, timer.HedyTranscript);
+            details = Append(details, string.Join("\n", timer.TimelineEntries.Select(e => $"{e.CreatedAt.LocalDateTime:g} · {e.Source}: {e.Text}")));
             if (!string.IsNullOrWhiteSpace(details)) data.Notes = Append(data.Notes, $"From {source.Title} ({source.OpenedAt.LocalDateTime:g})\n{details}");
         }
         if (includeConfiguration)
@@ -272,6 +273,8 @@ public static class Continuity
             throw new InvalidDataException("Dashboard data contains missing or invalid values.");
         if (data.Session is { } s && (!InputRules.ValidSession(s) || s.IntervalNotes == null || s.HedyIntervalNotes == null || s.IntervalSummaries == null || s.ReachedMilestones == null || s.HedyTranscript == null || s.HedyBaseline == null))
             throw new InvalidDataException("Dashboard timer or interval notes are invalid.");
+        if (data.Session is { } session && (session.TimelineEntries == null || session.TimelineEntries.Count > 10000 || session.TimelineEntries.Any(e => e == null || e.Id == Guid.Empty || e.Text == null || e.Source == null || e.AudioPath == null || e.Text.Length > 1000000 || e.Source.Length > 100 || e.AudioPath.Length > 32768)))
+            throw new InvalidDataException("Session timeline entries are invalid.");
         WidgetLibrary.Validate(data);
     }
     internal static bool RecoverSnapshots(WorkspaceDocument workspace, string userId)

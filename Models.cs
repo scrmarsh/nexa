@@ -38,6 +38,7 @@ public sealed class Session
     public string NotesSource { get; set; } = "Hedy";
     public string LocalRecordingPath { get; set; } = "";
     public double LocalRecordingSeconds { get; set; }
+    public List<TimelineEntry> TimelineEntries { get; set; } = [];
     public double Progress(DateTimeOffset now) => End <= Start ? 0 : Math.Clamp(((StoppedAt ?? now) - Start).TotalSeconds / (End - Start).TotalSeconds, 0, 1);
     public TimeSpan Elapsed(DateTimeOffset now) => TimeSpan.FromSeconds(Progress(now) * (End - Start).TotalSeconds);
     public TimeSpan Remaining(DateTimeOffset now) => StoppedAt != null || now >= End ? TimeSpan.Zero : (now < Start ? Start - now : End - now);
@@ -63,6 +64,10 @@ public class DashboardData
     public bool FocusNudgesEnabled { get; set; }
     public bool InterfaceSoundsEnabled { get; set; }
     public double InterfaceSoundVolume { get; set; } = .25;
+    public string PixelShape { get; set; } = "Square";
+    public bool DistractionEscalationEnabled { get; set; } = true;
+    public bool FocusPulseEnabled { get; set; }
+    public double FocusPulseIntensity { get; set; } = .85;
     public Session? Session { get; set; }
     public string Notes { get; set; } = "";
     public List<TaskItem> Tasks { get; set; } = [];
@@ -135,19 +140,27 @@ public sealed partial class StateStore
             if (preferences == null) return;
             state.InterfaceSoundsEnabled=preferences.Sounds; state.FocusNudgesEnabled=preferences.Nudges;
             state.InterfaceSoundVolume=double.IsFinite(preferences.Volume) ? Math.Clamp(preferences.Volume,0,1) : .25;
+            state.PixelShape=preferences.PixelShape == "Circle" ? "Circle" : "Square";
+            state.DistractionEscalationEnabled=preferences.DistractionEscalation;
+            state.FocusPulseEnabled=preferences.FocusPulse;
+            state.FocusPulseIntensity=double.IsFinite(preferences.PulseIntensity) ? Math.Clamp(preferences.PulseIntensity,.5,.95) : .85;
         }
         catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or JsonException) { }
     }
     internal void SaveInteractionPreferences(DashboardData state)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(InteractionPreferencesPath)!);
-        AtomicWrite(InteractionPreferencesPath,JsonSerializer.Serialize(new InteractionPreferences { Sounds=state.InterfaceSoundsEnabled,Nudges=state.FocusNudgesEnabled,Volume=state.InterfaceSoundVolume },Options),false);
+        AtomicWrite(InteractionPreferencesPath,JsonSerializer.Serialize(new InteractionPreferences { Sounds=state.InterfaceSoundsEnabled,Nudges=state.FocusNudgesEnabled,Volume=state.InterfaceSoundVolume,PixelShape=state.PixelShape,DistractionEscalation=state.DistractionEscalationEnabled,FocusPulse=state.FocusPulseEnabled,PulseIntensity=state.FocusPulseIntensity },Options),false);
     }
     private sealed class InteractionPreferences
     {
         public bool Sounds { get; set; }
         public bool Nudges { get; set; }
         public double Volume { get; set; } = .25;
+        public string PixelShape { get; set; } = "Square";
+        public bool DistractionEscalation { get; set; } = true;
+        public bool FocusPulse { get; set; }
+        public double PulseIntensity { get; set; } = .85;
     }
     public ThemeMode LoadThemeMode()
     {

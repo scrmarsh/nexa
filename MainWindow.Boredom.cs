@@ -31,6 +31,7 @@ public partial class MainWindow
             Detach(StoryArea); StoryArea.MinHeight = 0; SwarmGameZone.Children.Add(StoryArea);
             DashboardShell.Visibility = Visibility.Hidden;
             SwarmGameZone.Visibility = Visibility.Visible;
+            SwarmGameZone.Background=DashboardBrush("BackgroundBrush");
         }
         swarmGame?.Clear(); swarmGame = new PixelSwarmGame(timerPixels: swarmSeeds);
         storyOpen = true; PixelArea.Visibility = Visibility.Collapsed; StoryArea.Visibility = Visibility.Visible;
@@ -78,10 +79,10 @@ public partial class MainWindow
         if (swarmGame.Won && swarmResult.Visibility != Visibility.Visible) PlayInterfaceSound();
         UpdateSwarmScore(); boredomTicker.Stop(); swarmPauseText!.Visibility = Visibility.Collapsed;
         var stack = new StackPanel { Margin = new Thickness(28) };
-        stack.Children.Add(new TextBlock { Text = swarmGame.Won ? "Swarm cleared" : "Game over", Foreground = Brush("TextBrush"),
+        stack.Children.Add(new TextBlock { Text = swarmGame.Won ? "Swarm cleared" : "Game over", Foreground = DashboardBrush("TextBrush"),
             FontSize = 30, FontWeight = FontWeights.SemiBold, HorizontalAlignment = HorizontalAlignment.Center });
         stack.Children.Add(new TextBlock { Text = $"Score: {swarmGame.Score:N0}\nTime: {SurvivalText(swarmGame.Survived)}",
-            Foreground = Brush("TextBrush"), Margin = new Thickness(0, 12, 0, 18), TextAlignment = TextAlignment.Center, FontSize = 18 });
+            Foreground = DashboardBrush("TextBrush"), Margin = new Thickness(0, 12, 0, 18), TextAlignment = TextAlignment.Center, FontSize = 18 });
         var controls = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
         var retry = new Button { Content = swarmGame.Won ? "Play again" : "Retry", MinWidth = 100, Margin = new Thickness(0, 0, 8, 0) };
         retry.Click += (_, _) => StartPixelSwarm(); controls.Children.Add(retry);
@@ -93,12 +94,12 @@ public partial class MainWindow
         if (swarmGame == null) return;
         StoryArea.Children.Clear();
         var root = new Grid { ClipToBounds = true };
-        swarmArena = new SwarmArena(swarmGame, ((SolidColorBrush)Brush("AccentBrush")).Color);
+        swarmArena = new SwarmArena(swarmGame, ((SolidColorBrush)DashboardBrush("AccentBrush")).Color,((SolidColorBrush)DashboardBrush("BackgroundBrush")).Color,((SolidColorBrush)DashboardBrush("TextBrush")).Color);
         swarmArena.SizeChanged += (_, _) => UpdateSwarmScore();
         root.Children.Add(swarmArena);
         swarmArena.MouseLeftButtonDown += (_, e) => { swarmGame?.Fire(); e.Handled = true; };
-        var hud = Brush("PanelBrush").Clone(); hud.Opacity = .9;
-        swarmScoreText = new TextBlock { Foreground = Brush("TextBrush"), FontWeight = FontWeights.SemiBold, FontSize = 13,
+        var hud = DashboardBrush("PanelBrush").Clone(); hud.Opacity = .9;
+        swarmScoreText = new TextBlock { Foreground = DashboardBrush("TextBrush"), FontWeight = FontWeights.SemiBold, FontSize = 13,
             Margin = new Thickness(14), Padding = new Thickness(10, 7, 10, 7), TextWrapping = TextWrapping.Wrap,
             HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top,
             Background = hud, IsHitTestVisible = false };
@@ -106,17 +107,17 @@ public partial class MainWindow
         var back = new Button { Content = "Back to timer", HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(14) };
         back.Click += (_, _) => ExitBoredomMode(); root.Children.Add(back);
         var hint = new TextBlock { Text = "Move to dodge · Click or hold to fire at the nearest pixel · Collect white dots · Clear the swarm after 90 seconds",
-            Foreground = Brush("TextBrush"), FontSize = 12, Background = hud,
+            Foreground = DashboardBrush("TextBrush"), FontSize = 12, Background = hud,
             Padding = new Thickness(10, 6, 10, 6), Margin = new Thickness(10), TextWrapping = TextWrapping.Wrap,
             HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Bottom, IsHitTestVisible = false };
         root.Children.Add(hint);
         swarmPauseText = new TextBlock { Text = "Move inside the window to play\nThe session timer keeps running while the game is paused.",
-            Foreground = Brush("TextBrush"), Background = hud, Padding = new Thickness(18),
+            Foreground = DashboardBrush("TextBrush"), Background = hud, Padding = new Thickness(18),
             TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center, IsHitTestVisible = false };
         root.Children.Add(swarmPauseText);
-        swarmResult = new Border { Background = Brush("PanelBrush"), CornerRadius = new CornerRadius(14),
-            BorderBrush = Brush("LineBrush"), BorderThickness = new Thickness(1), HorizontalAlignment = HorizontalAlignment.Center,
+        swarmResult = new Border { Background = DashboardBrush("PanelBrush"), CornerRadius = new CornerRadius(14),
+            BorderBrush = DashboardBrush("LineBrush"), BorderThickness = new Thickness(1), HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center, Visibility = Visibility.Collapsed };
         root.Children.Add(swarmResult); StoryArea.Children.Add(root); UpdateSwarmScore();
         if (swarmGame.Finished) ShowSwarmResult();

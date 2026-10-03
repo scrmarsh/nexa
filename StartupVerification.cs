@@ -38,7 +38,7 @@ internal static class StartupVerification
                     bitmap.Render(content);
                     var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
                     using (var stream = File.Create(Path.Combine(directory, "startup.png"))) encoder.Save(stream);
-                    if (window.PixelGrid.Children.Count != 540 || window.PresetPicker.Items.Count != 4) throw new InvalidOperationException("Startup controls did not initialize.");
+                    if (window.PixelGrid.Children.Count == 0 || window.PixelGrid.Children.OfType<System.Windows.Controls.Border>().Any(p => Math.Abs(p.Width - p.Height) > .01) || window.PresetPicker.Items.Count != 4) throw new InvalidOperationException("Startup controls did not initialize.");
                     var bibleVerses = BibleLibrary.Translations.ToDictionary(t => t, t => BibleLibrary.Load(t).Verses.Count);
                     if (bibleVerses.Values.Any(count => count < 30000)) throw new InvalidOperationException("Packaged Bible resources are incomplete.");
                     File.WriteAllText(Path.Combine(directory, "startup.json"), JsonSerializer.Serialize(new { Success = true, window.Title, Pixels = window.PixelGrid.Children.Count, Presets = window.PresetPicker.Items.Count, Width = content.ActualWidth, Height = content.ActualHeight, BibleVerses = bibleVerses, ProcessArchitecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString() }, new JsonSerializerOptions { WriteIndented = true }));

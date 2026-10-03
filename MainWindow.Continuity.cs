@@ -69,10 +69,15 @@ public partial class MainWindow
     }
     private void ShowSaveStatus(string text, bool fade = false, bool warning = false)
     {
+        var saving=text=="Auto-saving...";
+        var rotation=(RotateTransform)SaveSpinner.RenderTransform;
+        rotation.BeginAnimation(RotateTransform.AngleProperty,null);
+        SaveSpinner.Visibility=saving ? Visibility.Visible : Visibility.Collapsed;
+        if(saving) rotation.BeginAnimation(RotateTransform.AngleProperty,new DoubleAnimation(0,360,TimeSpan.FromSeconds(1.1)) { RepeatBehavior=RepeatBehavior.Forever });
+        if(text=="saved") { lastSuccessfulSaveAt=DateTimeOffset.Now; text="Auto-saved · Saved at "+lastSuccessfulSaveAt.Value.LocalDateTime.ToString("t"); }
         SaveStatus.BeginAnimation(OpacityProperty, null);
         SaveStatus.Text = text; SaveStatus.Opacity = 1;
         SaveStatus.Foreground = warning ? Brushes.SandyBrown : Brush("MutedBrush");
-        if (fade) SaveStatus.BeginAnimation(OpacityProperty, new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(450)) { BeginTime = TimeSpan.FromSeconds(3) });
     }
     internal async Task SaveInBackground()
     {
@@ -82,14 +87,14 @@ public partial class MainWindow
         {
             CaptureDraft();
             var payload = store.Prepare(state);
-            ShowSaveStatus("◌  Autosaving…");
+            ShowSaveStatus("Auto-saving...");
             pendingWrite = Task.Run(() => store.Write(payload));
             await pendingWrite.ConfigureAwait(false);
             await Dispatcher.InvokeAsync(() =>
             {
                 if (closing || ticket != saveTicket) return;
                 if (version == revision) dirty = false;
-                ShowSaveStatus("✓  Autosaved", fade: true);
+                ShowSaveStatus("saved");
             });
         }
         catch (Exception ex) when (SaveException(ex))
@@ -104,6 +109,7 @@ public partial class MainWindow
     }
     internal bool SaveForClose()
     {
+        if (!StopLocalRecording(true)) return false;
         state.Workspace!.CleanShutdown = true;
         var now = DateTimeOffset.Now;
         foreach (var d in state.Workspace.Dashboards) d.Current.ClosedAt = now;
@@ -132,10 +138,19 @@ public partial class MainWindow
         return Continuity.Activate(copy, store.UserId, state.HedyRegion, state.HedyProtectedKey);
     }
     // All destructive transitions commit a detached candidate before changing the live editor.
-    internal bool CommitWorkspace(WorkspaceDocument candidate, bool preserveWindow = false)
+    internal bool CommitWorkspace(WorkspaceDocument candidate, bool preserveWindow = false, bool preserveWidgetUndo = false)
     {
         try
         {
+            var keepRecording = recordingActive && preserveWidgetUndo && candidate.ActiveDashboardId == state.Workspace!.ActiveDashboardId && Continuity.Current(candidate, store.UserId).Current.Data.Widgets.Any(w => w.Kind == "Audio Recorder");
+            if (recordingActive && !keepRecording)
+            {
+                var recorded = recordingSession;
+                if (!StopLocalRecording(true)) return false;
+                if (recorded != null)
+                    foreach (var target in candidate.Dashboards.Where(d => d.DashboardId == state.Workspace!.ActiveDashboardId).SelectMany(d => d.History.Append(d.Current)).Select(s => s.Data.Session).Where(s => s != null && s.Start == recorded.Start && s.End == recorded.End && s.Title == recorded.Title))
+                    { target!.LocalRecordingPath = recorded.LocalRecordingPath; target.LocalRecordingSeconds = recorded.LocalRecordingSeconds; foreach (var entry in recorded.TimelineEntries.Where(e => e.Source == "recorder")) if (!target.TimelineEntries.Any(e => e.Id == entry.Id)) target.TimelineEntries.Add(Continuity.Clone(entry)); }
+            }
             var next = Continuity.Activate(candidate, store.UserId, state.HedyRegion, state.HedyProtectedKey);
             store.LoadInteractionPreferences(next);
             if (preserveWindow) { next.WindowWidth = fullWidth; next.WindowHeight = fullHeight; next.Compact = state.Compact; }
@@ -143,7 +158,10 @@ public partial class MainWindow
             store.Save(next);
             if (storyOpen) ExitBoredomMode();
             CloseNoteEditors(); PauseHedySync();
+            if(state.Workspace?.ActiveDashboardId!=next.Workspace?.ActiveDashboardId || !preserveWidgetUndo && Continuity.Current(state.Workspace!,store.UserId).Current.SessionId != Continuity.Current(next.Workspace!,store.UserId).Current.SessionId) { widgetUndo.Clear(); widgetRedo.Clear(); FadeWidgetToast(null,EventArgs.Empty); }
             ready = false; state = next; revision++; saveTicket++; dirty = false; saveDelay.Stop();
+            if (keepRecording) recordingSession = state.Session;
+            UpdateRecordingSource(); UpdateRecordingStatus();
             NotesBox.Text = state.Notes; NotesToggle.IsChecked = state.ShowNotes; ChecklistToggle.IsChecked = state.ShowChecklist;
             PinToggle.IsChecked = state.AlwaysOnTop; AccentInput.Text = state.AccentColor; PixelInput.Text = state.PixelColor;
             RefreshPresets(state.Presets.FirstOrDefault()?.Id); RestoreDraft();
@@ -156,7 +174,7 @@ public partial class MainWindow
             UpdateClock();
             if (widgetsReady) { editingDashboard = false; RenderWidgets(); }
             if (storyOpen) RenderStory();
-            ShowSaveStatus("✓  Autosaved", fade: true);
+            ShowSaveStatus("saved");
             return true;
         }
         catch (Exception ex) when (SaveException(ex))

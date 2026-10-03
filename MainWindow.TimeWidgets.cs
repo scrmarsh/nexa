@@ -6,10 +6,14 @@ namespace SessionDashboard;
 
 public partial class MainWindow
 {
+    private readonly System.Windows.Threading.DispatcherTimer stopwatchRefresh = new() { Interval = TimeSpan.FromMilliseconds(33) };
+    private readonly List<Action<DateTimeOffset>> stopwatchTicks = [];
     private void BuildTimeWidget(StackPanel panel, WidgetInstance widget, bool stopwatch)
     {
         var display = new TextBlock { FontFamily = new FontFamily("Consolas"), FontSize = 30, Margin = new Thickness(0, 8, 0, 12) };
         panel.Children.Add(display);
+        AnalogClock? analog = null;
+        if (stopwatch) { analog = new AnalogClock { Height = 144, MinHeight = 120, Margin = new Thickness(0, 0, 0, 8) }; panel.Children.Add(analog); }
         var controls = new WrapPanel();
         Button Control(string name, Action action)
         {
@@ -72,9 +76,12 @@ public partial class MainWindow
             else value = widget.TimerStart == null || widget.TimerEnd == null ? widget.DurationSeconds : widget.ShowElapsed ? ((widget.TimerStopped ?? now) - widget.TimerStart.Value).TotalSeconds : (widget.TimerEnd.Value - (widget.TimerStopped ?? now)).TotalSeconds;
             var total = (long)Math.Max(0, stopwatch || widget.ShowElapsed ? Math.Floor(value) : Math.Ceiling(value));
             display.Text = total >= 3600 ? $"{total / 3600:00}:{total / 60 % 60:00}:{total % 60:00}" : $"{total / 60:00}:{total % 60:00}";
+            if (stopwatch) { display.Text += "." + ((long)(value * 1000) % 1000).ToString("000"); analog!.SetElapsed(value); }
             if (!stopwatch && !widget.ShowSeconds) display.Text = $"{total / 3600:00}:{total / 60 % 60:00}";
             start!.IsEnabled = !begun; pause!.IsEnabled = running; resume!.IsEnabled = paused && (stopwatch || value > 0 || widget.ShowElapsed);
         }
-        widgetTicks.Add(Update); Update(DateTimeOffset.Now);
+        widgetTicks.Add(Update);
+        if (stopwatch) stopwatchTicks.Add(now => { if (widget.StopwatchStartedAt != null) Update(now); });
+        Update(DateTimeOffset.Now);
     }
 }

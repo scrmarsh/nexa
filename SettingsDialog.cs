@@ -26,9 +26,10 @@ internal sealed partial class SettingsDialog : NexaDialog
         var sidebar = new Border { Child = nav, BorderThickness = new Thickness(0, 0, 1, 0) };
         sidebar.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); sidebar.SetResourceReference(Border.BorderBrushProperty, "LineBrush"); root.Children.Add(sidebar);
         host.Margin = new Thickness(30, 24, 30, 28); Grid.SetColumn(host, 1); root.Children.Add(host);
-        AddPage(nav, "Appearance", BuildAppearance()); AddPage(nav, "Session", BuildSession()); AddPage(nav, "Hedy", BuildHedy()); AddPage(nav, "Account", ComingSoon("Account", "Optional sign-in and sync with Microsoft, Google or Apple are Coming Soon. Nexa remains offline-first.")); AddPage(nav, "Data", ComingSoon("Data", "Space browsing and email export tools are Coming Soon. Existing Import Space and Export Space commands remain available."));
+        AddPage(nav, "Appearance", BuildAppearance()); AddPage(nav, "Session", BuildSession()); AddPage(nav,"Widgets",BuildWidgetPreferences()); AddPage(nav, "Account", ComingSoon("Account", "Optional sign-in and sync with Microsoft, Google or Apple are Coming Soon. Nexa remains offline-first.")); AddPage(nav, "Data", ComingSoon("Data", "Space browsing and email export tools are Coming Soon. Existing Import Space and Export Space commands remain available."));
         AddPage(nav,"Profile",BuildProfile()); AddPage(nav,"Integrations",BuildIntegrations());
-        Content = root; SelectSection(pages.ContainsKey(initialSection) ? initialSection : "Appearance");
+        if(state.Workspace!=null && Continuity.Current(state.Workspace,store.UserId).PresetOrigin=="Developer mode") AddPage(nav,"Developer",BuildSoundTests());
+        Content = root; SelectSection(initialSection);
     }
 
     private Brush Brush(string key) => (Brush)FindResource(key);
@@ -39,9 +40,12 @@ internal sealed partial class SettingsDialog : NexaDialog
     }
     internal void SelectSection(string name)
     {
+        var hedy=name=="Hedy"; if(hedy) name="Integrations";
+        if(!pages.ContainsKey(name)) name="Appearance";
         if (!pages.TryGetValue(name, out var page)) return;
         host.Content = page;
         foreach (var pair in tabs) { pair.Value.SetResourceReference(Control.BackgroundProperty, pair.Key == name ? "AccentBrush" : "PanelBrush"); pair.Value.SetResourceReference(Control.ForegroundProperty, pair.Key == name ? "BackgroundBrush" : "TextBrush"); }
+        if(hedy) Dispatcher.BeginInvoke(new Action(()=> { hedySettingsSection?.BringIntoView(); hedySettingsSection?.Focus(); }));
     }
     private StackPanel Page(string title, string hint)
     {
@@ -77,21 +81,21 @@ internal sealed partial class SettingsDialog : NexaDialog
     private UIElement BuildSession()
     {
         var page = Page("Session", "Settings here apply only to the current Space and its active session.");
-        if (space == null || state.Session == null)
+        if (space == null)
         {
             page.Children.Add(new TextBlock { Text = "No active session", FontSize = 20, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 20, 0, 8) });
             page.Children.Add(new TextBlock { Text = "Start or resume a session to manage session-specific settings.", Foreground = Brush("MutedBrush"), TextWrapping = TextWrapping.Wrap }); return page;
         }
         var session = state.Session;
         var scroll = new StackPanel(); page.Children.Add(scroll);
-        var name = new TextBox { Text = session.Title, MinHeight = 40 }; Field(scroll, "Session name", name);
+        var name = new TextBox { Text = session?.Title ?? state.Draft.Title, MinHeight = 40 }; Field(scroll, "Session name", name);
         var dates = new Grid(); dates.ColumnDefinitions.Add(new()); dates.ColumnDefinitions.Add(new() { Width = new GridLength(14) }); dates.ColumnDefinitions.Add(new());
-        var startDate = new DarkDatePicker { SelectedDate = session.Start.LocalDateTime.Date }; var endDate = new DarkDatePicker { SelectedDate = session.End.LocalDateTime.Date };
-        var startTime = new ClockPicker { Value = session.Start.LocalDateTime.TimeOfDay }; var endTime = new ClockPicker { Value = session.End.LocalDateTime.TimeOfDay };
+        var startDate = new DarkDatePicker { SelectedDate = session?.Start.LocalDateTime.Date ?? DateTime.Today }; var endDate = new DarkDatePicker { SelectedDate = session?.End.LocalDateTime.Date ?? DateTime.Today };
+        var startTime = new ClockPicker { Value = session?.Start.LocalDateTime.TimeOfDay ?? DateTime.Now.TimeOfDay }; var endTime = new ClockPicker { Value = session?.End.LocalDateTime.TimeOfDay ?? DateTime.Now.AddHours(1).TimeOfDay };
         var start = new StackPanel(); Field(start, "Start", startDate); start.Children.Add(startTime); dates.Children.Add(start);
         var end = new StackPanel(); Field(end, "End", endDate); end.Children.Add(endTime); Grid.SetColumn(end, 2); dates.Children.Add(end); scroll.Children.Add(dates);
-        var interval = new ComboBox { ItemsSource = new[] { 5, 10, 15 }, SelectedItem = new[] { 5, 10, 15 }.Contains(session.IntervalMinutes) ? session.IntervalMinutes : 10, MinHeight = 40 }; Field(scroll, "Summary interval (minutes)", interval);
-        var days = new WrapPanel(); var selectedDays = session.ScheduledDays.Count == 0 ? new List<DayOfWeek> { session.Start.DayOfWeek } : session.ScheduledDays.ToList();
+        var interval = new ComboBox { ItemsSource = new[] { 5, 10, 15 }, SelectedItem = session!=null && new[] { 5, 10, 15 }.Contains(session.IntervalMinutes) ? session.IntervalMinutes : 10, MinHeight = 40 }; Field(scroll, "Summary interval (minutes)", interval);
+        var days = new WrapPanel(); var selectedDays = session==null || session.ScheduledDays.Count == 0 ? new List<DayOfWeek> { session?.Start.DayOfWeek ?? DateTime.Today.DayOfWeek } : session.ScheduledDays.ToList();
         foreach (var day in Enum.GetValues<DayOfWeek>().OrderBy(day => day == DayOfWeek.Sunday ? 7 : (int)day)) days.Children.Add(new CheckBox { Content = day.ToString()[..3], Tag = day, IsChecked = selectedDays.Contains(day), Margin = new Thickness(0, 0, 14, 8) }); Field(scroll, "Selected days", days);
         var apply = new Button { Content = "Apply session", Style = (Style)FindResource("PrimaryButton"), MinHeight = 42, Margin = new Thickness(0, 18, 0, 8) };
         var status = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush") };
@@ -107,7 +111,7 @@ internal sealed partial class SettingsDialog : NexaDialog
         var accentColor = new ColorPickerButton { SelectedColor = state.PixelColor }; Field(scroll, "Space accent / pixel color", accentColor);
         var background = Continuity.Clone(state.Background); var mode = new ComboBox { ItemsSource = Enum.GetValues<SpaceBackgroundMode>(), SelectedItem = background.Mode, MinHeight = 40 }; Field(scroll, "Background mode", mode);
         var color = new ColorPickerButton { SelectedColor = InputRules.IsColor(background.SolidColor) ? background.SolidColor : "#080B16" }; Field(scroll, "Solid color", color);
-        var imagePath = new TextBox { Text = background.ImagePath, IsReadOnly = true, MinHeight = 40 }; var browse = new Button { Content = "Choose image", Margin = new Thickness(0, 8, 0, 0) }; browse.Click += (_, _) => { var picker = new OpenFileDialog { Filter = "Images|*.png;*.jpg;*.jpeg;*.bmp;*.webp" }; if (picker.ShowDialog(this) == true) imagePath.Text = picker.FileName; }; Field(scroll, "Custom image", imagePath); scroll.Children.Add(browse);
+        var imagePath = new TextBox { Text = background.ImagePath, IsReadOnly = true, MinHeight = 40 }; var browse = new Button { Content = "Choose image", Margin = new Thickness(0, 8, 0, 0) }; browse.Click += (_, _) => { var picker = new OpenFileDialog { Filter = "Images|*.png;*.jpg;*.jpeg;*.bmp" }; if (picker.ShowDialog(this) == true) { imagePath.Text = picker.FileName; mode.SelectedItem=SpaceBackgroundMode.CustomImage; } }; Field(scroll, "Custom image", imagePath); scroll.Children.Add(browse);
         var blur = new CheckBox { Content = "Blur background", IsChecked = background.Blur, Margin = new Thickness(0, 14, 0, 0) }; scroll.Children.Add(blur);
         var blurStrength = new Slider { Minimum = 0, Maximum = 40, Value = background.BlurStrength, TickFrequency = 2, IsSnapToTickEnabled = true }; Field(scroll, "Blur strength", blurStrength);
         var overlay = new Slider { Minimum = 0, Maximum = .9, Value = background.Overlay, TickFrequency = .05, IsSnapToTickEnabled = true }; Field(scroll, "Overlay / dimming", overlay);

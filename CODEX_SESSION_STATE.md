@@ -1,10 +1,23 @@
 # Nexa Codex Session State
 
 ## Current Goal
-Build Nexa 1.0.7 — Lightweight UI & Interaction Polish with localized changes; preserve all existing data and retain the completed 1.0.4–1.0.6 audit history below.
+Build Nexa 1.0.8 — Widget + Dashboard Stability. Preserve user data and integrations; do not redesign onboarding or Create Space. Preserve completed release/audit history below.
 
 ## Current Phase
-1.0.7 implementation, final Release build and targeted validation complete. Release documentation updated; this release commit includes only reviewed release files and preserves unrelated user files. Prior verification history below remains historical.
+Nexa 1.0.8 complete: source, validation, documentation and staged review passed; release commit follows.
+
+## Nexa 1.0.8 Progress
+- Baseline main at 7e680bd. Existing unrelated LEGACY.md, PUSH.txt and untracked files remain excluded. Running 1.0.7 launched outside sandbox on user desktop; build 1.0.8 into a separate output folder.
+- Request read completely. No onboarding/Create Space redesign, broad refactor, invented credentials or paid transcription provider.
+- Shared causes found: fixed pixel count; collision helper demotes active resize; Hedy migration merges into standalone timeline; image picker leaves background mode at Default and session settings gate appearance before a timer; Home has a redundant save label.
+- Groups 1–3 complete: widget preferences/Hedy navigation, greeting/background fixes, dashboard save spinner/timestamp, responsive theme-colored pixels, grid anchor resizing/placement/preview compaction and removal undo/redo. Builds pass in bin/Stability108/.
+- Group 4 complete: millisecond/analog stopwatch shares timestamps; Calculator; separate Hedy Notes preserves old widgets; standalone source-neutral Timeline; existing MCI recorder surfaced separately with owner-scoped unique captures, retryable save failures and transition-safe saving; focus backdrop pulse and distraction escalation. Last build PASS zero warnings/errors. Transcription/summary hooks only, no external provider selected.
+- Validation underway: --stability108 77 PASS (test-output/20261003-125506), --polish107 67, --polish104 22, --focus105 83 (full breath/recap), --swarm 37 (real 30-second save); continuity rerun with actual failure timestamp check pending. Dashboard render inspected. Synthetic stores/device commands only; physical microphone, sound quality and mixed-DPI movement remain manual.
+- Recorder transitions tested: finalizes outgoing capture; identical timer timestamps cannot leak audio into another dashboard. Unique files and retryable save failure verified with mocked MCI commands. Profile saves retain new widget preferences. Updated historical expectations only where current requirements changed.
+- Final six targeted suites: 329 PASS (78 stability108, 67 polish107, 83 focus105, 37 swarm, 22 polish104, 42 continuity). Final stability fixture test-output/20261003-130729; placement 130434; continuity 125820. Simulated WPF pointer input and mocked recorder; no personal stores or live integration requests.
+- Final Release build PASS zero warnings/errors: dotnet build SessionDashboard.csproj -c Release --no-restore -m:1 -p:OutputPath=bin/Stability108/. Startup probe exits 0 (1134 responsive pixels, four presets, three Bibles); test-output/stability108-final-startup. Both dashboard/startup renders inspected. Generated WPF incremental cache failures recovered; final build clean.
+- Final review repairs: profile greeting refreshes after Settings closes; recorder status clears on switching, recorder commands use per-window aliases; outgoing capture isolated by dashboard ID; final physical mouse-up resize recalculates dimensions through the same helper; Calculator minimum/history bounds keep controls usable.
+- Docs: CHANGELOG.md, README.md, VALIDATION.md, INTEGRATIONS.md updated. Deferred service transcription/summary only; physical microphone/audio/multi-monitor checks remain manual. No new dependency or database/schema reset. Staged review PASS: 42 release-owned source/test/docs files, no credential-pattern matches or prohibited generated/private files. Existing unrelated changes excluded. Release commit: fix: stabilize Nexa 1.0.8 dashboard and widgets on main (read git log for exact hash). No push through the previously rejected external upload route. No remaining code-verifiable tasks; physical microphone/audio/DPI checks remain manual. Do not rerun completed suites unless new changes require it.
 
 ## Nexa 1.0.7 Progress
 - Initial git inspection done. Baseline main: 3bfe985. Preserve existing CODEX_SESSION_STATE history edits, LEGACY.md, PUSH.txt and unrelated untracked files.

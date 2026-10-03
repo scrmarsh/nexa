@@ -37,3 +37,11 @@ Google sign-in uses authorization code + PKCE, a random state value, and a tempo
 - Keep downloaded OAuth client configuration and personal tokens out of source control. New credential/profile files are ignored by Git as an additional precaution.
 
 Automated validation uses synthetic credentials and mocked HTTP responses. No real Todoist or Google account was connected during release validation.
+
+## Nexa 1.0.8 local recording and Hedy
+
+Hedy settings are under Integrations. Existing DPAPI-protected credentials remain in the account credential store, outside dashboard data and exports. Hedy Notes is a separate integration-dependent widget; Session Timeline also works with manual local notes.
+
+Audio Recorder uses Windows waveaudio through the existing local recorder. It requests consent before recording, writes unique WAV files to the state-store directory's owner-scoped Recordings folder, and never uploads audio. Entries preserve source/time and an audio reference; exports do not embed the recording. Switching dashboards finalizes audio into the outgoing dashboard only. Removing unrelated widgets can continue capture; removing the last recorder finalizes it. Previously saved recording paths remain readable; legacy recordings outside the current owner folder must be managed in their original folder. Audio files are local files, not encrypted tokens.
+
+`ITranscriptionProvider` and `ISessionSummaryProvider` are extension interfaces only. No transcription/summary service is configured or advertised. Connecting a future provider requires a separate implementation and explicit service choice.

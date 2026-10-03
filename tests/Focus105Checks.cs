@@ -49,7 +49,7 @@ internal static partial class Program
         for(var i=1;i<=10;i++) resize.RaiseEvent(new DragDeltaEventArgs(unit*i/10,48*i/10));
         resize.RaiseEvent(new DragCompletedEventArgs(0,0,false)); Pump(TimeSpan.FromMilliseconds(100));
         Assert(notes.CustomSize && notes.Height>=WidgetLibrary.Definition(notes.Kind).MinHeight && notes.Height%24==0,"Resize saves useful grid dimensions");
-        Assert(RectFor(clock)==neighbor && !RectFor(notes).IntersectsWith(RectFor(clock)),"Resize avoids overlap and preserves neighbors");
+        Assert(!RectFor(notes).IntersectsWith(RectFor(clock)),"Anchor resize reflows neighbors without overlap");
         grip.RaiseEvent(new DragStartedEventArgs(0,0)); grip.RaiseEvent(new DragDeltaEventArgs(-unit*3,240)); grip.RaiseEvent(new DragCompletedEventArgs(0,0,false)); Pump(TimeSpan.FromMilliseconds(80));
         Assert(!RectFor(notes).IntersectsWith(RectFor(clock)),"Drag after resize remains disjoint");
         grip.RaiseEvent(new DragStartedEventArgs(0,0)); grip.RaiseEvent(new DragDeltaEventArgs(unit*5,120)); grip.RaiseEvent(new DragCompletedEventArgs(0,0,false)); Pump(TimeSpan.FromMilliseconds(80));

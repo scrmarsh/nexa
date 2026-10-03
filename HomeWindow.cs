@@ -15,7 +15,7 @@ internal sealed partial class HomeWindow : NexaDialog
     internal readonly StackPanel Recent = new();
     internal readonly Button ContinueButton;
     private readonly TextBlock feedback = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 20, 0, 0) };
-    internal readonly TextBlock AutosaveStatus = new() { Text = "✓  Autosaved", VerticalAlignment = VerticalAlignment.Center, FontSize = 12 };
+    private readonly TextBlock profileGreeting = new() { FontSize = 14, Margin = new Thickness(0, 10, 0, 0) };
     internal HomeWindow(StateStore store)
     {
         this.store = store; Saved = store.Load();
@@ -24,6 +24,7 @@ internal sealed partial class HomeWindow : NexaDialog
         Title = "Nexa"; Width = Saved.WindowWidth; Height = Saved.WindowHeight; MinWidth = 740; MinHeight = 550; WindowStartupLocation = WindowStartupLocation.CenterScreen;
         var panel = new StackPanel { Margin = new Thickness(60, 36, 60, 40), MaxWidth = 960 };
         BuildHomeHeader(panel);
+        profileGreeting.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush"); panel.Children.Add(profileGreeting); RefreshProfileGreeting();
         var actions = new System.Windows.Controls.Primitives.UniformGrid { Columns = 3, Margin = new Thickness(0, 32, 0, 0) };
         Button IconAction(string label, string asset, Color hoverColor)
         {
@@ -86,7 +87,7 @@ internal sealed partial class HomeWindow : NexaDialog
         System.Windows.Automation.AutomationProperties.SetName(gear, "Settings"); gear.Click += (_, _) => OpenSettings();
         void TurnGear(double angle) => ((RotateTransform)gearGraphic.RenderTransform).BeginAnimation(RotateTransform.AngleProperty,new DoubleAnimation(angle,TimeSpan.FromMilliseconds(260)) { EasingFunction=new QuadraticEase { EasingMode=EasingMode.EaseInOut } });
         gear.MouseEnter += (_, _) => TurnGear(90); gear.MouseLeave += (_, _) => TurnGear(0);
-        left.Children.Add(gear); AutosaveStatus.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush"); AutosaveStatus.Margin = new Thickness(12, 0, 0, 0); left.Children.Add(AutosaveStatus); footer.Children.Add(left);
+        left.Children.Add(gear); footer.Children.Add(left);
         var utilities = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Right };
         Button Utility(string text, Action action) { var button = new Button { Content = text == "View History" ? NexaIcons.Label("History") : text, Padding = new Thickness(14, 9, 14, 9), Margin = new Thickness(8, 0, 0, 0) }; button.Click += (_, _) => action(); utilities.Children.Add(button); return button; }
         Utility("View History", OpenHistory); Utility("Changelog", OpenChangelog); Utility("About Nexa", OpenAbout); var developer = Utility("DEV", OpenDeveloperDashboard); developer.Opacity = .7;

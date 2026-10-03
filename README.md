@@ -1,3 +1,16 @@
+## Nexa 1.0.8 — Widget + Dashboard Stability
+
+Pixel Timer now fills its right-hand canvas with square pixels that adapt in count to available width. Duration/progress and I'm bored sit on the left; completion remains calm and theme-colored. Settings → Widgets switches Square/Circle, distraction messages and the optional five-second focus backdrop pulse.
+
+Drag the grip to move a card. Resize edges keep the active card anchored while neighbors move out of its way. Empty-space Add anchors the new card there; Recommended offers Session Timeline, Clock and Notes. Remove offers Undo for about ten seconds, with Ctrl+Z / Ctrl+Shift+Z; text editors keep native undo. Double-click a title, press F2 or use its context menu for advanced options. Choose Focus this widget in that menu to dim its surroundings; click the backdrop or Escape to return.
+
+Stopwatch has milliseconds and an analog dial sharing one elapsed-time state. Calculator accepts arithmetic and decimals, with postfix percent (50% means 0.5), clear/backspace, Enter to evaluate, copy and recent history. Settings → Session supports persisted image backgrounds even before starting a timer. Home shows an optional profile greeting; save feedback appears only in dashboards.
+
+Session Timeline works locally with manual notes and source-labeled entries. Hedy Notes stays separate and optional; Hedy credentials live under Settings → Integrations. Add Audio Recorder to capture local session audio with explicit microphone consent, Pause/Resume/Stop and elapsed status. Start a timed session first. Recordings use unique files beside the local state store under an owner-scoped Recordings directory; Open recording launches the saved audio. Switching or closing finalizes capture. A failed audio save keeps the buffer in memory for retry while the app stays open. **Transcription and summaries are not connected yet**; provider interfaces exist without uploading audio or choosing a paid service. Dashboard exports carry recording references, not embedded audio.
+
+Existing spaces, names, interval data and history remain intact. Legacy Hedy widgets become Hedy Notes in place; earlier releases that already combined Hedy content into a timeline keep that content. New JSON fields have safe defaults; no workspace format migration is needed. Onboarding and Create Space remain unchanged. See [validation](VALIDATION.md).
+
+Targeted checks: `dotnet run --project tests/SessionDashboard.Checks.csproj -- --stability108`.
 ## Nexa 1.0.7 — Lightweight UI & Interaction Polish
 
 Drag a widget grip to lift the actual card and move it freely. On release, Nexa uses both drop coordinates, reserves the intended grid slot, reflows occupied cards, and fills gaps upward with a short settle animation. Wide canvases support three columns; narrower canvases wrap to two or one. Resize edges retain their grid preview and saved dimensions.

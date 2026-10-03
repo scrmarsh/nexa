@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void CheckPolish107()
     {
-        Assert(App.AppVersion == "1.0.7", "Project metadata supplies version 1.0.7");
+        Assert(App.AppVersion == "1.0.8", "Project metadata supplies version 1.0.8");
         var store = new StateStore(Path.Combine(output, "polish107.json"));
         var cards = new[] { "Notes", "Notes", "Notes", "Clock", "Tasks", "Focus Reset" }.Select(kind => WidgetLibrary.Create(kind)).ToList();
         WidgetLibrary.ArrangeThreeColumns(cards);
@@ -57,8 +57,9 @@ internal static partial class Program
         var pixels = window.PixelGrid.Children.OfType<Border>().ToArray();
         void SquarePixels(string phase)
         {
-            Assert(pixels.Length == 540 && pixels.All(p => p.Width > 0 && Math.Abs(p.Width - p.Height) < .01), phase + ": timer has 540 square cells");
-            Assert(window.PixelGrid.ActualWidth <= window.PixelArea.ActualWidth + 1 && window.PixelGrid.ActualHeight <= window.PixelArea.ActualHeight + 1 && window.PixelGrid.HorizontalAlignment == HorizontalAlignment.Center, phase + $": pixels fit and center in banner (grid {window.PixelGrid.ActualWidth}x{window.PixelGrid.ActualHeight}, area {window.PixelArea.ActualWidth}x{window.PixelArea.ActualHeight})");
+            pixels = window.PixelGrid.Children.OfType<Border>().ToArray();
+            Assert(pixels.Length > 0 && pixels.All(p => p.Width > 0 && Math.Abs(p.Width - p.Height) < .01), phase + ": timer has responsive square cells");
+            Assert(window.PixelGrid.ActualWidth <= window.PixelArea.ActualWidth + 1 && window.PixelGrid.ActualHeight <= window.PixelArea.ActualHeight + 1, phase + ": pixels fit banner");
         }
         SquarePixels("Wide");
         var moved = widgets[5]; var target = widgets[2]; var original = Bounds(moved); var neighbors = widgets.Where(w => w != moved).ToDictionary(w => w.Id, Bounds);

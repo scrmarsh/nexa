@@ -35,8 +35,6 @@ public partial class MainWindow
     private WindowState restoreWindowState;
     private DateTimeOffset flashUntil;
     private bool completionDismissed;
-    private readonly SolidColorBrush flashBrush = new(Colors.White);
-    private SolidColorBrush completionBrush = new(Colors.White);
 
     public MainWindow() : this(new StateStore(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SessionDashboard", "state.json"))) { }
 
@@ -49,12 +47,6 @@ public partial class MainWindow
         PreviewBanner.Visibility = IsPreview ? Visibility.Visible : Visibility.Collapsed;
         if (IsPreview) Title = "Nexa · Preview";
         NexaChrome.Apply(this);
-        for (var i = 0; i < 540; i++)
-        {
-            var pixel = new Border { Margin = new Thickness(2), CornerRadius = new CornerRadius(2), Background = Brush("PixelOffBrush") };
-            pixels.Add(pixel);
-            PixelGrid.Children.Add(pixel);
-        }
         PixelArea.SizeChanged += (_, _) => SizeTimerPixels();
         DpiChanged += (_, _) => Dispatcher.BeginInvoke(new Action(SizeTimerPixels));
         NotesBox.Text = state.Notes;
@@ -90,6 +82,7 @@ public partial class MainWindow
         foreach (var button in TopNavigation.Children.OfType<Button>().Where(b => b.Content is string text && text == "Home")) button.Content = NexaIcons.Label("Home");
         SessionEditButton.Content = NexaIcons.Label("Edit");
         Closed += (_, _) => { interfacePlayer?.Stop(); interfacePlayer?.Dispose(); interfaceAudio?.Dispose(); };
+        Closed+=(_,_)=>widgetToastTimer.Stop();
         InitializeInlineSession();
         clock.Start();
         Closing += (_, e) =>
@@ -103,13 +96,28 @@ public partial class MainWindow
     private void SizeTimerPixels()
     {
         if(PixelArea.ActualWidth<=0 || PixelArea.ActualHeight<=0) return;
-        var cell=Math.Min(PixelArea.ActualWidth/PixelGrid.Columns,PixelArea.ActualHeight/PixelGrid.Rows);
-        // Round down once in device pixels so WPF cannot round every child upward and overflow the banner.
+        var width=PixelArea.ActualWidth; var height=PixelArea.ActualHeight;
         var scale=VisualTreeHelper.GetDpi(PixelArea).DpiScaleX;
-        cell=Math.Max(1/scale,Math.Floor(cell*scale)/scale);
-        PixelGrid.Width=cell*PixelGrid.Columns; PixelGrid.Height=cell*PixelGrid.Rows;
-        var gap=Math.Floor(cell*.14*scale)/scale;
-        foreach(var pixel in pixels) { pixel.Width=pixel.Height=Math.Max(.1,cell-2*gap); pixel.Margin=new Thickness(gap); pixel.CornerRadius=new CornerRadius(Math.Min(2,cell*.2)); }
+        var target=Math.Max(12,Math.Sqrt(width*height/16000));
+        var columns=Math.Max(1,(int)Math.Floor((width+2)/(target+2)));
+        var rows=Math.Max(1,(int)Math.Floor((height+2)/(target+2)));
+        var size=Math.Min((width-2*(columns-1))/columns,(height-2*(rows-1))/rows);
+        size=Math.Max(1/scale,Math.Floor(size*scale)/scale);
+        var gapX=columns>1 ? (width-columns*size)/(columns-1) : 0;
+        var gapY=rows>1 ? (height-rows*size)/(rows-1) : 0;
+        var count=columns*rows;
+        if(pixels.Count!=count)
+        {
+            pixels.Clear(); PixelGrid.Children.Clear(); previousHead=-1; headAnimating=false;
+            for(var i=0;i<count;i++) { var pixel=new Border { IsHitTestVisible=false,Background=DashboardBrush("PixelOffBrush") }; pixels.Add(pixel); PixelGrid.Children.Add(pixel); }
+        }
+        for(var i=0;i<count;i++)
+        {
+            var pixel=pixels[i]; pixel.Width=pixel.Height=size;
+            pixel.CornerRadius=new CornerRadius(state.PixelShape=="Circle" ? size/2 : 0);
+            Canvas.SetLeft(pixel,i%columns*(size+gapX)); Canvas.SetTop(pixel,i/columns*(size+gapY));
+        }
+        if(ready) UpdateClock();
     }
     private Brush Brush(string key) => (Brush)FindResource(key);
 
@@ -246,9 +254,9 @@ public partial class MainWindow
         {
             // Await only worker I/O here; its completion does not depend on the dispatcher.
             try { pendingWrite?.GetAwaiter().GetResult(); } catch (Exception ex) when (SaveException(ex)) { }
-            CaptureDraft(); ShowSaveStatus("◌  Autosaving…");
+            CaptureDraft(); ShowSaveStatus("Auto-saving...");
             store.Save(state); dirty = false;
-            ShowSaveStatus("✓  Autosaved", fade: true); return true;
+            ShowSaveStatus("saved"); return true;
         }
         catch (Exception ex) when (SaveException(ex))
         { dirty = true; ShowSaveStatus("Save failed", warning: true); Feedback.Text = "Could not save changes: " + ex.Message; return false; }
@@ -436,9 +444,7 @@ public partial class MainWindow
         if (previousHead >= 0 && previousHead < pixels.Count) pixels[previousHead].BeginAnimation(OpacityProperty, null);
         Theme.Apply(Application.Current.Resources, store.LoadThemeMode(), store.LoadAppTheme());
         Theme.ApplyDashboard(FullContent.Resources, state.AccentColor, state.PixelColor);
-        var pixelColor = ((SolidColorBrush)DashboardBrush("PixelBrush")).Color;
         PercentLabel.Foreground = DashboardBrush("PixelBrush");
-        completionBrush = new SolidColorBrush(Color.FromRgb((byte)(220 + pixelColor.R * .13), (byte)(220 + pixelColor.G * .13), (byte)(220 + pixelColor.B * .13)));
         previousHead = -1;
         headAnimating = false;
         if (storyOpen) RenderStory();
@@ -477,6 +483,7 @@ public partial class MainWindow
             Left = restoreBounds.Left; Top = restoreBounds.Top; Width = restoreBounds.Width; Height = restoreBounds.Height;
             WindowState = restoreWindowState; fullscreen = false; FullscreenButton.Content = "\uE922"; FullscreenButton.ToolTip = "Fullscreen (F11)";
         }
+        DashboardHeader.Height=fullscreen ? 50 : 44; DashboardHeader.Padding=new Thickness(12,fullscreen ? 8 : 4,12,4);
         DashboardShell.Opacity = 0.72; DashboardShell.BeginAnimation(OpacityProperty, new DoubleAnimation(.72, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
         var scale = new ScaleTransform(.985, .985); DashboardShell.RenderTransformOrigin = new Point(.5, .5); DashboardShell.RenderTransform = scale;
         scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(.985, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
@@ -484,6 +491,8 @@ public partial class MainWindow
     }
     private void WindowKeyDown(object sender, KeyEventArgs e)
     {
+        if(HandleWidgetUndoKey(e)) return;
+        if (e.Key == Key.Escape && focusedWidget != null) { ClearWidgetFocus(); e.Handled = true; return; }
         if (e.Key == Key.Escape && storyOpen) { ExitBoredomMode(); e.Handled = true; return; }
         if (e.Key == Key.F11 || (e.Key == Key.Escape && fullscreen)) { ToggleFullscreen(); e.Handled = true; }
     }
@@ -504,10 +513,10 @@ public partial class MainWindow
         SessionTitle.FontSize = compact ? 18 : 24;
         TitleInput.FontSize = 16;
         Detach(CountdownHost); CompactTimerHost.Visibility = compact ? Visibility.Visible : Visibility.Collapsed;
-        if (compact) CompactTimerHost.Children.Add(CountdownHost); else ((StackPanel)PixelPanel.Child).Children.Insert(0, CountdownHost);
+        if (compact) CompactTimerHost.Children.Add(CountdownHost); else PixelInfo.Children.Insert(0, CountdownHost);
         FooterStatus.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
         SessionRange.Visibility = Visibility.Collapsed;
-        Countdown.FontSize = compact ? 32 : 52;
+        Countdown.FontSize = compact ? 32 : 40;
     }
 
     internal static string ClockText(TimeSpan span, bool roundUp = true)
@@ -531,8 +540,7 @@ public partial class MainWindow
         var flashing = now < flashUntil && !complete && session?.IsRunning(now) == true;
         MilestoneLabel.Visibility = flashing ? Visibility.Visible : Visibility.Collapsed;
         CompletionBanner.Visibility = complete && !completionDismissed && !storyOpen ? Visibility.Visible : Visibility.Collapsed;
-        // A slow pulse, one cycle per 1.5 seconds, then a permanent pale glow at completion.
-        var whitePhase = flashing && (flashUntil - now).TotalSeconds % 1.5 > .75;
+        // Only the current active pixel breathes; completion stays filled in the theme color.
         if (session != null)
         {
             SessionTitle.Text = session.Title;
@@ -555,15 +563,16 @@ public partial class MainWindow
             CountdownCaption.Text = "TIME REMAINING"; DurationLabel.Text = IntervalLabel.Text = "—"; EndButton.IsEnabled = false;
         }
         PercentLabel.Text = $"{progress * 100:0.0}%";
+        SessionProgressBar.Value=progress*100;
         var head = (int)Math.Floor(progress * pixels.Count);
         for (var i = 0; i < pixels.Count; i++)
         {
-            pixels[i].Background = complete ? completionBrush : whitePhase ? flashBrush : DashboardBrush(i < head ? "PixelBrush" : "PixelOffBrush");
+            pixels[i].Background = DashboardBrush(i < head ? "PixelBrush" : "PixelOffBrush");
             if (i != head && i == previousHead) { pixels[i].BeginAnimation(OpacityProperty, null); headAnimating = false; }
         }
         if (head < pixels.Count && session?.IsRunning(now) == true)
         {
-            pixels[head].Background = whitePhase ? flashBrush : DashboardBrush("PixelBrush");
+            pixels[head].Background = DashboardBrush("PixelBrush");
             if (head != previousHead || !headAnimating)
             {
                 pixels[head].BeginAnimation(OpacityProperty, new DoubleAnimation(0.35, 1, TimeSpan.FromSeconds(0.75)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever });
@@ -572,7 +581,7 @@ public partial class MainWindow
         }
         else if (previousHead >= 0 && previousHead < pixels.Count) { pixels[previousHead].BeginAnimation(OpacityProperty, null); headAnimating = false; }
         previousHead = head;
-        PixelGrid.Effect = complete ? new System.Windows.Media.Effects.DropShadowEffect { Color = completionBrush.Color, BlurRadius = 14, ShadowDepth = 0, Opacity = .75 } : null;
+        PixelGrid.Effect = null;
         if (session == null) return;
         var effectiveNow = session.StoppedAt ?? now;
         foreach (var card in intervals)

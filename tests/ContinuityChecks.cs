@@ -80,7 +80,7 @@ internal static partial class Program
         Assert(window.AutosaveInterval == TimeSpan.FromSeconds(30), "WPF safety-net autosave interval is 30 seconds");
         window.NotesBox.Text = "Notes on dashboard A"; window.TaskInput.Text = "Unsubmitted task draft";
         window.TitleInput.Text = "Unstarted meeting title"; window.IntervalInput.Text = "7";
-        Assert(window.SaveNow() && window.SaveStatus.Text.Contains("Autosaved"), "Successful save displays the compact autosave state");
+        Assert(window.SaveNow() && window.SaveStatus.Text.Contains("Auto-saved · Saved at"), "Successful save displays the local save time");
         var activeId = window.state.Workspace!.ActiveDashboardId;
         var candidate = window.CopyWorkspaceState().Workspace!;
         var second = Continuity.NewDashboard("Dashboard B", "Meeting", new DashboardData(), store.UserId);
@@ -102,7 +102,7 @@ internal static partial class Program
         Pump(TimeSpan.FromSeconds(1.3));
         Assert(store.Load().Notes == "Edited after continuing" && !window.HasUnsavedChanges, "Debounced edit saves on background worker and clears dirty state");
         Pump(TimeSpan.FromSeconds(3.6));
-        Assert(window.SaveStatus.Opacity < .01, "Success indicator fades after three seconds without changing its reserved height");
+        Assert(window.SaveStatus.Opacity == 1 && window.SaveSpinner.Visibility == Visibility.Collapsed, "Success time remains readable with spinner stopped");
         var saved = File.GetLastWriteTimeUtc(store.FilePath);
         window.SaveInBackground().GetAwaiter().GetResult();
         Assert(File.GetLastWriteTimeUtc(store.FilePath) == saved, "Clean background autosave performs no disk write");
@@ -147,8 +147,10 @@ internal static partial class Program
         Assert(reopened.NotesBox.Text == "Last change before close" && Continuity.Current(reopened.state.Workspace!, store.UserId).Current.SessionId == savedSessionId, "Close flushes pending edits and reopening continues the same session");
         // Force an actual filesystem failure without touching any personal data.
         File.Move(store.FilePath, store.FilePath + ".held"); Directory.CreateDirectory(store.FilePath);
+        var successfulAt = reopened.lastSuccessfulSaveAt;
         reopened.NotesBox.Text = "Must remain unsaved";
         Assert(!reopened.SaveNow() && reopened.HasUnsavedChanges && reopened.SaveStatus.Text == "Save failed", "I/O failure retains dirty edits and never shows a false saved indicator");
+        Assert(reopened.lastSuccessfulSaveAt == successfulAt && reopened.SaveSpinner.Visibility == Visibility.Collapsed, "Actual I/O failure retains last successful timestamp and stops spinner");
         var failedCandidate = reopened.CopyWorkspaceState().Workspace!;
         Continuity.Reset(Continuity.Current(failedCandidate, store.UserId));
         Assert(!reopened.CommitWorkspace(failedCandidate) && reopened.NotesBox.Text == "Must remain unsaved", "Failed reset commit leaves current editor intact");

@@ -190,11 +190,11 @@ internal sealed class SwarmArena : FrameworkElement
     private readonly Brush player, glow;
     private readonly Pen outline;
     private static Brush Frozen(Color color) { var brush = new SolidColorBrush(color); brush.Freeze(); return brush; }
-    internal SwarmArena(PixelSwarmGame game, Color accent)
+    internal SwarmArena(PixelSwarmGame game, Color accent, Color? dashboardBackground=null, Color? dashboardText=null)
     {
         Game = game; player = Frozen(accent); glow = Frozen(Color.FromArgb(45, accent.R, accent.G, accent.B));
-        var backgroundColor = ((SolidColorBrush)Application.Current.FindResource("BackgroundBrush")).Color;
-        var textColor = ((SolidColorBrush)Application.Current.FindResource("TextBrush")).Color;
+        var backgroundColor = dashboardBackground ?? ((SolidColorBrush)Application.Current.FindResource("BackgroundBrush")).Color;
+        var textColor = dashboardText ?? ((SolidColorBrush)Application.Current.FindResource("TextBrush")).Color;
         background = Frozen(backgroundColor); themeText = Frozen(textColor); whiteGlow = Frozen(Color.FromArgb(45, textColor.R, textColor.G, textColor.B)); outline = new Pen(themeText, 1);
         ClipToBounds = true; outline.Freeze();
         SizeChanged += (_, _) => { Game.Resize(RenderSize); InvalidateVisual(); };

@@ -71,7 +71,9 @@ public sealed partial class StateStore
         Directory.CreateDirectory(UserPreferencesDirectory);
         AtomicWrite(Path.Combine(UserPreferencesDirectory,"profile.json"), JsonSerializer.Serialize(profile, Options), true);
         SavePreferences(profile.ThemeMode, profile.Theme);
-        SaveInteractionPreferences(new DashboardData { InterfaceSoundsEnabled=profile.Sounds, InterfaceSoundVolume=profile.Volume, FocusNudgesEnabled=profile.FocusNudges });
+        var interaction = new DashboardData(); LoadInteractionPreferences(interaction);
+        interaction.InterfaceSoundsEnabled = profile.Sounds; interaction.InterfaceSoundVolume = profile.Volume; interaction.FocusNudgesEnabled = profile.FocusNudges;
+        SaveInteractionPreferences(interaction);
     }
 }
 

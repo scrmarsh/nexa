@@ -18,7 +18,7 @@ internal static partial class Program
             var bitmap = new RenderTargetBitmap((int)Math.Ceiling(body.ActualWidth), (int)Math.Ceiling(body.ActualHeight), 96, 96, PixelFormats.Pbgra32); bitmap.Render(body);
             var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap)); using var stream = File.Create(Path.Combine(output, name + ".png")); encoder.Save(stream);
         }
-        Assert(App.AppVersion == "1.0.7", "App uses current project version 1.0.7");
+        Assert(App.AppVersion == "1.0.8", "App uses current project version 1.0.8");
         var splash = new SplashWindow(); splash.Show(); Pump(TimeSpan.FromMilliseconds(220));
         var tagline = Descendants(splash).OfType<TextBlock>().Single(t => t.Text == "A space for whatever comes next.");
         Assert(tagline.ActualWidth >= tagline.DesiredSize.Width && Descendants(splash).OfType<TextBlock>().Any(t => t.Text == "v" + App.AppVersion), "Splash tagline and current version are present and fit"); Capture(splash, "polish-splash"); splash.Close();
@@ -52,7 +52,7 @@ internal static partial class Program
         Assert(stopwatch.StopwatchStartedAt == stopwatchStart && store.Load().Widgets.Single(w => w.Id == stopwatch.Id).StopwatchStartedAt == stopwatchStart, "Stopwatch resume survives layout changes and autosave");
         Tap(Frame(stopwatch), "Pause"); Assert(stopwatch.StopwatchElapsedSeconds > elapsed, "Stopwatch resume accumulates additional elapsed time");
         stopwatch.StopwatchElapsedSeconds = 3661; typeof(MainWindow).GetMethod("RenderWidgets", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(window, null);
-        Assert(Descendants(Frame(stopwatch)).OfType<TextBlock>().Any(t => t.Text == "01:01:01"), "Stopwatch displays hours when needed");
+        Assert(Descendants(Frame(stopwatch)).OfType<TextBlock>().Any(t => t.Text == "01:01:01.000"), "Stopwatch displays hours and milliseconds when needed");
         Tap(Frame(stopwatch), "Reset"); Assert(stopwatch.StopwatchElapsedSeconds == 0 && stopwatch.StopwatchStartedAt == null, "Stopwatch resets"); Capture(window, "polish-widgets");
         typeof(MainWindow).GetMethod("AddWidgetClick", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(window, [window, new RoutedEventArgs()]); Pump(TimeSpan.FromMilliseconds(220));
         var picker = Application.Current.Windows.OfType<Window>().Single(w => w.Title == "Nexa · Add widget");

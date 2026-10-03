@@ -33,6 +33,7 @@ public sealed class WidgetInstance
     public List<string> Categories { get; set; } = [];
     public List<string> Fields { get; set; } = [];
     public string Text { get; set; } = "";
+    public List<string> CalculationHistory { get; set; } = [];
     public decimal Value { get; set; }
     public List<TaskItem> Items { get; set; } = [];
     public List<TrackerRecord> Records { get; set; } = [];
@@ -75,7 +76,7 @@ public static class WidgetLibrary
     public static IReadOnlyList<WidgetDefinition> Definitions { get; } =
     [
         new("Timer", "Session", "Independent countdown or elapsed timer.", "timer", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
-        new("Stopwatch", "Session", "Measure elapsed time with pause and resume.", "stopwatch", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
+        new("Stopwatch", "Session", "Digital and analog elapsed time with pause and resume.", "stopwatch", MinHeight: 360, DefaultSpan: 6, DefaultHeight: 384, MinWidth: 240, CanMinimize: false),
         new("Clock", "Session", "Your local date and time.", "clock", MinHeight: 96, DefaultSpan: 4, DefaultHeight: 120, MinWidth: 200, CanMinimize: false),
         new("Todoist", "Integrations", "Optional connected tasks.", "externalTasks", MinHeight:288, DefaultHeight:384, CanMinimize:false),
         new("Google Tasks", "Integrations", "Optional connected task lists.", "externalTasks", MinHeight:288, DefaultHeight:384, CanMinimize:false),
@@ -83,7 +84,9 @@ public static class WidgetLibrary
         new("Progress bar", "Session", "Progress of your dashboard session.", "progress", MinHeight: 120, DefaultSpan: 6, DefaultHeight: 144, MinWidth: 240, CanMinimize: false),
         new("Pixel timer", "Session", "The original pixel display and story.", "progress", 6, 480, CanMinimize: false),
         new("Session controls", "Session", "Schedule sessions and manage timer presets.", "setup", 4, 480),
-        new("Session timeline", "Session", "Session intervals, notes and Hedy live sync.", "timeline", 4, 288, DefaultHeight: 360, CanMinimize: false),
+        new("Session timeline", "Session", "Manual notes and a timeline for any session, with optional connected sources.", "timeline", 4, 288, DefaultHeight: 360, CanMinimize: false),
+        new("Audio Recorder", "Session", "Record locally; keep audio alongside your Session Timeline.", "recorder", MinHeight: 240, DefaultHeight: 288, MinWidth: 280, CanMinimize: false),
+        new("Calculator", "Productivity", "Quick calculations with a small recent history.", "calculator", MinHeight: 480, DefaultHeight: 528, MinWidth: 280, CanMinimize: false),
         new("Break timer", "Session", "A short independent countdown.", "timer", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
         new("Focus Reset", "Study", "A short offline reset to return to your session.", "focus", MinHeight: 120, DefaultHeight: 144, DefaultSpan: 6, MinWidth: 240), new("Notes", "Productivity", "Capture your ideas with autosave.", "text"),
         new("Tasks", "Productivity", "An actionable checklist.", "list"),
@@ -96,7 +99,7 @@ public static class WidgetLibrary
         new("Record tracker", "Tracking", "Records with categories and custom fields.", "tracker", 4, 336),
         new("Statistics", "Tracking", "Totals from trackers on this dashboard.", "statistics"),
         new("Custom fields", "Tracking", "Labelled session information.", "text"),
-        new("Hedy", "School", "Connect Hedy and retain interval notes.", "hedy", 4, 480),
+        new("Hedy Notes", "Integrations", "Connect Hedy for live session notes.", "hedy", 4, 480),
         new("Class timeline", "School", "Class intervals and notes.", "timeline", 4, 288),
         new("Assignment tracker", "School", "Keep assignments and completion state.", "list"),
         new("Questions to ask", "School", "Questions to revisit.", "list"),
@@ -110,11 +113,12 @@ public static class WidgetLibrary
         new("Flashcards", "Study", "Create, import and study offline decks.", "flashcards", MinHeight: 288, DefaultSpan: 10, DefaultHeight: 384, CanMinimize: false),
         new("Website shortcut", "Other", "Open a saved website in your browser.", "links")
     ];
-    public static WidgetDefinition Definition(string kind) => Definitions.Single(d => d.Name == (kind == "Pomodoro" ? "Timer" : kind));
+    private static string CanonicalKind(string kind) => kind switch { "Pomodoro" => "Timer", "Hedy" => "Hedy Notes", _ => kind };
+    public static WidgetDefinition Definition(string kind) => Definitions.Single(d => d.Name == CanonicalKind(kind));
     public static WidgetInstance Create(string kind, string panelKey = "")
     {
         var d = Definition(kind);
-        return new() { Kind = kind, Title = kind == "Session timeline" ? "Session Notes" : kind, PanelKey = panelKey, GridColumns = 20, Span = d.DefaultSpan, Height = Math.Max(d.DefaultHeight, d.MinHeight), TimerMinutes = kind == "Break timer" ? 5 : 25 };
+        return new() { Kind = CanonicalKind(kind), Title = kind == "Session timeline" ? "Session Timeline" : CanonicalKind(kind), PanelKey = panelKey, GridColumns = 20, Span = d.DefaultSpan, Height = Math.Max(d.DefaultHeight, d.MinHeight), TimerMinutes = kind == "Break timer" ? 5 : 25 };
     }
     public static void EnsureLayout(DashboardData data)
     {
@@ -129,14 +133,8 @@ public static class WidgetLibrary
         foreach (var retired in data.Widgets.Where(w => w.Kind == "Pomodoro")) { retired.Kind = "Timer"; if (retired.Title == "Pomodoro") retired.Title = "Timer"; changed = true; }
         foreach (var hedy in data.Widgets.Where(w => w.Kind == "Hedy").ToList())
         {
-            var session = data.Widgets.FirstOrDefault(w => w.Kind == "Session timeline");
-            if (session == null) { hedy.Kind = "Session timeline"; hedy.Title = "Session & Hedy"; hedy.PanelKey = "timeline"; }
-            else
-            {
-                if (!string.IsNullOrWhiteSpace(hedy.Text)) session.Text = string.Join("\n", new[] { session.Text, hedy.Text }.Where(s => !string.IsNullOrWhiteSpace(s)));
-                session.Items.AddRange(hedy.Items); session.Records.AddRange(hedy.Records); session.ScripturePins.AddRange(hedy.ScripturePins);
-                data.Widgets.Remove(hedy);
-            }
+            hedy.Kind = "Hedy Notes";
+            if (hedy.Title == "Hedy") hedy.Title = "Hedy Notes";
             changed = true;
         }
         foreach (var widget in data.Widgets)
@@ -145,8 +143,8 @@ public static class WidgetLibrary
             if (!definition.CanMinimize && widget.IsMicro) { widget.IsMicro = false; changed = true; }
             if (!widget.CustomSize && widget.Span == 10 && widget.Height == 288 && definition.DefaultSpan != 10)
             { widget.Span = definition.DefaultSpan; widget.Height = Math.Max(definition.DefaultHeight, definition.MinHeight); changed = true; }
-            if (widget.Kind == "Session timeline" && widget.Title is "Session timeline" or "Session & Hedy") { widget.Title = "Session Notes"; changed = true; }
             widget.FlashcardDecks ??= [];
+            widget.CalculationHistory ??= [];
         }
         return changed;
     }
@@ -207,7 +205,7 @@ public static class WidgetLibrary
     }
     private static bool Overlap(WidgetInstance a, WidgetInstance b) => a.Column < b.Column + b.Span && b.Column < a.Column + a.Span && a.Row * 24 < b.Row * 24 + b.Height && b.Row * 24 < a.Row * 24 + a.Height;
     public static void ClearContent(WidgetInstance w)
-    { w.Text = ""; w.Value = w.StartingValue; w.Items.Clear(); w.Records.Clear(); w.ScripturePins.Clear(); w.TimerStart = w.TimerEnd = w.TimerStopped = null; w.StopwatchElapsedSeconds = 0; w.StopwatchStartedAt = null; }
+    { w.Text = ""; w.CalculationHistory.Clear(); w.Value = w.StartingValue; w.Items.Clear(); w.Records.Clear(); w.ScripturePins.Clear(); w.TimerStart = w.TimerEnd = w.TimerStopped = null; w.StopwatchElapsedSeconds = 0; w.StopwatchStartedAt = null; }
     public static void Validate(DashboardData data)
     {
         if (data.Widgets == null || data.Widgets.Count > 200 || data.Widgets.Any(w => w == null) || data.Widgets.Select(w => w.Id).Distinct().Count() != data.Widgets.Count) throw new InvalidDataException("Invalid widget list.");
@@ -220,7 +218,8 @@ public static class WidgetLibrary
                 p.Verse is < 1 or > 176 || p.EndVerse < p.Verse || p.EndVerse > 176 || p.Text == null || p.Note == null) ||
                 w.BibleLocation is { } location && (!BibleLibrary.Translations.Contains(location.Translation) || !BibleLibrary.Books.Contains(location.Book) ||
                     location.Chapter is < 1 or > 150 || location.Verse is < 1 or > 176)) throw new InvalidDataException("Invalid Scripture data.");
-            var def = Definitions.FirstOrDefault(d => d.Name == (w.Kind == "Pomodoro" ? "Timer" : w.Kind));
+            var def = Definitions.FirstOrDefault(d => d.Name == CanonicalKind(w.Kind));
+            if (w.CalculationHistory == null || w.CalculationHistory.Count > 20 || w.CalculationHistory.Any(c => c == null || c.Length > 1024)) throw new InvalidDataException("Invalid calculator history.");
             if (w.PlacementX is double x && (!double.IsFinite(x) || x < 0 || x > 1) || !double.IsFinite(w.PlacementY) || w.PlacementY < 0 || w.PlacementY > 720000) throw new InvalidDataException("Invalid widget placement.");
             if (def == null || w.Id == Guid.Empty || w.Title == null || w.Placeholder == null || w.PanelKey == null || w.Text == null || w.Items == null || w.Records == null || w.Categories == null || w.Fields == null || w.FlashcardDecks == null ||
                 w.Items.Any(t => t == null || t.Text == null) || w.Records.Any(r => r == null || r.Name == null || r.Categories == null || r.Values == null) ||

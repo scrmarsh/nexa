@@ -26,6 +26,7 @@ public partial class MainWindow
     private const double MicroWidgetHeight = 46;
     private const double WidgetGap = 8;
     private Point? addWidgetLocation;
+    private Guid? compactedPreviewId;
     private Brush DashboardBrush(string key) => (Brush)FullContent.FindResource("Dashboard" + key);
 
     private void InitializeWidgets()
@@ -34,6 +35,8 @@ public partial class MainWindow
         legacyPanels.Add("notes", NotesPanel); legacyPanels.Add("tasks", ChecklistPanel); legacyPanels.Add("hedy", HedyPanel);
         LegacyContent.Children.Add(parkedPanels); widgetsReady = true;
         WidgetScroller.SizeChanged += (_, _) => ArrangeWidgetFrames();
+        stopwatchRefresh.Tick += (_, _) => { var now = DateTimeOffset.Now; foreach (var tick in stopwatchTicks) tick(now); };
+        Closed += (_, _) => stopwatchRefresh.Stop();
         PixelBannerHost.SizeChanged += (_, _) => ArrangeWidgetFrames();
         WidgetCanvas.MouseLeftButtonDown += (_, e) => { if (ReferenceEquals(e.OriginalSource, WidgetCanvas)) { addWidgetLocation = e.GetPosition(WidgetCanvas); e.Handled = true; AddWidgetClick(WidgetCanvas, new RoutedEventArgs()); } };
         WidgetScroller.ScrollChanged += (_, e) => { if (ReferenceEquals(e.OriginalSource, WidgetScroller) && (e.ViewportHeightChange != 0 || e.ViewportWidthChange != 0)) ArrangeWidgetFrames(); };
@@ -57,6 +60,7 @@ public partial class MainWindow
     {
         if (!widgetsReady) return;
         if (widgetGestureActive) { widgetRenderDeferred = true; return; }
+        ClearWidgetFocus(); stopwatchRefresh.Stop(); stopwatchTicks.Clear();
         if (WidgetLibrary.PrepareLayout(state)) Changed();
         foreach (var panel in legacyPanels.Values) { Detach(panel); parkedPanels.Children.Add(panel); }
         WidgetCanvas.Children.Clear(); widgetFrames.Clear(); widgetResizeHandles.Clear(); widgetTicks.Clear(); expandedMicroWidgets.Clear(); collapseMicroWidgets.Clear();
@@ -76,7 +80,6 @@ public partial class MainWindow
                 var b = new Button { Content = glyph, ToolTip = title, Padding = new Thickness(6, 3, 6, 3), Margin = new Thickness(3, 0, 0, 0) };
                 System.Windows.Automation.AutomationProperties.SetName(b, title + " " + widget.Title); b.Click += (_, _) => action(); buttons.Children.Add(b); b.Content = NexaIcons.Create(title);
             }
-            Action("⚙", "Configure", () => ConfigureWidget(widget));
             Action("⧉", "Duplicate", () => DuplicateWidget(widget));
             Action("×", "Remove widget", () => RemoveWidget(widget));
             buttons.Opacity = editingDashboard ? 1 : 0;
@@ -94,11 +97,17 @@ public partial class MainWindow
             var titleEditor = new TextBox { Text = widget.Title, FontSize = 14, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center, Background = Brushes.Transparent, BorderThickness = new Thickness(0), Padding = new Thickness(0), MaxLength = 100, ToolTip = "Edit widget title; drag the grip to move" };
             System.Windows.Automation.AutomationProperties.SetName(titleEditor, "Widget title " + widget.Title);
             titleEditor.TextChanged += (_, _) => { if (!string.IsNullOrWhiteSpace(titleEditor.Text)) { widget.Title = titleEditor.Text.Trim(); Changed(); } };
+            titleEditor.ToolTip="Click to rename; double-click or right-click for widget options";
+            titleEditor.MouseDoubleClick+=(_,e)=> { ConfigureWidget(widget); e.Handled=true; };
+            titleEditor.KeyDown+=(_,e)=> { if(e.Key==Key.F2) { ConfigureWidget(widget); e.Handled=true; } };
+            var options=new ContextMenu(); var edit=new MenuItem { Header="Edit widget options" }; edit.Click+=(_,_)=>ConfigureWidget(widget); options.Items.Add(edit);
+            var focus = new MenuItem { Header = "Focus this widget" }; focus.Click += (_, _) => FocusWidget(widget.Id); options.Items.Add(focus);
+            titleEditor.ContextMenu=options;
             header.Children.Add(titleEditor);
             UIElement content;
             if (widget.Kind == "Pixel timer" && state.Widgets.First(w => w.Kind == "Pixel timer").Id == widget.Id)
             { Detach(PixelPanel); PixelPanel.Margin = new Thickness(0); PixelPanel.Padding = new Thickness(14); PixelPanel.BorderThickness = new Thickness(0); PixelPanel.Background = DashboardBrush("PanelBrush"); content = PixelPanel; }
-            else if (widget.PanelKey.Length > 0 && widget.PanelKey != "setup" && legacyPanels.TryGetValue(widget.PanelKey, out var legacy))
+            else if (widget.PanelKey.Length > 0 && widget.PanelKey is not ("setup" or "timeline" or "hedy") && legacyPanels.TryGetValue(widget.PanelKey, out var legacy))
             {
                 Detach(legacy); legacy.Margin = new Thickness(0); legacy.Padding = new Thickness(14); legacy.BorderThickness = new Thickness(0); legacy.Background = DashboardBrush("PanelBrush"); content = legacy;
             }
@@ -307,6 +316,12 @@ public partial class MainWindow
                 Canvas.SetTop(handle, Canvas.GetTop(frame) + (edge.HasFlag(ResizeEdge.Bottom) ? frame.Height - handle.Height : vertical ? 0 : 12));
             }
         }
+        if(IsPreview && state.Workspace is {} workspace && compactedPreviewId!=workspace.ActiveDashboardId)
+        {
+            compactedPreviewId=workspace.ActiveDashboardId;
+            var ordered=state.Widgets.Where(w=>widgetFrames.ContainsKey(w.Id)).OrderBy(w=>Canvas.GetTop(widgetFrames[w.Id])).ThenBy(w=>Canvas.GetLeft(widgetFrames[w.Id]));
+            StoreWidgetPositions(PackWidgetFrames(ordered,[])); Changed(); ArrangeWidgetFrames(); SaveNow();
+        }
     }
     [Flags]
     private enum ResizeEdge { Left = 1, Right = 2, Top = 4, Bottom = 8 }
@@ -315,15 +330,18 @@ public partial class MainWindow
         Point anchor = new(); Rect origin = new(); double unit = 1, dx = 0, dy = 0;
         int span = 1, height = 288; double left = 0, top = 0;
         bool physicalInput = false;
+        Dictionary<Guid,Rect> resizeOrigin = [];
         System.Windows.Media.Effects.Effect? originalEffect = null;
         thumb.DragStarted += (_, _) =>
         {
+            ClearWidgetFocus();
             var frame = widgetFrames[widget.Id];
             var visualPosition = frame.TranslatePoint(new Point(), WidgetCanvas);
             frame.RenderTransform = Transform.Identity;
             origin = FrameRect(frame); origin.Location = visualPosition; unit = GridUnit;
             anchor = Mouse.GetPosition(WidgetCanvas); dx = dy = 0; span = DisplaySpan(widget); height = (int)origin.Height; left = origin.Left; top = origin.Top;
             physicalInput = thumb.IsMouseCaptured; widgetGestureActive = true;
+            resizeOrigin=widgetFrames.ToDictionary(p=>p.Key,p=>FrameRect(p.Value));
             if (resize)
             {
                 placementPreview = new Border { Background = new SolidColorBrush(Color.FromArgb(30,139,159,255)), BorderBrush = DashboardBrush("AccentBrush"), BorderThickness = new Thickness(2), CornerRadius = new CornerRadius(12), IsHitTestVisible = false };
@@ -351,6 +369,10 @@ public partial class MainWindow
                 frame.RenderTransform = new TranslateTransform(origin.X + dx - Canvas.GetLeft(frame), origin.Y + dy - Canvas.GetTop(frame));
                 return;
             }
+            ResizeAtPointer();
+        };
+        void ResizeAtPointer()
+        {
             var minSpan = MinimumWidthSteps(widget); var startSpan = Math.Clamp((int)Math.Round((origin.Width + WidgetGap) / unit), minSpan, 20);
             if (resize)
             {
@@ -364,13 +386,15 @@ public partial class MainWindow
                 else if (edge.HasFlag(ResizeEdge.Bottom)) height = Math.Clamp((int)Math.Round((origin.Height+dy)/RowUnit)*24,minimum,1440);
             }
             var width = resize ? Math.Max(1, span*unit-WidgetGap) : origin.Width;
-            var candidate = FreeWidgetPlacement(widget, left, top, width, height);
+            var candidate = new Rect(left,top,width,height);
+            ResizeWidgetVisual(widget,candidate,resizeOrigin);
             Canvas.SetLeft(placementPreview!,candidate.X); Canvas.SetTop(placementPreview!,candidate.Y); placementPreview!.Width=width; placementPreview.Height=height;
-        };
+        }
         thumb.DragCompleted += (_, e) =>
         {
             if (!widgetGestureActive) return;
             if (physicalInput && !e.Canceled) { var pointer = Mouse.GetPosition(WidgetCanvas); dx = pointer.X - anchor.X; dy = pointer.Y - anchor.Y; }
+            if (physicalInput && resize && !e.Canceled) ResizeAtPointer();
             var before = WidgetVisualPositions();
             var frame = widgetFrames[widget.Id]; frame.RenderTransform = Transform.Identity;
             if (placementPreview != null) { WidgetCanvas.Children.Remove(placementPreview); placementPreview = null; }
@@ -386,7 +410,7 @@ public partial class MainWindow
                 if (resize)
                 {
                     widget.Span=span; widget.Height=Math.Clamp(height,(int)MinimumWidgetHeight(widget),1440); widget.CustomSize=true;
-                    CommitWidgetPlacement(widget,left,top,span*unit-WidgetGap,widget.Height);
+                    CommitWidgetDrop(widget,left,top,preserveAnchor:true);
                 }
                 else CommitWidgetDrop(widget, origin.X + dx, origin.Y + dy);
             }
@@ -410,6 +434,8 @@ public partial class MainWindow
         var editor = WidgetLibrary.Definition(widget.Kind).Editor;
         switch (editor)
         {
+            case "calculator": BuildCalculator(panel, widget); break;
+            case "recorder": BuildRecorderWidget(panel); break;
             case "externalTasks": case "calendar": panel.Children.Add(BuildIntegrationWidget(widget)); break;
             case "focus": var reset = new Button { Content = "Take 45 seconds to return to focus", Margin = new Thickness(0,12,0,0) }; reset.Click += FocusResetClick; panel.Children.Add(reset); break; case "bible": panel.Children.Add(BuildBible(widget)); break;
             case "scripture":
@@ -446,7 +472,7 @@ public partial class MainWindow
                     var button = new Button { Content = direction == 1 ? "+ " + widget.Increment : "− " + widget.Increment, Margin = new Thickness(3) };
                     button.Click += (_, _) => { try { widget.Value += direction * widget.Increment; number.Text = widget.Value.ToString(CultureInfo.CurrentCulture); Changed(); } catch (OverflowException) { Error("Counter limit reached."); } }; counts.Children.Add(button);
                 }
-                panel.Children.Add(counts); break;
+                panel.Children.Add(counts); if (widget.Kind == "Distraction counter") AddDistractionMessage(panel, widget); break;
             case "timer": case "stopwatch":
                 BuildTimeWidget(panel, widget, editor == "stopwatch"); break;
             case "clock": case "progress":
@@ -481,14 +507,10 @@ public partial class MainWindow
                 var stats = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 18 };
                 widgetTicks.Add(_ => { var records = state.Widgets.SelectMany(w => w.Records).ToList(); stats.Text = $"{records.Count} records\n\n" + string.Join("\n", records.SelectMany(r => r.Categories).GroupBy(c => c).Select(g => $"{g.Key}: {g.Count()}")); }); panel.Children.Add(stats); break;
             case "timeline":
-                panel.Children.Add(new TextBlock { Text = state.Session == null ? "Start a Space session to build its timeline." : $"{state.Session.Title}\n{state.Session.Start.LocalDateTime:t} → {state.Session.End.LocalDateTime:t}", TextWrapping = TextWrapping.Wrap });
-                if (state.Session is { } session)
-                    foreach (var entry in session.IntervalNotes) panel.Children.Add(new TextBlock { Text = $"Interval {entry.Key + 1}: {entry.Value}", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 10, 0, 0) });
-                if (state.Widgets.FirstOrDefault(w => w.Kind == "Session timeline")?.Id == widget.Id)
-                { Detach(HedySessionPanel); panel.Children.Add(HedySessionPanel); }
+                BuildSessionTimeline(panel, widget);
                 break;
-            case "hedy": case "setup":
-                var buttonToPanel = new Button { Content = editor == "hedy" ? "Open Hedy connection" : "Open session settings" }; buttonToPanel.Click += (_, _) => OpenLegacyPanel(editor == "hedy" ? HedyPanel : SetupPanel, editor == "hedy" ? widget.Title : "Session settings"); panel.Children.Add(buttonToPanel); break;
+            case "hedy": BuildHedyNotes(panel, widget); break;
+            case "setup": var buttonToPanel = new Button { Content = "Open session settings" }; buttonToPanel.Click += (_, _) => OpenMainSettings("Session"); panel.Children.Add(buttonToPanel); break;
         }
         return panel;
     }
@@ -521,7 +543,7 @@ public partial class MainWindow
             row.Children.Add(new TextBlock { Text = record.Name + " · " + record.CreatedAt.LocalDateTime.ToString("g") + "\n" + string.Join(", ", record.Categories) + "\n" + string.Join(" · ", record.Values.Select(p => p.Key + ": " + p.Value)), TextWrapping = TextWrapping.Wrap }); panel.Children.Add(row);
         }
     }
-    private void UpdateWidgetClocks(DateTimeOffset now) { foreach (var tick in widgetTicks) tick(now); }
+    private void UpdateWidgetClocks(DateTimeOffset now) { foreach (var tick in widgetTicks) tick(now); if (state.Widgets.Any(w => w.StopwatchStartedAt != null)) stopwatchRefresh.Start(); else stopwatchRefresh.Stop(); }
     private void OpenWeb(string text)
     {
         if (!Uri.TryCreate(text, UriKind.Absolute, out var uri) || (uri.Scheme != "https" && uri.Scheme != "http")) { Error("Enter a valid https:// website address."); return; }
@@ -538,12 +560,15 @@ public partial class MainWindow
         void Refresh()
         {
             list.Children.Clear();
-            foreach (var group in WidgetLibrary.Definitions.Where(d => d.Name is not ("Session controls" or "Hedy") && (d.Name + " " + d.Group + " " + d.Description).Contains(search.Text, StringComparison.CurrentCultureIgnoreCase)).GroupBy(d => d.Group))
+            var matches = WidgetLibrary.Definitions.Where(d => d.Name != "Session controls" && (d.Name + " " + d.Group + " " + d.Description).Contains(search.Text, StringComparison.CurrentCultureIgnoreCase)).ToList();
+            var recommended = new[] { "Session timeline", "Clock", "Notes" }.Select(name => matches.FirstOrDefault(d => d.Name == name)).OfType<WidgetDefinition>().ToArray();
+            var groups = new[] { new { Name = "Recommended", Items = recommended } }.Concat(matches.GroupBy(d => d.Group).Select(g => new { Name = g.Key, Items = g.ToArray() }));
+            foreach (var group in groups.Where(g => g.Items.Length > 0))
             {
-                list.Children.Add(new TextBlock { Text = group.Key, FontSize = 18, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 16, 0, 10) });
-                foreach (var definition in group)
+                list.Children.Add(new TextBlock { Text = group.Name, FontSize = 18, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 16, 0, 10) });
+                foreach (var definition in group.Items)
                 {
-                    var content = new StackPanel(); content.Children.Add(new TextBlock { Text = definition.Name, FontWeight = FontWeights.SemiBold }); content.Children.Add(new TextBlock { Text = definition.Description, TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 5, 0, 0) });
+                    var content = new StackPanel(); content.Children.Add(new TextBlock { Text = definition.Name == "Session timeline" ? "Session Timeline" : definition.Name, FontWeight = FontWeights.SemiBold }); content.Children.Add(new TextBlock { Text = definition.Description, TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 5, 0, 0) });
                     var row = new Grid(); row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(42) }); row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
                     var icon = new TextBlock { Text = WidgetIcon(definition.Editor), FontFamily = new FontFamily("Segoe MDL2 Assets"), FontSize = 22, Foreground = Brush("AccentBrush"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left };
                     row.Children.Add(icon); Grid.SetColumn(content, 1); row.Children.Add(content);
@@ -567,8 +592,16 @@ public partial class MainWindow
         var panelKey = kind switch { "Pixel timer" => "pixels", "Session controls" => "setup", "Session timeline" => "timeline", "Hedy" => "hedy", _ => "" };
         if (state.Widgets.Any(w => w.PanelKey == panelKey)) panelKey = "";
         var widget = WidgetLibrary.Create(kind, panelKey); WidgetLibrary.Add(state, widget); PlayInterfaceSound();
-        if (location is Point point) { widget.PlacementX = Math.Clamp(point.X / Math.Max(1, WidgetCanvas.ActualWidth), 0, 1); widget.PlacementY = Math.Max(0, point.Y); widget.Span = Math.Min(widget.Span, Math.Max(6, (int)Math.Floor((WidgetCanvas.ActualWidth - point.X + WidgetGap) / GridUnit))); }
-        Changed(); RenderWidgets(); SaveNow(); return widget;
+        if (location is Point point)
+        {
+            var minimum=MinimumWidthSteps(widget);
+            var column=Math.Clamp((int)Math.Round(point.X/GridUnit),0,20-minimum);
+            widget.Span=Math.Clamp(widget.Span,minimum,20-column);
+            widget.PlacementX=column*GridUnit/Math.Max(1,WidgetCanvas.ActualWidth); widget.PlacementY=Math.Max(0,Math.Round(point.Y/RowUnit)*RowUnit);
+        }
+        Changed(); RenderWidgets(); WidgetCanvas.UpdateLayout();
+        if(location is Point target && widgetFrames.ContainsKey(widget.Id)) { CommitWidgetDrop(widget,target.X,Math.Max(0,Math.Round(target.Y/RowUnit)*RowUnit),preserveAnchor:true); ArrangeWidgetFrames(); }
+        else SaveNow(); return widget;
     }
     internal WidgetInstance DuplicateWidget(WidgetInstance source)
     {
@@ -579,20 +612,17 @@ public partial class MainWindow
     }
     private void RemoveWidget(WidgetInstance widget)
     {
-        var hasData = widget.HasData || (widget.PanelKey == "notes" && state.Notes.Length > 0) || (widget.PanelKey == "tasks" && state.Tasks.Count > 0) || (widget.PanelKey is "pixels" or "timeline" or "hedy" && state.Session != null);
-        if (hasData && MessageBox.Show(this, $"Remove {widget.Title}?\n\nThis widget contains saved data. Other widgets will remain unchanged.", "Remove widget", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) != MessageBoxResult.OK) return;
         RemoveWidgetConfirmed(widget);
     }
     internal void RemoveWidgetConfirmed(WidgetInstance widget)
     {
         if (!SaveNow()) return;
+        var removed=new RemovedWidget(Continuity.Clone(widget),state.Widgets.IndexOf(widget),state.Workspace!.ActiveDashboardId);
         var candidate = CopyWorkspaceState().Workspace!; var d = Continuity.Current(candidate, store.UserId);
         // Archive first so even a confirmed removal remains recoverable from history.
         Continuity.Archive(d); d.Current.SessionId = Guid.NewGuid(); d.Current.OpenedAt = DateTimeOffset.Now;
         d.Current.Data.Widgets.RemoveAll(w => w.Id == widget.Id);
-        if (widget.PanelKey == "notes") d.Current.Data.Notes = "";
-        if (widget.PanelKey == "tasks") d.Current.Data.Tasks.Clear();
-        if (CommitWorkspace(candidate)) { editingDashboard = true; RenderWidgets(); }
+        if (CommitWorkspace(candidate, preserveWidgetUndo: true)) { widgetUndo.Push(removed); widgetRedo.Clear(); while(widgetUndo.Count>20) { var recent=widgetUndo.Take(20).Reverse().ToArray(); widgetUndo.Clear(); foreach(var item in recent) widgetUndo.Push(item); } RenderWidgets(); ShowWidgetRemovedToast(); }
     }
     private void ConfigureWidget(WidgetInstance widget)
     {

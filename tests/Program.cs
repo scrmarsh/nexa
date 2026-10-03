@@ -17,6 +17,12 @@ internal static partial class Program
         Directory.CreateDirectory(output);
         try
         {
+            if(args.Contains("--stability108"))
+            {
+                var stabilityApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                stabilityApp.InitializeComponent(); CheckStability108();
+                Console.WriteLine($"PASS: {passed} Nexa 1.0.8 checks. Artifacts: {output}"); stabilityApp.Shutdown(); return 0;
+            }
             if(args.Contains("--polish107"))
             {
                 var polishApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };

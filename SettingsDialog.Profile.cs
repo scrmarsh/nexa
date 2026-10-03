@@ -72,6 +72,7 @@ internal sealed partial class SettingsDialog
             catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException or IntegrationException) { MessageBox.Show(this,ex is IntegrationException?ex.Message:"Could not read the configuration file.","Google connection"); }
         }; page.Children.Add(googleSetup);
         page.Children.Add(new TextBlock { Text="Google requires a registered desktop app with Tasks / Calendar APIs enabled. See INTEGRATIONS.md. Calendar access is read-only. Disconnect removes local authorization; Google account settings can revoke the app's permission.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,0) });
+        hedySettingsSection=new Border { Child=BuildHedy(),Margin=new Thickness(0,28,0,0),Focusable=true }; page.Children.Add(hedySettingsSection);
         return new ScrollViewer { Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto };
     }
 }

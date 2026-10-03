@@ -2,6 +2,8 @@ namespace SessionDashboard;
 
 public partial class MainWindow
 {
+    internal DateTimeOffset? lastSuccessfulSaveAt;
+    internal void RefreshWidgetPreferences() { SizeTimerPixels(); if (widgetFocusBackdrop != null) widgetFocusBackdrop.Background = FocusBackdropBrush(); if (focusOverlay != null) focusOverlay.Background = FocusBackdropBrush(); UpdateClock(); }
     private SettingsDialog? settingsWindow;
     internal void OpenMainSettings(string section = "Appearance")
     {

@@ -18,3 +18,7 @@ token*.json
 **/test-output/
 /TestResults/
 /tests/TestResults/
+
+# Local audio captures (never source-controlled)
+Recordings/
+*_wpftmp.csproj

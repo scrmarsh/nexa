@@ -14,41 +14,20 @@ public partial class MainWindow
         a.Left < b.Right + WidgetGap - .01 && a.Right + WidgetGap > b.Left + .01 &&
         a.Top < b.Bottom + WidgetGap - .01 && a.Bottom + WidgetGap > b.Top + .01;
 
-    private void CommitWidgetDrop(WidgetInstance moved, double x, double y)
+    private void CommitWidgetDrop(WidgetInstance moved, double x, double y, bool preserveAnchor=false)
     {
         var frame = widgetFrames[moved.Id];
         var span = DisplaySpan(moved);
         var column = Math.Clamp((int)Math.Round(x / GridUnit), 0, 20 - span);
-        var destination = new Rect(column * GridUnit, Math.Clamp(Math.Round(y / RowUnit) * RowUnit, 0, 720000), frame.Width, frame.Height);
+        var destination = new Rect(column * GridUnit, Math.Clamp(preserveAnchor ? y : Math.Round(y / RowUnit) * RowUnit, 0, 720000), frame.Width, frame.Height);
         var others = state.Widgets.Where(w => w.Id != moved.Id && widgetFrames.ContainsKey(w.Id))
             .OrderBy(w => Canvas.GetTop(widgetFrames[w.Id])).ThenBy(w => Canvas.GetLeft(widgetFrames[w.Id])).ToList();
 
-        Dictionary<Guid, Rect> Pack(Rect anchor)
-        {
-            var positions = new Dictionary<Guid, Rect> { [moved.Id] = anchor };
-            foreach (var widget in others)
-            {
-                var current = FrameRect(widgetFrames[widget.Id]);
-                var maxColumn = 20 - DisplaySpan(widget);
-                var preferredColumn = Math.Clamp((int)Math.Round(current.X / GridUnit), 0, maxColumn);
-                var columns = Enumerable.Range(0, maxColumn + 1).OrderBy(c => Math.Abs(c - preferredColumn)).ThenBy(c => c).ToArray();
-                // First available row fills holes; prefer the previous column when that row has room.
-                // Reserve the physical drop destination before placing any surrounding card.
-                var lastRow = Math.Ceiling((positions.Values.Max(r => r.Bottom) + WidgetGap) / RowUnit);
-                Rect? slot = null;
-                for (var row = 0; row <= lastRow && slot == null; row++)
-                    foreach (var col in columns)
-                    {
-                        var candidate = new Rect(col * GridUnit, row * RowUnit, current.Width, current.Height);
-                        if (positions.Values.Any(r => PlacementOverlaps(r, candidate))) continue;
-                        slot = candidate; break;
-                    }
-                positions[widget.Id] = slot!.Value;
-            }
-            return positions;
-        }
+        Dictionary<Guid,Rect> Pack(Rect anchor)=>PackWidgetFrames(others,new() { [moved.Id]=anchor });
 
         var packed = Pack(destination);
+        if(!preserveAnchor)
+        {
         // Remove empty space above the selected card without passing cards in its chosen column.
         var above = packed.Where(p => p.Key != moved.Id).Select(p => p.Value)
             .Where(r => r.Top < destination.Top && r.Left < destination.Right + WidgetGap - .01 && r.Right + WidgetGap > destination.Left + .01);
@@ -68,6 +47,35 @@ public partial class MainWindow
             if (compacted.Values.Max(r => r.Bottom) > bottom + .01) continue;
             packed = compacted; break;
         }
+        }
+        StoreWidgetPositions(packed);
+        Changed(); SaveNow();
+    }
+
+    private Dictionary<Guid,Rect> PackWidgetFrames(IEnumerable<WidgetInstance> widgets,Dictionary<Guid,Rect> positions)
+    {
+        foreach(var widget in widgets)
+        {
+            var current=FrameRect(widgetFrames[widget.Id]);
+            var maxColumn=20-DisplaySpan(widget);
+            var preferred=Math.Clamp((int)Math.Round(current.X/GridUnit),0,maxColumn);
+            var columns=Enumerable.Range(0,maxColumn+1).OrderBy(c=>Math.Abs(c-preferred)).ThenBy(c=>c).ToArray();
+            var lastRow=Math.Ceiling((positions.Values.Select(r=>r.Bottom).DefaultIfEmpty(0).Max()+WidgetGap)/RowUnit);
+            Rect? slot=null;
+            for(var row=0;row<=lastRow && slot==null;row++)
+                foreach(var col in columns)
+                {
+                    var candidate=new Rect(col*GridUnit,row*RowUnit,current.Width,current.Height);
+                    if(positions.Values.Any(r=>PlacementOverlaps(r,candidate))) continue;
+                    slot=candidate; break;
+                }
+            positions[widget.Id]=slot!.Value;
+        }
+        return positions;
+    }
+
+    private void StoreWidgetPositions(Dictionary<Guid,Rect> packed)
+    {
         foreach (var widget in state.Widgets.Where(w => packed.ContainsKey(w.Id)))
         {
             var rect = packed[widget.Id];
@@ -77,7 +85,29 @@ public partial class MainWindow
             widget.Column = Math.Clamp((int)Math.Round(rect.X / GridUnit), 0, 20 - widget.Span);
             widget.Row = Math.Clamp((int)Math.Round(rect.Y / RowUnit), 0, 30000);
         }
-        Changed(); SaveNow();
+    }
+
+    private void ResizeWidgetVisual(WidgetInstance active, Rect anchor, Dictionary<Guid, Rect> original)
+    {
+        var occupied=new List<Rect> { anchor };
+        var frame=widgetFrames[active.Id]; Canvas.SetLeft(frame,anchor.X); Canvas.SetTop(frame,anchor.Y); frame.Width=anchor.Width; frame.Height=anchor.Height;
+        FitWidgetBody(frame,active);
+        foreach(var pair in original.Where(p=>p.Key!=active.Id).OrderBy(p=>p.Value.Y).ThenBy(p=>p.Value.X))
+        {
+            var rect=pair.Value;
+            while(occupied.FirstOrDefault(r=>PlacementOverlaps(r,rect)) is var hit && hit.Width>0) rect.Y=Math.Ceiling((hit.Bottom+WidgetGap)/RowUnit)*RowUnit;
+            var other=widgetFrames[pair.Key]; Canvas.SetLeft(other,rect.X); Canvas.SetTop(other,rect.Y); occupied.Add(rect);
+        }
+        WidgetCanvas.Height=Math.Max(WidgetScroller.ViewportHeight,occupied.Max(r=>r.Bottom)+WidgetGap);
+    }
+
+    private void FitWidgetBody(Border frame,WidgetInstance widget)
+    {
+        if(frame.Child is not StackPanel stack || stack.Children.OfType<ScrollViewer>().FirstOrDefault() is not {} body) return;
+        if(body.Content is FrameworkElement content) content.MaxWidth=Math.Max(1,frame.Width-2-content.Margin.Left-content.Margin.Right);
+        body.Height=Math.Max(0,frame.Height-stack.Children.OfType<FrameworkElement>().Where(c=>c!=body).Sum(c=>c.DesiredSize.Height)-2);
+        if(widget.Kind=="Bible" && body.Content is StackPanel biblePanel && biblePanel.Children.OfType<BibleReader>().FirstOrDefault() is {} reader)
+            reader.Height=Math.Max(1,body.Height-biblePanel.Margin.Top-biblePanel.Margin.Bottom);
     }
 
     private void AnimateWidgetSettle(Dictionary<Guid, Point> before)
