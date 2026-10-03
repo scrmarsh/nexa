@@ -5,22 +5,42 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
+using System.Windows.Media.Animation;
 
 namespace SessionDashboard;
 
 internal static class NexaChrome
 {
+    private static readonly HashSet<Window> FadingWindows = [];
     internal static ImageSource Icon => new BitmapImage(new Uri("pack://application:,,,/Nexa;component/assets/nexa-icon-256.png"));
     internal static void Apply(Window window)
     {
-        window.Icon = Icon; window.WindowStyle = WindowStyle.None;
-        WindowChrome.SetWindowChrome(window, new WindowChrome { CaptionHeight = 44, ResizeBorderThickness = new Thickness(6), GlassFrameThickness = new Thickness(0), CornerRadius = new CornerRadius(8), UseAeroCaptionButtons = false });
+        window.UseLayoutRounding = true; window.SnapsToDevicePixels = true; window.Icon = Icon; window.WindowStyle = WindowStyle.None; window.ResizeMode = ResizeMode.CanResize;
+        WindowChrome.SetWindowChrome(window, new WindowChrome { CaptionHeight = 44, ResizeBorderThickness = new Thickness(10), GlassFrameThickness = new Thickness(0), CornerRadius = new CornerRadius(8), UseAeroCaptionButtons = false });
+        FadeIn(window);
         window.SourceInitialized += (_, _) =>
         {
             var hwnd = new WindowInteropHelper(window).Handle;
             var dark = 1; DwmSetWindowAttribute(hwnd, 20, ref dark, sizeof(int));
             var border = 0x00261B17; DwmSetWindowAttribute(hwnd, 34, ref border, sizeof(int));
         };
+    }
+    internal static void FadeIn(Window window)
+    {
+        window.Opacity = 0;
+        window.Loaded += (_, _) => window.BeginAnimation(Window.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(180)) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } });
+    }
+    internal static void FadeOutAndClose(Window window)
+    {
+        FadeOut(window, window.Close);
+    }
+    internal static void FadeOut(Window window, Action afterFade)
+    {
+        if (!FadingWindows.Add(window)) return;
+        if (!window.IsVisible) { FadingWindows.Remove(window); afterFade(); return; }
+        var fade = new DoubleAnimation(window.Opacity, 0, TimeSpan.FromMilliseconds(160)) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn } };
+        fade.Completed += (_, _) => { window.BeginAnimation(Window.OpacityProperty, null); FadingWindows.Remove(window); afterFade(); };
+        window.BeginAnimation(Window.OpacityProperty, fade);
     }
     internal static void ToggleMaximize(Window window) => window.WindowState = window.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
     internal static Border Caption(Window window)
@@ -29,17 +49,28 @@ internal static class NexaChrome
         var buttons = new StackPanel { Orientation = Orientation.Horizontal }; DockPanel.SetDock(buttons, Dock.Right); dock.Children.Add(buttons);
         void Add(string glyph, string label, Action action)
         {
-            var button = new Button { Content = glyph, ToolTip = label, Width = 44, Height = 36, Padding = new Thickness(0), Margin = new Thickness(2, 4, 2, 4), Background = Brushes.Transparent, BorderThickness = new Thickness(0) };
+            var button = new Button { Content = glyph, FontFamily = new FontFamily("Segoe MDL2 Assets"), FontSize = 14, ToolTip = label, Width = 40, Height = 36, Padding = new Thickness(0), Margin = new Thickness(0, 4, 0, 4), Background = Brushes.Transparent, BorderThickness = new Thickness(0) };
             System.Windows.Automation.AutomationProperties.SetName(button, label); WindowChrome.SetIsHitTestVisibleInChrome(button, true);
             button.Click += (_, _) => action(); buttons.Children.Add(button);
         }
-        Add("−", "Minimize", () => SystemCommands.MinimizeWindow(window));
-        if (window.ResizeMode != ResizeMode.NoResize) Add("□", "Maximize or restore", () => ToggleMaximize(window));
-        Add("×", "Close", window.Close);
+        Add("\uE921", "Minimize", () => SystemCommands.MinimizeWindow(window));
+        if (window.ResizeMode != ResizeMode.NoResize) { Add("\uE922", "Maximize or restore", () => ToggleMaximize(window)); var maximize = (Button)buttons.Children[^1]; window.StateChanged += (_, _) => maximize.Content = window.WindowState == WindowState.Maximized ? "\uE923" : "\uE922"; }
+        Add("\uE8BB", "Close", () =>
+        {
+            if (window is MainWindow mainWindow) mainWindow.CloseWithFade();
+            else FadeOutAndClose(window);
+        });
         var brand = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(14, 0, 8, 0) };
         brand.Children.Add(new Image { Source = Icon, Width = 22, Height = 22, Margin = new Thickness(0, 0, 10, 0) });
         brand.Children.Add(new TextBlock { Text = window.Title, VerticalAlignment = VerticalAlignment.Center, FontWeight = FontWeights.SemiBold }); dock.Children.Add(brand);
-        return new Border { Height = 44, Background = new SolidColorBrush(Color.FromRgb(13, 17, 25)), BorderBrush = new SolidColorBrush(Color.FromRgb(37, 44, 59)), BorderThickness = new Thickness(0, 0, 0, 1), Child = dock };
+        var caption = new Border { Height = 44, BorderThickness = new Thickness(0, 0, 0, 1), Child = dock }; caption.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); caption.SetResourceReference(Border.BorderBrushProperty, "LineBrush"); return caption;
+    }
+    internal static void TransferBounds(Window source, Window target)
+    {
+        var bounds = source.WindowState == WindowState.Normal ? new Rect(source.Left, source.Top, source.ActualWidth, source.ActualHeight) : source.RestoreBounds;
+        target.WindowStartupLocation = WindowStartupLocation.Manual; target.MinWidth = Math.Min(target.MinWidth, bounds.Width); target.MinHeight = Math.Min(target.MinHeight, bounds.Height);
+        target.Width = bounds.Width; target.Height = bounds.Height; target.Left = bounds.Left; target.Top = bounds.Top;
+        target.WindowState = source.WindowState == WindowState.Maximized ? WindowState.Maximized : WindowState.Normal;
     }
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
 }
@@ -48,11 +79,34 @@ internal static class NexaChrome
 internal class NexaDialog : Window
 {
     private bool wrapping;
+    private bool closingWithFade;
     internal UIElement? Body { get; private set; }
     internal NexaDialog()
     {
         NexaChrome.Apply(this);
         SetResourceReference(BackgroundProperty, "BackgroundBrush"); SetResourceReference(ForegroundProperty, "TextBrush");
+    }
+    internal void ShowDismissible()
+    {
+        if (Owner is { } owner)
+        {
+            System.Windows.Input.MouseButtonEventHandler? outside = null;
+            outside = (_, _) => { if (IsVisible && !closingWithFade) CloseWithFade(); };
+            owner.AddHandler(UIElement.PreviewMouseDownEvent, outside, true);
+            Closed += (_, _) => owner.RemoveHandler(UIElement.PreviewMouseDownEvent, outside);
+        }
+        Show();
+        Activate();
+    }
+    internal void CloseWithFade(bool? dialogResult = null)
+    {
+        if (closingWithFade) return;
+        closingWithFade = true;
+        NexaChrome.FadeOut(this, () =>
+        {
+            if (dialogResult.HasValue) DialogResult = dialogResult.Value;
+            else Close();
+        });
     }
     protected override void OnContentChanged(object oldContent, object newContent)
     {
@@ -62,6 +116,8 @@ internal class NexaDialog : Window
         wrapping = true;
         Content = null;
         var dock = new DockPanel(); var caption = NexaChrome.Caption(this); DockPanel.SetDock(caption, Dock.Top); dock.Children.Add(caption); dock.Children.Add(body);
-        Content = dock; wrapping = false;
+        var frame = new Border { Child = dock, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), SnapsToDevicePixels = true };
+        frame.SetResourceReference(Border.BorderBrushProperty, "LineBrush");
+        Content = frame; wrapping = false;
     }
 }

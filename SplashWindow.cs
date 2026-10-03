@@ -17,7 +17,11 @@ internal sealed class SplashWindow : Window
         var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         panel.Children.Add(new NexaLogo { Width = 480, Height = 152 });
         panel.Children.Add(new TextBlock { Text = "A space for whatever comes next.", Foreground = new SolidColorBrush(Color.FromRgb(166, 177, 200)), FontSize = 15, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 18, 0, 0) });
-        Content = new Border { BorderBrush = new SolidColorBrush(Color.FromRgb(42, 49, 69)), BorderThickness = new Thickness(1), Child = panel };
+        var content = new Grid();
+        content.Children.Add(panel);
+        content.Children.Add(new TextBlock { Text = "v" + App.AppVersion, Foreground = new SolidColorBrush(Color.FromRgb(116, 128, 151)), FontSize = 11, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(0, 0, 14, 10) });
+        Content = new Border { BorderBrush = new SolidColorBrush(Color.FromRgb(42, 49, 69)), BorderThickness = new Thickness(1), Child = content };
+        NexaChrome.FadeIn(this);
     }
     internal async Task<HomeWindow> EnterHome(StateStore store, bool diagnostic = false)
     {

@@ -22,9 +22,15 @@ public partial class MainWindow
         HedyRegionPicker.SelectedIndex = state.HedyRegion == "EU" ? 1 : 0;
         HedyKeyInput.Password = SecretStorage.Unprotect(state.HedyProtectedKey);
         RememberHedyKey.IsChecked = HedyKeyInput.Password.Length > 0;
-        if (HedyKeyInput.Password.Length == 0) HedyKeyInput.Password = Environment.GetEnvironmentVariable("HEDY_API_KEY") ?? "";
+        if (!IsPreview && HedyKeyInput.Password.Length == 0) HedyKeyInput.Password = Environment.GetEnvironmentVariable("HEDY_API_KEY") ?? "";
         HedyTranscriptBox.Text = state.Session?.HedyTranscript ?? "";
         hedyTimer.Tick += async (_, _) => await SyncHedy();
+    }
+    internal void RefreshHedySettings()
+    {
+        HedyRegionPicker.SelectedIndex = state.HedyRegion == "EU" ? 1 : 0;
+        HedyKeyInput.Password = SecretStorage.Unprotect(state.HedyProtectedKey);
+        RememberHedyKey.IsChecked = HedyKeyInput.Password.Length > 0;
     }
     private void PauseHedySync()
     {
@@ -67,7 +73,7 @@ public partial class MainWindow
     private async void LinkHedyClick(object sender, RoutedEventArgs e)
     {
         if (hedy == null || HedySessionPicker.SelectedItem is not HedySessionInfo selected) { HedyStatus.Text = "Connect and select a Hedy session first."; return; }
-        if (state.Session is not { } session || session.StoppedAt != null || session.End <= DateTimeOffset.Now) { HedyStatus.Text = "Start or schedule a dashboard session first."; return; }
+        if (state.Session is not { } session || session.StoppedAt != null || session.End <= DateTimeOffset.Now) { HedyStatus.Text = "Start or schedule a Space session first."; return; }
         PauseHedySync();
         var generation = hedyGeneration;
         if (session.HedySessionId != selected.Id) { session.HedyTranscript = ""; session.HedyBaseline = ""; }
@@ -127,7 +133,7 @@ public partial class MainWindow
             var live = new TextBox { Text = session.HedyIntervalNotes.GetValueOrDefault(i) ?? "No new Hedy text received during this interval.", IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, Height = 160, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Tag = index };
             panel.Children.Add(live);
         }
-        var close = new Button { Content = "Done", Margin = new Thickness(0, 18, 0, 0) }; close.Click += (_, _) => editor.Close(); panel.Children.Add(close);
+        var close = new Button { Content = "Done", Margin = new Thickness(0, 18, 0, 0) }; close.Click += (_, _) => NexaChrome.FadeOutAndClose(editor); panel.Children.Add(close);
         editor.Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         editor.Closed += (_, _) => { noteWindows.Remove((session, first)); if (state.Session == session) { BuildTimeline(); UpdateClock(); } };
         noteWindows[(session, first)] = editor; editor.Show();

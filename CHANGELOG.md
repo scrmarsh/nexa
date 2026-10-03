@@ -1,3 +1,15 @@
+## Nexa 1.0.5 — Focus First (2026-10-02)
+
+- Full-width Pixel Timer banner using the existing session clock, with readable countdown, progress, duration and next interval. Pixel Swarm keeps its timer pixels and full-window game area.
+- Simpler Class, Study/Focus, Church and Meeting presets; existing dashboards and the full widget catalog remain available.
+- Grid placement preview, stable neighbors, collision-safe dropping, consistent resize snapping and saved dimensions.
+- Direct countdown editing, a quick clock settings menu, editable titles and widget actions revealed on hover/focus.
+- Offline Focus Reset: five breaths, a look-away prompt and local notes/time recap, with an immediate return button.
+- Optional return-to-session nudges with three-minute absence threshold and ten-minute cooldown.
+- Global optional original soft interface sounds with a master switch and volume.
+- Reusable vector icons for common widget actions, settings, navigation and history; Per-Monitor V2 DPI manifest and layout rounding.
+- No data reset or format version change. Original layout metadata remains until a direct placement needs absolute positions to keep neighboring cards stationary.
+
 # Changelog
 
 ## [1.0.4] - 2026-10-02
@@ -11,22 +23,74 @@
 - Kept the widget picker scrollable and added an explicit Add button to every widget.
 - Removed disposable generated captures and expanded test-output ignore rules.
 
-All notable updates to Session Dashboard are documented here.
+A responsive Spaces update with unified settings, personal backgrounds, clearer session notes, local recording and flashcards.
 
-## [1.0.0] - 2026-10-01
+### Home, settings and appearance
 
-### Added
-- Initial desktop release baseline for local dashboard management
-- Preset-based dashboard creation and dashboard switching
-- Timers, notes, checklists, story mode, and session continuity
-- Autosave, recovery, restore, and history retention for active work
-- Export/import support for dashboard backups and portability
-- Home screen flow and overall desktop usability improvements
+- Reworked Home for normal and maximized windows with natural scrolling, a compact recent-Spaces list, labeled primary actions and a footer that follows the content.
+- Added a compact autosave state and temporary recovery feedback. The Settings gear sits at the bottom left and animates on hover.
+- Replaced separate settings surfaces with one dismissible two-pane window for Appearance, Session, Hedy, Account and Data. Requests for a section reuse the open window.
+- Added full app themes, themed checkboxes, improved light-mode contrast and a theme-aware Nexa wordmark across Home and About.
+- Added per-Space default, solid-color and local-image backgrounds with blur strength and dimming controls.
 
-### Changed
-- Updated product documentation to match the current desktop feature set
-- Added a note on the home page that a web app version is coming soon
+### Spaces, sessions and widgets
 
-### Notes
-- This is the first tracked release entry for the current software state.
-- The desktop app remains the current production build while the web version is being prepared.
+- Updated user-facing dashboard language to Spaces while retaining compatible internal storage identifiers.
+- Improved responsive reflow so minimized cards release space and useful widgets can grow across the 20-column grid.
+- Added a responsive analog face to the Clock widget and kept Bible reading internally scrollable.
+- Redesigned Session Notes as a chronological interval feed with completed summaries, current-interval progress, Hedy deep links and a compact footer.
+- Added explicit-permission local recording with pause, resume, stop, status, elapsed time, local WAV storage and deletion. Transcription remains clearly unavailable and no recording is uploaded.
+- Added local Flashcards decks with card CRUD, flipping, navigation, shuffle, progress, Know it/Review state and CSV/JSON import.
+- Updated Pixel Swarm and session surfaces to inherit the active theme and replaced the DEV reset system prompt with a common Nexa dialog.
+
+## [1.0.3] - 2026-10-02
+
+A more direct, polished session workspace for classes, study, church meetings, team discussions and service shifts.
+
+### Home and release information
+
+- Redesigned Home around the Nexa logo, with the version immediately below it and a Changelog button beneath the version.
+- Added “a space for whatever comes next” to the right of the logo. The tagline types out, pauses and fades without shifting the layout, then repeats so it does not remain invisible.
+- Replaced the system About message box with a themed, resizable menu containing the updated description and use cases.
+- Moved Preview Nexa inside About and pinned View history at the bottom of Home.
+- Added versioned changelog cards with readable, aligned bullet points.
+- Set application, splash, Home and About version metadata to 1.0.3.
+
+### Dashboard and widgets
+
+- Widgets added from an empty dashboard click or its asset plus appear at that location; adding no longer scrolls to the bottom.
+- Dragging visibly lifts a copy of the card with a shadow. Neighbors animate, squeeze, expand and shrink to make space; drops insert between or beside widgets instead of swapping them. Cancel restores the saved layout.
+- Added three-column layouts while keeping readable minimum dimensions, purpose-specific defaults, rounded cards and 8-pixel gaps.
+- Clocks default to compact cards, counters and independent timers use smaller sizes, and notes and readers start at half width. Bible remains expanded at a readable height.
+- Widget titles and controls are available directly on screen. Removed Dashboard setup and redundant top-bar overflow and dashboard dropdown controls.
+- Added icons and aligned title/description rows to the Add widget picker. Dashboard adding uses the faint plus asset in available space.
+- Mouse-wheel scrolling advances 48 pixels per notch; widgets grow through direct resizing instead of showing internal scrollbars, and narrow windows stack cards.
+- Retired Pomodoro from available widgets and templates. Existing cards migrate to ordinary timers without losing settings or notes.
+
+### Sessions, colors and windows
+
+- Placed the session name beside the Nexa logo and centered Home and Session in the top bar.
+- Moved the countdown and EDIT control into the pixel timer widget. Time edits preserve the active session identity, notes and transcript.
+- Organized Session settings into Timing, Presets, Colors, Display, Hedy and Dashboard pages with a left menu and evenly proportioned fields.
+- Kept Save color visible in the picker and made it apply and persist choices immediately.
+- Fixed Nexa app and menu colors independently of customizable dashboard main and accent/pixel colors, including menus opened from widgets.
+- Preserved window dimensions when switching Home/dashboard or choosing Another preview.
+- Standardized themed minimize, maximize/fullscreen, restore and close icons throughout the app.
+- Combined Hedy tools with the session timeline and moved API key/region setup into settings. Existing standalone Hedy cards migrate without losing notes.
+- Moved searchable session history to Home, retaining read-only previews, continue, merge, export and delete actions.
+- Reworked Home’s bottom utility row in the order History, About Nexa, Dev, Changelog and the Settings cog; it remains in the natural scroll flow on maximized windows.
+- Rebuilt Settings as a dismissible two-pane Appearance/Hedy menu with an animated cog, full app themes, light modes and DPAPI-protected Hedy credentials.
+- Added multi-day session scheduling and persistence, plus a confirmed Pixel Timer reset that restores its configured duration without deleting dashboard data or history.
+- Removed fixed green status colors so completion and active states follow the selected app or dashboard theme.
+
+## [1.0.2] - 2026-10-01
+
+### Desktop foundation
+
+- Local dashboard creation, templates and presets for classes, pantry shifts, church meetings, study, meetings and focus.
+- Session timers, pixel progress, notes, checklists, counters, trackers and session continuity.
+- Autosave, backup recovery, dated history, dashboard import/export and local Windows-account workspace ownership.
+- Offline NLT, CSB and NKJV Bible reading, passage search and Scripture Pins.
+- Editable sample dashboards, developer preview tools and Pixel Swarm.
+
+The Windows desktop build is the current release. A web app remains planned.

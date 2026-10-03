@@ -36,7 +36,7 @@ public sealed class ClockPicker : UserControl
         var panel = new StackPanel { Width = 228 };
         panel.Children.Add(new TextBlock { Text = "CHOOSE HOUR, MINUTE & AM / PM", FontSize = 10, Margin = new Thickness(0, 0, 0, 12), Foreground = Brushes.White });
         var dial = new Canvas { Width = 208, Height = 208 };
-        var face = new Ellipse { Width = 208, Height = 208, Stroke = new SolidColorBrush(Color.FromRgb(62, 82, 71)), StrokeThickness = 1 };
+        var face = new Ellipse { Width = 208, Height = 208, StrokeThickness = 1 }; face.SetResourceReference(Shape.StrokeProperty, "LineBrush");
         dial.Children.Add(face);
         hand.SetResourceReference(Shape.StrokeProperty, "AccentBrush"); dial.Children.Add(hand);
         for (var hour = 1; hour <= 12; hour++)
@@ -56,7 +56,9 @@ public sealed class ClockPicker : UserControl
         System.Windows.Automation.AutomationProperties.SetName(period, "AM or PM");
         panel.Children.Add(selectors);
         var done = new Button { Content = "Set time" }; panel.Children.Add(done);
-        popup = new Popup { StaysOpen = false, AllowsTransparency = true, Placement = PlacementMode.Bottom, PlacementTarget = display, Child = new Border { Child = panel, Background = new SolidColorBrush(Color.FromRgb(13, 23, 17)), Padding = new Thickness(14), BorderBrush = Brushes.Gray, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12) } };
+        var popupFrame = new Border { Child = panel, Padding = new Thickness(14), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12) };
+        popupFrame.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); popupFrame.SetResourceReference(Border.BorderBrushProperty, "LineBrush");
+        popup = new Popup { StaysOpen = false, AllowsTransparency = true, Placement = PlacementMode.Bottom, PlacementTarget = display, Child = popupFrame };
         done.Click += (_, _) => popup.IsOpen = false;
         display.Click += (_, _) => popup.IsOpen = !popup.IsOpen;
         var root = new Grid(); root.Children.Add(display); root.Children.Add(popup); Content = root;

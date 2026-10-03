@@ -15,6 +15,7 @@ public sealed class Preset
     public int? StartClockMinutes { get; set; }
     public int? EndClockMinutes { get; set; }
     public int EndDayOffset { get; set; }
+    public List<DayOfWeek> ScheduledDays { get; set; } = [];
 }
 
 public sealed class Session
@@ -24,13 +25,19 @@ public sealed class Session
     public DateTimeOffset End { get; set; }
     public int IntervalMinutes { get; set; } = 10;
     public DateTimeOffset? StoppedAt { get; set; }
+    public List<DayOfWeek> ScheduledDays { get; set; } = [];
+    public double ConfiguredDurationMinutes { get; set; }
     public List<string> ReachedMilestones { get; set; } = [];
     public Dictionary<int, string> IntervalNotes { get; set; } = [];
     public Dictionary<int, string> HedyIntervalNotes { get; set; } = [];
+    public Dictionary<int, string> IntervalSummaries { get; set; } = [];
     public string HedySessionId { get; set; } = "";
     public string HedySourceTitle { get; set; } = "Hedy";
     public string HedyTranscript { get; set; } = "";
     public string HedyBaseline { get; set; } = "";
+    public string NotesSource { get; set; } = "Hedy";
+    public string LocalRecordingPath { get; set; } = "";
+    public double LocalRecordingSeconds { get; set; }
     public double Progress(DateTimeOffset now) => End <= Start ? 0 : Math.Clamp(((StoppedAt ?? now) - Start).TotalSeconds / (End - Start).TotalSeconds, 0, 1);
     public TimeSpan Elapsed(DateTimeOffset now) => TimeSpan.FromSeconds(Progress(now) * (End - Start).TotalSeconds);
     public TimeSpan Remaining(DateTimeOffset now) => StoppedAt != null || now >= End ? TimeSpan.Zero : (now < Start ? Start - now : End - now);
@@ -48,11 +55,14 @@ public class DashboardData
 {
     public List<Preset> Presets { get; set; } =
     [
-        new() { Name = "Lecture", Minutes = 75, IntervalMinutes = 5, AccentColor = "#69ACFF", PixelColor = "#2786FF" },
-        new() { Name = "Focused work", Minutes = 50, IntervalMinutes = 10, AccentColor = "#6AE58F", PixelColor = "#1DB954" },
-        new() { Name = "Meeting", Minutes = 30, IntervalMinutes = 5, AccentColor = "#FFCA78", PixelColor = "#E6A441" },
+        new() { Name = "Lecture", Minutes = 75, IntervalMinutes = 5, AccentColor = "#5B7CFF", PixelColor = "#3B82F6" },
+        new() { Name = "Focused work", Minutes = 50, IntervalMinutes = 10, AccentColor = "#7C3AED", PixelColor = "#8B5CF6" },
+        new() { Name = "Meeting", Minutes = 30, IntervalMinutes = 5, AccentColor = "#7C8CF7", PixelColor = "#A855F7" },
         new() { Name = "Studying", Minutes = 25, IntervalMinutes = 5, AccentColor = "#C6A5FF", PixelColor = "#A67AF2" }
     ];
+    public bool FocusNudgesEnabled { get; set; }
+    public bool InterfaceSoundsEnabled { get; set; }
+    public double InterfaceSoundVolume { get; set; } = .25;
     public Session? Session { get; set; }
     public string Notes { get; set; } = "";
     public List<TaskItem> Tasks { get; set; } = [];
@@ -60,8 +70,8 @@ public class DashboardData
     public bool ShowChecklist { get; set; } = true;
     public bool AlwaysOnTop { get; set; }
     public bool Compact { get; set; }
-    public string AccentColor { get; set; } = "#1DB954";
-    public string PixelColor { get; set; } = "#2786FF";
+    public string AccentColor { get; set; } = "#5B7CFF";
+    public string PixelColor { get; set; } = "#8B5CF6";
     public string StoryNode { get; set; } = "arrival";
     public List<string> StoryHistory { get; set; } = [];
     public List<string> StoryEndings { get; set; } = [];
@@ -70,6 +80,18 @@ public class DashboardData
     public double WindowHeight { get; set; } = 880;
     public bool WidgetLayoutInitialized { get; set; }
     public List<WidgetInstance> Widgets { get; set; } = [];
+    public SpaceBackground Background { get; set; } = new();
+}
+
+public enum SpaceBackgroundMode { Default, SolidColor, CustomImage }
+public sealed class SpaceBackground
+{
+    public SpaceBackgroundMode Mode { get; set; }
+    public string SolidColor { get; set; } = "#080B16";
+    public string ImagePath { get; set; } = "";
+    public bool Blur { get; set; }
+    public double BlurStrength { get; set; } = 12;
+    public double Overlay { get; set; } = .42;
 }
 
 public sealed class AppState : DashboardData
@@ -96,10 +118,74 @@ public sealed class StateStore
     public string FilePath { get; }
     public string UserId { get; }
     public string? Warning { get; private set; }
+    private string PreferencesPath => Path.Combine(Path.GetDirectoryName(Path.GetFullPath(FilePath))!, "preferences.json");
     public StateStore(string path, string? userId = null)
     {
         FilePath = path;
         UserId = userId ?? System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value;
+    }
+
+    private string InteractionPreferencesPath => Path.Combine(Path.GetDirectoryName(Path.GetFullPath(FilePath))!, "interaction-preferences.json");
+    internal void LoadInteractionPreferences(DashboardData state)
+    {
+        try
+        {
+            if (!File.Exists(InteractionPreferencesPath)) return;
+            var preferences = JsonSerializer.Deserialize<InteractionPreferences>(File.ReadAllText(InteractionPreferencesPath), Options);
+            if (preferences == null) return;
+            state.InterfaceSoundsEnabled=preferences.Sounds; state.FocusNudgesEnabled=preferences.Nudges;
+            state.InterfaceSoundVolume=double.IsFinite(preferences.Volume) ? Math.Clamp(preferences.Volume,0,1) : .25;
+        }
+        catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or JsonException) { }
+    }
+    internal void SaveInteractionPreferences(DashboardData state)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(InteractionPreferencesPath)!);
+        AtomicWrite(InteractionPreferencesPath,JsonSerializer.Serialize(new InteractionPreferences { Sounds=state.InterfaceSoundsEnabled,Nudges=state.FocusNudgesEnabled,Volume=state.InterfaceSoundVolume },Options),false);
+    }
+    private sealed class InteractionPreferences
+    {
+        public bool Sounds { get; set; }
+        public bool Nudges { get; set; }
+        public double Volume { get; set; } = .25;
+    }
+    public ThemeMode LoadThemeMode()
+    {
+        try
+        {
+            if (!File.Exists(PreferencesPath)) return ThemeMode.System;
+            var preferences = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(PreferencesPath), Options);
+            return Enum.TryParse(preferences?.GetValueOrDefault("ThemeMode"), true, out ThemeMode mode) ? mode : ThemeMode.System;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
+        { return ThemeMode.System; }
+    }
+
+    public AppTheme LoadAppTheme()
+    {
+        try
+        {
+            if (!File.Exists(PreferencesPath)) return AppTheme.Nexa;
+            var preferences = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(PreferencesPath), Options);
+            return Enum.TryParse(preferences?.GetValueOrDefault("AppTheme"), true, out AppTheme theme) ? theme : AppTheme.Nexa;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
+        { return AppTheme.Nexa; }
+    }
+
+    public void SaveThemeMode(ThemeMode mode)
+    {
+        SavePreferences(mode, LoadAppTheme());
+    }
+
+    public void SavePreferences(ThemeMode mode, AppTheme theme)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(PreferencesPath)!);
+        AtomicWrite(PreferencesPath, JsonSerializer.Serialize(new Dictionary<string, string>
+        {
+            ["ThemeMode"] = mode.ToString(),
+            ["AppTheme"] = theme.ToString()
+        }, Options), false);
     }
 
     public AppState Load()
@@ -118,7 +204,7 @@ public sealed class StateStore
                     var recoveredSnapshot = Continuity.RecoverSnapshots(workspace, UserId);
                     Continuity.ValidateWorkspace(workspace, UserId);
                     if (!workspace.CleanShutdown) Warning = $"Nexa restored your last autosaved session from {workspace.SavedAt.LocalDateTime:g}.";
-                    if (recoveredSnapshot) { preserveUnreadable = true; Warning = "Nexa recovered damaged dashboard data from its latest valid autosave snapshot."; }
+                    if (recoveredSnapshot) { preserveUnreadable = true; Warning = "Nexa recovered damaged Space data from its latest valid autosave snapshot."; }
                     if (candidate != FilePath) Warning = "Recovered your last backup after the save file could not be read.";
                     var loaded = Continuity.Activate(workspace, UserId);
                     LoadCredentials(loaded);
@@ -129,9 +215,13 @@ public sealed class StateStore
                 state.Presets.RemoveAll(p => p == null || string.IsNullOrWhiteSpace(p.Name) || p.Minutes is < 1 or > 10080 || p.IntervalMinutes is < 1 or > 10080);
                 state.Tasks.RemoveAll(t => t == null || string.IsNullOrWhiteSpace(t.Text));
                 state.Notes ??= "";
+                state.Background ??= new();
+                state.Background.BlurStrength = Math.Clamp(state.Background.BlurStrength, 0, 40);
+                state.Background.Overlay = Math.Clamp(state.Background.Overlay, 0, .9);
                 if (state.Session != null && !InputRules.ValidSession(state.Session)) state.Session = null;
                 foreach (var preset in state.Presets)
                 {
+                    preset.ScheduledDays ??= [];
                     var theme = Theme.ForName(preset.Name);
                     if (!InputRules.IsColor(preset.AccentColor)) preset.AccentColor = theme.Accent;
                     if (!InputRules.IsColor(preset.PixelColor)) preset.PixelColor = theme.Pixel;
@@ -141,14 +231,17 @@ public sealed class StateStore
                 }
                 if (state.Session is { } session)
                 {
+                    session.ScheduledDays ??= [];
+                    if (session.ConfiguredDurationMinutes <= 0) session.ConfiguredDurationMinutes = (session.End - session.Start).TotalMinutes;
                     session.ReachedMilestones ??= [];
                     session.IntervalNotes ??= [];
                     session.HedyIntervalNotes ??= [];
+                    session.IntervalSummaries ??= [];
                     session.HedyTranscript ??= "";
                     session.HedyBaseline ??= "";
                 }
-                if (!InputRules.IsColor(state.AccentColor)) state.AccentColor = "#1DB954";
-                if (!InputRules.IsColor(state.PixelColor)) state.PixelColor = "#2786FF";
+                if (!InputRules.IsColor(state.AccentColor)) state.AccentColor = "#5B7CFF";
+                if (!InputRules.IsColor(state.PixelColor)) state.PixelColor = "#8B5CF6";
                 if (candidate != FilePath) Warning = "Recovered your last backup after the settings file could not be read.";
                 return state;
             }
@@ -214,7 +307,7 @@ public sealed class StateStore
             state.HedyRegion = value.Region; state.HedyProtectedKey = value.ProtectedKey;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
-        { Warning = "Your dashboard was restored. Reconnect Hedy because its saved credential could not be read."; }
+        { Warning = "Your Space was restored. Reconnect Hedy because its saved credential could not be read."; }
     }
     internal sealed record SavePayload(WorkspaceDocument Workspace, string Region, string ProtectedKey);
     private sealed class Credentials

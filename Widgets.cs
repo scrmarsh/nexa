@@ -8,9 +8,14 @@ public sealed class WidgetInstance
     public string Kind { get; set; } = "Notes";
     public string Title { get; set; } = "Notes";
     public string PanelKey { get; set; } = "";
+    public bool IsMicro { get; set; }
     public int Column { get; set; }
     public int Row { get; set; }
+    public double? PlacementX { get; set; }
+    public double PlacementY { get; set; }
     public int Span { get; set; } = 6;
+    public int GridColumns { get; set; } = 12;
+    public bool CustomSize { get; set; }
     public int Height { get; set; } = 288;
     public string Placeholder { get; set; } = "Write something…";
     public decimal Increment { get; set; } = 1;
@@ -29,11 +34,29 @@ public sealed class WidgetInstance
     public decimal Value { get; set; }
     public List<TaskItem> Items { get; set; } = [];
     public List<TrackerRecord> Records { get; set; } = [];
+    public List<ScripturePin> ScripturePins { get; set; } = [];
+    public BibleReaderState? BibleLocation { get; set; }
     public DateTimeOffset? TimerStart { get; set; }
     public DateTimeOffset? TimerEnd { get; set; }
     public DateTimeOffset? TimerStopped { get; set; }
+    public List<FlashcardDeck> FlashcardDecks { get; set; } = [];
+    public Guid? ActiveFlashcardDeckId { get; set; }
+    public int FlashcardIndex { get; set; }
     [System.Text.Json.Serialization.JsonIgnore]
-    public bool HasData => Text.Length > 0 || Items.Count > 0 || Records.Count > 0 || Value != StartingValue || TimerStart != null || StopwatchStartedAt != null || StopwatchElapsedSeconds > 0;
+    public bool HasData => Text.Length > 0 || Items.Count > 0 || Records.Count > 0 || ScripturePins.Count > 0 || FlashcardDecks.Any(deck => deck.Cards.Count > 0) || Value != StartingValue || TimerStart != null || StopwatchStartedAt != null || StopwatchElapsedSeconds > 0;
+}
+public sealed class FlashcardDeck
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Name { get; set; } = "New deck";
+    public List<Flashcard> Cards { get; set; } = [];
+}
+public sealed class Flashcard
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Front { get; set; } = "";
+    public string Back { get; set; } = "";
+    public string StudyState { get; set; } = "New";
 }
 public sealed class TrackerRecord
 {
@@ -43,29 +66,28 @@ public sealed class TrackerRecord
     public List<string> Categories { get; set; } = [];
     public Dictionary<string, string> Values { get; set; } = [];
 }
-public sealed record WidgetDefinition(string Name, string Group, string Description, string Editor, int MinSpan = 3, int MinHeight = 192);
+public sealed record WidgetDefinition(string Name, string Group, string Description, string Editor, int MinSpan = 3, int MinHeight = 288, int DefaultSpan = 10, int DefaultHeight = 288, int MinWidth = 320, bool CanMinimize = true);
 
 public static class WidgetLibrary
 {
     public static IReadOnlyList<WidgetDefinition> Definitions { get; } =
     [
-        new("Timer", "Session", "Independent countdown or elapsed timer.", "timer"),
-        new("Stopwatch", "Session", "Measure elapsed time with pause and resume.", "stopwatch"),
-        new("Clock", "Session", "Your local date and time.", "clock"),
-        new("Progress bar", "Session", "Progress of your dashboard session.", "progress"),
-        new("Pixel timer", "Session", "The original pixel display and story.", "progress", 6, 480),
+        new("Timer", "Session", "Independent countdown or elapsed timer.", "timer", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
+        new("Stopwatch", "Session", "Measure elapsed time with pause and resume.", "stopwatch", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
+        new("Clock", "Session", "Your local date and time.", "clock", MinHeight: 96, DefaultSpan: 4, DefaultHeight: 120, MinWidth: 200, CanMinimize: false),
+        new("Progress bar", "Session", "Progress of your dashboard session.", "progress", MinHeight: 120, DefaultSpan: 6, DefaultHeight: 144, MinWidth: 240, CanMinimize: false),
+        new("Pixel timer", "Session", "The original pixel display and story.", "progress", 6, 480, CanMinimize: false),
         new("Session controls", "Session", "Schedule sessions and manage timer presets.", "setup", 4, 480),
-        new("Session timeline", "Session", "Session intervals and saved notes.", "timeline", 4, 288),
-        new("Pomodoro", "Session", "A configurable focus countdown.", "timer"),
-        new("Break timer", "Session", "A short independent countdown.", "timer"),
-        new("Notes", "Productivity", "Capture your ideas with autosave.", "text"),
+        new("Session timeline", "Session", "Session intervals, notes and Hedy live sync.", "timeline", 4, 288, DefaultHeight: 360, CanMinimize: false),
+        new("Break timer", "Session", "A short independent countdown.", "timer", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
+        new("Focus Reset", "Study", "A short offline reset to return to your session.", "focus", MinHeight: 120, DefaultHeight: 144, DefaultSpan: 6, MinWidth: 240), new("Notes", "Productivity", "Capture your ideas with autosave.", "text"),
         new("Tasks", "Productivity", "An actionable checklist.", "list"),
         new("Checklist", "Productivity", "Track completed steps.", "list"),
         new("Quick links", "Productivity", "Save and open web links.", "links"),
         new("Agenda", "Productivity", "Plan your discussion.", "text"),
         new("Action items", "Productivity", "Follow-ups for your meeting.", "list"),
-        new("Distraction counter", "Productivity", "Count distractions without losing focus.", "counter"),
-        new("Counter", "Tracking", "A configurable count and increment.", "counter"),
+        new("Distraction counter", "Productivity", "Count distractions without losing focus.", "counter", MinHeight: 192, DefaultSpan: 5, DefaultHeight: 192, MinWidth: 220),
+        new("Counter", "Tracking", "A configurable count and increment.", "counter", MinHeight: 192, DefaultSpan: 5, DefaultHeight: 192, MinWidth: 220),
         new("Record tracker", "Tracking", "Records with categories and custom fields.", "tracker", 4, 336),
         new("Statistics", "Tracking", "Totals from trackers on this dashboard.", "statistics"),
         new("Custom fields", "Tracking", "Labelled session information.", "text"),
@@ -74,36 +96,77 @@ public static class WidgetLibrary
         new("Assignment tracker", "School", "Keep assignments and completion state.", "list"),
         new("Questions to ask", "School", "Questions to revisit.", "list"),
         new("Topics", "School", "Topics reviewed in this session.", "list"),
-        new("Bible", "Church", "Save a passage reference and open it online.", "bible"),
-        new("Scripture pins", "Church", "Keep references and verse notes.", "list"),
+        new("Bible", "Church", "Read and search the integrated NLT, CSB and NKJV Bibles; select text to pin.", "bible", MinHeight: 480, DefaultHeight: 552, CanMinimize: false),
+        new("Scripture pins", "Church", "Save selected Scripture, its translation and your notes.", "scripture", DefaultHeight: 336, CanMinimize: false),
         new("Prayer requests", "Church", "A private prayer checklist.", "list"),
         new("Main passage", "Church", "Your main reference and passage notes.", "text"),
         new("Custom text", "Other", "A flexible text panel.", "text"),
-        new("Custom counter", "Other", "Name and configure your own counter.", "counter"),
+        new("Custom counter", "Other", "Name and configure your own counter.", "counter", MinHeight: 192, DefaultSpan: 5, DefaultHeight: 192, MinWidth: 220),
+        new("Flashcards", "Study", "Create, import and study offline decks.", "flashcards", MinHeight: 288, DefaultSpan: 10, DefaultHeight: 384, CanMinimize: false),
         new("Website shortcut", "Other", "Open a saved website in your browser.", "links")
     ];
-    public static WidgetDefinition Definition(string kind) => Definitions.Single(d => d.Name == kind);
+    public static WidgetDefinition Definition(string kind) => Definitions.Single(d => d.Name == (kind == "Pomodoro" ? "Timer" : kind));
     public static WidgetInstance Create(string kind, string panelKey = "")
     {
         var d = Definition(kind);
-        return new() { Kind = kind, Title = kind, PanelKey = panelKey, Span = Math.Max(6, d.MinSpan), Height = Math.Max(288, d.MinHeight), TimerMinutes = kind == "Break timer" ? 5 : 25 };
+        return new() { Kind = kind, Title = kind == "Session timeline" ? "Session Notes" : kind, PanelKey = panelKey, GridColumns = 20, Span = d.DefaultSpan, Height = Math.Max(d.DefaultHeight, d.MinHeight), TimerMinutes = kind == "Break timer" ? 5 : 25 };
     }
     public static void EnsureLayout(DashboardData data)
     {
-        if (data.WidgetLayoutInitialized) return;
+        if (data.WidgetLayoutInitialized) { PrepareLayout(data); return; }
         data.WidgetLayoutInitialized = true;
-        data.Widgets = [Create("Pixel timer", "pixels"), Create("Session controls", "setup"), Create("Session timeline", "timeline"), Create("Notes", "notes"), Create("Tasks", "tasks"), Create("Hedy", "hedy")];
+        data.Widgets = [Create("Pixel timer", "pixels"), Create("Session timeline", "timeline"), Create("Notes", "notes"), Create("Tasks", "tasks")];
         Arrange(data.Widgets, false);
+    }
+    public static bool PrepareLayout(DashboardData data)
+    {
+        var changed = false;
+        foreach (var retired in data.Widgets.Where(w => w.Kind == "Pomodoro")) { retired.Kind = "Timer"; if (retired.Title == "Pomodoro") retired.Title = "Timer"; changed = true; }
+        foreach (var hedy in data.Widgets.Where(w => w.Kind == "Hedy").ToList())
+        {
+            var session = data.Widgets.FirstOrDefault(w => w.Kind == "Session timeline");
+            if (session == null) { hedy.Kind = "Session timeline"; hedy.Title = "Session & Hedy"; hedy.PanelKey = "timeline"; }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(hedy.Text)) session.Text = string.Join("\n", new[] { session.Text, hedy.Text }.Where(s => !string.IsNullOrWhiteSpace(s)));
+                session.Items.AddRange(hedy.Items); session.Records.AddRange(hedy.Records); session.ScripturePins.AddRange(hedy.ScripturePins);
+                data.Widgets.Remove(hedy);
+            }
+            changed = true;
+        }
+        foreach (var widget in data.Widgets)
+        {
+            var definition = Definition(widget.Kind);
+            if (!definition.CanMinimize && widget.IsMicro) { widget.IsMicro = false; changed = true; }
+            if (!widget.CustomSize && widget.Span == 10 && widget.Height == 288 && definition.DefaultSpan != 10)
+            { widget.Span = definition.DefaultSpan; widget.Height = Math.Max(definition.DefaultHeight, definition.MinHeight); changed = true; }
+            if (widget.Kind == "Session timeline" && widget.Title is "Session timeline" or "Session & Hedy") { widget.Title = "Session Notes"; changed = true; }
+            widget.FlashcardDecks ??= [];
+        }
+        return changed;
     }
     public static void Arrange(List<WidgetInstance> widgets, bool singleColumn)
     {
-        var row = 0;
-        for (var i = 0; i < widgets.Count;)
+        UpgradeGrid(widgets);
+        var row = 0; var column = 0; var height = 0;
+        foreach (var widget in widgets)
         {
-            var first = widgets[i++]; first.Column = 0; first.Row = row; first.Span = singleColumn ? 12 : 6;
-            var height = first.Height;
-            if (!singleColumn && i < widgets.Count) { var second = widgets[i++]; second.Column = 6; second.Row = row; second.Span = 6; height = Math.Max(height, second.Height); }
-            row += (int)Math.Ceiling(height / 24.0) + 1;
+            widget.PlacementX = null;
+            widget.Span = singleColumn ? 20 : Definition(widget.Kind).DefaultSpan;
+            if (column + widget.Span > 20) { row += (int)Math.Ceiling(height / 24.0) + 1; column = 0; height = 0; }
+            widget.Column = column; widget.Row = row; column += widget.Span; height = Math.Max(height, widget.Height);
+        }
+    }
+    public static void ArrangeThreeColumns(List<WidgetInstance> widgets)
+    {
+        UpgradeGrid(widgets);
+        for (var index = 0; index < widgets.Count; index++)
+        {
+            widgets[index].PlacementX = null;
+            var position = index % 3;
+            widgets[index].Span = position == 2 ? 6 : 7;
+            widgets[index].Column = position * 7;
+            widgets[index].Row = index / 3 * 61;
         }
     }
     public static void Add(DashboardData data, WidgetInstance widget)
@@ -113,8 +176,10 @@ public static class WidgetLibrary
     }
     public static void Place(DashboardData data, WidgetInstance widget, int column, int row, int span, int height)
     {
-        var def = Definition(widget.Kind); widget.Span = Math.Clamp(span, def.MinSpan, 12); widget.Column = Math.Clamp(column, 0, 12 - widget.Span);
-        widget.Row = Math.Clamp(row, 0, 10000); widget.Height = Math.Clamp(height / 24 * 24, def.MinHeight, 1440);
+        UpgradeGrid(data.Widgets);
+        widget.GridColumns = 20; widget.CustomSize = true;
+        widget.Span = Math.Clamp(span, 1, 20); widget.Column = Math.Clamp(column, 0, 20 - widget.Span);
+        widget.Row = Math.Clamp(row, 0, 10000); widget.Height = Math.Clamp(height / 24 * 24, 24, 1440);
         // Push overlapping cards down; preserve order and ensure every final rectangle is disjoint.
         var placed = new List<WidgetInstance> { widget };
         foreach (var other in data.Widgets.Where(w => w.Id != widget.Id).OrderBy(w => w.Row).ThenBy(w => w.Column))
@@ -123,19 +188,38 @@ public static class WidgetLibrary
             placed.Add(other);
         }
     }
+    public static bool UpgradeGrid(IEnumerable<WidgetInstance> widgets)
+    {
+        var changed = false;
+        foreach (var w in widgets.Where(w => w.GridColumns == 12))
+        {
+            var right = (int)Math.Round((w.Column + w.Span) * 20.0 / 12);
+            w.Column = (int)Math.Round(w.Column * 20.0 / 12);
+            w.Span = Math.Clamp(right - w.Column, 1, 20 - w.Column);
+            w.GridColumns = 20; changed = true;
+        }
+        return changed;
+    }
     private static bool Overlap(WidgetInstance a, WidgetInstance b) => a.Column < b.Column + b.Span && b.Column < a.Column + a.Span && a.Row * 24 < b.Row * 24 + b.Height && b.Row * 24 < a.Row * 24 + a.Height;
     public static void ClearContent(WidgetInstance w)
-    { w.Text = ""; w.Value = w.StartingValue; w.Items.Clear(); w.Records.Clear(); w.TimerStart = w.TimerEnd = w.TimerStopped = null; w.StopwatchElapsedSeconds = 0; w.StopwatchStartedAt = null; }
+    { w.Text = ""; w.Value = w.StartingValue; w.Items.Clear(); w.Records.Clear(); w.ScripturePins.Clear(); w.TimerStart = w.TimerEnd = w.TimerStopped = null; w.StopwatchElapsedSeconds = 0; w.StopwatchStartedAt = null; }
     public static void Validate(DashboardData data)
     {
         if (data.Widgets == null || data.Widgets.Count > 200 || data.Widgets.Any(w => w == null) || data.Widgets.Select(w => w.Id).Distinct().Count() != data.Widgets.Count) throw new InvalidDataException("Invalid widget list.");
         var panels = new HashSet<string>();
         foreach (var w in data.Widgets)
         {
-            var def = Definitions.FirstOrDefault(d => d.Name == w.Kind);
-            if (def == null || w.Id == Guid.Empty || w.Title == null || w.Placeholder == null || w.PanelKey == null || w.Text == null || w.Items == null || w.Records == null || w.Categories == null || w.Fields == null ||
+            if (w.ScripturePins == null || w.ScripturePins.Count > 10000 || w.ScripturePins.Any(p => p == null || p.Id == Guid.Empty ||
+                !BibleLibrary.Books.Contains(p.Book) || !BibleLibrary.Translations.Contains(p.Translation) || p.Chapter is < 1 or > 150 ||
+                p.Verse is < 1 or > 176 || p.EndVerse < p.Verse || p.EndVerse > 176 || p.Text == null || p.Note == null) ||
+                w.BibleLocation is { } location && (!BibleLibrary.Translations.Contains(location.Translation) || !BibleLibrary.Books.Contains(location.Book) ||
+                    location.Chapter is < 1 or > 150 || location.Verse is < 1 or > 176)) throw new InvalidDataException("Invalid Scripture data.");
+            var def = Definitions.FirstOrDefault(d => d.Name == (w.Kind == "Pomodoro" ? "Timer" : w.Kind));
+            if (w.PlacementX is double x && (!double.IsFinite(x) || x < 0 || x > 1) || !double.IsFinite(w.PlacementY) || w.PlacementY < 0 || w.PlacementY > 720000) throw new InvalidDataException("Invalid widget placement.");
+            if (def == null || w.Id == Guid.Empty || w.Title == null || w.Placeholder == null || w.PanelKey == null || w.Text == null || w.Items == null || w.Records == null || w.Categories == null || w.Fields == null || w.FlashcardDecks == null ||
                 w.Items.Any(t => t == null || t.Text == null) || w.Records.Any(r => r == null || r.Name == null || r.Categories == null || r.Values == null) ||
-                w.Column < 0 || w.Span < def.MinSpan || w.Column + w.Span > 12 || w.Row is < 0 or > 30000 || w.Height < def.MinHeight || w.Height > 1440 || w.TimerMinutes is < 1 or > 10080 || w.TimerDurationSeconds is < 1 or > 604800 || !double.IsFinite(w.StopwatchElapsedSeconds) || w.StopwatchElapsedSeconds < 0 ||
+                w.FlashcardDecks.Count > 1000 || w.FlashcardDecks.Any(deck => deck == null || deck.Id == Guid.Empty || string.IsNullOrWhiteSpace(deck.Name) || deck.Name.Length > 200 || deck.Cards == null || deck.Cards.Count > 10000 || deck.Cards.Any(card => card == null || card.Id == Guid.Empty || card.Front == null || card.Back == null || card.StudyState == null || card.Front.Length > 10000 || card.Back.Length > 10000)) ||
+                w.Column < 0 || w.GridColumns is not (12 or 20) || w.Span < 1 || w.Column + w.Span > w.GridColumns || w.Row is < 0 or > 30000 || w.Height < 24 || w.Height > 1440 || w.TimerMinutes is < 1 or > 10080 || w.TimerDurationSeconds is < 1 or > 604800 || !double.IsFinite(w.StopwatchElapsedSeconds) || w.StopwatchElapsedSeconds < 0 ||
                 w.Categories.Any(c => c == null) || w.Fields.Any(f => f == null) || w.Increment == 0) throw new InvalidDataException("Invalid widget configuration.");
             if (w.PanelKey.Length > 0 && (!new[] { "pixels", "setup", "timeline", "notes", "tasks", "hedy" }.Contains(w.PanelKey) || !panels.Add(w.PanelKey))) throw new InvalidDataException("Invalid linked panel.");
         }
@@ -147,12 +231,12 @@ public static class DashboardTemplates
 {
     public static IReadOnlyList<DashboardTemplate> All { get; } =
     [
-        new("Class", "Lecture notes, intervals and questions.", "#69ACFF", ["Pixel timer", "Session controls", "Notes", "Tasks", "Session timeline", "Hedy", "Questions to ask"]),
+        new("Class", "A session banner, notes and clock.", "#69ACFF", ["Pixel timer", "Notes", "Clock"]),
         new("Argo Pantry", "Students, categories, shift notes and statistics.", "#6AE58F", ["Record tracker", "Statistics", "Notes", "Counter"]),
-        new("Church", "Passage notes, scripture pins and prayer requests.", "#AFA9EC", ["Bible", "Main passage", "Notes", "Scripture pins", "Prayer requests"]),
-        new("Study", "A focus goal, assignments and topics to review.", "#C6A5FF", ["Pomodoro", "Tasks", "Notes", "Topics", "Distraction counter"]),
-        new("Meeting", "Agenda, decisions and action items.", "#FFCA78", ["Timer", "Agenda", "Notes", "Action items"]),
-        new("Focus", "Your pixel timer, notes and next steps.", "#6AE58F", ["Pixel timer", "Session controls", "Notes", "Tasks"]),
+        new("Church", "A session banner, Bible, notes and Scripture pins.", "#AFA9EC", ["Pixel timer", "Bible", "Notes", "Scripture pins"]),
+        new("Study", "A session banner, notes and a short Focus Reset.", "#C6A5FF", ["Pixel timer", "Notes", "Focus Reset"]),
+        new("Meeting", "A session banner, notes and agenda.", "#FFCA78", ["Pixel timer", "Notes", "Agenda"]),
+        new("Focus", "Your pixel timer, notes and a short Focus Reset.", "#6AE58F", ["Pixel timer", "Notes", "Focus Reset"]),
         new("Blank", "An empty canvas. Add any widgets you need.", "#8B9FFF", [])
     ];
     public static DashboardData Build(DashboardTemplate template)

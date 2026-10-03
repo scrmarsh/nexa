@@ -45,6 +45,15 @@ internal sealed class NexaLogo : FrameworkElement
     {
         var scale = Math.Min(ActualWidth / 1140, ActualHeight / 360);
         dc.PushTransform(new TranslateTransform((ActualWidth - 1140 * scale) / 2, (ActualHeight - 360 * scale) / 2)); dc.PushTransform(new ScaleTransform(scale, scale));
-        dc.DrawImage(logo, logo.Drawing.Bounds); dc.Pop(); dc.Pop();
+        var text = TryFindResource("TextBrush") as SolidColorBrush;
+        var light = text != null && text.Color.R + text.Color.G + text.Color.B < 360;
+        if (light)
+        {
+            dc.PushOpacityMask(new ImageBrush(logo));
+            dc.DrawRectangle(text, null, logo.Drawing.Bounds);
+            dc.Pop();
+        }
+        else dc.DrawImage(logo, logo.Drawing.Bounds);
+        dc.Pop(); dc.Pop();
     }
 }

@@ -70,7 +70,29 @@ public static class HedyNotes
         var index = (int)((received - session.Start).TotalMinutes / session.IntervalMinutes);
         session.HedyIntervalNotes.TryGetValue(index, out var old);
         session.HedyIntervalNotes[index] = (old ?? "") + $"[{session.HedySourceTitle} · {received.LocalDateTime:h:mm:ss tt} · received]\n{delta}\n\n";
+        SessionSummaries.RefreshCompleted(session, received);
         return $"New text added to interval {index + 1}";
+    }
+}
+
+public static class SessionSummaries
+{
+    public static void RefreshCompleted(Session session, DateTimeOffset now)
+    {
+        session.IntervalSummaries ??= [];
+        var count = (int)Math.Ceiling((session.End - session.Start).TotalMinutes / session.IntervalMinutes);
+        for (var i = 0; i < count; i++)
+        {
+            var end = session.Start.AddMinutes((i + 1) * session.IntervalMinutes);
+            if (end > session.End) end = session.End;
+            if ((session.StoppedAt ?? now) < end) continue;
+            var source = ((session.IntervalNotes.GetValueOrDefault(i) ?? "") + " " + (session.HedyIntervalNotes.GetValueOrDefault(i) ?? "")).Trim();
+            if (source.Length == 0) { session.IntervalSummaries.Remove(i); continue; }
+            var cleaned = System.Text.RegularExpressions.Regex.Replace(source, @"\[[^\]]+\]", " ");
+            cleaned = System.Text.RegularExpressions.Regex.Replace(cleaned, @"\s+", " ").Trim();
+            if (cleaned.Length > 220) cleaned = cleaned[..217].TrimEnd() + "…";
+            session.IntervalSummaries[i] = cleaned;
+        }
     }
 }
 

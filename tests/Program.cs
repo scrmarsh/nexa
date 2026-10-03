@@ -11,21 +11,92 @@ internal static partial class Program
     private static int passed;
     private static string output = "";
     [STAThread]
-    private static int Main()
+    private static int Main(string[] args)
     {
         output = Path.GetFullPath(Path.Combine("test-output", DateTime.Now.ToString("yyyyMMdd-HHmmss")));
         Directory.CreateDirectory(output);
         try
         {
+            if (args.Contains("--focus105"))
+            {
+                var focusApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                focusApp.InitializeComponent(); CheckFocus105();
+                Console.WriteLine($"PASS: {passed} Focus First checks. Artifacts: {output}"); focusApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--polish104"))
+            {
+                var polishApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                polishApp.InitializeComponent(); CheckPolish104();
+                Console.WriteLine($"PASS: {passed} focused polish checks. Artifacts: {output}");
+                polishApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--purpose"))
+            {
+                var purposeApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                purposeApp.InitializeComponent(); CheckPurposeWidgets();
+                Console.WriteLine($"PASS: {passed} purpose and inline editing checks. Artifacts: {output}");
+                purposeApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--tiling"))
+            {
+                var tileApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                tileApp.InitializeComponent(); CheckWidgetTiling();
+                Console.WriteLine($"PASS: {passed} widget tiling checks. Artifacts: {output}");
+                tileApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--sizing"))
+            {
+                var sizingApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                sizingApp.InitializeComponent(); CheckWidgetSizing();
+                Console.WriteLine($"PASS: {passed} widget sizing checks. Artifacts: {output}");
+                sizingApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--bible"))
+            {
+                var bibleApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                bibleApp.InitializeComponent(); CheckBible();
+                Console.WriteLine($"PASS: {passed} Bible checks. Artifacts: {output}");
+                bibleApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--preview"))
+            {
+                var previewApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                previewApp.InitializeComponent();
+                CheckPreview();
+                Console.WriteLine($"PASS: {passed} preview checks. Artifacts: {output}");
+                previewApp.Shutdown();
+                return 0;
+            }
+            if (args.Contains("--swarm"))
+            {
+                CheckSwarmModels();
+                var swarmApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                swarmApp.InitializeComponent();
+                CheckSwarmStandalone();
+                Console.WriteLine($"PASS: {passed} Swarm checks. Artifacts: {output}");
+                swarmApp.Shutdown();
+                return 0;
+            }
+            if (args.Contains("--push104"))
+            {
+                CheckPush104Models();
+                var pushApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                pushApp.InitializeComponent(); CheckPush104Ui();
+                Console.WriteLine($"PASS: {passed} Nexa 1.0.4 PUSH checks. Artifacts: {output}");
+                pushApp.Shutdown(); return 0;
+            }
             CheckModels();
+            CheckSwarmModels();
             CheckStoryGraph();
             CheckRevisionModels();
             CheckContinuityModels();
-            var app = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+            var app = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
             app.InitializeComponent();
             CheckDashboard();
             CheckRevisionUi();
             CheckContinuityUi();
+            CheckPush104Models();
+            CheckPush104Ui();
             Console.WriteLine($"PASS: {passed} checks. Artifacts: {output}");
             app.Shutdown();
             return 0;
@@ -105,9 +176,9 @@ internal static partial class Program
         window.SaveNow();
         Assert(store.Load().Notes == window.NotesBox.Text && store.Load().Tasks.Single().Done, "Notes and checklist UI persist");
         window.AccentInput.Text = "bad"; Click(window, "Apply colors");
-        Assert(window.state.AccentColor == "#1DB954", "Invalid color rejected without changing settings");
-        window.AccentInput.Text = "#6AE58F"; Click(window, "Apply colors");
-        Assert(window.state.AccentColor == "#6AE58F", "Custom color applied");
+        Assert(window.state.AccentColor == "#5B7CFF", "Invalid color rejected without changing settings");
+        window.AccentInput.Text = "#6C7AEF"; Click(window, "Apply colors");
+        Assert(window.state.AccentColor == "#6C7AEF", "Custom color applied");
         window.NotesToggle.IsChecked = false; window.NotesToggle.RaiseEvent(new RoutedEventArgs(CheckBox.ClickEvent));
         Assert(window.NotesPanel.Visibility == Visibility.Collapsed, "Optional notes panel hides");
         window.NotesToggle.IsChecked = true; window.NotesToggle.RaiseEvent(new RoutedEventArgs(CheckBox.ClickEvent));
@@ -131,16 +202,13 @@ internal static partial class Program
         window.SaveNow();
         Snapshot(window, "dashboard", 1204, 840);
         Snapshot(window, "dashboard-small", 944, 620);
-        Click(window, "I'm bored →");
-        Assert(window.StoryArea.Visibility == Visibility.Visible && window.Countdown.Visibility == Visibility.Visible, "Story opens inside dashboard with countdown visible");
+        Click(window, "I'm bored");
+        Assert(window.StoryArea.Visibility == Visibility.Visible && window.Countdown.Visibility == Visibility.Visible, "Swarm opens inside dashboard with countdown visible");
         var before = window.Countdown.Text;
         Pump(TimeSpan.FromMilliseconds(1300));
-        Assert(before != window.Countdown.Text && window.state.Session!.IsRunning(DateTimeOffset.Now), "Dispatcher countdown continues while story is open");
-        var storyChoice = Descendants(window.StoryArea).OfType<Button>().First();
-        storyChoice.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-        Assert(store.Load().StoryNode == "roof", "Story choice immediately saves branch");
-        Snapshot(window, "story", 1204, 840);
-        Click(window, "← Back to focus");
+        Assert(before != window.Countdown.Text && window.state.Session!.IsRunning(DateTimeOffset.Now), "Dispatcher countdown continues while Swarm is open");
+        CheckSwarmUi(window, store);
+        Click(window, "Back to timer");
         Click(window, "Compact mode");
         Assert(window.FullContent.Visibility == Visibility.Collapsed && window.ExpandButton.Visibility == Visibility.Visible, "Compact mode keeps timer and expansion control");
         Snapshot(window, "compact", 614, 270);
@@ -148,19 +216,15 @@ internal static partial class Program
         var compactRestored = new MainWindow(store);
         Assert(compactRestored.FullContent.Visibility == Visibility.Collapsed && compactRestored.Width == 630, "Compact mode is restored after reopening");
         compactRestored.Close();
-        Click(window, "Expand dashboard");
+        Click(window, "Expand Space");
         Assert(window.FullContent.Visibility == Visibility.Visible, "Compact mode restores dashboard");
         window.SaveNow();
         window.Close();
         var restored = new MainWindow(store);
         Assert(restored.state.Session!.Start == session.Start && restored.SessionTitle.Text == "Research session", "WPF restart restores unfinished session");
-        Click(restored, "I'm bored →");
-        Assert(restored.state.StoryNode == "roof" && Descendants(restored.StoryArea).OfType<TextBlock>().Any(t => t.Text == "A voice in the rain"), "WPF restart resumes saved story scene");
-        for (var i = 0; i < 2; i++) Descendants(restored.StoryArea).OfType<Button>().First().RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-        Assert(Story.Current(restored.state).IsEnding && restored.state.StoryEndings.Contains("beacon"), "Story UI reaches and records ending");
-        Snapshot(restored, "story-ending", 1204, 840);
-        Click(restored, "Try another path");
-        Assert(restored.state.StoryNode == "arrival" && restored.state.StoryEndings.Contains("beacon"), "Replay resets route while keeping discovered endings");
+        Click(restored, "I'm bored");
+        Assert(restored.swarmGame != null && restored.swarmGame.Score == 0, "Restart opens a fresh temporary Swarm run");
+        Click(restored, "Back to timer");
         Click(restored, "End session");
         Assert(store.Load().Session!.StoppedAt != null && restored.Countdown.Text == "00:00:00", "End button saves stopped session");
         restored.state.Session!.StoppedAt = null;

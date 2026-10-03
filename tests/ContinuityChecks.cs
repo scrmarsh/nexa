@@ -79,7 +79,7 @@ internal static partial class Program
         Assert(window.AutosaveInterval == TimeSpan.FromSeconds(30), "WPF safety-net autosave interval is 30 seconds");
         window.NotesBox.Text = "Notes on dashboard A"; window.TaskInput.Text = "Unsubmitted task draft";
         window.TitleInput.Text = "Unstarted meeting title"; window.IntervalInput.Text = "7";
-        Assert(window.SaveNow() && window.SaveStatus.Text.StartsWith("Saved at"), "Successful save displays timestamp under title");
+        Assert(window.SaveNow() && window.SaveStatus.Text.Contains("Autosaved"), "Successful save displays the compact autosave state");
         var activeId = window.state.Workspace!.ActiveDashboardId;
         var candidate = window.CopyWorkspaceState().Workspace!;
         var second = Continuity.NewDashboard("Dashboard B", "Meeting", new DashboardData(), store.UserId);
@@ -108,11 +108,12 @@ internal static partial class Program
         Snapshot(window, "continuity-dashboard", 1204, 840);
         window.WindowStartupLocation = WindowStartupLocation.Manual;
         window.Left = -10000; window.Top = -10000; window.ShowActivated = false; window.ShowInTaskbar = false; window.Show();
-        // Capture the real history dialog; selecting an entry is a read-only preview action.
+        var historyHome = new HomeWindow(store); historyHome.Show();
+        // Capture history from Home; selecting an entry is a read-only preview action.
         var historyCapture = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
         historyCapture.Tick += (_, _) =>
         {
-            var history = window.OwnedWindows.OfType<Window>().FirstOrDefault(w => w.Title.StartsWith("Previous sessions"));
+            var history = historyHome.OwnedWindows.OfType<Window>().FirstOrDefault(w => w.Title.EndsWith("History"));
             if (history == null) return;
             historyCapture.Stop();
             var list = Descendants(history).OfType<ListBox>().Single();
@@ -125,7 +126,7 @@ internal static partial class Program
             Assert(Descendants(history).OfType<TextBox>().Any(t => t.IsReadOnly && t.Text.Contains("Previous session") && t.Text.Contains("Notes on dashboard A")), "History dialog exposes read-only dated preview");
             history.Close();
         };
-        historyCapture.Start(); Click(window, "View history");
+        historyCapture.Start(); Descendants(historyHome).OfType<Button>().Single(b => Equals(b.Content, "View History")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); historyHome.Close();
         // Keep the text debounce busy so only the 30-second timer can save during typing.
         var initial = store.Load().Notes; var count = 0;
         var typing = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };

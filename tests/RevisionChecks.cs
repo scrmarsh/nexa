@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.IO;
@@ -81,6 +82,16 @@ internal static partial class Program
     {
         var store = new StateStore(Path.Combine(output, "revision-ui.json"));
         var window = new MainWindow(store);
+        Assert(window.ResizeMode == ResizeMode.CanResize, "Main window remains resizable");
+        var navigationButtons = window.TopNavigation.Children.OfType<Button>().ToList();
+        Assert(navigationButtons.Count(button => Equals(button.Content, "Home")) == 1 && Equals(navigationButtons[0].Content, "Home") && navigationButtons.All(button => !Equals(button.Content, "Add widget")) && navigationButtons.Any(button => Equals(button.Content, "Session")), "Top menu exposes Session with widget adding on the canvas");
+        Assert(window.state.Widgets.All(widget => widget.Kind != "Session controls"), "Session controls are not rendered as a dashboard widget");
+        Assert(window.state.Widgets.Single(widget => widget.Kind == "Pixel timer").Span == 10, "Pixel timer defaults to half the dashboard width");
+        window.Left = -10000; window.Top = -10000; window.WindowStartupLocation = WindowStartupLocation.Manual; window.Show();
+        var widgetFrames = window.WidgetCanvas.Children.OfType<Border>().Where(frame => frame.Tag is Guid).ToList();
+        Assert(widgetFrames.All(frame => frame.Child is StackPanel stack && stack.Children.OfType<ScrollViewer>().Any()), "Widget content scrolls within its chosen bounds");
+        Assert(widgetFrames.All(frame => Descendants(frame).OfType<Thumb>().Any()) && window.WidgetCanvas.Children.OfType<Thumb>().Count() == widgetFrames.Count * 8, "Every dashboard widget has a move handle and eight edge/corner resize handles");
+        Assert(!window.editingDashboard, "Widget controls work without entering editing mode");
         window.StartDate.SelectedDate = window.EndDate.SelectedDate = DateTime.Today.AddDays(1);
         window.StartTime.Text = "12:30 PM"; window.EndTime.Text = "2:30 PM";
         Click(window, "Use these times");
@@ -94,7 +105,7 @@ internal static partial class Program
         Assert(window.state.Presets.Count == presetCount, "Invalid preset clock range is rejected");
         window.EndTime.Text = "2:30 PM";
         window.PresetPicker.SelectedIndex = 1;
-        Assert(window.state.PixelColor == "#1DB954", "Selecting work preset applies green theme");
+        Assert(window.state.PixelColor == "#8B5CF6", "Selecting work preset applies the brand blue-violet theme");
         window.PresetPicker.SelectedIndex = window.PresetPicker.Items.Count - 1;
         Assert(window.StartTime.Value == TimeSpan.FromMinutes(750) && window.state.PixelColor == "#A67AF2", "Reselecting saved preset restores clock selection and violet theme");
         var clockMenu = window.StartTime.ClockMenu;
@@ -117,20 +128,23 @@ internal static partial class Program
         Snapshot(window, "completion", 1204, 840);
         Click(window, "Dismiss banner"); window.UpdateClock(start.AddMinutes(41));
         Assert(window.CompletionBanner.Visibility == Visibility.Collapsed, "Completion banner can be dismissed");
-        Click(window, "I'm bored →");
-        Assert(Descendants(window.StoryArea).OfType<StoryArtwork>().Count() == 1, "Story includes native themed artwork");
+        Click(window, "I'm bored");
+        Assert(Descendants(window.StoryArea).OfType<SwarmArena>().Count() == 1, "Boredom mode renders one native Swarm surface");
+        Click(window, "Back to timer");
         window.Left = 0; window.Top = 0;
-        Click(window, "Fullscreen");
-        Assert(window.WindowStyle == WindowStyle.None && window.FullscreenButton.Content.Equals("Restore"), "Fullscreen is reachable from permanent menu");
-        Click(window, "Restore");
+        window.FullscreenButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Assert(window.WindowStyle == WindowStyle.None && window.FullscreenButton.Content.Equals("\uE923"), "Fullscreen uses the restore icon");
+        window.FullscreenButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         Assert(window.WindowStyle == WindowStyle.None, "Restore retains dark custom chrome");
-        Click(window, "Minimize");
-        Assert(window.WindowState == WindowState.Minimized, "Minimize menu action works");
         window.WindowState = WindowState.Normal;
-        Click(window, "Compact mode");
-        Assert(Descendants(window).OfType<Button>().Any(b => Equals(b.Content, "Exit") && b.Visibility == Visibility.Visible), "Exit remains available in compact mode");
+        window.OverflowButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        var compact = window.OverflowButton.ContextMenu.Items.OfType<MenuItem>().Single(item => Equals(item.Header, "Compact mode"));
+        window.OverflowButton.ContextMenu.IsOpen = false;
+        compact.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+        Assert(window.ExitButton.IsVisible && window.ExitButton.Content.Equals("\uE8BB"), "Close icon remains available in compact mode");
         var closed = false; window.Closed += (_, _) => closed = true;
-        Click(window, "Exit");
+        window.ExitButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Pump(TimeSpan.FromMilliseconds(350));
         Assert(closed && File.Exists(store.FilePath), "Exit menu closes window and persists changes");
     }
 }

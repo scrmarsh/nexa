@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -12,13 +12,17 @@
     <Title>Nexa</Title>
     <Description>Your workspace, your way.</Description>
     <ApplicationIcon>assets\nexa-icon.ico</ApplicationIcon>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version><ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="tests\**\*.cs" />
+    <EmbeddedResource Include="assets\Bible\*.json.gz" LogicalName="SessionDashboard.Bible.%(Filename)%(Extension)" />
     <Resource Include="assets\nexa-icon.ico" />
     <Resource Include="assets\nexa-icon-256.png" />
+    <Resource Include="assets\add.png" />
+    <Resource Include="assets\continue.png" />
+    <Resource Include="assets\import.png" />
     <Resource Include="assets\nexa-logo-full-dark.svg" />
   </ItemGroup>
 

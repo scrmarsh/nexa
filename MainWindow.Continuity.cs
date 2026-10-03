@@ -49,7 +49,8 @@ public partial class MainWindow
             Initialized = true, Title = TitleInput.Text, Duration = DurationInput.Text, Interval = IntervalInput.Text,
             StartDate = StartDate.SelectedDate ?? DateTime.Today, EndDate = EndDate.SelectedDate ?? DateTime.Today,
             StartMinutes = (int)StartTime.Value.TotalMinutes, EndMinutes = (int)EndTime.Value.TotalMinutes,
-            TaskInput = TaskInput.Text, SelectedPresetId = (PresetPicker.SelectedItem as Preset)?.Id
+            TaskInput = TaskInput.Text, SelectedPresetId = (PresetPicker.SelectedItem as Preset)?.Id,
+            ScheduledDays = sessionDayChecks.Where(pair => pair.Value.IsChecked == true).Select(pair => pair.Key).ToList()
         };
         if (!state.Compact && !fullscreen && WindowState == WindowState.Normal)
         { state.WindowWidth = Width; state.WindowHeight = Height; fullWidth = Width; fullHeight = Height; }
@@ -57,12 +58,14 @@ public partial class MainWindow
     private void RestoreDraft()
     {
         var d = state.Draft;
+        d.ScheduledDays ??= [];
         if (!d.Initialized) return;
         RefreshPresets(d.SelectedPresetId);
         TitleInput.Text = d.Title; DurationInput.Text = d.Duration; IntervalInput.Text = d.Interval;
         StartDate.SelectedDate = d.StartDate; EndDate.SelectedDate = d.EndDate;
         StartTime.Value = TimeSpan.FromMinutes(d.StartMinutes); EndTime.Value = TimeSpan.FromMinutes(d.EndMinutes);
         TaskInput.Text = d.TaskInput;
+        foreach (var pair in sessionDayChecks) pair.Value.IsChecked = d.ScheduledDays.Count == 0 ? pair.Key == d.StartDate.DayOfWeek : d.ScheduledDays.Contains(pair.Key);
     }
     private void ShowSaveStatus(string text, bool fade = false, bool warning = false)
     {
@@ -79,14 +82,14 @@ public partial class MainWindow
         {
             CaptureDraft();
             var payload = store.Prepare(state);
-            ShowSaveStatus("Saving...");
+            ShowSaveStatus("◌  Autosaving…");
             pendingWrite = Task.Run(() => store.Write(payload));
             await pendingWrite.ConfigureAwait(false);
             await Dispatcher.InvokeAsync(() =>
             {
                 if (closing || ticket != saveTicket) return;
                 if (version == revision) dirty = false;
-                ShowSaveStatus("Saved at " + payload.Workspace.SavedAt.LocalDateTime.ToString("t"), fade: true);
+                ShowSaveStatus("✓  Autosaved", fade: true);
             });
         }
         catch (Exception ex) when (SaveException(ex))
@@ -120,7 +123,7 @@ public partial class MainWindow
         DashboardPicker.ItemsSource = null;
         DashboardPicker.ItemsSource = state.Workspace!.Dashboards.Where(d => d.UserId == store.UserId).ToList();
         DashboardPicker.SelectedItem = Continuity.Current(state.Workspace, store.UserId);
-        DashboardSubtitle.Text = Continuity.Current(state.Workspace, store.UserId).PresetOrigin + " dashboard";
+        if (DashboardNameEditor != null) DashboardNameEditor.Text = Continuity.Current(state.Workspace, store.UserId).Name;
         updatingDashboardPicker = false;
     }
     internal AppState CopyWorkspaceState()
@@ -129,31 +132,34 @@ public partial class MainWindow
         return Continuity.Activate(copy, store.UserId, state.HedyRegion, state.HedyProtectedKey);
     }
     // All destructive transitions commit a detached candidate before changing the live editor.
-    internal bool CommitWorkspace(WorkspaceDocument candidate)
+    internal bool CommitWorkspace(WorkspaceDocument candidate, bool preserveWindow = false)
     {
         try
         {
             var next = Continuity.Activate(candidate, store.UserId, state.HedyRegion, state.HedyProtectedKey);
+            if (preserveWindow) { next.WindowWidth = fullWidth; next.WindowHeight = fullHeight; next.Compact = state.Compact; }
             WidgetLibrary.EnsureLayout(next);
             store.Save(next);
+            if (storyOpen) ExitBoredomMode();
             CloseNoteEditors(); PauseHedySync();
             ready = false; state = next; revision++; saveTicket++; dirty = false; saveDelay.Stop();
             NotesBox.Text = state.Notes; NotesToggle.IsChecked = state.ShowNotes; ChecklistToggle.IsChecked = state.ShowChecklist;
             PinToggle.IsChecked = state.AlwaysOnTop; AccentInput.Text = state.AccentColor; PixelInput.Text = state.PixelColor;
             RefreshPresets(state.Presets.FirstOrDefault()?.Id); RestoreDraft();
             if (!state.Draft.Initialized) { TitleInput.Text = Continuity.Current(candidate, store.UserId).Name; TaskInput.Clear(); }
-            RefreshDashboardPicker(); RenderTasks(); ApplyColors(); ApplySettings(); BuildTimeline();
+            RefreshDashboardPicker(); UpdateDeveloperToolsVisibility(); RenderTasks(); ApplyColors(); ApplySpaceBackground(); ApplySettings(); BuildTimeline();
             HedyTranscriptBox.Text = state.Session?.HedyTranscript ?? "";
             completionDismissed = false; flashUntil = DateTimeOffset.MinValue;
             fullWidth = state.WindowWidth; fullHeight = state.WindowHeight;
-            SetCompact(state.Compact); UpdateClock();
+            if (!preserveWindow) SetCompact(state.Compact);
+            UpdateClock();
             if (widgetsReady) { editingDashboard = false; RenderWidgets(); }
             if (storyOpen) RenderStory();
-            ShowSaveStatus("Saved at " + DateTime.Now.ToString("t"), fade: true);
+            ShowSaveStatus("✓  Autosaved", fade: true);
             return true;
         }
         catch (Exception ex) when (SaveException(ex))
-        { ShowSaveStatus("Save failed", warning: true); Feedback.Text = "Dashboard was not changed: " + ex.Message; return false; }
+        { ShowSaveStatus("Save failed", warning: true); Feedback.Text = "Space was not changed: " + ex.Message; return false; }
         finally { ready = true; }
     }
     private void DashboardSelected(object sender, SelectionChangedEventArgs e)
@@ -166,7 +172,7 @@ public partial class MainWindow
         Continuity.Access(Continuity.Current(candidate, store.UserId));
         if (!CommitWorkspace(candidate)) RefreshDashboardPicker();
     }
-    private Window Dialog(string title, double width = 720, double height = 650) => new NexaDialog()
+    private NexaDialog Dialog(string title, double width = 720, double height = 650) => new NexaDialog()
     {
         Title = title, Width = width, Height = height, MinWidth = 420, MinHeight = 300, Owner = this,
         WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = Brush("BackgroundBrush"), Foreground = Brush("TextBrush")
@@ -181,8 +187,8 @@ public partial class MainWindow
     }
     private void ResetDashboardClick(object sender, RoutedEventArgs e)
     {
-        if (MessageBox.Show(this, "Start a fresh dashboard session?\n\nThis archives the current session and clears notes, tasks, timer, draft text and story progress. Dashboard name, presets, colors and panel settings are preserved.",
-            "Reset dashboard", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) != MessageBoxResult.OK) return;
+        if (MessageBox.Show(this, "Start a fresh Space session?\n\nThis archives the current session and clears notes, tasks, timer, draft text and story progress. Space name, presets, colors and panel settings are preserved.",
+            "Reset Space", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) != MessageBoxResult.OK) return;
         if (!SaveNow()) return;
         var candidate = CopyWorkspaceState().Workspace!;
         Continuity.Reset(Continuity.Current(candidate, store.UserId));
@@ -195,7 +201,7 @@ public partial class MainWindow
     }
     private void ExportDialog(DashboardRecord dashboard, DashboardSession? session = null)
     {
-        var dialog = Dialog("Export dashboard", 510, 330);
+        var dialog = Dialog("Export Space", 510, 330);
         var panel = new StackPanel { Margin = new Thickness(24) };
         panel.Children.Add(new TextBlock { Text = "Configuration only is the default. Includes presets, panel visibility, colors and window size.", TextWrapping = TextWrapping.Wrap });
         var include = new CheckBox { Content = "Include current / selected session data", IsChecked = false, Margin = new Thickness(0, 20, 0, 10) }; panel.Children.Add(include);
@@ -203,26 +209,26 @@ public partial class MainWindow
         var save = new Button { Content = "Export .nexa", Margin = new Thickness(0, 20, 0, 0) }; panel.Children.Add(save);
         save.Click += (_, _) =>
         {
-            var picker = new SaveFileDialog { Filter = "Nexa dashboard (*.nexa)|*.nexa", DefaultExt = ".nexa", FileName = "dashboard.nexa" };
+            var picker = new SaveFileDialog { Filter = "Nexa Space (*.nexa)|*.nexa", DefaultExt = ".nexa", FileName = "space.nexa" };
             if (picker.ShowDialog(dialog) != true) return;
-            try { StateStore.AtomicWrite(picker.FileName, Continuity.Export(dashboard, include.IsChecked == true, session), false); dialog.Close(); Feedback.Text = "Dashboard exported."; }
+            try { StateStore.AtomicWrite(picker.FileName, Continuity.Export(dashboard, include.IsChecked == true, session), false); NexaChrome.FadeOutAndClose(dialog); Feedback.Text = "Space exported."; }
             catch (Exception ex) when (SaveException(ex)) { MessageBox.Show(dialog, ex.Message, "Export failed", MessageBoxButton.OK, MessageBoxImage.Warning); }
         };
         dialog.Content = panel; dialog.ShowDialog();
     }
     private void ImportDashboardClick(object sender, RoutedEventArgs e)
     {
-        var picker = new OpenFileDialog { Filter = "Nexa dashboard (*.nexa)|*.nexa", CheckFileExists = true };
+        var picker = new OpenFileDialog { Filter = "Nexa Space (*.nexa)|*.nexa", CheckFileExists = true };
         if (picker.ShowDialog(this) != true) return;
         try
         {
-            if (new FileInfo(picker.FileName).Length > 10_000_000) throw new InvalidDataException("Dashboard file exceeds the 10 MB limit.");
+            if (new FileInfo(picker.FileName).Length > 10_000_000) throw new InvalidDataException("Space file exceeds the 10 MB limit.");
             var file = Continuity.ReadExport(File.ReadAllText(picker.FileName));
-            if (file.IncludesSessionData && MessageBox.Show(this, "This file includes private notes, tasks and other session content. Import that content into a new dashboard owned by your Windows account?", "Import session data", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) != MessageBoxResult.OK) return;
+            if (file.IncludesSessionData && MessageBox.Show(this, "This file includes private notes, tasks and other session content. Import that content into a new Space owned by your Windows account?", "Import session data", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) != MessageBoxResult.OK) return;
             if (!SaveNow()) return;
             var candidate = CopyWorkspaceState().Workspace!;
             Continuity.Import(candidate, file, store.UserId, file.IncludesSessionData);
-            if (CommitWorkspace(candidate)) Feedback.Text = "Imported as a new dashboard.";
+            if (CommitWorkspace(candidate)) Feedback.Text = "Imported as a new Space.";
         }
         catch (Exception ex) when (SaveException(ex)) { MessageBox.Show(this, ex.Message, "Import failed", MessageBoxButton.OK, MessageBoxImage.Warning); }
     }
@@ -259,13 +265,13 @@ public partial class MainWindow
         rowStyle.Setters.Add(new Setter(Control.TemplateProperty, new ControlTemplate(typeof(ListBoxItem)) { VisualTree = rowBorder }));
         var selectedStyle = new Trigger { Property = ListBoxItem.IsSelectedProperty, Value = true };
         selectedStyle.Setters.Add(new Setter(Control.ForegroundProperty, Brushes.White));
-        selectedStyle.Setters.Add(new Setter(Control.BackgroundProperty, new SolidColorBrush(Color.FromRgb(35, 62, 48))));
+        selectedStyle.Setters.Add(new Setter(Control.BackgroundProperty, Brush("AccentBrush")));
         rowStyle.Triggers.Add(selectedStyle); list.ItemContainerStyle = rowStyle;
         var groupStyle = new GroupStyle(); var template = new DataTemplate();
         var factory = new FrameworkElementFactory(typeof(TextBlock)); factory.SetBinding(TextBlock.TextProperty, new Binding("Name"));
         factory.SetValue(TextBlock.FontWeightProperty, FontWeights.Bold); factory.SetValue(FrameworkElement.MarginProperty, new Thickness(4, 12, 4, 8));
         template.VisualTree = factory; groupStyle.HeaderTemplate = template; list.GroupStyle.Add(groupStyle); grid.Children.Add(list);
-        var preview = new TextBox { IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Text = "Select a previous session to preview its saved content. Your current dashboard stays unchanged." };
+        var preview = new TextBox { IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Text = "Select a previous session to preview its saved content. Your current Space stays unchanged." };
         Grid.SetColumn(preview, 2); grid.Children.Add(preview);
         Button Action(string title, Action callback)
         {
@@ -281,8 +287,8 @@ public partial class MainWindow
             entries = sort.SelectedIndex switch { 1 => entries.OrderBy(s => s.OpenedAt), 2 => entries.OrderByDescending(s => s.LastAccessedAt), 3 => entries.OrderBy(s => s.Title), _ => entries.OrderByDescending(s => s.OpenedAt) };
             var view = new ListCollectionView(entries.ToList()); view.GroupDescriptions.Add(new PropertyGroupDescription("SessionDate")); list.ItemsSource = view;
             preview.Text = list.SelectedItem is DashboardSession selected ? PreviewSession(selected) : view.IsEmpty
-                ? "No previous sessions match. Reset the dashboard or start another timer to archive a session."
-                : "Select a previous session to preview its saved content. Your current dashboard stays unchanged.";
+                ? "No previous sessions match. Reset the Space or start another timer to archive a session."
+                : "Select a previous session to preview its saved content. Your current Space stays unchanged.";
         }
         Action("Continue this session", () =>
         {
@@ -290,16 +296,16 @@ public partial class MainWindow
             if (MessageBox.Show(dialog, "Archive your current session and continue a copy of this saved session? Its original history entry will remain. Saved timer timestamps are retained.", "Continue session", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) != MessageBoxResult.OK || !SaveNow()) return;
             var candidate = CopyWorkspaceState().Workspace!;
             Continuity.Continue(Continuity.Current(candidate, store.UserId), selected.SessionId, store.UserId);
-            if (CommitWorkspace(candidate)) dialog.Close();
+            if (CommitWorkspace(candidate)) NexaChrome.FadeOutAndClose(dialog);
         });
-        Action("Merge to current dashboard", () =>
+        Action("Merge to current Space", () =>
         {
             if (list.SelectedItem is not DashboardSession selected) return;
             if (MessageBox.Show(dialog, "Append notes and source-labelled interval/Hedy notes, and add missing incomplete tasks and tracker records? Widget records are matched by saved identity. Current counters, timers and completed tasks stay intact. Use Continue for an exact restore. Repeated merges of this entry are skipped." +
                 (keepLayout.IsChecked == true ? "\n\nHistorical presets, colors and panel configuration will replace the current configuration." : "\n\nYour layout and configuration will be preserved."), "Merge session", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) != MessageBoxResult.OK || !SaveNow()) return;
             var candidate = CopyWorkspaceState().Workspace!;
             Continuity.Merge(Continuity.Current(candidate, store.UserId), selected.SessionId, store.UserId, keepLayout.IsChecked == true);
-            if (CommitWorkspace(candidate)) dialog.Close();
+            if (CommitWorkspace(candidate)) NexaChrome.FadeOutAndClose(dialog);
         });
         Action("Export", () => { if (list.SelectedItem is DashboardSession selected) ExportDialog(Current(), selected); });
         Action("Delete", () =>
@@ -339,6 +345,7 @@ public partial class MainWindow
             if (WidgetLibrary.Definition(widget.Kind).Editor == "counter") text.AppendLine("Count: " + widget.Value);
             foreach (var item in widget.Items) text.AppendLine($"{(item.Done ? "☑" : "☐")} {item.Text}");
             foreach (var record in widget.Records) text.AppendLine($"{record.CreatedAt.LocalDateTime:g} · {record.Name} · {string.Join(", ", record.Categories)} · {string.Join("; ", record.Values.Select(p => p.Key + ": " + p.Value))}");
+            foreach (var pin in widget.ScripturePins) text.AppendLine($"{pin.Reference} · {pin.Translation}\n{pin.Text}\nNote: {pin.Note}");
             text.AppendLine($"Layout: column {widget.Column + 1}, row {widget.Row + 1}, width {widget.Span}/12, height {widget.Height}");
         }
         text.AppendLine($"\nCONFIGURATION\nNotes panel: {(data.ShowNotes ? "Shown" : "Hidden")}\nChecklist: {(data.ShowChecklist ? "Shown" : "Hidden")}\nAlways on top: {data.AlwaysOnTop}\nCompact mode: {data.Compact}\nAccent: {data.AccentColor} · Pixels: {data.PixelColor}\nWindow: {data.WindowWidth:0} × {data.WindowHeight:0}");

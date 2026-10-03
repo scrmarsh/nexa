@@ -6,6 +6,7 @@ tests/bin/
 tests/obj/
 .vs/
 *.user
+__pycache__/
 
 # Generated validation captures and test results
 **/test-output/

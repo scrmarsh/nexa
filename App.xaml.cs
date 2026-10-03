@@ -1,14 +1,17 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 
 namespace SessionDashboard;
 
 public partial class App : Application
 {
+    internal static string AppVersion => typeof(App).Assembly.GetName().Version?.ToString(3) ?? "Unknown";
     private Mutex? workspaceMutex;
+    internal bool SuppressNormalStartup { get; init; }
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (SuppressNormalStartup) return;
         if (e.Args.Length == 2 && e.Args[0] == "--verify-startup")
         {
             StartupVerification.Run(this, Path.GetFullPath(e.Args[1]));
@@ -24,10 +27,12 @@ public partial class App : Application
         }
         try
         {
+            var store = new StateStore(path);
+            Theme.Apply(Resources, store.LoadThemeMode(), store.LoadAppTheme());
             var splash = new SplashWindow(); MainWindow = splash;
             splash.ContentRendered += async (_, _) =>
             {
-                try { await splash.EnterHome(new StateStore(path)); }
+                try { await splash.EnterHome(store); }
                 catch (Exception ex) { MessageBox.Show("Nexa could not open your workspace. No data was overwritten.\n\n" + ex.Message, "Nexa"); Shutdown(1); }
             };
             splash.Show();

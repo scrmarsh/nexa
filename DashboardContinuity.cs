@@ -16,6 +16,7 @@ public sealed class DashboardDraft
     public int EndMinutes { get; set; }
     public string TaskInput { get; set; } = "";
     public Guid? SelectedPresetId { get; set; }
+    public List<DayOfWeek> ScheduledDays { get; set; } = [];
 }
 
 public sealed class WorkspaceDocument
@@ -199,6 +200,8 @@ public static class Continuity
                 if (!existing.Items.Any(t => string.Equals(t.Text.Trim(), item.Text.Trim(), StringComparison.OrdinalIgnoreCase))) existing.Items.Add(Clone(item));
             foreach (var record in incoming.Records)
                 if (!existing.Records.Any(r => r.Id == record.Id)) existing.Records.Add(Clone(record));
+            foreach (var pin in incoming.ScripturePins)
+                if (!existing.ScripturePins.Any(p => p.Id == pin.Id)) existing.ScripturePins.Add(Clone(pin));
             existing.Categories = existing.Categories.Concat(incoming.Categories).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             existing.Fields = existing.Fields.Concat(incoming.Fields).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             // Counters and independent timer positions stay current; Continue restores them exactly.
@@ -267,7 +270,7 @@ public static class Continuity
             data.Tasks.Any(t => t == null || t.Text == null) || data.Presets.Any(p => p == null || string.IsNullOrWhiteSpace(p.Name) || p.Minutes is < 1 or > 10080 || p.IntervalMinutes is < 1 or > 10080 ||
                 !InputRules.IsColor(p.AccentColor) || !InputRules.IsColor(p.PixelColor) || p.StartClockMinutes is < 0 or > 1439 || p.EndClockMinutes is < 0 or > 1439 || p.EndDayOffset is < 0 or > 7))
             throw new InvalidDataException("Dashboard data contains missing or invalid values.");
-        if (data.Session is { } s && (!InputRules.ValidSession(s) || s.IntervalNotes == null || s.HedyIntervalNotes == null || s.ReachedMilestones == null || s.HedyTranscript == null || s.HedyBaseline == null))
+        if (data.Session is { } s && (!InputRules.ValidSession(s) || s.IntervalNotes == null || s.HedyIntervalNotes == null || s.IntervalSummaries == null || s.ReachedMilestones == null || s.HedyTranscript == null || s.HedyBaseline == null))
             throw new InvalidDataException("Dashboard timer or interval notes are invalid.");
         WidgetLibrary.Validate(data);
     }

@@ -5,86 +5,99 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Nexa" Width="1220" Height="880" MinWidth="960" MinHeight="660"
         Background="{DynamicResource BackgroundBrush}" Foreground="{DynamicResource TextBrush}"
-        FontFamily="Segoe UI" FontSize="14" WindowStartupLocation="CenterScreen" PreviewKeyDown="WindowKeyDown">
-    <DockPanel>
-        <Border DockPanel.Dock="Top" Height="44" Background="#0D1119" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="12,4">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
-                    <Button Content="Home" Click="HomeClick" Padding="10,5" Margin="4,0"/>
-                    <Button Content="Minimize" Click="MinimizeClick" Padding="10,5" Margin="4,0"/>
-                    <Button x:Name="MaximizeButton" Content="Maximize" Click="MaximizeClick" Padding="10,5" Margin="4,0"/>
-                    <Button x:Name="FullscreenButton" Content="Fullscreen" Click="FullscreenClick" Padding="10,5" Margin="4,0" ToolTip="F11 to toggle; Esc to leave fullscreen"/>
-                    <Button Content="Exit" Click="ExitClick" Padding="14,5" Margin="4,0"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal"><Image Source="assets/nexa-icon-256.png" Width="24" Height="24" Margin="0,0,10,0"/><TextBlock Text="Nexa" VerticalAlignment="Center" FontWeight="SemiBold"/></StackPanel>
-            </DockPanel>
-        </Border>
-    <Grid Margin="24" Background="{DynamicResource BackgroundBrush}">
-        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-        <DockPanel x:Name="Toolbar" Margin="0,0,0,20">
-            <WrapPanel DockPanel.Dock="Right" VerticalAlignment="Center">
-                <Button Content="Edit dashboard" Click="EditDashboardClick" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0"/>
-                <Button Content="View history" Click="HistoryClick" Margin="0,0,8,0"/>
-                <Button Content="Reset dashboard" Click="ResetDashboardClick" Margin="0,0,8,0"/>
-                <Button Content="⋯" ToolTip="More dashboard actions" Click="OverflowClick" AutomationProperties.Name="More dashboard actions"/>
-            </WrapPanel>
-            <StackPanel Margin="0,0,14,0">
-                <ComboBox x:Name="DashboardPicker" DisplayMemberPath="Name" SelectionChanged="DashboardSelected" MaxWidth="300" HorizontalAlignment="Left" MinWidth="220" AutomationProperties.Name="Active dashboard"/>
-                <TextBlock x:Name="DashboardSubtitle" Text="Your workspace" Foreground="{DynamicResource MutedBrush}" Margin="0,7,0,0"/>
-            </StackPanel>
-        </DockPanel>
-        <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,0,0,16" Padding="22,16">
+        FontFamily="Segoe UI" FontSize="14" WindowStartupLocation="CenterScreen" PreviewKeyDown="WindowKeyDown" PreviewMouseWheel="GentleMouseWheel">
+    <Grid>
+    <DockPanel x:Name="DashboardShell">
+        <Border DockPanel.Dock="Top" Height="44" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="12,4">
             <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel VerticalAlignment="Center" Margin="0,0,18,0">
-                    <TextBlock x:Name="StatusLabel" Text="READY WHEN YOU ARE" Foreground="{DynamicResource AccentBrush}" FontSize="11" FontWeight="Bold"/>
-                    <TextBlock x:Name="SessionTitle" Text="Make room for focus" FontSize="24" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Margin="0,6,0,4"/>
-                    <TextBlock x:Name="SaveStatus" Height="17" Opacity="0" FontSize="11" Foreground="{DynamicResource MutedBrush}" AutomationProperties.LiveSetting="Polite"/>
-                    <TextBlock x:Name="SessionRange" Text="Choose a preset or create your own session." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"/>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Image Source="assets/nexa-icon-256.png" Width="24" Height="24" Margin="0,0,12,0"/>
+                    <ContentControl x:Name="SessionNameHost" MaxWidth="290" VerticalAlignment="Center"/>
                 </StackPanel>
-                <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                    <TextBlock x:Name="Countdown" Text="00:00:00" FontFamily="Consolas" FontSize="44" HorizontalAlignment="Right"/>
-                    <TextBlock x:Name="CountdownCaption" Text="TIME REMAINING" FontSize="10" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Right"/>
-                    <Button x:Name="ExpandButton" Content="Expand dashboard" Click="CompactClick" Visibility="Collapsed" Margin="0,8,0,0"/>
+                <StackPanel x:Name="TopNavigation" Grid.Column="1" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button Content="Home" Click="HomeClick" Padding="14,5" Margin="0,0,8,0"/>
+                    <Button Content="Focus Reset" Click="FocusResetClick" Padding="12,5" Margin="0,0,8,0"/><Button x:Name="SessionSettingsButton" Content="Session" Click="DashboardSettingsClick" Style="{StaticResource PrimaryButton}" Padding="14,5"/>
+                    <Button x:Name="DeveloperSplashButton" Content="Preview Splash" MinWidth="132" Padding="12,6" Click="DeveloperSplashClick" Visibility="Collapsed"/>
+                    <Button x:Name="DeveloperResetButton" Content="Reset dev" Click="DeveloperResetClick" Visibility="Collapsed"/>
                 </StackPanel>
-            </Grid>
-        </Border>
-        <DockPanel x:Name="FullContent" Grid.Row="2">
+                <StackPanel Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button x:Name="MinimizeButton" Content="&#xE921;" FontFamily="Segoe MDL2 Assets" Click="MinimizeClick" Width="40" Padding="0" Background="Transparent" BorderThickness="0" ToolTip="Minimize"/>
+                    <Button x:Name="FullscreenButton" Content="&#xE922;" FontFamily="Segoe MDL2 Assets" Click="FullscreenClick" Width="40" Padding="0" Background="Transparent" BorderThickness="0" ToolTip="Fullscreen (F11)"/>
+                    <Button x:Name="ExitButton" Content="&#xE8BB;" FontFamily="Segoe MDL2 Assets" Click="ExitClick" Width="40" Padding="0" Background="Transparent" BorderThickness="0" ToolTip="Close"/>
+                </StackPanel>
+            </Grid>        </Border>
+    <Grid Margin="24" Background="{DynamicResource BackgroundBrush}">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <StackPanel x:Name="CompactTimerHost" Visibility="Collapsed"/>
+        <Border x:Name="SpaceBackgroundLayer" Grid.Row="1" CornerRadius="10" ClipToBounds="True"/>
+        <Border x:Name="SpaceBackgroundOverlay" Grid.Row="1" CornerRadius="10" Background="#000000" IsHitTestVisible="False"/>
+        <DockPanel x:Name="FullContent" Grid.Row="1">
+            <Border x:Name="PreviewBanner" DockPanel.Dock="Top" Visibility="Collapsed" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,0,0,12">
+                <DockPanel>
+                    <Button Content="Another preview" Click="AnotherPreviewClick" DockPanel.Dock="Right" Margin="12,0,0,0"/>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Preview · Sample Space" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Text="Explore and edit the sample. Home returns to your own Spaces." Foreground="{DynamicResource MutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
             <Border x:Name="EditToolbar" DockPanel.Dock="Top" Visibility="Collapsed" Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="12" Margin="0,0,0,12">
-                <WrapPanel><TextBlock Text="Editing dashboard" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,18,0"/><Button Content="Add widget" Click="AddWidgetClick" Margin="0,0,8,0"/><Button Content="Layout" Click="LayoutClick" Margin="0,0,8,0"/><Button Content="Theme" Click="ThemeClick" Margin="0,0,8,0"/><Button Content="Dashboard settings" Click="DashboardSettingsClick" Margin="0,0,8,0"/><Button Content="Done" Click="DoneEditingClick" Style="{StaticResource PrimaryButton}"/></WrapPanel>
+                <WrapPanel VerticalAlignment="Center">
+                    <TextBlock Text="Editing Space" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,18,0"/>
+                    <TextBox x:Name="DashboardNameEditor" Width="220" Margin="0,0,8,0" MaxLength="100" ToolTip="Rename the current Space"/>
+                    <Button Content="Rename" Click="RenameDashboardClick" Margin="0,0,8,0"/>
+                    <Button Content="Add widget" Click="AddWidgetClick" Margin="0,0,8,0"/>
+                    <Button Content="Layout" Click="LayoutClick" Margin="0,0,8,0"/>
+                    <Button Content="Theme" Click="ThemeClick" Margin="0,0,8,0"/>
+                    <Button Content="Space settings" Click="DashboardSettingsClick" Margin="0,0,8,0"/>
+                    <Button Content="Done" Click="DoneEditingClick" Style="{StaticResource PrimaryButton}"/>
+                </WrapPanel>
             </Border>
         <Grid x:Name="LegacyContent" Visibility="Collapsed" DockPanel.Dock="Bottom">
             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="18"/><ColumnDefinition Width="330"/></Grid.ColumnDefinitions>
+            <Button x:Name="OverflowButton" Visibility="Collapsed" Click="OverflowClick"/>
+            <ComboBox x:Name="DashboardPicker" Visibility="Collapsed" DisplayMemberPath="Name" SelectionChanged="DashboardSelected"/>
+            <TextBlock x:Name="StatusLabel" Visibility="Collapsed"/><TextBlock x:Name="SessionTitle" Visibility="Collapsed"/><TextBlock x:Name="SessionRange" Visibility="Collapsed"/>
+            <StackPanel x:Name="InlineSessionHost" Visibility="Collapsed"/>
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
                     <Border x:Name="PixelPanel" Style="{StaticResource Card}" Padding="22">
-                        <StackPanel>
-                            <DockPanel Margin="0,0,0,18"><TextBlock Text="EVERY PIXEL IS PROGRESS" Style="{StaticResource Eyebrow}"/><TextBlock x:Name="PercentLabel" Text="0.0%" HorizontalAlignment="Right" Foreground="{DynamicResource PixelBrush}" FontWeight="Bold"/></DockPanel>
+                        <StackPanel>                            <StackPanel x:Name="CountdownHost" Margin="0,0,0,10">
+                                <TextBlock x:Name="Countdown" Text="00:00:00" FontFamily="Consolas" FontSize="52"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="CountdownCaption" Text="TIME REMAINING" FontSize="10" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
+                                    <Button x:Name="SessionEditButton" Content="Edit" Click="SessionTimeEditClick" Padding="7,3" FontSize="10" Margin="8,0,0,0"/>
+                                    <Button x:Name="SessionResetButton" Content="Reset" Click="ResetSessionTimerClick" Padding="7,3" FontSize="10" Margin="6,0,0,0"/><Button Content="&#x2026;" Click="PixelBannerOptionsClick" Width="28" Padding="3" Margin="6,0,0,0" ToolTip="Pixel Timer options" AutomationProperties.Name="Pixel Timer options"/>
+                                </StackPanel>
+                                <Button x:Name="ExpandButton" Content="Expand Space" Click="CompactClick" Visibility="Collapsed"/>
+                            </StackPanel>
+                            <DockPanel Margin="0,0,0,8"><TextBlock Text="EVERY PIXEL IS PROGRESS" Style="{StaticResource Eyebrow}"/><TextBlock x:Name="PercentLabel" Text="0.0%" HorizontalAlignment="Right" Foreground="{DynamicResource PixelBrush}" FontWeight="Bold"/></DockPanel>
                             <TextBlock x:Name="MilestoneLabel" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold" Margin="0,0,0,8" Visibility="Collapsed" TextWrapping="Wrap"/>
                             <Grid>
-                                <Grid x:Name="PixelArea"><UniformGrid x:Name="PixelGrid" Columns="36" Rows="15" Height="265"/></Grid>
-                                <Grid x:Name="StoryArea" Visibility="Collapsed" MinHeight="265"/>
-                                <Border x:Name="CompletionBanner" Visibility="Collapsed" Background="#EE0D1711" BorderBrush="#EDFFF6" BorderThickness="1" CornerRadius="10" Padding="22" VerticalAlignment="Center" Margin="12">
-                                    <StackPanel><TextBlock Text="SESSION OVER" FontSize="30" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center"/><TextBlock Text="You made it. Take a moment for yourself." Foreground="#CDEEDD" HorizontalAlignment="Center" Margin="0,6"/><Button Content="Dismiss banner" Click="DismissCompletionClick" HorizontalAlignment="Center" Margin="0,8,0,0"/></StackPanel>
+                                <Grid x:Name="PixelArea"><UniformGrid x:Name="PixelGrid" Columns="36" Rows="15" Height="108"/></Grid>
+                                <Grid x:Name="StoryArea" Visibility="Collapsed" MinHeight="108"/>
+                                <Border x:Name="CompletionBanner" Visibility="Collapsed" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="10" Padding="22" VerticalAlignment="Center" Margin="12">
+                                    <StackPanel><TextBlock Text="Session over" FontSize="30" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center"/><TextBlock Text="You made it. Take a moment for yourself." Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center" Margin="0,6"/><Button Content="Dismiss banner" Click="DismissCompletionClick" HorizontalAlignment="Center" Margin="0,8,0,0"/></StackPanel>
                                 </Border>
                             </Grid>
-                            <Grid Margin="0,18,0,0">
+                            <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
                                 <StackPanel><TextBlock Text="ELAPSED" Style="{StaticResource Eyebrow}"/><TextBlock x:Name="ElapsedLabel" Text="00:00:00" FontSize="20" FontFamily="Consolas" Margin="0,5,0,0"/></StackPanel>
                                 <StackPanel Grid.Column="1"><TextBlock Text="DURATION" Style="{StaticResource Eyebrow}"/><TextBlock x:Name="DurationLabel" Text="—" FontSize="20" Margin="0,5,0,0"/></StackPanel>
                                 <StackPanel Grid.Column="2"><TextBlock Text="INTERVAL" Style="{StaticResource Eyebrow}"/><TextBlock x:Name="IntervalLabel" Text="—" FontSize="20" Margin="0,5,0,0"/></StackPanel>
                             </Grid>
-                            <DockPanel Margin="0,18,0,0">
-                                <Button x:Name="StoryButton" Content="I'm bored →" Click="StoryClick" DockPanel.Dock="Right"/>
+                            <DockPanel Margin="0,8,0,0">
+                                <Button x:Name="StoryButton" Content="I'm bored" Click="StoryClick" DockPanel.Dock="Right"/>
                                 <TextBlock Text="Stay with it. One moment at a time." Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
                             </DockPanel>
                         </StackPanel>
                     </Border>
                     <Border x:Name="TimelinePanel" Style="{StaticResource Card}" Margin="0,16,0,0" Padding="20">
-                        <StackPanel><TextBlock Text="YOUR SESSION, IN SMALL STEPS" Style="{StaticResource Eyebrow}" Margin="0,0,0,12"/><WrapPanel x:Name="Timeline"/><TextBlock x:Name="TimelineHint" Text="Your interval timeline appears when you start a session." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"/></StackPanel>
+                        <StackPanel><TextBlock Text="Session Notes" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/><StackPanel x:Name="Timeline"/><TextBlock x:Name="TimelineHint" Text="Your chronological summaries appear when you start a session." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap"/></StackPanel>
                     </Border>
                     <Border x:Name="NotesPanel" Style="{StaticResource Card}" Margin="0,16,0,0" Padding="20">
-                        <StackPanel><TextBlock Text="NOTES" Style="{StaticResource Eyebrow}" Margin="0,0,0,10"/><TextBox x:Name="NotesBox" AcceptsReturn="True" Height="100" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" TextChanged="NotesChanged" AutomationProperties.Name="Session notes"/></StackPanel>
+                        <StackPanel><TextBlock Text="NOTES" Style="{StaticResource Eyebrow}" Margin="0,0,0,10"/><TextBox x:Name="NotesBox" AcceptsReturn="True" MinHeight="100" VerticalScrollBarVisibility="Disabled" TextWrapping="Wrap" TextChanged="NotesChanged" SizeChanged="NotesSizeChanged" AutomationProperties.Name="Session notes"/></StackPanel>
                     </Border>
                     <Border x:Name="ChecklistPanel" Style="{StaticResource Card}" Margin="0,16,0,0" Padding="20">
                         <StackPanel><TextBlock Text="SMALL WINS" Style="{StaticResource Eyebrow}" Margin="0,0,0,10"/>
@@ -120,12 +133,12 @@
                             </StackPanel></Expander>
                             <TextBlock Text="Preset theme" Style="{StaticResource FieldLabel}"/>
                             <ComboBox x:Name="ThemePicker" SelectionChanged="ThemeSelected" AutomationProperties.Name="Preset theme">
-                                <ComboBoxItem Content="Blue · lecture"/><ComboBoxItem Content="Green · work"/><ComboBoxItem Content="Amber · meeting"/><ComboBoxItem Content="Violet · studying"/>
+                                <ComboBoxItem Content="Blue · lecture"/><ComboBoxItem Content="Violet · work"/><ComboBoxItem Content="Indigo · meeting"/><ComboBoxItem Content="Lilac · studying"/>
                             </ComboBox>
                             <TextBlock Text="Save a preset to keep its clock times and colors." FontSize="11" Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0"/>
                             <Button Content="Delete selected preset" Click="DeletePresetClick" Margin="0,8,0,0"/>
                             <Button x:Name="EndButton" Content="End session" Click="EndClick" Margin="0,16,0,0" IsEnabled="False"/>
-                            <TextBlock Text="Starting a timer archives the previous session. Notes and checklist stay with you. Reset dashboard starts fresh." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,12,0,0"/>
+                            <TextBlock Text="Starting a timer archives the previous session. Notes and checklist stay with you. Reset Space starts fresh." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,12,0,0"/>
                         </StackPanel>
                     </Border>
                     <Border x:Name="ThemePanel" Style="{StaticResource Card}" Padding="20" Margin="0,16,0,0">
@@ -134,8 +147,12 @@
                             <Button x:Name="CompactButton" Content="Compact mode" Click="CompactClick" Margin="0,0,0,10"/>
                             <CheckBox x:Name="NotesToggle" Content="Show notes" IsChecked="True" Click="SettingsChanged" Margin="0,0,0,10"/>
                             <CheckBox x:Name="ChecklistToggle" Content="Show checklist" IsChecked="True" Click="SettingsChanged"/>
-                            <TextBlock Text="Accent color (#RRGGBB)" Style="{StaticResource FieldLabel}"/><TextBox x:Name="AccentInput" Text="#1DB954" AutomationProperties.Name="Accent color"/>
-                            <TextBlock Text="Pixel color (#RRGGBB)" Style="{StaticResource FieldLabel}"/><TextBox x:Name="PixelInput" Text="#2786FF" AutomationProperties.Name="Pixel color"/>
+                            <TextBox x:Name="AccentInput" Text="#5B7CFF" Visibility="Collapsed"/>
+                            <TextBox x:Name="PixelInput" Text="#8B5CF6" Visibility="Collapsed"/>
+                            <TextBlock Text="Accent color" Style="{StaticResource FieldLabel}"/>
+                            <local:ColorPickerButton x:Name="AccentColorPicker" SelectedColor="#5B7CFF" ColorChanged="AccentColorPickerColorChanged" Margin="0,0,0,12"/>
+                            <TextBlock Text="Pixel color" Style="{StaticResource FieldLabel}"/>
+                            <local:ColorPickerButton x:Name="PixelColorPicker" SelectedColor="#8B5CF6" ColorChanged="PixelColorPickerColorChanged" Margin="0,0,0,12"/>
                             <Button Content="Apply colors" Click="ColorsClick" Margin="0,12,0,0"/>
                         </StackPanel>
                     </Border>
@@ -146,20 +163,38 @@
                             <TextBlock Text="API key" Style="{StaticResource FieldLabel}"/><PasswordBox x:Name="HedyKeyInput" Padding="8" AutomationProperties.Name="Hedy API key"/>
                             <CheckBox x:Name="RememberHedyKey" Content="Remember key on this Windows account" Margin="0,10,0,0"/>
                             <Button x:Name="HedyConnectButton" Content="Connect / refresh sessions" Click="ConnectHedyClick" Margin="0,12,0,0"/>
-                            <TextBlock Text="Hedy session" Style="{StaticResource FieldLabel}"/><ComboBox x:Name="HedySessionPicker" DisplayMemberPath="Title" AutomationProperties.Name="Hedy session"/>
-                            <Button Content="Link and sync live notes" Click="LinkHedyClick" Margin="0,10,0,0"/>
-                            <Button Content="Disconnect Hedy" Click="DisconnectHedyClick" Margin="0,8,0,0"/>
-                            <TextBlock x:Name="HedyStatus" Text="Not connected. Requires Hedy Pro API access and cloud sync." TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,10,0,0"/>
-                            <TextBlock Text="Click an interval card to edit your notes. New Hedy text is filed by receipt time; existing transcript stays separate." TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,8,0,0"/>
-                            <Expander Header="Latest full Hedy transcript" Margin="0,12,0,0"><TextBox x:Name="HedyTranscriptBox" IsReadOnly="True" TextWrapping="Wrap" Height="180" VerticalScrollBarVisibility="Auto"/></Expander>
+                            <TextBlock Text="Choose and link your Hedy session directly in the Session &amp; Hedy widget." TextWrapping="Wrap" Margin="0,12,0,0"/>
+                            <TextBlock Text="{Binding Text, ElementName=HedyStatus}" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" Margin="0,12,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border x:Name="HedySessionPanel" Padding="0,12,0,0" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Margin="0,12,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Input source" Style="{StaticResource FieldLabel}"/><ComboBox x:Name="NotesSourcePicker" SelectionChanged="NotesSourceChanged"><ComboBoxItem Content="Hedy"/><ComboBoxItem Content="Local Recording"/></ComboBox>
+                            <StackPanel x:Name="HedyControls">
+                                <Button Content="Hedy settings" Click="HedySettingsClick" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+                                <TextBlock Text="Hedy session" Style="{StaticResource FieldLabel}"/><ComboBox x:Name="HedySessionPicker" DisplayMemberPath="Title" AutomationProperties.Name="Hedy session"/>
+                                <WrapPanel Margin="0,8,0,0"><Button Content="Refresh" Click="RefreshSessionHedyClick" Margin="0,0,6,0"/><Button Content="Link live notes" Click="LinkHedyClick" Style="{StaticResource PrimaryButton}" Margin="0,0,6,0"/><Button Content="Disconnect" Click="DisconnectHedyClick"/></WrapPanel>
+                            </StackPanel>
+                            <StackPanel x:Name="LocalRecordingControls" Visibility="Collapsed" Margin="0,8,0,0">
+                                <WrapPanel><Button x:Name="RecordButton" Content="Record" Click="StartLocalRecordingClick" Style="{StaticResource PrimaryButton}" Margin="0,0,6,0"/><Button x:Name="PauseRecordingButton" Content="Pause" Click="PauseLocalRecordingClick" IsEnabled="False" Margin="0,0,6,0"/><Button x:Name="StopRecordingButton" Content="Stop" Click="StopLocalRecordingClick" IsEnabled="False" Margin="0,0,6,0"/><Button Content="Delete recording / transcript" Click="DeleteLocalRecordingClick"/></WrapPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0"><Ellipse x:Name="MicrophoneIndicator" Width="8" Height="8" Fill="{DynamicResource MutedBrush}" Margin="0,0,7,0"/><TextBlock x:Name="RecordingStatus" Text="Ready · recording starts only when you choose Record" Foreground="{DynamicResource MutedBrush}" FontSize="11"/><TextBlock x:Name="RecordingElapsed" Text="00:00" Foreground="{DynamicResource MutedBrush}" FontFamily="Consolas" Margin="10,0,0,0"/></StackPanel>
+                                <TextBlock Text="Local transcription is unavailable in this build. Audio stays on this PC and is never uploaded." Foreground="{DynamicResource MutedBrush}" TextWrapping="Wrap" FontSize="11" Margin="0,8,0,0"/>
+                            </StackPanel>
+                            <TextBlock x:Name="HedyStatus" Text="Set up Hedy in Settings to connect live notes." TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" FontSize="11" Margin="0,10,0,0"/>
+                            <Expander Header="Live transcript" Margin="0,12,0,0"><TextBox x:Name="HedyTranscriptBox" IsReadOnly="True" TextWrapping="Wrap" MinHeight="120" VerticalScrollBarVisibility="Disabled"/></Expander>
                         </StackPanel>
                     </Border>
                 </StackPanel>
             </ScrollViewer>
         </Grid>
-            <ScrollViewer x:Name="WidgetScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><Canvas x:Name="WidgetCanvas" MinHeight="320" SizeChanged="WidgetCanvasSizeChanged"/></ScrollViewer>
+            <ScrollViewer x:Name="WidgetScroller" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled"><StackPanel><ContentControl x:Name="PixelBannerHost" Margin="0,0,0,12"/><Canvas x:Name="WidgetCanvas" SizeChanged="WidgetCanvasSizeChanged"/></StackPanel></ScrollViewer>
         </DockPanel>
-        <TextBlock x:Name="Feedback" Grid.Row="3" Text="Saved on this PC • Ready" Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,12,0,0"/>
+        <DockPanel x:Name="FooterStatus" Grid.Row="2" Margin="0,12,0,0">
+            <TextBlock x:Name="SaveStatus" DockPanel.Dock="Right" Height="17" Opacity="0" FontSize="11" Margin="12,0,0,0" Foreground="{DynamicResource MutedBrush}" AutomationProperties.LiveSetting="Polite"/>
+            <TextBlock x:Name="Feedback" Text="Saved on this PC • Ready" Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap"/>
+        </DockPanel>
     </Grid>
     </DockPanel>
+    <Grid x:Name="SwarmGameZone" Panel.ZIndex="100" Visibility="Collapsed" Background="{DynamicResource BackgroundBrush}" ClipToBounds="True" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+    </Grid>
 </Window>
