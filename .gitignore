@@ -6,3 +6,8 @@ tests/bin/
 tests/obj/
 .vs/
 *.user
+
+# Generated validation captures and test results
+**/test-output/
+/TestResults/
+/tests/TestResults/

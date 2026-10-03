@@ -30,7 +30,7 @@ internal sealed class HomeWindow : NexaDialog
         ContinueButton.Click += (_, _) => { if (Saved.Workspace != null) OpenDashboard(Saved.Workspace.Dashboards.OrderByDescending(d => d.Current.LastAccessedAt).First().DashboardId); }; actions.Children.Add(ContinueButton);
         var import = new Button { Content = "Import dashboard", Padding = new Thickness(24, 20, 24, 20) }; import.Click += (_, _) => ImportDashboard(); actions.Children.Add(import); panel.Children.Add(actions);
         panel.Children.Add(new TextBlock { Text = "Recent dashboards", FontSize = 20, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 38, 0, 16) });
-        foreach (var d in (Saved.Workspace?.Dashboards ?? []).OrderByDescending(d => d.Current.LastAccessedAt))
+        foreach (var d in (Saved.Workspace?.Dashboards ?? []).Where(d => d.PresetOrigin != "Developer mode").OrderByDescending(d => d.Current.LastAccessedAt))
         {
             var content = new StackPanel(); content.Children.Add(new TextBlock { Text = d.Name, FontSize = 17, FontWeight = FontWeights.SemiBold });
             content.Children.Add(new TextBlock { Text = $"{d.PresetOrigin} · Last opened {d.Current.LastAccessedAt.LocalDateTime:g}", Foreground = (Brush)FindResource("MutedBrush"), Margin = new Thickness(0, 7, 0, 0) });

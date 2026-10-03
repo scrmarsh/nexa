@@ -16,6 +16,11 @@ public sealed class WidgetInstance
     public decimal Increment { get; set; } = 1;
     public decimal StartingValue { get; set; }
     public int TimerMinutes { get; set; } = 25;
+    public int? TimerDurationSeconds { get; set; }
+    public double StopwatchElapsedSeconds { get; set; }
+    public DateTimeOffset? StopwatchStartedAt { get; set; }
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int DurationSeconds => TimerDurationSeconds ?? TimerMinutes * 60;
     public bool ShowSeconds { get; set; } = true;
     public bool ShowElapsed { get; set; }
     public List<string> Categories { get; set; } = [];
@@ -28,7 +33,7 @@ public sealed class WidgetInstance
     public DateTimeOffset? TimerEnd { get; set; }
     public DateTimeOffset? TimerStopped { get; set; }
     [System.Text.Json.Serialization.JsonIgnore]
-    public bool HasData => Text.Length > 0 || Items.Count > 0 || Records.Count > 0 || Value != StartingValue || TimerStart != null;
+    public bool HasData => Text.Length > 0 || Items.Count > 0 || Records.Count > 0 || Value != StartingValue || TimerStart != null || StopwatchStartedAt != null || StopwatchElapsedSeconds > 0;
 }
 public sealed class TrackerRecord
 {
@@ -45,6 +50,7 @@ public static class WidgetLibrary
     public static IReadOnlyList<WidgetDefinition> Definitions { get; } =
     [
         new("Timer", "Session", "Independent countdown or elapsed timer.", "timer"),
+        new("Stopwatch", "Session", "Measure elapsed time with pause and resume.", "stopwatch"),
         new("Clock", "Session", "Your local date and time.", "clock"),
         new("Progress bar", "Session", "Progress of your dashboard session.", "progress"),
         new("Pixel timer", "Session", "The original pixel display and story.", "progress", 6, 480),
@@ -119,7 +125,7 @@ public static class WidgetLibrary
     }
     private static bool Overlap(WidgetInstance a, WidgetInstance b) => a.Column < b.Column + b.Span && b.Column < a.Column + a.Span && a.Row * 24 < b.Row * 24 + b.Height && b.Row * 24 < a.Row * 24 + a.Height;
     public static void ClearContent(WidgetInstance w)
-    { w.Text = ""; w.Value = w.StartingValue; w.Items.Clear(); w.Records.Clear(); w.TimerStart = w.TimerEnd = w.TimerStopped = null; }
+    { w.Text = ""; w.Value = w.StartingValue; w.Items.Clear(); w.Records.Clear(); w.TimerStart = w.TimerEnd = w.TimerStopped = null; w.StopwatchElapsedSeconds = 0; w.StopwatchStartedAt = null; }
     public static void Validate(DashboardData data)
     {
         if (data.Widgets == null || data.Widgets.Count > 200 || data.Widgets.Any(w => w == null) || data.Widgets.Select(w => w.Id).Distinct().Count() != data.Widgets.Count) throw new InvalidDataException("Invalid widget list.");
@@ -129,7 +135,7 @@ public static class WidgetLibrary
             var def = Definitions.FirstOrDefault(d => d.Name == w.Kind);
             if (def == null || w.Id == Guid.Empty || w.Title == null || w.Placeholder == null || w.PanelKey == null || w.Text == null || w.Items == null || w.Records == null || w.Categories == null || w.Fields == null ||
                 w.Items.Any(t => t == null || t.Text == null) || w.Records.Any(r => r == null || r.Name == null || r.Categories == null || r.Values == null) ||
-                w.Column < 0 || w.Span < def.MinSpan || w.Column + w.Span > 12 || w.Row is < 0 or > 30000 || w.Height < def.MinHeight || w.Height > 1440 || w.TimerMinutes is < 1 or > 10080 ||
+                w.Column < 0 || w.Span < def.MinSpan || w.Column + w.Span > 12 || w.Row is < 0 or > 30000 || w.Height < def.MinHeight || w.Height > 1440 || w.TimerMinutes is < 1 or > 10080 || w.TimerDurationSeconds is < 1 or > 604800 || !double.IsFinite(w.StopwatchElapsedSeconds) || w.StopwatchElapsedSeconds < 0 ||
                 w.Categories.Any(c => c == null) || w.Fields.Any(f => f == null) || w.Increment == 0) throw new InvalidDataException("Invalid widget configuration.");
             if (w.PanelKey.Length > 0 && (!new[] { "pixels", "setup", "timeline", "notes", "tasks", "hedy" }.Contains(w.PanelKey) || !panels.Add(w.PanelKey))) throw new InvalidDataException("Invalid linked panel.");
         }

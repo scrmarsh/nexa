@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.4] - 2026-10-02
+
+### Polish and bug fixes
+
+- Unified the project, Home and splash version at 1.0.4 and updated the splash tagline.
+- Hid developer Spaces from normal Recent Spaces and widened Preview Splash.
+- Added editable hours/minutes/seconds and Start, Pause, Resume and Reset to independent timers.
+- Added a simple Stopwatch; timer and stopwatch state survives layout changes and autosave.
+- Kept the widget picker scrollable and added an explicit Add button to every widget.
+- Removed disposable generated captures and expanded test-output ignore rules.
+
 All notable updates to Session Dashboard are documented here.
 
 ## [1.0.0] - 2026-10-01

@@ -16,7 +16,7 @@ internal sealed class SplashWindow : Window
         Width = 620; Height = 330; WindowStartupLocation = WindowStartupLocation.CenterScreen; Background = new SolidColorBrush(Color.FromRgb(10, 14, 23));
         var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         panel.Children.Add(new NexaLogo { Width = 480, Height = 152 });
-        panel.Children.Add(new TextBlock { Text = "Your workspace, your way.", Foreground = new SolidColorBrush(Color.FromRgb(166, 177, 200)), FontSize = 15, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 18, 0, 0) });
+        panel.Children.Add(new TextBlock { Text = "A space for whatever comes next.", Foreground = new SolidColorBrush(Color.FromRgb(166, 177, 200)), FontSize = 15, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 18, 0, 0) });
         Content = new Border { BorderBrush = new SolidColorBrush(Color.FromRgb(42, 49, 69)), BorderThickness = new Thickness(1), Child = panel };
     }
     internal async Task<HomeWindow> EnterHome(StateStore store, bool diagnostic = false)

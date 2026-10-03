@@ -157,7 +157,9 @@ public partial class MainWindow
                     button.Click += (_, _) => { try { widget.Value += direction * widget.Increment; number.Text = widget.Value.ToString(CultureInfo.CurrentCulture); Changed(); } catch (OverflowException) { Error("Counter limit reached."); } }; counts.Children.Add(button);
                 }
                 panel.Children.Add(counts); break;
-            case "timer": case "clock": case "progress":
+            case "timer": case "stopwatch":
+                BuildTimeWidget(panel, widget, editor == "stopwatch"); break;
+            case "clock": case "progress":
                 var label = new TextBlock { FontFamily = new FontFamily("Consolas"), FontSize = 38, Margin = new Thickness(0, 10, 0, 15) }; panel.Children.Add(label);
                 var progress = new ProgressBar { Minimum = 0, Maximum = 1, Height = 6, Foreground = Brush("AccentBrush"), Background = Brush("LineBrush"), BorderThickness = new Thickness(0) };
                 panel.Children.Add(progress);
@@ -165,19 +167,7 @@ public partial class MainWindow
                 {
                     if (editor == "clock") { label.Text = now.LocalDateTime.ToString(widget.ShowSeconds ? "h:mm:ss tt" : "h:mm tt"); progress.Visibility = Visibility.Collapsed; return; }
                     if (editor == "progress") { var value = state.Session?.Progress(now) ?? 0; label.Text = value.ToString("P0"); progress.Value = value; return; }
-                    var end = widget.TimerEnd; var start = widget.TimerStart;
-                    var effective = widget.TimerStopped ?? now;
-                    var span = start == null || end == null ? TimeSpan.FromMinutes(widget.TimerMinutes) : widget.ShowElapsed ? effective - start.Value : end.Value - effective;
-                    label.Text = ClockText(span); if (!widget.ShowSeconds) label.Text = label.Text[..5];
-                    progress.Value = start == null || end <= start ? 0 : Math.Clamp((effective - start.Value).TotalSeconds / (end!.Value - start.Value).TotalSeconds, 0, 1);
                 });
-                if (editor == "timer")
-                {
-                    var controls = new UniformGrid { Columns = 2, Margin = new Thickness(0, 14, 0, 0) };
-                    var start = new Button { Content = widget.TimerStart == null ? "Start timer" : "Restart timer", Margin = new Thickness(0, 0, 6, 0) };
-                    start.Click += (_, _) => { widget.TimerStart = DateTimeOffset.Now; widget.TimerEnd = widget.TimerStart.Value.AddMinutes(widget.TimerMinutes); widget.TimerStopped = null; Changed(); SaveNow(); RenderWidgets(); };
-                    var stop = new Button { Content = "Stop timer" }; stop.Click += (_, _) => { if (widget.TimerStart == null) return; widget.TimerStopped = DateTimeOffset.Now; Changed(); SaveNow(); }; controls.Children.Add(start); controls.Children.Add(stop); panel.Children.Add(controls);
-                }
                 break;
             case "tracker":
                 BuildTracker(panel, widget); break;
@@ -227,7 +217,7 @@ public partial class MainWindow
     {
         var dialog = Dialog("Nexa · Add widget", 680, 720); var root = new DockPanel { Margin = new Thickness(24) };
         var search = new TextBox { ToolTip = "Search widgets", Margin = new Thickness(0, 0, 0, 16) }; System.Windows.Automation.AutomationProperties.SetName(search, "Search widgets"); DockPanel.SetDock(search, Dock.Top); root.Children.Add(search);
-        var list = new StackPanel(); root.Children.Add(new ScrollViewer { Content = list, VerticalScrollBarVisibility = ScrollBarVisibility.Auto });
+        var list = new StackPanel(); root.Children.Add(new ScrollViewer { Content = list, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, CanContentScroll = false });
         void Refresh()
         {
             list.Children.Clear();
@@ -237,8 +227,9 @@ public partial class MainWindow
                 foreach (var definition in group)
                 {
                     var content = new StackPanel(); content.Children.Add(new TextBlock { Text = definition.Name, FontWeight = FontWeights.SemiBold }); content.Children.Add(new TextBlock { Text = definition.Description, TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 5, 0, 0) });
-                    var button = new Button { Content = content, HorizontalContentAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 8) };
-                    button.Click += (_, _) => { AddWidget(definition.Name); dialog.Close(); }; list.Children.Add(button);
+                    var row = new Grid(); row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); row.Children.Add(content);
+                    var button = new Button { Content = "Add", Tag = definition.Name, Padding = new Thickness(14, 8, 14, 8), Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center }; System.Windows.Automation.AutomationProperties.SetName(button, "Add " + definition.Name); Grid.SetColumn(button, 1); row.Children.Add(button);
+                    button.Click += (_, _) => { AddWidget(definition.Name); dialog.Close(); }; list.Children.Add(new Border { Child = row, Padding = new Thickness(14, 12, 14, 12), Margin = new Thickness(0, 0, 0, 8) });
                 }
             }
         }
@@ -287,7 +278,7 @@ public partial class MainWindow
         var seconds = new CheckBox { Content = "Show seconds", IsChecked = widget.ShowSeconds, Margin = new Thickness(0, 12, 0, 0) };
         var elapsed = new CheckBox { Content = "Show elapsed time", IsChecked = widget.ShowElapsed, Margin = new Thickness(0, 10, 0, 0) };
         if (type == "counter") { increment = Field("Increment", widget.Increment.ToString()); starting = Field("Starting value (used on reset)", widget.StartingValue.ToString()); }
-        if (type == "timer") { minutes = Field("Timer duration (minutes)", widget.TimerMinutes.ToString()); panel.Children.Add(seconds); panel.Children.Add(elapsed); }
+        if (type == "timer") { panel.Children.Add(new TextBlock { Text = "Set hours, minutes and seconds directly on the Timer widget.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 0) }); panel.Children.Add(seconds); panel.Children.Add(elapsed); }
         if (type == "tracker") { categories = Field("Categories (one per line)", string.Join("\n", widget.Categories)); categories.AcceptsReturn = true; categories.Height = 100; fields = Field("Custom fields (one per line)", string.Join("\n", widget.Fields)); fields.AcceptsReturn = true; fields.Height = 100; }
         panel.Children.Add(new TextBlock { Text = "Edits autosave. Configure session times with the Session controls widget.", TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 16, 0, 0) });
         var error = new TextBlock { TextWrapping = TextWrapping.Wrap }; panel.Children.Add(error);
@@ -301,7 +292,7 @@ public partial class MainWindow
             if (minutes != null && !InputRules.ValidMinutes(minutes.Text, out _)) { error.Text = "Duration must be between 1 and 10,080 minutes."; return; }
             widget.Title = title.Text.Trim(); widget.Placeholder = placeholder.Text;
             if (increment != null) { widget.Increment = decimal.Parse(increment.Text); widget.StartingValue = decimal.Parse(starting!.Text); }
-            if (minutes != null) { widget.TimerMinutes = int.Parse(minutes.Text); widget.ShowSeconds = seconds.IsChecked == true; widget.ShowElapsed = elapsed.IsChecked == true; }
+            if (type == "timer") { widget.ShowSeconds = seconds.IsChecked == true; widget.ShowElapsed = elapsed.IsChecked == true; }
             if (categories != null) { widget.Categories = categories.Text.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Distinct(StringComparer.OrdinalIgnoreCase).ToList(); widget.Fields = fields!.Text.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Distinct(StringComparer.OrdinalIgnoreCase).ToList(); }
             WidgetLibrary.Place(state, widget, c, r, span, h); Changed(); RenderWidgets(); if (SaveNow()) dialog.Close(); else error.Text = "Save failed. Your edits are retained; retry when storage is available.";
         };
