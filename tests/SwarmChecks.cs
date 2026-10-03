@@ -111,9 +111,9 @@ internal static partial class Program
         Assert(surface.Game.Bounds == surface.RenderSize && surface.RenderSize == ((FrameworkElement)window.Content).RenderSize, "Small-window visible bounds and physics bounds match exactly");
         window.WindowState = WindowState.Maximized; Pump(TimeSpan.FromMilliseconds(150));
         Assert(surface.RenderSize == ((FrameworkElement)window.Content).RenderSize, "Maximized arena still reaches every usable edge");
-        window.WindowState = WindowState.Normal; window.FullscreenButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Pump(TimeSpan.FromMilliseconds(150));
+        window.WindowState = WindowState.Normal; window.ToggleFullscreen(); Pump(TimeSpan.FromMilliseconds(150));
         Assert(surface.RenderSize == ((FrameworkElement)window.Content).RenderSize, "Fullscreen arena uses the actual window dimensions");
-        window.FullscreenButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Pump(TimeSpan.FromMilliseconds(150));
+        window.ToggleFullscreen(); Pump(TimeSpan.FromMilliseconds(150));
         surface.Game.Pixels.Clear(); surface.Game.PowerDots.Clear(); surface.Game.Advance(90, surface.Game.Player);
         surface.Game.PowerDots.AddRange(Enumerable.Repeat(surface.Game.Player,6 - surface.Game.Collected)); surface.Game.Advance(.05,surface.Game.Player); window.ShowSwarmResult();
         Assert(surface.Game.Won && Descendants(window.StoryArea).OfType<TextBlock>().Any(t => t.Text == "Swarm cleared"), "Completion displays Swarm cleared and Play again");

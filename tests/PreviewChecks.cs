@@ -121,7 +121,7 @@ internal static partial class Program
         Assert(returned.ActualWidth == window.ActualWidth && returned.ActualHeight == window.ActualHeight, "Dashboard-to-Home transition preserves window size");
         var captionNames = new[] { "Minimize", "Maximize or restore", "Close" };
         var captionControls = Descendants(returned).OfType<Button>().Where(b => captionNames.Contains(System.Windows.Automation.AutomationProperties.GetName(b))).ToList();
-        Assert(captionControls.Count == 3 && captionControls.All(b => b.Width == 40 && b.FontSize == window.FullscreenButton.FontSize), "Home uses the same caption icon sizes as the dashboard");
+        Assert(captionControls.Count == 3 && captionControls.All(b => b.FontSize == window.MaximizeButton.FontSize), "Home uses the same caption icon sizes as the dashboard");
         Assert(returned.Saved.Notes == "My personal notes must stay unchanged." && File.ReadAllBytes(homeStore.FilePath).SequenceEqual(original),
             "Home returns from preview to the untouched personal workspace");
         returned.Close();

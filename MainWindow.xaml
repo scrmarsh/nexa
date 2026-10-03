@@ -8,14 +8,14 @@
         FontFamily="Segoe UI" FontSize="14" WindowStartupLocation="CenterScreen" PreviewKeyDown="WindowKeyDown" PreviewMouseWheel="GentleMouseWheel">
     <Grid>
     <DockPanel x:Name="DashboardShell">
-        <Border x:Name="DashboardHeader" DockPanel.Dock="Top" Height="44" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="12,4">
+        <Border x:Name="DashboardHeader" DockPanel.Dock="Top" Height="52" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="12,8,12,6">
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Image Source="assets/nexa-icon-256.png" Width="24" Height="24" Margin="0,0,12,0"/>
                     <ContentControl x:Name="SessionNameHost" MaxWidth="290" VerticalAlignment="Center"/>
                 </StackPanel>
-                <StackPanel x:Name="TopNavigation" Grid.Column="1" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                <StackPanel x:Name="TopNavigation" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Button Content="Home" Click="HomeClick" Padding="14,5" Margin="0,0,8,0"/>
                     <Button x:Name="SessionSettingsButton" Content="Session" Click="DashboardSettingsClick" Style="{StaticResource PrimaryButton}" Padding="14,5"/>
                     <Button x:Name="AddWidgetButton" Content="Add Widget" Click="AddWidgetClick" Padding="14,5" Margin="8,0,0,0"/>
@@ -23,10 +23,9 @@
                     <Button x:Name="DeveloperSoundButton" Content="Play Sound" MinWidth="106" Padding="12,6" Margin="8,0,0,0" Click="DeveloperSoundClick" Visibility="Collapsed"/>
                     <Button x:Name="DeveloperResetButton" Content="Reset dev" Click="DeveloperResetClick" Visibility="Collapsed"/>
                 </StackPanel>
-                <StackPanel Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Button x:Name="MinimizeButton" Content="&#xE921;" Style="{StaticResource CaptionControlButton}" Click="MinimizeClick" ToolTip="Minimize"/>
                     <Button x:Name="MaximizeButton" Content="&#xE922;" Style="{StaticResource CaptionControlButton}" Click="MaximizeClick" ToolTip="Maximize"/>
-                    <Button x:Name="FullscreenButton" Content="&#xE740;" Style="{StaticResource CaptionControlButton}" Click="FullscreenClick" ToolTip="Fullscreen (F11)"/>
                     <Button x:Name="ExitButton" Content="&#xE8BB;" Style="{StaticResource CaptionCloseButton}" Click="ExitClick" ToolTip="Close"/>
                 </StackPanel>
             </Grid>        </Border>

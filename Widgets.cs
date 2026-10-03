@@ -35,6 +35,7 @@ public sealed class WidgetInstance
     public string Text { get; set; } = "";
     public List<string> CalculationHistory { get; set; } = [];
     public decimal Value { get; set; }
+    public int WaterBottleGoal { get; set; } = 8;
     public List<TaskItem> Items { get; set; } = [];
     public List<TrackerRecord> Records { get; set; } = [];
     public List<ScripturePin> ScripturePins { get; set; } = [];
@@ -96,6 +97,7 @@ public static class WidgetLibrary
         new("Action items", "Productivity", "Follow-ups for your meeting.", "list"),
         new("Distraction counter", "Productivity", "Count distractions without losing focus.", "counter", MinHeight: 192, DefaultSpan: 5, DefaultHeight: 192, MinWidth: 220),
         new("Counter", "Tracking", "A configurable count and increment.", "counter", MinHeight: 192, DefaultSpan: 5, DefaultHeight: 192, MinWidth: 220),
+        new("Water Bottle Counter", "Tracking", "Count water bottles in this Space and track a simple goal.", "waterBottles", MinHeight: 216, DefaultSpan: 5, DefaultHeight: 240, MinWidth: 220, CanMinimize: false),
         new("Record tracker", "Tracking", "Records with categories and custom fields.", "tracker", 4, 336),
         new("Statistics", "Tracking", "Totals from trackers on this dashboard.", "statistics"),
         new("Custom fields", "Tracking", "Labelled session information.", "text"),

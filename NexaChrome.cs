@@ -6,6 +6,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shell;
 using System.Windows.Media.Animation;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using System.Windows.Documents;
 
 namespace SessionDashboard;
 
@@ -95,7 +98,23 @@ internal class NexaDialog : Window
         Loaded += (_, _) => NexaPanels.Register(this);
         Closed += (_, _) => NexaPanels.Unregister(this);
         PreviewKeyDown += (_, e) => NexaPanels.HandleEscape(this, e);
+        PreviewMouseLeftButtonDown += (_, e) =>
+        {
+            if (e.ClickCount != 1 || Mouse.LeftButton != MouseButtonState.Pressed ||
+                !BlankPanelDragTarget(e.OriginalSource as DependencyObject, this)) return;
+            DragMove(); e.Handled = true;
+        };
         SourceInitialized += (_, _) => { if (panel && Owner != null) NexaPanels.FitOwner(this); };
+    }
+    internal static bool BlankPanelDragTarget(DependencyObject? source, DependencyObject panel)
+    {
+        for (var node = source; node != null && !ReferenceEquals(node, panel);
+            node = node is Visual ? VisualTreeHelper.GetParent(node) : LogicalTreeHelper.GetParent(node))
+        {
+            if (node is ButtonBase or TextBoxBase or PasswordBox or Selector or RangeBase or MenuItem or Hyperlink)
+                return false;
+        }
+        return source != null;
     }
     internal void ShowDismissible()
     {

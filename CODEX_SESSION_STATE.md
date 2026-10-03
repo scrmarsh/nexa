@@ -4,7 +4,14 @@
 Build Nexa 0.1.11 Alpha — Bug Fixes, UI Refinements & Pixel Timer Performance. Preserve user data and session continuity; no 0.1.12 widget consolidation or 0.1.13 Pixel Swarm redesign.
 
 ## Current Phase
-Implementation complete. Final release build, targeted verification and Git review are in progress. Commit on main with the requested release message when checks pass. No push requested.
+0.1.11 follow-up implementation and targeted verification complete. Final Git review/commit and launch of the updated build are in progress. No push requested.
+
+## Nexa 0.1.11 Follow-up
+- User requested four more 0.1.11 changes after commit `87674ac8ad8b312c699a1cfb1b459c0762527423`: remove the duplicate maximize/fullscreen icon, unclip top navigation, pin Home utilities to the bottom, permit blank-area menu dragging, and add a Water Bottle Counter.
+- Dashboard now shows only the square maximize control; F11/Esc still enter/exit fullscreen. Header spacing grows when maximized. Home's Settings/History/Changelog/About/DEV row sits below the scrollable main area. Nexa dialogs can drag from blank space while interactive controls retain clicks.
+- Water Bottle Counter joins the full widget library with local count, floor at zero, reset, direct goal selection and progress. Count and goal use existing per-widget storage plus an additive defaulted `WaterBottleGoal` field; old Spaces need no migration or reset.
+- Updated isolated Debug/Release builds and test runner pass with zero warnings/errors. `--alpha011` 61 PASS (`test-output/20261003-174807`), `--alpha010` 72 PASS (`174854`), `--swarm` 37 PASS (`174914`). Captures of compact Home, maximized dashboard and bottle widget were inspected. Release startup probe passes (`test-output/alpha011-final-followup/startup.json`); executable `bin/Alpha011Final/Nexa.exe`.
+- Existing real user stores remain unopened by tests; physical mouse dragging and mixed-DPI behavior need hands-on verification. Pre-existing unrelated dirty files remain excluded.
 
 ## Nexa 0.1.11 Alpha Progress
 - Request read from attachment `abc95995-17fc-4d79-94ac-0cce7aa5da7c/Pasted text.txt`. Baseline main `80146d8631419504583e2c7e12cb316bff3e07e5`. Preserve pre-existing dirty `LEGACY.md`, `PUSH.txt` and unrelated untracked files; do not stage them.

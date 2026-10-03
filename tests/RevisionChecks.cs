@@ -132,9 +132,9 @@ internal static partial class Program
         Assert(Descendants(window.StoryArea).OfType<SwarmArena>().Count() == 1, "Boredom mode renders one native Swarm surface");
         Click(window, "Back to timer");
         window.Left = 0; window.Top = 0;
-        window.FullscreenButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-        Assert(window.WindowStyle == WindowStyle.None && window.FullscreenButton.Content.Equals("\uE923"), "Fullscreen uses the restore icon");
-        window.FullscreenButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        window.ToggleFullscreen();
+        Assert(window.WindowStyle == WindowStyle.None && window.WindowState == WindowState.Maximized, "Fullscreen remains available from F11");
+        window.ToggleFullscreen();
         Assert(window.WindowStyle == WindowStyle.None, "Restore retains dark custom chrome");
         window.WindowState = WindowState.Normal;
         window.OverflowButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));

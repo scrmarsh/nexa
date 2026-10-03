@@ -4,6 +4,8 @@ The Pixel Timer now keeps even, fixed-size device-aligned pixels while resizing,
 
 Drag a widget to see its landing position before release. A row can hold three cards when their minimum widths fit; unaffected cards stay where they are. Recent Spaces shows four cards in a vertical column and expands to more horizontal columns with the chevron. Settings keeps its autosave status in the footer and updates the Session page when a timer ends.
 
+The dashboard has one square maximize control; press **F11** for fullscreen. Home's Settings, History, Changelog, About Nexa and DEV actions stay at the bottom while its main content scrolls. Drag a menu from blank space to move it. Add **Water Bottle Counter** from the widget library to count bottles in a Space and choose a simple goal; both values save locally.
+
 History now offers a red **Clear History** action with a confirmation panel. It clears archived sessions across Spaces only after confirmation and keeps the Spaces and current content. Create Space has a fixed Back/Close footer, and Developer Spaces put **Play Sound** beside **Preview Splash**. Existing Spaces and saved layouts need no migration.
 
 Targeted checks: `dotnet run --project tests/SessionDashboard.Checks.csproj -- --alpha011`. See [validation](VALIDATION.md) for what was tested and hardware limits.
@@ -147,10 +149,10 @@ The small **DEV** control on Home opens a Space with all available widgets and a
 
 ## Launch and build
 
-A standard Release build writes `bin\Release\net10.0-windows\Nexa.exe`. The isolated Nexa 0.1.11 Alpha build is in `bin\Alpha011\Nexa.exe`, keeping any running older release undisturbed. Launch it from the project directory:
+A standard Release build writes `bin\Release\net10.0-windows\Nexa.exe`. The updated isolated Nexa 0.1.11 Alpha build is in `bin\Alpha011Final\Nexa.exe`, keeping any running older release undisturbed. Launch it from the project directory:
 
 ```powershell
-& '.\bin\Alpha011\Nexa.exe'
+& '.\bin\Alpha011Final\Nexa.exe'
 ```
 
 Build with the .NET 10 SDK:

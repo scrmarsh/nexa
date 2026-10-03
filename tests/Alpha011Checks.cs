@@ -50,6 +50,13 @@ internal static partial class Program
         Assert(columns.SelectMany(c => c.Children.OfType<Button>()).Select(b => (Guid)b.Tag).SequenceEqual(initial.Workspace.Dashboards.Where(d => d.PresetOrigin != "Developer mode").OrderByDescending(d => d.Current.LastAccessedAt).Select(d => d.DashboardId)), "Expanded Space order remains newest to oldest");
         Assert(store.Load().Workspace!.Dashboards.Select(d => d.Current.LastAccessedAt).SequenceEqual(originalTimes), "Expanding Recent Spaces does not update last-used timestamps");
         Tap(home, "<"); Assert(home.Recent.Children.OfType<StackPanel>().Single().Children.OfType<Button>().Count() == 4, "Chevron collapses Recent Spaces");
+        var homeLayout = (Grid)home.Body!; var homeFooter = (Grid)homeLayout.Children[1];
+        home.Height = 600; Pump(TimeSpan.FromMilliseconds(110));
+        var footerBottom = homeFooter.TranslatePoint(new Point(0, homeFooter.ActualHeight), homeLayout).Y;
+        Assert(Grid.GetRow(homeFooter) == 1 && Math.Abs(footerBottom - (homeLayout.ActualHeight - 24)) < 3,
+            "Settings, History, Changelog, About and DEV remain at the bottom while Home shrinks");
+        RenderPreview((FrameworkElement)home.Content, "alpha011-home-fixed-footer");
+        home.Height = 960; Pump(TimeSpan.FromMilliseconds(80));
         Call(home, "OpenSettings", "Session"); Pump(TimeSpan.FromMilliseconds(140)); var settings = home.OwnedWindows.OfType<SettingsDialog>().Single();
         var nav = (StackPanel)((Border)((Grid)settings.Body!).Children[0]).Child;
         Assert(nav.Children.OfType<Button>().Select(b => b.Content?.ToString()).SequenceEqual(["Appearance", "Session", "Widgets", "Profile", "Account & Data", "Integrations"]), "Settings categories follow the requested order without Developer");
@@ -57,6 +64,9 @@ internal static partial class Program
         Assert(Descendants(settings).OfType<TextBlock>().Any(t => t.Text == "No active session") && !Descendants(settings).OfType<TextBox>().Any(t => t.Name == "SessionName"), "Home Session tab has a calm empty state without stale controls");
         var closeBar = Descendants(settings).OfType<Border>().Single(b => Equals(b.Tag, "PanelCloseBar"));
         Assert(Descendants(closeBar).OfType<TextBlock>().Any(t => t.Text == "Changes save automatically") && !Descendants(nav).OfType<TextBlock>().Any(t => t.Text.Contains("Changes save automatically")), "Autosave message stays in the fixed Settings footer");
+        Assert(NexaDialog.BlankPanelDragTarget(settings.Body, settings) && NexaDialog.BlankPanelDragTarget(closeBar, settings)
+            && !NexaDialog.BlankPanelDragTarget(FindButton(settings, "Close"), settings),
+            "Internal panels drag from blank areas without stealing button interaction");
         settings.Close(); home.Close();
 
         var loaded = store.Load(); var a = WidgetLibrary.Create("Notes", "notes"); var b = WidgetLibrary.Create("Clock"); var c = WidgetLibrary.Create("Tasks", "tasks");
@@ -66,6 +76,9 @@ internal static partial class Program
         loaded.Session = new Session { Title = "Class", Start = DateTimeOffset.Now.AddMinutes(-2), End = DateTimeOffset.Now.AddMinutes(25) };
         store.Save(loaded);
         var window = new MainWindow(store) { Width = 1280, Height = 950 }; window.Show(); Pump(TimeSpan.FromMilliseconds(230));
+        Assert(Descendants(window.DashboardHeader).OfType<Button>().Count(b => Equals(b.ToolTip, "Maximize") || Equals(b.ToolTip, "Restore")) == 1
+            && !Descendants(window.DashboardHeader).OfType<Button>().Any(b => Equals(b.ToolTip, "Fullscreen (F11)")),
+            "Dashboard shows only the square maximize control");
         Border Frame(WidgetInstance widget) => window.WidgetCanvas.Children.OfType<Border>().Single(f => Equals(f.Tag, widget.Id));
         Rect Bounds(WidgetInstance widget) { var frame = Frame(widget); return new Rect(Canvas.GetLeft(frame), Canvas.GetTop(frame), frame.Width, frame.Height); }
         var activeSession = window.state.Session!; var start = activeSession.Start; var end = activeSession.End;
@@ -89,6 +102,9 @@ internal static partial class Program
         Assert(window.WindowState == WindowState.Normal && Math.Abs(window.Width - bounds.Width) < 2 && Math.Abs(window.Height - bounds.Height) < 2 && Math.Abs(window.Left - bounds.Left) < 2, "Windowed fullscreen roundtrip restores custom bounds");
         window.WindowState = WindowState.Maximized; Pump(TimeSpan.FromMilliseconds(80)); window.ToggleFullscreen(); Pump(TimeSpan.FromMilliseconds(300)); window.ToggleFullscreen(); Pump(TimeSpan.FromMilliseconds(300));
         Assert(window.WindowState == WindowState.Maximized, "Maximized fullscreen roundtrip restores maximized state");
+        Assert(window.DashboardHeader.Height == 60 && window.TopNavigation.TranslatePoint(new Point(), (UIElement)window.Content).Y >= 8,
+            "Maximized Home, Session and Add Widget buttons have top clearance");
+        RenderPreview((FrameworkElement)window.Content, "alpha011-maximized-header");
         window.WindowState = WindowState.Normal; Pump(TimeSpan.FromMilliseconds(150));
         var cards = window.state.Widgets.Where(w => w.Kind is "Notes" or "Clock" or "Tasks").ToArray();
         Assert(cards.Length == 3 && Bounds(cards[0]).Y == Bounds(cards[1]).Y && Bounds(cards[2]).Y > Bounds(cards[0]).Y, "Fixture starts with two widgets above a third");
@@ -151,7 +167,7 @@ internal static partial class Program
         Call(developer, "ResetDeveloperConfirmed"); Pump(TimeSpan.FromMilliseconds(160));
         Assert(developer.WindowState == WindowState.Normal && Math.Abs(developer.Width - normalBounds.Width) < 2 && Math.Abs(developer.Height - normalBounds.Height) < 2 && Math.Abs(developer.Left - normalBounds.Left) < 2, "Reset Dev preserves custom size and position");
         developer.ToggleFullscreen(); Pump(TimeSpan.FromMilliseconds(320)); Call(developer, "ResetDeveloperConfirmed"); Pump(TimeSpan.FromMilliseconds(180));
-        Assert(developer.WindowState == WindowState.Maximized && Equals(developer.FullscreenButton.ToolTip, "Exit fullscreen (Esc)"), "Reset Dev preserves fullscreen");
+        Assert(developer.WindowState == WindowState.Maximized && developer.DashboardHeader.Height == 60, "Reset Dev preserves fullscreen");
         developer.ToggleFullscreen(); developer.WindowState = WindowState.Maximized; Pump(TimeSpan.FromMilliseconds(120)); Call(developer, "ResetDeveloperConfirmed");
         Assert(developer.WindowState == WindowState.Maximized, "Reset Dev preserves maximize state");
         developer.WindowState = WindowState.Normal; developer.OpenMainSettings("Session"); Pump(TimeSpan.FromMilliseconds(120));
@@ -160,5 +176,28 @@ internal static partial class Program
         sameSession!.StoppedAt = DateTimeOffset.Now; Pump(TimeSpan.FromSeconds(1.2));
         Assert(Descendants(activeSettings).OfType<TextBlock>().Any(t => t.Text == "No active session") && !Descendants(activeSettings).OfType<TextBox>().Any(t => t.Name == "SessionName"), "Session tab becomes an empty state when the active session ends");
         activeSettings.Close(); developer.Close();
+
+        var bottleStore = new StateStore(Path.Combine(output, "alpha011-water.json"));
+        bottleStore.Save(new AppState { WidgetLayoutInitialized = true, Widgets = [WidgetLibrary.Create("Notes")] });
+        var bottleWindow = new MainWindow(bottleStore); bottleWindow.Show(); Pump(TimeSpan.FromMilliseconds(160));
+        var bottle = bottleWindow.AddWidget("Water Bottle Counter"); Pump(TimeSpan.FromMilliseconds(120));
+        Border BottleFrame(MainWindow owner) => owner.WidgetCanvas.Children.OfType<Border>().Single(f => Equals(f.Tag, bottle.Id));
+        Assert(WidgetLibrary.Definition("Water Bottle Counter").Editor == "waterBottles" && bottle.Value == 0 && bottle.WaterBottleGoal == 8,
+            "Water Bottle Counter is available in the widget library with local defaults");
+        Tap(BottleFrame(bottleWindow), "+ 1 bottle"); Tap(BottleFrame(bottleWindow), "+ 1 bottle"); Tap(BottleFrame(bottleWindow), "− 1 bottle");
+        Assert(bottle.Value == 1, "Bottle buttons increment and decrement the same saved count");
+        Tap(BottleFrame(bottleWindow), "− 1 bottle"); Tap(BottleFrame(bottleWindow), "− 1 bottle");
+        Assert(bottle.Value == 0, "Bottle count does not go below zero");
+        Tap(BottleFrame(bottleWindow), "+ 1 bottle");
+        var goalPicker = Descendants(BottleFrame(bottleWindow)).OfType<ComboBox>().Single(c => Equals(c.ToolTip, "Bottle goal"));
+        goalPicker.SelectedItem = 12;
+        Assert(bottle.WaterBottleGoal == 12 && Descendants(BottleFrame(bottleWindow)).OfType<ProgressBar>().Any(p => p.Maximum == 12 && p.Value == 1),
+            "Goal changes update bottle progress directly");
+        RenderPreview((FrameworkElement)bottleWindow.Content, "alpha011-water-counter");
+        bottleWindow.SaveNow(); bottleWindow.Close();
+        var bottleReopened = new MainWindow(bottleStore); bottleReopened.Show(); Pump(TimeSpan.FromMilliseconds(160));
+        Assert(bottleReopened.state.Widgets.Single(w => w.Kind == "Water Bottle Counter") is { Value: 1, WaterBottleGoal: 12 }
+            && bottleReopened.state.Widgets.Any(w => w.Kind == "Notes"), "Bottle count and goal reload without changing existing widgets");
+        bottleReopened.Close();
     }
 }

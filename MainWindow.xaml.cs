@@ -54,6 +54,12 @@ public partial class MainWindow
         PreviewBanner.Visibility = IsPreview ? Visibility.Visible : Visibility.Collapsed;
         if (IsPreview) Title = App.BrandWordmark + " · Preview";
         NexaChrome.Apply(this);
+        StateChanged += (_, _) =>
+        {
+            UpdateDashboardHeaderGeometry();
+            MaximizeButton.Content = WindowState == WindowState.Maximized && !fullscreen ? "\uE923" : "\uE922";
+            MaximizeButton.ToolTip = WindowState == WindowState.Maximized && !fullscreen ? "Restore" : "Maximize";
+        };
         PixelArea.SizeChanged += (_, _) => QueuePixelLayout();
         DpiChanged += (_, _) => Dispatcher.BeginInvoke(new Action(QueuePixelLayout));
         pixelResizeDelay.Tick += (_, _) => { pixelResizeDelay.Stop(); SizeTimerPixels(); };
@@ -504,7 +510,12 @@ public partial class MainWindow
     }
 
     private void ExitClick(object sender, RoutedEventArgs e) => CloseWithFade();
-    private void FullscreenClick(object sender, RoutedEventArgs e) => ToggleFullscreen();
+    private void UpdateDashboardHeaderGeometry()
+    {
+        var needsTopInset = fullscreen || WindowState == WindowState.Maximized;
+        DashboardHeader.Height = needsTopInset ? 60 : 52;
+        DashboardHeader.Padding = new Thickness(12, needsTopInset ? 16 : 8, 12, 6);
+    }
     internal void ToggleFullscreen()
     {
         if (!fullscreen)
@@ -514,16 +525,16 @@ public partial class MainWindow
             restoreBounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
             fullscreen = true;
             ResizeMode = ResizeMode.NoResize;
-            WindowState = WindowState.Maximized; FullscreenButton.ToolTip = "Exit fullscreen (Esc)";
+            WindowState = WindowState.Maximized;
         }
         else
         {
             WindowState = WindowState.Normal; ResizeMode = ResizeMode.CanResize;
             if (restoreWindowState == WindowState.Normal)
             { Left = restoreBounds.Left; Top = restoreBounds.Top; Width = restoreBounds.Width; Height = restoreBounds.Height; }
-            WindowState = restoreWindowState; fullscreen = false; FullscreenButton.ToolTip = "Fullscreen (F11)";
+            WindowState = restoreWindowState; fullscreen = false;
         }
-        DashboardHeader.Height=fullscreen ? 50 : 44; DashboardHeader.Padding=new Thickness(12,fullscreen ? 8 : 4,12,4);
+        UpdateDashboardHeaderGeometry();
         var duration = TimeSpan.FromMilliseconds(260);
         var easing = new CubicEase { EasingMode = EasingMode.EaseInOut };
         DashboardShell.BeginAnimation(OpacityProperty, new DoubleAnimation(.94, 1, duration) { EasingFunction = easing });

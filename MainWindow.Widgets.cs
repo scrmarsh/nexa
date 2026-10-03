@@ -452,6 +452,8 @@ public partial class MainWindow
                     var check = new CheckBox { Content = new TextBlock { Text = item.Text, TextWrapping = TextWrapping.Wrap }, IsChecked = item.Done }; check.Click += (_, _) => { item.Done = check.IsChecked == true; if (item.Done) PlayInterfaceSound(); Changed(); }; row.Children.Add(check); panel.Children.Add(row);
                 }
                 break;
+            case "waterBottles":
+                BuildWaterBottleCounter(panel, widget); break;
             case "counter":
                 var number = new TextBlock { Text = widget.Value.ToString(CultureInfo.CurrentCulture), FontSize = 44, Margin = new Thickness(0, 8, 0, 16) }; panel.Children.Add(number);
                 var counts = new UniformGrid { Columns = 2 };
@@ -501,6 +503,48 @@ public partial class MainWindow
             case "setup": var buttonToPanel = new Button { Content = "Open session settings" }; buttonToPanel.Click += (_, _) => OpenMainSettings("Session"); panel.Children.Add(buttonToPanel); break;
         }
         return panel;
+    }
+    private void BuildWaterBottleCounter(StackPanel panel, WidgetInstance widget)
+    {
+        var goal = Math.Clamp(widget.WaterBottleGoal, 1, 100);
+        var count = new TextBlock { FontSize = 40, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 3) };
+        var caption = new TextBlock { Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 0, 0, 10) };
+        var progress = new ProgressBar { Height = 6, Minimum = 0, Maximum = goal, Foreground = DashboardBrush("AccentBrush"), Background = DashboardBrush("LineBrush"), BorderThickness = new Thickness(0) };
+        void Refresh()
+        {
+            count.Text = widget.Value.ToString("0.##", CultureInfo.CurrentCulture);
+            caption.Text = $"{(widget.Value == 1 ? "bottle" : "bottles")} · goal {goal}";
+            progress.Maximum = goal;
+            progress.Value = Math.Clamp((double)widget.Value, 0, goal);
+        }
+        panel.Children.Add(count); panel.Children.Add(caption); panel.Children.Add(progress);
+        var actions = new UniformGrid { Columns = 2, Margin = new Thickness(0, 14, 0, 0) };
+        var remove = new Button { Content = "− 1 bottle", Margin = new Thickness(0, 0, 4, 0) };
+        var add = new Button { Content = "+ 1 bottle", Margin = new Thickness(4, 0, 0, 0), Style = (Style)FindResource("PrimaryButton") };
+        void Change(int delta)
+        {
+            try { widget.Value = Math.Clamp(Math.Floor(widget.Value) + delta, 0, 1000000); }
+            catch (OverflowException) { Error("Bottle count limit reached."); return; }
+            Refresh(); Changed();
+        }
+        remove.Click += (_, _) => Change(-1); add.Click += (_, _) => Change(1);
+        actions.Children.Add(remove); actions.Children.Add(add); panel.Children.Add(actions);
+        var options = new DockPanel { Margin = new Thickness(0, 10, 0, 0) };
+        var reset = new Button { Content = "Reset count", Padding = new Thickness(8, 4, 8, 4), Margin = new Thickness(0, 0, 12, 0) };
+        reset.Click += (_, _) => { widget.Value = 0; Refresh(); Changed(); };
+        DockPanel.SetDock(reset, Dock.Left); options.Children.Add(reset);
+        var goalChoices = new List<int> { 4, 6, 8, 10, 12, 16 };
+        if (!goalChoices.Contains(goal)) { goalChoices.Add(goal); goalChoices.Sort(); }
+        var goals = new ComboBox { Width = 65, ItemsSource = goalChoices, SelectedItem = goal, ToolTip = "Bottle goal" };
+        goals.SelectionChanged += (_, _) =>
+        {
+            if (goals.SelectedItem is not int selected || selected == goal) return;
+            goal = selected; widget.WaterBottleGoal = goal; Refresh(); Changed();
+        };
+        DockPanel.SetDock(goals, Dock.Right); options.Children.Add(goals);
+        var goalLabel = new TextBlock { Text = "Goal", VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 0, 8, 0) };
+        options.Children.Add(goalLabel); panel.Children.Add(options);
+        Refresh();
     }
     private void BuildTracker(StackPanel panel, WidgetInstance widget)
     {

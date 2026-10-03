@@ -24,7 +24,7 @@ internal sealed partial class HomeWindow : NexaDialog
         Theme.Apply(Application.Current.Resources, store.LoadThemeMode(), store.LoadAppTheme());
         if (Saved.Workspace == null && File.Exists(store.FilePath)) Saved.Workspace = Continuity.Migrate(Saved, store.UserId);
         Title = App.BrandWordmark; Width = Saved.WindowWidth; Height = Saved.WindowHeight; MinWidth = 740; MinHeight = 550; WindowStartupLocation = WindowStartupLocation.CenterScreen;
-        var panel = new StackPanel { Margin = new Thickness(60, 36, 60, 40), MaxWidth = 960 };
+        var panel = new StackPanel { Margin = new Thickness(0, 36, 0, 20) };
         BuildHomeHeader(panel);
         var actions = new System.Windows.Controls.Primitives.UniformGrid { Columns = 3, Margin = new Thickness(0, 32, 0, 0) };
         Button IconAction(string label, string asset, Color hoverColor)
@@ -76,7 +76,7 @@ internal sealed partial class HomeWindow : NexaDialog
         recentChevron.Click += (_, _) => { recentExpanded = !recentExpanded; RefreshRecentSpaces(); };
         panel.Children.Add(new ScrollViewer { Content = Recent, HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled, PanningMode = PanningMode.HorizontalOnly }); RefreshRecentSpaces();
         if (!string.IsNullOrWhiteSpace(store.Warning)) { feedback.Text = store.Warning; panel.Children.Add(feedback); var hide = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(6) }; hide.Tick += (_, _) => { hide.Stop(); feedback.Visibility = Visibility.Collapsed; }; Loaded += (_, _) => hide.Start(); Closed += (_, _) => hide.Stop(); }
-        var footer = new Grid { Margin = new Thickness(0, 22, 0, 0) }; footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto }); footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
+        var footer = new Grid { Margin = new Thickness(0, 10, 0, 24) }; footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto }); footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
         var left = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
         var gearGraphic = (FrameworkElement)NexaIcons.Create("Settings"); gearGraphic.RenderTransformOrigin = new Point(.5, .5); gearGraphic.RenderTransform = new RotateTransform();
         var gear = new Button { Content = gearGraphic, Width = 42, Height = 42, Padding = new Thickness(0), ToolTip = "Settings", HorizontalContentAlignment=HorizontalAlignment.Center, VerticalContentAlignment=VerticalAlignment.Center };
@@ -87,8 +87,13 @@ internal sealed partial class HomeWindow : NexaDialog
         var utilities = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Right };
         Button Utility(string text, Action action) { var button = new Button { Content = text == "View History" ? NexaIcons.Label("History") : text, Padding = new Thickness(14, 9, 14, 9), Margin = new Thickness(8, 0, 0, 0) }; button.Click += (_, _) => action(); utilities.Children.Add(button); return button; }
         Utility("View History", OpenHistory); Utility("Changelog", OpenChangelog); Utility("About Nexa", OpenAbout); var developer = Utility("DEV", OpenDeveloperDashboard); developer.Opacity = .7;
-        Grid.SetColumn(utilities, 2); footer.Children.Add(utilities); panel.Children.Add(footer);
-        Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled };
+        Grid.SetColumn(utilities, 2); footer.Children.Add(utilities);
+        var homeLayout = new Grid { Margin = new Thickness(60, 0, 60, 0), MaxWidth = 960 };
+        homeLayout.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        homeLayout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        homeLayout.Children.Add(new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled });
+        Grid.SetRow(footer, 1); homeLayout.Children.Add(footer);
+        Content = homeLayout;
     }
     private void OpenSettingsOld()
     {

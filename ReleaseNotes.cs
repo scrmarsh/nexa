@@ -15,7 +15,9 @@ internal static class ReleaseNotes
             "Widget drop previews show insertion and stable reflow, with proportional widths where a row can fit three widgets.",
             "Recent Spaces uses four compact cards in one column and a side chevron for older columns.",
             "Settings navigation, empty Session state and persistent autosave footer are clearer. Create Space has a fixed Back/Close footer.",
-            "History gains a themed confirmation before clearing all archived sessions. Developer sound preview and title controls are refined."
+            "History gains a themed confirmation before clearing all archived sessions. Developer sound preview and title controls are refined.",
+            "Only one maximize control appears; maximized navigation has top clearance, Home utility actions stay at the bottom, and menus drag from blank space.",
+            "A local Water Bottle Counter tracks bottles and a directly adjustable goal per Space."
         ]),
         new("0.1.10", "October 3, 2026", "Interface & Navigation Cleanup", "Makes Nexa's internal panels, Home and dashboard navigation cleaner and more consistent.",
         [
