@@ -32,7 +32,23 @@ public partial class App : Application
             var splash = new SplashWindow(); MainWindow = splash;
             splash.ContentRendered += async (_, _) =>
             {
-                try { await splash.EnterHome(store); }
+                try
+                {
+                    var profile=store.LoadProfile();
+                    if(profile.OnboardingCompleted) { await splash.EnterHome(store); return; }
+                    await Task.Delay(600);
+                    var welcome=new OnboardingWindow(store) { Owner=splash };
+                    splash.Hide();
+                    var accepted=welcome.ShowDialog();
+                    Window next;
+                    if(accepted==true && welcome.Result!=null)
+                    {
+                        var workspace=new WorkspaceDocument { UserId=store.UserId, ActiveDashboardId=welcome.Result.DashboardId, Dashboards=[welcome.Result] };
+                        store.Save(Continuity.Activate(workspace,store.UserId)); store.SaveProfile(welcome.Profile); Theme.Apply(Resources,welcome.Profile.ThemeMode,welcome.Profile.Theme); next=new MainWindow(store);
+                    }
+                    else next=new HomeWindow(store);
+                    MainWindow=next; next.Show(); splash.Close();
+                }
                 catch (Exception ex) { MessageBox.Show("Nexa could not open your workspace. No data was overwritten.\n\n" + ex.Message, "Nexa"); Shutdown(1); }
             };
             splash.Show();

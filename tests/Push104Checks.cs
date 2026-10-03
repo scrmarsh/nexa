@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void CheckPush104Models()
     {
-        Assert(App.AppVersion == "1.0.5", "Package metadata reports Nexa 1.0.5");
+        Assert(App.AppVersion == "1.0.6", "Package metadata reports Nexa 1.0.6");
         var start = DateTimeOffset.Now.AddMinutes(-21);
         var session = new Session { Title = "Summary test", Start = start, End = start.AddMinutes(45), IntervalMinutes = 10,
             IntervalNotes = new() { [0] = "Reviewed the first concept.", [2] = "Current interval should stay open." },

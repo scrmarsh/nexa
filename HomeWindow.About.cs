@@ -12,6 +12,8 @@ internal sealed partial class HomeWindow
     {
         var header = new Grid(); header.ColumnDefinitions.Add(new() { Width = new GridLength(300) }); header.ColumnDefinitions.Add(new() { Width = new GridLength(32) }); header.ColumnDefinitions.Add(new());
         var brand = new StackPanel(); header.Children.Add(brand);
+        var profile=store.LoadProfile();
+        if(!string.IsNullOrWhiteSpace(profile.DisplayName)) brand.Children.Add(new TextBlock { Text="Hey, "+profile.DisplayName+".",FontSize=16,Margin=new Thickness(0,0,0,8) });
         brand.Children.Add(new NexaLogo { Width = 290, Height = 92, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(-10, 0, 0, 0) });
         brand.Children.Add(new TextBlock { Text = $"Desktop · v{App.AppVersion}", Foreground = (Brush)FindResource("MutedBrush"), FontSize = 13, Margin = new Thickness(0, 8, 0, 12) });
         var changelog = new Button { Content = "Changelog", HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(16, 8, 16, 8) }; changelog.Click += (_, _) => OpenChangelog(); brand.Children.Add(changelog);

@@ -1,3 +1,13 @@
+## Nexa 1.0.6 — Onboarding & Integrations
+
+New installations start with six short welcome screens: welcome/name, use cases and session preferences, space type, a curated tool selection, theme and sounds, then a summary and **Create my space**. Back and skip are available. Existing installations with saved data or preferences continue to Home.
+
+**Settings → Profile** stores your local display name, use cases, preferred space/tools and default session behavior. Run the welcome flow again there to create an additional space without replacing current work. Themes, master sound volume and focus reminders remain under Appearance. New space creation uses these preferences.
+
+Optional **Todoist**, **Google Tasks**, and **Calendar** widgets use the dedicated Integrations settings. Todoist accepts a personal API token. Google providers require a one-time desktop OAuth client configuration and connect through your browser. Tasks support list/project selection, Today/Upcoming/All views, completion and creation. Calendar is read-only and shows today's schedule and current/next timed events. See [setup and privacy notes](INTEGRATIONS.md).
+
+Credentials are encrypted with Windows DPAPI, scoped to the local user, and excluded from dashboard exports. Integration data stays in memory; offline failures never disable local notes, timers, Bible, Focus Reset or autosave. No online Nexa account is required.
+
 ## Nexa 1.0.5 — Focus First
 
 Nexa helps you stay present in class, study, church or meetings. The existing session clock now powers a full-width Pixel Timer banner with remaining time, total duration, progress and the next interval. **I'm bored** still opens Pixel Swarm across the window; timing and autosave keep running.

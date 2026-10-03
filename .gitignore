@@ -7,6 +7,12 @@ tests/obj/
 .vs/
 *.user
 __pycache__/
+profiles/
+*.protected
+*.credentials
+client_secret*.json
+credentials*.json
+token*.json
 
 # Generated validation captures and test results
 **/test-output/

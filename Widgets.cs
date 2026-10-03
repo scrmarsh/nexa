@@ -28,6 +28,8 @@ public sealed class WidgetInstance
     public int DurationSeconds => TimerDurationSeconds ?? TimerMinutes * 60;
     public bool ShowSeconds { get; set; } = true;
     public bool ShowElapsed { get; set; }
+    public string ExternalListId { get; set; } = "";
+    public string IntegrationView { get; set; } = "Today";
     public List<string> Categories { get; set; } = [];
     public List<string> Fields { get; set; } = [];
     public string Text { get; set; } = "";
@@ -75,6 +77,9 @@ public static class WidgetLibrary
         new("Timer", "Session", "Independent countdown or elapsed timer.", "timer", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
         new("Stopwatch", "Session", "Measure elapsed time with pause and resume.", "stopwatch", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
         new("Clock", "Session", "Your local date and time.", "clock", MinHeight: 96, DefaultSpan: 4, DefaultHeight: 120, MinWidth: 200, CanMinimize: false),
+        new("Todoist", "Integrations", "Optional connected tasks.", "externalTasks", MinHeight:288, DefaultHeight:384, CanMinimize:false),
+        new("Google Tasks", "Integrations", "Optional connected task lists.", "externalTasks", MinHeight:288, DefaultHeight:384, CanMinimize:false),
+        new("Calendar", "Integrations", "Optional Google Calendar schedule.", "calendar", MinHeight:288, DefaultHeight:384, CanMinimize:false),
         new("Progress bar", "Session", "Progress of your dashboard session.", "progress", MinHeight: 120, DefaultSpan: 6, DefaultHeight: 144, MinWidth: 240, CanMinimize: false),
         new("Pixel timer", "Session", "The original pixel display and story.", "progress", 6, 480, CanMinimize: false),
         new("Session controls", "Session", "Schedule sessions and manage timer presets.", "setup", 4, 480),
@@ -209,6 +214,7 @@ public static class WidgetLibrary
         var panels = new HashSet<string>();
         foreach (var w in data.Widgets)
         {
+            if(w.ExternalListId==null || w.ExternalListId.Length>1024 || w.IntegrationView is not ("Today" or "Upcoming" or "All")) throw new InvalidDataException("Invalid integration widget configuration.");
             if (w.ScripturePins == null || w.ScripturePins.Count > 10000 || w.ScripturePins.Any(p => p == null || p.Id == Guid.Empty ||
                 !BibleLibrary.Books.Contains(p.Book) || !BibleLibrary.Translations.Contains(p.Translation) || p.Chapter is < 1 or > 150 ||
                 p.Verse is < 1 or > 176 || p.EndVerse < p.Verse || p.EndVerse > 176 || p.Text == null || p.Note == null) ||

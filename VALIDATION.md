@@ -1,3 +1,14 @@
+## Nexa 1.0.6 — Onboarding & Integrations
+
+- Debug application/checks build and Release build passed with zero warnings or errors. Release output is `bin/Release106/Nexa.exe`, leaving the running 1.0.5 executable in place.
+- **74 onboarding/integration checks passed** (`--onboarding106`). Fresh profile detection, existing-user bypass, legacy theme copying, profile persistence, distinct user scopes, five space recommendations, use-case-driven recommendations, timed/untimed creation, the six-step modal wizard, first-space opening, repeat creation and disconnected Calendar were exercised.
+- Security checks used synthetic credentials: Windows DPAPI encrypted round-trip, ciphertext inspection, rejection of copied credentials under another Nexa user ID, no credentials in exports, provider-host restrictions and imported desktop OAuth configuration. DPAPI validation ran outside the restricted sandbox because its impersonated context cannot access the Windows user protection keys.
+- Mocked HTTP verified Todoist connect, projects, dated tasks, pagination, completion, creation, unauthorized/offline/disconnected states; Google Tasks lists/tasks and completion; secure Google refresh; calendar list selection and timed/all-day events. Every Calendar request was GET. OAuth callback decoding and PKCE encoding were checked.
+- **23 layout checks and 22 existing feature checks passed**: movement, cancellation, resize/save/reopen, themes/backgrounds, clock, chronological notes, history-related model behavior, recordings/Hedy configuration and settings remained compatible.
+- Welcome and theme screenshots were visually inspected. Generated captures, profiles, credentials and personal fixture data remain under ignored `test-output/`.
+- **Not tested live:** real Todoist account connection, Google browser consent/authorization with a registered client, provider task mutation against real accounts, and real calendar schedules. Google requires a user-supplied desktop OAuth client with APIs enabled. No real account or token was used.
+- No workspace schema bump or destructive data migration. Preferences copy once into user-scoped folders; legacy originals remain. Integration responses are memory-only, and exports contain only ordinary widget configuration, never authorization.
+
 ## Nexa 1.0.5 — Focus First
 
 Validation uses isolated stores under ignored `test-output/`; existing user data was not opened or changed.

@@ -16,7 +16,7 @@ internal sealed class DashboardCreation : NexaDialog
     private DashboardTemplate selectedTemplate;
     private readonly Dictionary<string, CheckBox> widgetChecks = new();
     private readonly WrapPanel templateGrid = new();
-    public DashboardCreation(Window owner, string userId) : base()
+    public DashboardCreation(Window owner, string userId, UserProfile? profile = null) : base()
     {
         Owner = owner; Title = "Nexa · Create Space"; Width = 820; Height = 760; MinHeight = 560; MinWidth = 620; WindowStartupLocation = WindowStartupLocation.CenterOwner;
         var custom = new DashboardTemplate("New Space", "Start from a blank canvas and pick what you want.", "#69ACFF", []);
@@ -75,7 +75,8 @@ internal sealed class DashboardCreation : NexaDialog
             }
 
             var data = new DashboardData { AccentColor = AccentPicker.SelectedColor, PixelColor = AccentPicker.SelectedColor, WidgetLayoutInitialized = true };
-            IEnumerable<string> widgetNames = chosen.Name == "New Space" ? selectedWidgets : chosen.Widgets;
+            IEnumerable<string> widgetNames = chosen.Widgets.Where(kind=>!widgetChecks.TryGetValue(kind,out var box) || box.IsChecked==true).Concat(selectedWidgets).Distinct();
+            if(chosen.Name=="New Space" && profile?.PreferredWidgets.Contains("Pixel timer")==true) widgetNames=widgetNames.Prepend("Pixel timer");
             foreach (var kind in widgetNames)
             {
                 var key = kind switch { "Pixel timer" => "pixels", "Session controls" => "setup", "Notes" => "notes", "Tasks" => "tasks", "Session timeline" => "timeline", "Hedy" => "hedy", _ => "" };
@@ -90,6 +91,7 @@ internal sealed class DashboardCreation : NexaDialog
             if (Schedule.IsChecked == true)
             {
                 var start = DateTime.Today + Start.Value; var end = DateTime.Today + End.Value; if (end <= start) end = end.AddDays(1);
+                if(profile?.TimedSessions==true && profile.DefaultMinutes>1440 && Math.Abs(End.Value.TotalMinutes-(Start.Value.TotalMinutes+profile.DefaultMinutes)%1440)<.01) end=start.AddMinutes(profile.DefaultMinutes);
                 if (TimeZoneInfo.Local.IsInvalidTime(start) || TimeZoneInfo.Local.IsInvalidTime(end) || end <= DateTime.Now) { error.Text = "Choose valid times with an end in the future."; return; }
                 data.Session = new Session { Title = NameInput.Text.Trim(), Start = new DateTimeOffset(start), End = new DateTimeOffset(end) };
                 data.Draft.EndDate = end.Date;
@@ -100,6 +102,13 @@ internal sealed class DashboardCreation : NexaDialog
         };
 
         SelectTemplate(custom, null);
+        if(profile!=null)
+        {
+            var preferred=options.FirstOrDefault(t=>t.Name==profile.PreferredDashboard);
+            if(preferred!=null) SelectTemplate(preferred,null);
+            if(profile.PreferredWidgets.Count>0) foreach(var pair in widgetChecks) pair.Value.IsChecked=profile.PreferredWidgets.Contains(pair.Key);
+            Schedule.IsChecked=profile.TimedSessions; End.Value=TimeSpan.FromMinutes((Start.Value.TotalMinutes+profile.DefaultMinutes)%1440);
+        }
         Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
     }
 

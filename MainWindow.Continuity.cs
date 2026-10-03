@@ -179,7 +179,7 @@ public partial class MainWindow
     };
     private void NewDashboardClick(object sender, RoutedEventArgs e)
     {
-        var dialog = new DashboardCreation(this, store.UserId);
+        var dialog = new DashboardCreation(this, store.UserId, store.LoadProfile());
         if (dialog.ShowDialog() != true || dialog.Result == null || !SaveNow()) return;
         var candidate = CopyWorkspaceState().Workspace!;
         candidate.Dashboards.Add(dialog.Result); candidate.ActiveDashboardId = dialog.Result.DashboardId;

@@ -187,7 +187,7 @@ internal sealed partial class HomeWindow : NexaDialog
     }
     private void NewDashboard()
     {
-        var dialog = new DashboardCreation(this, store.UserId);
+        var dialog = new DashboardCreation(this, store.UserId, store.LoadProfile());
         if (dialog.ShowDialog() != true || dialog.Result == null) return;
         try
         {

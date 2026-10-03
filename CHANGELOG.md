@@ -1,3 +1,13 @@
+## Nexa 1.0.6 — Onboarding & Integrations (2026-10-02)
+
+- Six-step welcome flow with optional name, multiple use cases, timed-session and focus preferences, simple space choices, curated tools, visual theme choices, opt-in sound preview and a ready-to-use first space.
+- Existing installations bypass onboarding. Profile settings can rerun setup to append a space while preserving current dashboards and history.
+- User-scoped local profiles, preferred widgets and default session behavior; legacy appearance/sound preferences copy safely without deleting original files.
+- Optional Todoist and Google Tasks widgets share a small task-provider interface and list selection, date views, completion and creation controls.
+- Read-only Google Calendar widget with calendar selection, today's schedule, current/next timed events and time until the next event.
+- Dedicated integration settings, browser Google authorization code/PKCE, token refresh, DPAPI credential protection and clean disconnected/offline states. Google requires a configured desktop OAuth client; real-account connection testing was not performed.
+- Credentials remain separate from profile/dashboard exports. No personal integration data is cached to disk. No workspace schema change or data reset.
+
 ## Nexa 1.0.5 — Focus First (2026-10-02)
 
 - Full-width Pixel Timer banner using the existing session clock, with readable countdown, progress, duration and next interval. Pixel Swarm keeps its timer pixels and full-window game area.

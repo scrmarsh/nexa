@@ -361,6 +361,7 @@ public partial class MainWindow
         var editor = WidgetLibrary.Definition(widget.Kind).Editor;
         switch (editor)
         {
+            case "externalTasks": case "calendar": panel.Children.Add(BuildIntegrationWidget(widget)); break;
             case "focus": var reset = new Button { Content = "Take 45 seconds to return to focus", Margin = new Thickness(0,12,0,0) }; reset.Click += FocusResetClick; panel.Children.Add(reset); break; case "bible": panel.Children.Add(BuildBible(widget)); break;
             case "scripture":
                 var pins = new StackPanel(); BuildScripturePins(pins, widget);

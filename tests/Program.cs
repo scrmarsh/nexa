@@ -17,6 +17,11 @@ internal static partial class Program
         Directory.CreateDirectory(output);
         try
         {
+            if(args.Contains("--onboarding106"))
+            {
+                var app106=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true }; app106.InitializeComponent(); CheckOnboarding106();
+                Console.WriteLine($"PASS: {passed} onboarding / integration checks. Artifacts: {output}"); app106.Shutdown(); return 0;
+            }
             if (args.Contains("--focus105"))
             {
                 var focusApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };

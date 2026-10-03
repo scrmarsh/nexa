@@ -7,7 +7,7 @@ using Microsoft.Win32;
 
 namespace SessionDashboard;
 
-internal sealed class SettingsDialog : NexaDialog
+internal sealed partial class SettingsDialog : NexaDialog
 {
     private readonly StateStore store;
     private readonly AppState state;
@@ -27,6 +27,7 @@ internal sealed class SettingsDialog : NexaDialog
         sidebar.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); sidebar.SetResourceReference(Border.BorderBrushProperty, "LineBrush"); root.Children.Add(sidebar);
         host.Margin = new Thickness(30, 24, 30, 28); Grid.SetColumn(host, 1); root.Children.Add(host);
         AddPage(nav, "Appearance", BuildAppearance()); AddPage(nav, "Session", BuildSession()); AddPage(nav, "Hedy", BuildHedy()); AddPage(nav, "Account", ComingSoon("Account", "Optional sign-in and sync with Microsoft, Google or Apple are Coming Soon. Nexa remains offline-first.")); AddPage(nav, "Data", ComingSoon("Data", "Space browsing and email export tools are Coming Soon. Existing Import Space and Export Space commands remain available."));
+        AddPage(nav,"Profile",BuildProfile()); AddPage(nav,"Integrations",BuildIntegrations());
         Content = root; SelectSection(pages.ContainsKey(initialSection) ? initialSection : "Appearance");
     }
 

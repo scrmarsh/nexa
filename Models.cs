@@ -109,7 +109,7 @@ public static class InputRules
     public static bool ValidSession(Session session) => !string.IsNullOrWhiteSpace(session.Title) && session.End > session.Start && (session.End - session.Start).TotalDays <= 7 && session.IntervalMinutes is >= 1 and <= 10080;
 }
 
-public sealed class StateStore
+public sealed partial class StateStore
 {
     private static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
     private readonly object writeLock = new();
@@ -118,14 +118,14 @@ public sealed class StateStore
     public string FilePath { get; }
     public string UserId { get; }
     public string? Warning { get; private set; }
-    private string PreferencesPath => Path.Combine(Path.GetDirectoryName(Path.GetFullPath(FilePath))!, "preferences.json");
+    private string PreferencesPath => ScopedPreferencePath("preferences.json");
     public StateStore(string path, string? userId = null)
     {
         FilePath = path;
         UserId = userId ?? System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value;
     }
 
-    private string InteractionPreferencesPath => Path.Combine(Path.GetDirectoryName(Path.GetFullPath(FilePath))!, "interaction-preferences.json");
+    private string InteractionPreferencesPath => ScopedPreferencePath("interaction-preferences.json");
     internal void LoadInteractionPreferences(DashboardData state)
     {
         try

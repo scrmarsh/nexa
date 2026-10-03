@@ -8,6 +8,14 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
+        new("1.0.6","October 2, 2026","Nexa 1.0.6 — Onboarding & Integrations",
+        [
+            "Six short welcome screens help new users choose tools, theme, sounds and a ready-to-use first space. Existing users go straight to Home.",
+            "Local Profile preferences and a rerunnable welcome flow personalize use cases, preferred tools and default session behavior.",
+            "Optional Todoist and Google Tasks widgets share project/list selection, task views, completion and creation controls.",
+            "Google Calendar shows today's schedule plus current and next timed events with read-only access. Google connections require a desktop OAuth client configuration.",
+            "Dedicated Integrations settings and Windows DPAPI credential storage keep optional accounts separate from dashboard exports and local core features."
+        ]),
         new("1.0.5", "October 2, 2026", "Nexa 1.0.5 — Focus First",
         [
             "The signature Pixel Timer is a full-width banner using the existing session clock; Pixel Swarm remains connected to its pixels.",
