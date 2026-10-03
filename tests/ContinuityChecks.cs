@@ -75,7 +75,8 @@ internal static partial class Program
     private static void CheckContinuityUi()
     {
         var store = new StateStore(Path.Combine(output, "continuity-ui.json"));
-        var window = new MainWindow(store);
+        var window = new MainWindow(store) { WindowStartupLocation=WindowStartupLocation.Manual, Left=-10000, Top=-10000, ShowActivated=false, ShowInTaskbar=false };
+        window.Show(); Pump(TimeSpan.FromMilliseconds(150));
         Assert(window.AutosaveInterval == TimeSpan.FromSeconds(30), "WPF safety-net autosave interval is 30 seconds");
         window.NotesBox.Text = "Notes on dashboard A"; window.TaskInput.Text = "Unsubmitted task draft";
         window.TitleInput.Text = "Unstarted meeting title"; window.IntervalInput.Text = "7";
@@ -126,7 +127,7 @@ internal static partial class Program
             Assert(Descendants(history).OfType<TextBox>().Any(t => t.IsReadOnly && t.Text.Contains("Previous session") && t.Text.Contains("Notes on dashboard A")), "History dialog exposes read-only dated preview");
             history.Close();
         };
-        historyCapture.Start(); Descendants(historyHome).OfType<Button>().Single(b => Equals(b.Content, "View History")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); historyHome.Close();
+        historyCapture.Start(); Descendants(historyHome).OfType<Button>().Single(b => Descendants(b).OfType<TextBlock>().Any(t=>t.Text=="History")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); historyHome.Close();
         // Keep the text debounce busy so only the 30-second timer can save during typing.
         var initial = store.Load().Notes; var count = 0;
         var typing = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };

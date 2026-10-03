@@ -4,7 +4,7 @@
 Verify and repair Nexa 1.0.4–1.0.6 in small, safe phases, preserving user data and recording reproducible evidence.
 
 ## Current Phase
-Phase 5: final compatibility/security/build validation. Phases 1–4 are complete for currently reasonable automated/code verification.
+Complete: all reasonable targeted code/automated verification finished. Final Release build passed; final scoped review/checkpoint being recorded. External/manual limitations are listed below.
 
 ## Completed Work
 - Initial recovery inspection: no prior state file existed. Reviewed git status/diff summary before editing. Existing unrelated changes in LEGACY.md, PUSH.txt and untracked user files are preserved.
@@ -14,6 +14,11 @@ Phase 5: final compatibility/security/build validation. Phases 1–4 are complet
 - 1.0.6 / baseline onboarding/integration suite / 74 PASS with synthetic DPAPI credentials and mocked HTTP; artifacts test-output/20261002-232132. No live service calls. Additional lifecycle checks still pending.
 - 1.0.6 / localized integration repair / PASS: MainWindow.Integrations.cs clears task/list/event caches on failure/disconnect and validates connection identity before showing async results. Mutations link to widget lifetime cancellation. Integrations.cs rejects malformed authorization/rows/refresh expiry and checks cancellation before credential save. GoogleAuthorization.cs validates imported JSON shape and checks cancellation before saving. No storage/schema change.
 - 1.0.6 / repair validation / PASS: --audit106 23 checks (test-output/20261002-233139) verifies Back/Skip/Profile saving, selected tools, Today/Upcoming/All filters, no stale cache resurrection, in-flight account replacement/disconnect, new-account lists, old-account mutation rejected before HTTP, malformed input, current/next calendar countdown. Existing --onboarding106 remains 74 PASS (test-output/20261002-233232). Provider requests bind connection IDs so delayed mutations/pagination cannot use replacement credentials.
+- Final compatibility / PASS so far: --swarm 37 checks includes real timer advancement, full-window/maximize/fullscreen and real 30-second autosave (test-output/20261002-233456); --push104 22 checks (test-output/20261002-233508); --directaudit 8 checks exercises actual routed countdown/clock clicks, session edit/reset, title edit, data preservation and reopening (test-output/20261002-233730). Added tests/DirectAuditChecks.cs and runner switches only.
+- Isolated bin/Audit/Nexa.exe --verify-startup test-output/audit-final-startup exits 0; Success true, 540 pixels, four presets, all three embedded Bible resources loaded. Personal workspace/mutex untouched by diagnostic mode.
+- 1.0.5/1.0.6 / global preferences across Space switch / PASS: MainWindow.Continuity.cs now loads master sounds/volume/nudges into the activated candidate before saving. Previously switching within the same window restored old per-Space values instead of current global preferences. --directaudit now passes 10 checks (test-output/20261002-234151) including switch/back/reopen.
+- Compatibility / continuity / PASS: 41 checks (test-output/20261002-234204) include history UI, continuous-typing autosave, background-write revision safety, close/reopen, forced filesystem save failure, failed reset safety and retry. Corrected stale fixture assumptions: window must be shown for WPF animation; History navigation is a vector/text label, not a plain Content string. No production autosave repair was needed.
+- Final 1.0.4 / reset-after-reload / PASS: --polish104 extended to 22 checks (test-output/20261002-234712); reset Timer retains 01:02:03 and selected duration after closing/reopening. Nine final targeted suites total 335 passing assertions (includes repeated model coverage, not 335 unique behaviors).
 
 ## Verified Complete Without Changes
 - 1.0.4: splash tagline/version, hidden-but-preserved developer spaces and developer access; editable Timer start/pause/resume/reset; Stopwatch transitions/hour display; timer state across placement/rerender/save; scrollable explicit Add picker; reopen preserves notes/developer data. Ignore rules cover build/test/profile/credential output. Historical 1.0.4 changelog is accurate.
@@ -21,15 +26,16 @@ Phase 5: final compatibility/security/build validation. Phases 1–4 are complet
 - 1.0.6: six-step first-user flow; existing state/backups/preferences bypass; completion/profile/theme/sound persistence; preference-driven recommendations; Settings rerun appends instead of replacing; original legacy preferences copied into owner scope. Integration credential export exclusion, DPAPI/owner entropy and account separation confirmed. Core local startup remains independent of network. Calendar interface has only GET/read operations. Provider protocol compared with official Todoist/Google API and desktop OAuth documentation.
 
 ## Remaining Work
-- Phase 5: targeted compatibility/security tests, final build/diff review and final handoff state.
+- No remaining code-verifiable tasks identified in this targeted audit. Live account/hardware checks are listed under Unable to Verify.
 
 ## Unable to Verify
 - Live Todoist/Google accounts and Google consent require real account credentials.
 - Physical mixed-DPI multi-monitor behavior requires hardware/manual testing.
 - Interactive native mouse/audio checks may require manual testing; distinguish automated simulation from physical checks.
+- Physical network outage/live service latency was not tested; integration offline behavior uses mocked HttpRequestException. Startup diagnostic uses a disconnected local fixture.
 
 ## Build Status
-- dotnet build SessionDashboard.csproj -c Release --no-restore -p:OutputPath=bin/Audit/ — PASS, zero warnings/errors.
+- FINAL: dotnet build SessionDashboard.csproj -c Release --no-restore -p:OutputPath=bin/Audit/ — PASS, zero warnings/errors after the global-preference repair. Executable bin/Audit/Nexa.exe.
 - Initial run with restore failed because sandbox could not read user NuGet.Config; --no-restore used existing assets successfully.
 - Use isolated output bin/Audit/ to avoid overwriting any running release.
 
@@ -41,19 +47,27 @@ Phase 5: final compatibility/security/build validation. Phases 1–4 are complet
 - dotnet run --no-build --project tests/SessionDashboard.Checks.csproj -- --onboarding106 — 74 PASS under normal Windows profile (approved DPAPI-only escalation), test-output/20261002-232132.
 - --audit106 — 23 PASS; test-output/20261002-233139. Initial new-test attempts failed due to the test injecting HTTP after widget construction; test corrected to re-render with injected mock before Show. Production cache defects were identified by source inspection, and final regression tests confirm the repairs.
 - --onboarding106 after repairs — 74 PASS; test-output/20261002-233232.
+- --swarm 37 PASS; --push104 22 PASS; --directaudit 8 PASS, artifact paths above.
+- Isolated Release executable startup diagnostic PASS; test-output/audit-final-startup/startup.json.
+- Tracked-file inventory found no databases, protected credentials, logs, build/profile/test output; token/private-key pattern scan found no matches in tracked code/docs/config files.
+- Final --directaudit: 10 PASS; --continuityaudit: 41 PASS. No real account credentials used, no real user state accessed.
+- Final --polish104: 22 PASS including explicit Timer reset/duration reload assertion; test-output/20261002-234712.
 
 ## Files Changed This Session
 - CODEX_SESSION_STATE.md (temporary handoff document).
 - tests/Polish104Checks.cs (current-version assertions).
 - MainWindow.Integrations.cs, Integrations.cs, GoogleAuthorization.cs (localized lifecycle/input checks).
 - tests/Audit106Checks.cs, tests/Onboarding106Checks.cs, tests/Program.cs (targeted UI/cache regression coverage).
+- tests/DirectAuditChecks.cs (direct countdown/clock/title/reset/reopen tests).
+- MainWindow.Continuity.cs (master interaction preferences applied on Space switches); tests/ContinuityChecks.cs (render animation fixture and current History label).
 - CHANGELOG.md, VALIDATION.md, INTEGRATIONS.md (repair behavior and actual audit evidence).
+- README.md (commands for current targeted verification modes).
 
 ## Git Status
 - Branch: main. Baseline commit: 525e2a2c8062a633ad752e7623a256ff0c89530c.
-- Checkpoint 3bbfbca: current-version assertions and Phase 1–2 state committed. Further state updates uncommitted. No push this session.
+- Checkpoint 3bbfbca: current-version assertions and Phase 1–2 state committed. c6d194e: stable onboarding/integration verification fixes and regression tests. Final direct/continuity runner additions and state updates uncommitted. No push this session.
 - Pre-existing dirty LEGACY.md/PUSH.txt and untracked files must not be staged.
 - Prior remote push rejected by automatic approval review; no authorization to bypass that rejection.
 
 ## Resume Here
-Run --swarm for real elapsed-time and 30-second autosave checks, --push104 for Settings/core regression and direct-editing checks as practical. Review scoped diffs and staged file/secret scan, update VALIDATION/CHANGELOG/INTEGRATIONS with actual new evidence, final Release build into bin/Audit, then complete state and checkpoint. Do not redo completed phases or connect real accounts.
+Targeted audit complete. If continuing with live integration validation, begin by obtaining a real test account and registered Google desktop OAuth configuration outside the repository; follow INTEGRATIONS.md, test consent/disconnect/offline and task mutations only with explicit user actions. Do not redo completed local suites unless code changes. Before any new edit, read git status and preserve pre-existing unrelated files.

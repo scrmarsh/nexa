@@ -8,6 +8,7 @@
 - Dedicated integration settings, browser Google authorization code/PKCE, token refresh, DPAPI credential protection and clean disconnected/offline states. Google requires a configured desktop OAuth client; real-account connection testing was not performed.
 - Credentials remain separate from profile/dashboard exports. No personal integration data is cached to disk. No workspace schema change or data reset.
 - Verification repairs: clear stale task/calendar/account lists after failures or disconnects, reject results from replaced accounts, bind requests to the selected connection, and handle malformed authorization/configuration/provider responses safely.
+- Preserve master sound, volume and focus-reminder preferences when switching Spaces in the same window.
 
 ## Nexa 1.0.5 — Focus First (2026-10-02)
 

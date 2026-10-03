@@ -61,6 +61,9 @@ internal static partial class Program
         var before = window.state.Widgets.Count; var add = Descendants(picker).OfType<Button>().Single(b => Equals(b.Tag, "Stopwatch"));
         Assert(Equals(add.Content, "Add"), "Stopwatch has a clear Add button"); add.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Pump(TimeSpan.FromMilliseconds(220)); Assert(window.state.Widgets.Count == before + 1 && window.state.Widgets.Count(w => w.Kind == "Stopwatch") == 2, "Picker Add places a Stopwatch on current dashboard");
         window.Close(); var restored = new MainWindow(store); restored.Show(); Pump(TimeSpan.FromMilliseconds(200));
+        var restoredTimer=restored.state.Widgets.Single(w=>w.Id==timer.Id);
+        var restoredTimerFrame=restored.WidgetCanvas.Children.OfType<Border>().Single(f=>Equals(f.Tag,timer.Id));
+        Assert(restoredTimer.DurationSeconds==3723 && restoredTimer.TimerStart==null && Descendants(restoredTimerFrame).OfType<TextBlock>().Any(t=>t.Text=="01:02:03"),"Timer reset and selected hours/minutes/seconds survive dashboard reload");
         Assert(restored.state.Widgets.Count(w => w.Kind == "Stopwatch") == 2 && restored.state.Notes == "Keep these notes" && store.Load().Workspace!.Dashboards.Single(d => d.DashboardId == dev.DashboardId).Current.Data.Notes == "Keep developer data", "Dashboards reopen and normal/developer data are preserved"); restored.Close();
         var saved = store.Load(); saved.Workspace!.ActiveDashboardId = dev.DashboardId; store.Save(Continuity.Activate(saved.Workspace, store.UserId));
         var developer = new MainWindow(store); developer.Show(); Pump(TimeSpan.FromMilliseconds(200));

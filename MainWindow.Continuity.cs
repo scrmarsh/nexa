@@ -137,6 +137,7 @@ public partial class MainWindow
         try
         {
             var next = Continuity.Activate(candidate, store.UserId, state.HedyRegion, state.HedyProtectedKey);
+            store.LoadInteractionPreferences(next);
             if (preserveWindow) { next.WindowWidth = fullWidth; next.WindowHeight = fullHeight; next.Compact = state.Compact; }
             WidgetLibrary.EnsureLayout(next);
             store.Save(next);

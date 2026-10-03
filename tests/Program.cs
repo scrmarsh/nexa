@@ -17,6 +17,17 @@ internal static partial class Program
         Directory.CreateDirectory(output);
         try
         {
+            if(args.Contains("--continuityaudit"))
+            {
+                CheckContinuityModels();
+                var continuityApp=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true }; continuityApp.InitializeComponent(); CheckContinuityUi();
+                Console.WriteLine($"PASS: {passed} continuity audit checks. Artifacts: {output}"); continuityApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--directaudit"))
+            {
+                var directApp=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true }; directApp.InitializeComponent(); CheckDirectAudit();
+                Console.WriteLine($"PASS: {passed} direct-editing audit checks. Artifacts: {output}"); directApp.Shutdown(); return 0;
+            }
             if(args.Contains("--audit106"))
             {
                 var auditApp=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true }; auditApp.InitializeComponent(); CheckAudit106();

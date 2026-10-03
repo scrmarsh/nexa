@@ -102,10 +102,10 @@ The small **DEV** control on Home opens a Space with all available widgets and a
 
 ## Launch and build
 
-The current build is `bin\Release\net10.0-windows\Nexa.exe`. Launch it from the project directory:
+A standard Release build writes `bin\Release\net10.0-windows\Nexa.exe`. The verified 1.0.4–1.0.6 audit build is in `bin\Audit\Nexa.exe`, keeping any running release undisturbed. Launch the audit build from the project directory:
 
 ```powershell
-& '.\bin\Release\net10.0-windows\Nexa.exe'
+& '.\bin\Audit\Nexa.exe'
 ```
 
 Build with the .NET 10 SDK:
@@ -120,10 +120,17 @@ This build requires the .NET 10 Windows Desktop Runtime. A self-contained build 
 dotnet publish .\SessionDashboard.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o .\publish\win-x64
 ```
 
-Run checks with:
+Run targeted verification with:
 
 ```powershell
-dotnet run --project .\tests\SessionDashboard.Checks.csproj -c Checks
+dotnet run --project .\tests\SessionDashboard.Checks.csproj -- --polish104
+dotnet run --project .\tests\SessionDashboard.Checks.csproj -- --focus105
+dotnet run --project .\tests\SessionDashboard.Checks.csproj -- --onboarding106
+dotnet run --project .\tests\SessionDashboard.Checks.csproj -- --audit106
+dotnet run --project .\tests\SessionDashboard.Checks.csproj -- --directaudit
+dotnet run --project .\tests\SessionDashboard.Checks.csproj -- --continuityaudit
 ```
+
+Additional focused modes are `--tiling`, `--swarm` and `--push104`. Credential tests need the normal loaded Windows profile for DPAPI and use synthetic credentials with mocked HTTP. See `VALIDATION.md` for actual results and unverified live-account/hardware checks.
 
 Nexa is implemented in C# and WPF. The original ClassDashboard and ArgoPantryDashboard references remain under `References`.
