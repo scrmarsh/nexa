@@ -103,11 +103,24 @@ internal static class NexaPanels
         if (panel.Owner is not { } owner) return;
         MouseButtonEventHandler outside = (_, e) =>
         {
-            if (e.Handled || !panel.IsVisible || Topmost(owner) is not { } top) return;
+            if (!panel.IsVisible || Topmost(owner) is not { } top) return;
             // Consume the initiating click before dashboard handlers can reopen a picker or start a drag.
             e.Handled = true; top.CloseWithFade();
         };
+        EventHandler activated = (_, _) =>
+        {
+            // Windows can use the first outside click only to activate the owner;
+            // in that case no routed mouse event reaches its content.
+            if (panel.IsVisible && Topmost(owner) is { } top) top.CloseWithFade();
+        };
         owner.AddHandler(UIElement.PreviewMouseDownEvent, outside, true);
-        panel.Closed += (_, _) => owner.RemoveHandler(UIElement.PreviewMouseDownEvent, outside);
+        owner.AddHandler(UIElement.PreviewMouseLeftButtonDownEvent, outside, true);
+        owner.Activated += activated;
+        panel.Closed += (_, _) =>
+        {
+            owner.RemoveHandler(UIElement.PreviewMouseDownEvent, outside);
+            owner.RemoveHandler(UIElement.PreviewMouseLeftButtonDownEvent, outside);
+            owner.Activated -= activated;
+        };
     }
 }

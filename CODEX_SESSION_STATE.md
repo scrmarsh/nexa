@@ -1,6 +1,7 @@
 # Nexa Codex Session State
 
 ## Current Goal — 0.1.12 Alpha
+Follow-up menu/DEV repair: normalize legacy Developer widgets before filling the current catalog; dismiss panels on outside pointer and owner activation, topmost first. `--menurepair` 7 checks and `--alpha012` 24 checks pass on isolated stores. Final Release build and Git review pending.
 Consolidate overlapping widgets and add opt-in Experimental Updates. Isolated Debug and Release builds pass; `--alpha012` 24 checks, `--continuityaudit` 42, and `--swarm` 37 pass. Release startup probe succeeds. Final Git review/commit remain. Preserve all existing user stores and unrelated dirty files. Update source is official GitHub Releases; a matching setup asset and SHA-256 digest are required. No installer packaging pipeline exists in this repository yet.
 
 ## Previous Goal (0.1.11)

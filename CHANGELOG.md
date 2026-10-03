@@ -2,6 +2,8 @@
 
 ## Nexa 0.1.12 Alpha — Widget System Cleanup & Experimental Updates (2026-10-03)
 
+- Follow-up repair: clicking outside a menu closes the topmost panel even when Windows consumes the first click to reactivate its owner. An older Developer Space now migrates retired widget kinds before DEV fills in missing widgets, preventing a duplicate linked Task List and preserving existing content.
+
 The Add Widget library now presents Task List, Notes and Counter in place of overlapping tools. Existing Agenda, Main Passage, Prayer Requests and other compatible widgets retain titles, positions and saved content when opened. Focus Reset is under Mindfulness. Clock and Timer offer Compact and Expanded controls with appropriate minimum sizes.
 
 Settings → Experimental Features → Updates shows the installed version, release notes and a manual release check. Optional startup checks are off by default. Install is offered only for a published GitHub Releases setup asset matching the version and a published SHA-256 digest; the download is verified before an external installer is launched after confirmation. The updater does not modify Nexa's local user store or overwrite its running executable.

@@ -226,6 +226,10 @@ internal sealed partial class HomeWindow : NexaDialog
             }
 
             var data = record.Current.Data;
+            // Older Developer Spaces may contain Tasks/Agenda and other retired kinds.
+            // Normalize them before checking which current widgets are missing so a
+            // second linked tasks panel is never created.
+            WidgetLibrary.PrepareLayout(data);
             foreach (var definition in WidgetLibrary.Definitions.Where(definition => definition.Name is not ("Session controls" or "Hedy")))
             {
                 if (data.Widgets.Any(widget => widget.Kind == definition.Name)) continue;
@@ -272,7 +276,7 @@ internal sealed partial class HomeWindow : NexaDialog
             store.Save(Continuity.Activate(workspace, store.UserId, Saved.HedyRegion, Saved.HedyProtectedKey));
             ShowDashboard();
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or InvalidDataException)
         {
             feedback.Text = "Could not open developer Space: " + ex.Message;
         }

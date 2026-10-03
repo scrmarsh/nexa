@@ -17,6 +17,12 @@ internal static partial class Program
         Directory.CreateDirectory(output);
         try
         {
+            if(args.Contains("--menurepair"))
+            {
+                var repairApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                repairApp.InitializeComponent(); CheckMenuRepair();
+                Console.WriteLine($"PASS: {passed} outside-dismissal / DEV checks. Artifacts: {output}"); repairApp.Shutdown(); return 0;
+            }
             if(args.Contains("--alpha012"))
             {
                 var app012 = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
