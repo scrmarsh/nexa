@@ -10,6 +10,7 @@ internal sealed partial class HomeWindow
 {
     private void OpenHistory()
     {
+        if (!FlushSettingsForNavigation()) return;
         var dialog = new NexaDialog { Title = "Nexa · History", Owner = this, Width = 1000, Height = 700, MinWidth = 740, MinHeight = 500, WindowStartupLocation = WindowStartupLocation.CenterOwner };
         var root = new DockPanel { Margin = new Thickness(24) };
         var search = new TextBox { ToolTip = "Search session names and notes", Margin = new Thickness(0, 0, 0, 16) };

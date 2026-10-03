@@ -15,7 +15,7 @@ internal sealed partial class HomeWindow
         var profile=store.LoadProfile();
         if(!string.IsNullOrWhiteSpace(profile.DisplayName)) brand.Children.Add(new TextBlock { Text="Hey, "+profile.DisplayName+".",FontSize=16,Margin=new Thickness(0,0,0,8) });
         brand.Children.Add(new NexaLogo { Width = 290, Height = 92, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(-10, 0, 0, 0) });
-        brand.Children.Add(new TextBlock { Text = $"Desktop · v{App.AppVersion}", Foreground = (Brush)FindResource("MutedBrush"), FontSize = 13, Margin = new Thickness(0, 8, 0, 12) });
+        brand.Children.Add(new TextBlock { Text = App.VersionLabel, Foreground = (Brush)FindResource("MutedBrush"), FontSize = 13, Margin = new Thickness(0, 8, 0, 12) });
         var changelog = new Button { Content = "Changelog", HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(16, 8, 16, 8) }; changelog.Click += (_, _) => OpenChangelog(); brand.Children.Add(changelog);
         var tagline = new TextBlock { Text = "", FontSize = 24, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("TextBrush"), VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 25, 0, 0), MinHeight = 64 };
         System.Windows.Automation.AutomationProperties.SetName(tagline, "Home tagline"); Grid.SetColumn(tagline, 2); header.Children.Add(tagline); panel.Children.Add(header);
@@ -50,7 +50,7 @@ internal sealed partial class HomeWindow
         var changes = new Button { Content = "Changelog", MinHeight = 42 }; changes.Click += (_, _) => { dialog.Close(); OpenChangelog(); }; Grid.SetColumn(changes, 2); footer.Children.Add(changes); DockPanel.SetDock(footer, Dock.Bottom); root.Children.Add(footer);
         var body = new StackPanel { Margin = new Thickness(28) };
         body.Children.Add(new NexaLogo { Width = 260, Height = 82, HorizontalAlignment = HorizontalAlignment.Left });
-        body.Children.Add(Copy($"Desktop release · v{App.AppVersion}", 13));
+        body.Children.Add(Copy(App.VersionLabel, 13));
         body.Children.Add(new TextBlock { Text = "A space for whatever comes next", FontSize = 24, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 16) });
         body.Children.Add(Copy(ReleaseNotes.Description));
         body.Children.Add(new TextBlock { Text = "Made for your sessions", FontSize = 18, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 12) });
@@ -70,7 +70,7 @@ internal sealed partial class HomeWindow
             var section = new StackPanel();
             var heading = new DockPanel { Margin = new Thickness(0, 0, 0, 10) };
             var date = Copy(release.Date, 12); date.Margin = new Thickness(12, 4, 0, 0); DockPanel.SetDock(date, Dock.Right); heading.Children.Add(date);
-            heading.Children.Add(new TextBlock { Text = "v" + release.Version, FontSize = 22, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("AccentBrush") }); section.Children.Add(heading);
+            heading.Children.Add(new TextBlock { Text = App.ReleaseLabel(release.Version) + " \u2014 " + release.Title, TextWrapping = TextWrapping.Wrap, FontSize = 20, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("AccentBrush") }); section.Children.Add(heading);
             section.Children.Add(Copy(release.Summary, 15));
             foreach (var update in release.Updates)
             {

@@ -22,15 +22,17 @@ internal sealed partial class SettingsDialog
         var tools=new WrapPanel();
         foreach(var tool in new[] { "Pixel timer","Notes","Clock","Tasks","Focus Reset","Bible","Scripture pins","Agenda","Calendar","Flashcards","Session timeline" }) tools.Children.Add(new CheckBox { Content=tool,IsChecked=profile.PreferredWidgets.Contains(tool),Margin=new Thickness(0,8,12,8) }); Field(page,"Preferred tools",tools);
         var status=new TextBlock { Text="Setup: "+(profile.OnboardingCompleted?"Completed":"Not completed"),Margin=new Thickness(0,12,0,12),TextWrapping=TextWrapping.Wrap }; page.Children.Add(status);
-        var save=new Button { Content="Save profile",HorizontalAlignment=HorizontalAlignment.Left }; save.Click+=(_,_)=>
+        void SaveProfile() => QueueSave("profile", () =>
         {
             if(!int.TryParse(minutes.Text,out var duration) || duration is <1 or >10080) { status.Text="Choose a duration from 1 to 10080 minutes."; return; }
             profile.DisplayName=name.Text.Trim(); profile.UseCases=uses.Children.OfType<CheckBox>().Where(c=>c.IsChecked==true).Select(c=>(string)c.Content).ToList(); profile.PreferredDashboard=(string)type.SelectedItem;
             profile.PreferredWidgets=tools.Children.OfType<CheckBox>().Where(c=>c.IsChecked==true).Select(c=>(string)c.Content).ToList(); profile.TimedSessions=timed.IsChecked==true; profile.DefaultMinutes=duration;
             profile.Theme=store.LoadAppTheme(); profile.ThemeMode=store.LoadThemeMode(); store.LoadInteractionPreferences(state); profile.Sounds=state.InterfaceSoundsEnabled; profile.Volume=state.InterfaceSoundVolume; profile.FocusNudges=state.FocusNudgesEnabled;
-            try { store.SaveProfile(profile); status.Text="Profile saved. Sounds and theme can be changed under Appearance."; } catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) { status.Text="Profile could not be saved. Try again."; }
-        }; page.Children.Add(save);
-        var setup=new Button { Content="Run welcome setup again",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,14,0,0) }; setup.Click+=(_,_)=> { var owner=Owner; Close(); try { SetupNavigation.Run(owner,store,space); } catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) { MessageBox.Show(owner,"Setup could not be saved. Existing spaces have been retained.","Nexa setup"); } }; page.Children.Add(setup);
+            store.SaveProfile(profile); status.Text="Profile saved. Sounds and theme can be changed under Appearance.";
+        });
+        name.TextChanged += (_, _) => SaveProfile(); minutes.TextChanged += (_, _) => SaveProfile(); type.SelectionChanged += (_, _) => SaveProfile(); timed.Click += (_, _) => SaveProfile();
+        foreach (var box in uses.Children.OfType<CheckBox>().Concat(tools.Children.OfType<CheckBox>())) box.Click += (_, _) => SaveProfile();
+        var setup=new Button { Content="Run welcome setup again",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,14,0,0) }; setup.Click+=(_,_)=> { if (!FlushPendingChanges()) return; var owner=Owner; Close(); try { SetupNavigation.Run(owner,store,space); } catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) { MessageBox.Show(owner,"Setup could not be saved. Existing spaces have been retained.","Nexa setup"); } }; page.Children.Add(setup);
         return new ScrollViewer { Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto };
     }
     private UIElement BuildIntegrations()

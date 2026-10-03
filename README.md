@@ -1,4 +1,8 @@
-## Nexa 1.0.8 — Widget + Dashboard Stability
+## Nexa 0.1.9 Alpha — Versioning & Session Stability
+
+Nexa remains in Alpha. Version labels share the project version, and release history now uses 0.1.x Alpha with the early Bug Fixes entry restored. Settings recognizes the existing session from Home or the dashboard without restarting it. Ordinary Settings changes save automatically with a short debounce and a flush on close; no general Save/Apply button is needed. Invalid values retain the last valid setting. Failed writes keep edits for retry. Existing Space and preference formats are unchanged.
+
+## Nexa 0.1.8 Alpha — Widget + Dashboard Stability
 
 Pixel Timer now fills its right-hand canvas with square pixels that adapt in count to available width. Duration/progress and I'm bored sit on the left; completion remains calm and theme-colored. Settings → Widgets switches Square/Circle, distraction messages and the optional five-second focus backdrop pulse.
 
@@ -11,7 +15,7 @@ Session Timeline works locally with manual notes and source-labeled entries. Hed
 Existing spaces, names, interval data and history remain intact. Legacy Hedy widgets become Hedy Notes in place; earlier releases that already combined Hedy content into a timeline keep that content. New JSON fields have safe defaults; no workspace format migration is needed. Onboarding and Create Space remain unchanged. See [validation](VALIDATION.md).
 
 Targeted checks: `dotnet run --project tests/SessionDashboard.Checks.csproj -- --stability108`.
-## Nexa 1.0.7 — Lightweight UI & Interaction Polish
+## Nexa 0.1.7 Alpha — Lightweight UI & Interaction Polish
 
 Drag a widget grip to lift the actual card and move it freely. On release, Nexa uses both drop coordinates, reserves the intended grid slot, reflows occupied cards, and fills gaps upward with a short settle animation. Wide canvases support three columns; narrower canvases wrap to two or one. Resize edges retain their grid preview and saved dimensions.
 
@@ -19,7 +23,7 @@ The Settings gear rotates inside a stationary button. Pixel Timer cells use a sh
 
 Existing layouts are preserved until you move a widget. Drops save through the existing position fields; no format migration or data reset is needed. See [validation evidence and manual checks](VALIDATION.md).
 
-## Nexa 1.0.6 — Onboarding & Integrations
+## Nexa 0.1.6 Alpha — Onboarding & Integrations
 
 New installations start with six short welcome screens: welcome/name, use cases and session preferences, space type, a curated tool selection, theme and sounds, then a summary and **Create my space**. Back and skip are available. Existing installations with saved data or preferences continue to Home.
 
@@ -29,7 +33,7 @@ Optional **Todoist**, **Google Tasks**, and **Calendar** widgets use the dedicat
 
 Credentials are encrypted with Windows DPAPI, scoped to the local user, and excluded from dashboard exports. Integration data stays in memory; offline failures never disable local notes, timers, Bible, Focus Reset or autosave. No online Nexa account is required.
 
-## Nexa 1.0.5 — Focus First
+## Nexa 0.1.5 Alpha — Focus First
 
 Nexa helps you stay present in class, study, church or meetings. The existing session clock now powers a full-width Pixel Timer banner with remaining time, total duration, progress and the next interval. **I'm bored** still opens Pixel Swarm across the window; timing and autosave keep running.
 
@@ -45,7 +49,7 @@ Common controls use reusable vector icons. A Per-Monitor V2 manifest and WPF lay
 
 # Nexa
 
-Current release: **1.0.7** · Windows desktop · October 3, 2026
+Current release: **Nexa 0.1.9 Alpha** · Windows desktop · October 3, 2026
 
 **Nexa is a local desktop app for building flexible Spaces with sessions, movable widgets, notes, Scripture, flashcards, recordings and saved history.** Build a Space around the information you need, edit it directly, and continue your saved work later.
 
@@ -90,12 +94,14 @@ Minimize is available only for suitable widgets. Bible, Scripture Pins, session 
 The Settings gear and **Session** button share one two-pane Settings window with these pages:
 
 - **Appearance:** System, Light and Dark modes plus Nexa, Violet, Aurora and Ember app themes.
-- **Session:** name, times, weekdays, 5/10/15-minute intervals and the active Space background.
-- **Hedy:** optional API connection settings stored with Windows DPAPI protection.
+- **Session:** current session name, times, weekdays, summary intervals and the Space background. Untimed Spaces keep appearance controls without creating a session.
+- **Widgets:** pixel shape, focus backdrop and distraction preferences.
+- **Profile:** local name, use cases, preferred tools and session defaults.
+- **Integrations:** optional task/calendar connections and Hedy API settings with Windows DPAPI protection.
 - **Account:** a clear Coming Soon page without placeholder sign-in controls.
 - **Data:** a clear Coming Soon page reserved for future export and storage tools.
 
-Session changes preserve notes, transcripts and history identity. Weekday choices such as Monday and Wednesday persist. **Reset** beside the Pixel Timer’s Edit button asks for confirmation and restores the configured timer length without removing notes, widgets or history.
+Settings changes save automatically after a short pause and flush when Settings closes or the Space changes. Invalid values retain the last valid setting; write failures keep edits available for retry. Session changes preserve notes, transcripts and history identity. Name and appearance edits preserve exact timer timestamps, including seconds. Weekday choices such as Monday and Wednesday persist. **Reset** beside the Pixel Timer’s Edit button asks for confirmation and restores the configured timer length without removing notes, widgets or history.
 
 Each Space can keep Nexa's default background, use a solid color, or display a local image. Blur affects only the image layer, while adjustable dimming keeps widget text readable. Background settings persist with that Space. Clicking outside dismisses Settings and other Nexa dialogs.
 
@@ -123,10 +129,10 @@ The small **DEV** control on Home opens a Space with all available widgets and a
 
 ## Launch and build
 
-A standard Release build writes `bin\Release\net10.0-windows\Nexa.exe`. The verified 1.0.4–1.0.6 audit build is in `bin\Audit\Nexa.exe`, keeping any running release undisturbed. Launch the audit build from the project directory:
+A standard Release build writes `bin\Release\net10.0-windows\Nexa.exe`. The isolated Nexa 0.1.9 Alpha build is in `bin\Alpha019\Nexa.exe`, keeping any running older release undisturbed. Launch it from the project directory:
 
 ```powershell
-& '.\bin\Audit\Nexa.exe'
+& '.\bin\Alpha019\Nexa.exe'
 ```
 
 Build with the .NET 10 SDK:

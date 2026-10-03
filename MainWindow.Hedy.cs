@@ -26,11 +26,11 @@ public partial class MainWindow
         HedyTranscriptBox.Text = state.Session?.HedyTranscript ?? "";
         hedyTimer.Tick += async (_, _) => await SyncHedy();
     }
-    internal void RefreshHedySettings()
+    internal void RefreshHedySettings(string? runtimeKey = null)
     {
         HedyRegionPicker.SelectedIndex = state.HedyRegion == "EU" ? 1 : 0;
-        HedyKeyInput.Password = SecretStorage.Unprotect(state.HedyProtectedKey);
-        RememberHedyKey.IsChecked = HedyKeyInput.Password.Length > 0;
+        if (runtimeKey != null) HedyKeyInput.Password = runtimeKey;
+        RememberHedyKey.IsChecked = !string.IsNullOrEmpty(state.HedyProtectedKey);
     }
     private void PauseHedySync()
     {

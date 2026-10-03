@@ -1,4 +1,19 @@
-## Nexa 1.0.8 — Widget + Dashboard Stability (2026-10-03)
+# Changelog
+
+Development releases formerly numbered 1.0.1–1.0.8 are listed here as 0.1.1–0.1.8 Alpha. Alpha continues with 0.1.10, 0.1.11 and later patches; 0.2.x is reserved for an intentional Beta, and the eventual first stable release is 1.0.0. Original Git history and tags are unchanged.
+
+## Nexa 0.1.9 Alpha — Versioning & Session Stability (2026-10-03)
+
+Introduces Nexa's Alpha version numbering system, improves release history and version labeling, and fixes active-session state handling and settings persistence.
+
+- Centralized Alpha labels in Home, About, splash and release history; restored the early Bug Fixes release.
+- Settings binds to the current Space/session and recognizes saved sessions from Home. Opening or closing Settings preserves session identity, timer timestamps, notes and history.
+- Ordinary Settings changes save automatically. Typing and sliders are debounced; closing Settings and changing Spaces flush pending edits. Explicit connection and file-selection actions remain.
+- No data reset or storage/schema change. Existing Spaces, profiles, preferences and integration credentials are preserved.
+
+## Nexa 0.1.8 Alpha — Widget + Dashboard Stability (2026-10-03)
+
+Improves widget placement, responsive session pixels and local recording while preserving saved Spaces.
 
 - Responsive Pixel Timer canvas reaches both usable edges with more/fewer square pixels; optional Circle shape uses the same session clock. Duration and progress sit left, pixels right, and I'm bored bottom left. Interval data remains; permanent interval UI is removed. Completion stays in the theme color without white glow or flashing.
 - Pixel Swarm uses the dashboard palette while session timing and autosave continue.
@@ -10,7 +25,9 @@
 - Standalone Session Timeline defaults to its correct name, supports local manual entries and retains interval access. Recommended shortcuts lead Add Widget. Hedy Notes is separate; legacy Hedy widgets are renamed in place without merging or deleting content. Hedy settings and old links route to Integrations.
 - Audio Recorder surfaces the existing Windows recorder with consent, pause/resume/stop, elapsed/status, owner-scoped unique local files and Timeline entries. Failed capture saves can be retried; close/switch finalizes audio in the outgoing session. No audio is uploaded. Transcription/summary interfaces are foundation only; no provider or credentials are invented.
 - Preferences and new entry/history fields load additively. No onboarding/Create Space redesign, database reset, new dependency or integration-account migration.
-## Nexa 1.0.7 — Lightweight UI & Interaction Polish (2026-10-03)
+## Nexa 0.1.7 Alpha — Lightweight UI & Interaction Polish (2026-10-03)
+
+Polishes lightweight navigation, widget movement and responsive dashboard presentation.
 
 - Stationary Settings button with a recognizable centered vector gear that alone rotates on hover.
 - Physical widget pickup: the actual card follows the pointer with its grab offset and floats above its neighbors; layout changes wait until release.
@@ -21,7 +38,9 @@
 - Expanded Bible widgets allocate additional height to the passage while preserving normal controls and scrolling.
 - No schema migration, user-data reset, integration changes or new dependencies.
 
-## Nexa 1.0.6 — Onboarding & Integrations (2026-10-02)
+## Nexa 0.1.6 Alpha — Onboarding & Integrations (2026-10-02)
+
+Helps new users personalize local Spaces and adds optional task and calendar connections.
 
 - Six-step welcome flow with optional name, multiple use cases, timed-session and focus preferences, simple space choices, curated tools, visual theme choices, opt-in sound preview and a ready-to-use first space.
 - Existing installations bypass onboarding. Profile settings can rerun setup to append a space while preserving current dashboards and history.
@@ -33,7 +52,9 @@
 - Verification repairs: clear stale task/calendar/account lists after failures or disconnects, reject results from replaced accounts, bind requests to the selected connection, and handle malformed authorization/configuration/provider responses safely.
 - Preserve master sound, volume and focus-reminder preferences when switching Spaces in the same window.
 
-## Nexa 1.0.5 — Focus First (2026-10-02)
+## Nexa 0.1.5 Alpha — Focus First (2026-10-02)
+
+Makes Nexa simpler and more focused with a signature Pixel Timer, calmer defaults and optional focus tools.
 
 - Full-width Pixel Timer banner using the existing session clock, with readable countdown, progress, duration and next interval. Pixel Swarm keeps its timer pixels and full-window game area.
 - Simpler Class, Study/Focus, Church and Meeting presets; existing dashboards and the full widget catalog remain available.
@@ -45,13 +66,12 @@
 - Reusable vector icons for common widget actions, settings, navigation and history; Per-Monitor V2 DPI manifest and layout rounding.
 - No data reset or format version change. Original layout metadata remains until a direct placement needs absolute positions to keep neighboring cards stationary.
 
-# Changelog
 
-## [1.0.4] - 2026-10-02
+## Nexa 0.1.4 Alpha — Polish and Bug Fixes (2026-10-02)
 
-### Polish and bug fixes
+Spaces become more personal, responsive and useful for study and live sessions.
 
-- Unified the project, Home and splash version at 1.0.4 and updated the splash tagline.
+- Unified the project, Home and splash version at 0.1.4 Alpha and updated the splash tagline.
 - Hid developer Spaces from normal Recent Spaces and widened Preview Splash.
 - Added editable hours/minutes/seconds and Start, Pause, Resume and Reset to independent timers.
 - Added a simple Stopwatch; timer and stopwatch state survives layout changes and autosave.
@@ -78,7 +98,7 @@ A responsive Spaces update with unified settings, personal backgrounds, clearer 
 - Added local Flashcards decks with card CRUD, flipping, navigation, shuffle, progress, Know it/Review state and CSV/JSON import.
 - Updated Pixel Swarm and session surfaces to inherit the active theme and replaced the DEV reset system prompt with a common Nexa dialog.
 
-## [1.0.3] - 2026-10-02
+## Nexa 0.1.3 Alpha — Session Workspace Polish (2026-10-02)
 
 A more direct, polished session workspace for classes, study, church meetings, team discussions and service shifts.
 
@@ -89,7 +109,7 @@ A more direct, polished session workspace for classes, study, church meetings, t
 - Replaced the system About message box with a themed, resizable menu containing the updated description and use cases.
 - Moved Preview Nexa inside About and pinned View history at the bottom of Home.
 - Added versioned changelog cards with readable, aligned bullet points.
-- Set application, splash, Home and About version metadata to 1.0.3.
+- Set application, splash, Home and About version metadata to 0.1.3 Alpha.
 
 ### Dashboard and widgets
 
@@ -118,9 +138,9 @@ A more direct, polished session workspace for classes, study, church meetings, t
 - Added multi-day session scheduling and persistence, plus a confirmed Pixel Timer reset that restores its configured duration without deleting dashboard data or history.
 - Removed fixed green status colors so completion and active states follow the selected app or dashboard theme.
 
-## [1.0.2] - 2026-10-01
+## Nexa 0.1.2 Alpha — Desktop Foundation (2026-10-01)
 
-### Desktop foundation
+Establishes Nexa’s local Windows desktop foundation.
 
 - Local dashboard creation, templates and presets for classes, pantry shifts, church meetings, study, meetings and focus.
 - Session timers, pixel progress, notes, checklists, counters, trackers and session continuity.
@@ -129,3 +149,7 @@ A more direct, polished session workspace for classes, study, church meetings, t
 - Editable sample dashboards, developer preview tools and Pixel Swarm.
 
 The Windows desktop build is the current release. A web app remains planned.
+
+## Nexa 0.1.1 Alpha — Bug Fixes
+
+General bug fixes and stability improvements during early Alpha development.

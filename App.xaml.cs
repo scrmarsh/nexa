@@ -6,6 +6,8 @@ namespace SessionDashboard;
 public partial class App : Application
 {
     internal static string AppVersion => typeof(App).Assembly.GetName().Version?.ToString(3) ?? "Unknown";
+    internal static string VersionLabel => ReleaseLabel(AppVersion);
+    internal static string ReleaseLabel(string version) => $"Nexa {version} Alpha";
     private Mutex? workspaceMutex;
     internal bool SuppressNormalStartup { get; init; }
     protected override void OnStartup(StartupEventArgs e)

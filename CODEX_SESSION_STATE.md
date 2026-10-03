@@ -1,10 +1,21 @@
 # Nexa Codex Session State
 
 ## Current Goal
-Build Nexa 1.0.8 — Widget + Dashboard Stability. Preserve user data and integrations; do not redesign onboarding or Create Space. Preserve completed release/audit history below.
+Prepare Nexa 0.1.9 Alpha - Versioning & Session Stability. Keep this release limited to numbering/history/version labels, active-session Settings, automatic persistence and data safety. No widget/menu/game redesign.
 
 ## Current Phase
-Nexa 1.0.8 complete: source, validation, documentation and staged review passed; release commit follows.
+Nexa 0.1.9 Alpha implementation, targeted validation and release documentation complete. Commit identity is reported with completion.
+
+## Nexa 0.1.9 Alpha Progress
+- Baseline main: 29d72029ed93d402e81fdad72434d9a2be3db330. Preserve unrelated LEGACY.md, PUSH.txt and untracked user files; do not stage them.
+- Project and manifest now use 0.1.9. App.VersionLabel / ReleaseLabel centralize the visible Alpha label; Home, About, splash and in-app history use them. CHANGELOG retains documented historical details under 0.1.1 through 0.1.8 Alpha, restores early Bug Fixes and adds descriptions/title/current 0.1.9. Original Git tags and historical audit evidence below remain unchanged.
+- Settings resolves the same-user dashboard owner and current state, recognizes saved sessions from Home, and edits the session in place. Ordinary name/settings edits preserve exact timestamp precision, stopped state, identity, notes, Hedy and history; only explicit time edits change timestamps.
+- Settings autosaves text/sliders after 500 ms, flushes on close and before Space navigation, retains valid edits on I/O failure, and allows the same animated close gesture to retry. No general Apply/Save buttons; connection, consent and file-selection actions remain explicit.
+- Home refreshes saved state before Settings/navigation so pending settings cannot replace newer history or the newly selected Space. MainWindow flushes settings before workspace capture/save and closes the stale editor when state is replaced. Existing JSON/schema, account scopes and credentials are unchanged; region-only Hedy edits preserve the existing protected key.
+- Final targeted WPF suite --alpha019: 47 PASS, fixture test-output/20261003-135620, including real animated Closing/retry after locked-file failure. Continuity: 42 PASS (134335); timer/stopwatch/version polish: 22 PASS (134743); onboarding/integrations: 74 PASS (134938), using normal Windows context for DPAPI and mocked HTTP only. Total 185 assertions across four suites, including repeated shared model checks. Final isolated Release and check-runner builds PASS with zero warnings/errors; output bin/Alpha019/Nexa.exe.
+- Exact requested default dotnet build restored successfully but output copy was locked by running Nexa PID 195656 at bin/Debug/net10.0-windows/Nexa.exe. Canceled only the blocked build via its tool session; app left running. Use isolated bin/Alpha019/ release output. One earlier WPF incremental markup-cache failure recovered with a single-worker Rebuild.
+- Changelog, Settings session and splash renders inspected. CHANGELOG.md, README.md, INTEGRATIONS.md, VALIDATION.md and this session state updated. Review/stage only release source, documentation and checks; commit on main with message fix: prepare Nexa 0.1.9 alpha versioning and session stability. No push requested for this release. Test fixtures are ignored; no real user store, service credentials or live accounts were used. Larger UI/interaction work remains outside this release.
+
 
 ## Nexa 1.0.8 Progress
 - Baseline main at 7e680bd. Existing unrelated LEGACY.md, PUSH.txt and untracked files remain excluded. Running 1.0.7 launched outside sandbox on user desktop; build 1.0.8 into a separate output folder.

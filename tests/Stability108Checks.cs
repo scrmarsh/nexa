@@ -16,7 +16,7 @@ internal static partial class Program
         object? Call(object target, string name, params object?[] args) => target.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).Single(m => m.Name == name && m.GetParameters().Length == args.Length).Invoke(target, args);
         void Set(object target, string name, object value) => target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(target, value);
         void Tap(DependencyObject scope, string label) => Descendants(scope).OfType<Button>().Single(b => Equals(b.Content, label)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-        Assert(App.AppVersion == "1.0.8", "Current version is 1.0.8");
+        Assert(App.AppVersion == "0.1.9", "Current version is 0.1.9");
         var cases = new Dictionary<string, decimal> { ["2+3*4"] = 14, ["(2+3)*4"] = 20, ["1.5+2.25"] = 3.75m, ["200*10%"] = 20, ["-4+8/2"] = 0, ["9-2"] = 7, ["100/4"] = 25, ["50%"] = .5m };
         foreach (var item in cases) Assert(Calculator.Evaluate(item.Key) == item.Value, "Calculator evaluates " + item.Key);
         foreach (var invalid in new[] { "2/0", "1.2.3", "2+", "x", new string('1', 257) })

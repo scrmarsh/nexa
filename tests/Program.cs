@@ -17,6 +17,12 @@ internal static partial class Program
         Directory.CreateDirectory(output);
         try
         {
+            if(args.Contains("--alpha019"))
+            {
+                var alphaApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                alphaApp.InitializeComponent(); CheckAlpha019();
+                Console.WriteLine($"PASS: {passed} Alpha versioning / session settings checks. Artifacts: {output}"); alphaApp.Shutdown(); return 0;
+            }
             if(args.Contains("--stability108"))
             {
                 var stabilityApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };

@@ -11,7 +11,7 @@ namespace SessionDashboard;
 internal sealed partial class HomeWindow : NexaDialog
 {
     private readonly StateStore store;
-    internal readonly AppState Saved;
+    internal AppState Saved { get; private set; }
     internal readonly StackPanel Recent = new();
     internal readonly Button ContinueButton;
     private readonly TextBlock feedback = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 20, 0, 0) };
@@ -19,6 +19,7 @@ internal sealed partial class HomeWindow : NexaDialog
     internal HomeWindow(StateStore store)
     {
         this.store = store; Saved = store.Load();
+        Closing += (_, e) => { if (settingsWindow?.FlushPendingChanges() == false) e.Cancel = true; };
         Theme.Apply(Application.Current.Resources, store.LoadThemeMode(), store.LoadAppTheme());
         if (Saved.Workspace == null && File.Exists(store.FilePath)) Saved.Workspace = Continuity.Migrate(Saved, store.UserId);
         Title = "Nexa"; Width = Saved.WindowWidth; Height = Saved.WindowHeight; MinWidth = 740; MinHeight = 550; WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -160,6 +161,7 @@ internal sealed partial class HomeWindow : NexaDialog
     }
     internal MainWindow? OpenPreview(string? directory = null)
     {
+        if (!FlushSettingsForNavigation()) return null;
         try
         {
             var previewStore = PreviewDashboards.CreateStore(store, directory);
@@ -175,6 +177,7 @@ internal sealed partial class HomeWindow : NexaDialog
     }
     internal void OpenDashboard(Guid id)
     {
+        if (!FlushSettingsForNavigation()) return;
         try
         {
             var workspace = Continuity.Clone(store.Load().Workspace!); workspace.ActiveDashboardId = id;
@@ -191,6 +194,7 @@ internal sealed partial class HomeWindow : NexaDialog
     }
     private void NewDashboard()
     {
+        if (!FlushSettingsForNavigation()) return;
         var dialog = new DashboardCreation(this, store.UserId, store.LoadProfile());
         if (dialog.ShowDialog() != true || dialog.Result == null) return;
         try
@@ -203,6 +207,7 @@ internal sealed partial class HomeWindow : NexaDialog
     }
     private void OpenDeveloperDashboard()
     {
+        if (!FlushSettingsForNavigation()) return;
         try
         {
             var workspace = Saved.Workspace == null ? new WorkspaceDocument { UserId = store.UserId } : Continuity.Clone(Saved.Workspace);
@@ -274,6 +279,7 @@ internal sealed partial class HomeWindow : NexaDialog
     }
     private void ImportDashboard()
     {
+        if (!FlushSettingsForNavigation()) return;
         var picker = new OpenFileDialog { Filter = "Nexa Space (*.nexa)|*.nexa" }; if (picker.ShowDialog(this) != true) return;
         try
         {

@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void CheckPolish107()
     {
-        Assert(App.AppVersion == "1.0.8", "Project metadata supplies version 1.0.8");
+        Assert(App.AppVersion == "0.1.9", "Project metadata supplies version 0.1.9");
         var store = new StateStore(Path.Combine(output, "polish107.json"));
         var cards = new[] { "Notes", "Notes", "Notes", "Clock", "Tasks", "Focus Reset" }.Select(kind => WidgetLibrary.Create(kind)).ToList();
         WidgetLibrary.ArrangeThreeColumns(cards);

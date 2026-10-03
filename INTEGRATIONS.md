@@ -1,4 +1,4 @@
-# Nexa 1.0.6 integrations
+# Nexa 0.1.6 Alpha integrations
 
 All connections are optional. Local notes, timers, Focus Reset, Bible, layouts, themes, history and autosave work without an account or internet access. Add widgets from the usual widget catalog; manage accounts in Settings → Integrations.
 
@@ -38,7 +38,7 @@ Google sign-in uses authorization code + PKCE, a random state value, and a tempo
 
 Automated validation uses synthetic credentials and mocked HTTP responses. No real Todoist or Google account was connected during release validation.
 
-## Nexa 1.0.8 local recording and Hedy
+## Nexa 0.1.8 Alpha local recording and Hedy
 
 Hedy settings are under Integrations. Existing DPAPI-protected credentials remain in the account credential store, outside dashboard data and exports. Hedy Notes is a separate integration-dependent widget; Session Timeline also works with manual local notes.
 

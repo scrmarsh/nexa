@@ -1,6 +1,6 @@
 namespace SessionDashboard;
 
-internal sealed record ReleaseNote(string Version, string Date, string Summary, string[] Updates);
+internal sealed record ReleaseNote(string Version, string Date, string Title, string Summary, string[] Updates);
 
 internal static class ReleaseNotes
 {
@@ -8,7 +8,21 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
-        new("1.0.7", "October 3, 2026", "Nexa 1.0.7 — Lightweight UI & Interaction Polish",
+        new(App.AppVersion, "October 3, 2026", "Versioning & Session Stability", "Introduces Nexa's Alpha version numbering system, improves release history and version labeling, and fixes active-session state handling and settings persistence.",
+        [
+            "One shared Alpha version label across Home, About, splash and release history.",
+            "Settings recognizes the existing session from the dashboard or Home without creating or restarting it.",
+            "Settings saves changes automatically, debounces typing and sliders, and flushes edits before close or Space changes.",
+            "Existing Spaces, notes, layouts, history, profiles and integration credentials retain their formats."
+        ]),
+        new("0.1.8", "October 3, 2026", "Widget + Dashboard Stability", "Improves widget placement, responsive session pixels and local recording while preserving saved Spaces.",
+        [
+            "Responsive Pixel Timer pixels, optional Circle shape and calm theme-colored completion share the existing session clock.",
+            "Grid packing, anchored resizing and remove-widget Undo/Redo improve dashboard stability.",
+            "Persisted backgrounds, widget preferences, precise stopwatch and Calculator improve local tools.",
+            "Separate Hedy Notes, a source-neutral Session Timeline and consent-based local Audio Recorder preserve notes and history."
+        ]),
+        new("0.1.7", "October 3, 2026", "Lightweight UI & Interaction Polish", "Polishes lightweight navigation, widget movement and responsive dashboard presentation.",
         [
             "The centered Settings gear turns on hover while its button stays still.",
             "Drag grips lift the actual card and follow the cursor freely. Releasing reserves the selected grid position, reflows occupied slots and compacts gaps with a short settle animation.",
@@ -16,7 +30,7 @@ internal static class ReleaseNotes
             "Pixel Timer cells stay square and centered; expanded Bible widgets give extra height to the passage.",
             "Focus Reset remains in the widget catalog; its redundant top-header button is removed. Existing saved data and integrations are preserved."
         ]),
-        new("1.0.6","October 2, 2026","Nexa 1.0.6 — Onboarding & Integrations",
+        new("0.1.6", "October 2, 2026", "Onboarding & Integrations", "Helps new users personalize local Spaces and adds optional task and calendar connections.",
         [
             "Six short welcome screens help new users choose tools, theme, sounds and a ready-to-use first space. Existing users go straight to Home.",
             "Local Profile preferences and a rerunnable welcome flow personalize use cases, preferred tools and default session behavior.",
@@ -24,7 +38,7 @@ internal static class ReleaseNotes
             "Google Calendar shows today's schedule plus current and next timed events with read-only access. Google connections require a desktop OAuth client configuration.",
             "Dedicated Integrations settings and Windows DPAPI credential storage keep optional accounts separate from dashboard exports and local core features."
         ]),
-        new("1.0.5", "October 2, 2026", "Nexa 1.0.5 — Focus First",
+        new("0.1.5", "October 2, 2026", "Focus First", "Makes Nexa simpler and more focused with a signature Pixel Timer, calmer defaults and optional focus tools.",
         [
             "The signature Pixel Timer is a full-width banner using the existing session clock; Pixel Swarm remains connected to its pixels.",
             "New Class, Study, Focus, Church and Meeting Spaces start with fewer widgets; every supported widget remains available.",
@@ -33,7 +47,7 @@ internal static class ReleaseNotes
             "Focus Reset offers five gentle breaths and a local notes/time recap. Optional return-to-app nudges have a ten-minute cooldown.",
             "Opt-in soft interface sounds, reusable vector controls and Per-Monitor V2 awareness keep Nexa calm and sharp."
         ]),
-        new("1.0.4", "October 2, 2026", "Spaces become more personal, responsive and useful for study and live sessions.",
+        new("0.1.4", "October 2, 2026", "Polish and Bug Fixes", "Spaces become more personal, responsive and useful for study and live sessions.",
         [
             "Home now scales cleanly to maximized windows, keeps its footer in the natural scroll flow and shows permanent labels for Create Space, Resume and Import Space.",
             "Settings is a single dismissible two-pane window with Appearance, Session, Hedy, Account and Data pages, plus direct links to the requested section.",
@@ -43,7 +57,7 @@ internal static class ReleaseNotes
             "Flashcards add local decks, card editing, study controls, progress, review state and CSV or JSON import.",
             "Light mode contrast, themed checkboxes, story mode, autosave feedback, common dialogs and Space terminology have been polished throughout Nexa."
         ]),
-        new("1.0.3", "October 2, 2026", "A more direct, polished session workspace.",
+        new("0.1.3", "October 2, 2026", "Session Workspace Polish", "A more direct, polished session workspace.",
         [
             "Widgets appear where you click. Dragged cards lift with a shadow while neighboring cards animate, resize and make space.",
             "Readable widget sizes, three-column layouts, rounded cards, small gaps and faster scrolling keep dashboard data accessible.",
@@ -55,11 +69,12 @@ internal static class ReleaseNotes
             "Home gains an animated tagline, themed About and release-history menus. Preview lives in About; History is at the bottom of Home."
             ,"Settings gains Appearance and Hedy pages, full app themes and secure API-key saving. Multi-day schedules and a data-safe Pixel Timer reset complete the session controls."
         ]),
-        new("1.0.2", "October 1, 2026", "The desktop foundation.",
+        new("0.1.2", "October 1, 2026", "Desktop Foundation", "The desktop foundation.",
         [
             "Local dashboards with presets, timers, notes, checklists and session continuity.",
             "Autosave, recovery, dated history, dashboard import and export.",
             "Offline Bible reading, Scripture Pins, sample dashboards and Pixel Swarm."
-        ])
+        ]),
+        new("0.1.1", "Early Alpha", "Bug Fixes", "General bug fixes and stability improvements during early Alpha development.", [])
     ];
 }

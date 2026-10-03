@@ -18,10 +18,10 @@ internal static partial class Program
             var bitmap = new RenderTargetBitmap((int)Math.Ceiling(body.ActualWidth), (int)Math.Ceiling(body.ActualHeight), 96, 96, PixelFormats.Pbgra32); bitmap.Render(body);
             var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap)); using var stream = File.Create(Path.Combine(output, name + ".png")); encoder.Save(stream);
         }
-        Assert(App.AppVersion == "1.0.8", "App uses current project version 1.0.8");
+        Assert(App.AppVersion == "0.1.9", "App uses current project version 0.1.9");
         var splash = new SplashWindow(); splash.Show(); Pump(TimeSpan.FromMilliseconds(220));
         var tagline = Descendants(splash).OfType<TextBlock>().Single(t => t.Text == "A space for whatever comes next.");
-        Assert(tagline.ActualWidth >= tagline.DesiredSize.Width && Descendants(splash).OfType<TextBlock>().Any(t => t.Text == "v" + App.AppVersion), "Splash tagline and current version are present and fit"); Capture(splash, "polish-splash"); splash.Close();
+        Assert(tagline.ActualWidth >= tagline.DesiredSize.Width && Descendants(splash).OfType<TextBlock>().Any(t => t.Text == App.VersionLabel), "Splash tagline and current version are present and fit"); Capture(splash, "polish-splash"); splash.Close();
         var store = new StateStore(Path.Combine(output, "polish-state.json"));
         var normal = Continuity.NewDashboard("Existing Space", "Blank", new DashboardData { WidgetLayoutInitialized = true, Notes = "Keep these notes" }, store.UserId);
         var dev = Continuity.NewDashboard("Developer mode", "Developer mode", new DashboardData { WidgetLayoutInitialized = true, Notes = "Keep developer data" }, store.UserId);
@@ -29,7 +29,7 @@ internal static partial class Program
         store.Save(Continuity.Activate(workspace, store.UserId));
         var home = new HomeWindow(store); home.Show(); Pump(TimeSpan.FromMilliseconds(220));
         Assert(home.Recent.Children.Count == 1 && Descendants(home.Recent).OfType<TextBlock>().Any(t => t.Text == "Existing Space"), "Recent Spaces excludes developer spaces");
-        Assert(Descendants(home).OfType<TextBlock>().Any(t => t.Text.Contains("v" + App.AppVersion)), "Home shows shared current version"); Capture(home, "polish-home"); home.Close();
+        Assert(Descendants(home).OfType<TextBlock>().Any(t => t.Text.Contains(App.VersionLabel)), "Home shows shared current version"); Capture(home, "polish-home"); home.Close();
         var window = new MainWindow(store); window.Show(); Pump(TimeSpan.FromMilliseconds(220));
         Assert(window.state.Notes == "Keep these notes", "Existing dashboard opens with its data intact");
         var timer = window.AddWidget("Timer"); var stopwatch = window.AddWidget("Stopwatch");

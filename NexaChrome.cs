@@ -108,6 +108,14 @@ internal class NexaDialog : Window
             else Close();
         });
     }
+    protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+    {
+        base.OnClosing(e);
+        if (!e.Cancel) return;
+        // A failed Settings save may cancel dismissal. Allow the same close gesture to retry.
+        closingWithFade = false;
+        BeginAnimation(OpacityProperty, null); Opacity = 1;
+    }
     protected override void OnContentChanged(object oldContent, object newContent)
     {
         base.OnContentChanged(oldContent, newContent);

@@ -134,12 +134,14 @@ public partial class MainWindow
     }
     internal AppState CopyWorkspaceState()
     {
+        if (settingsWindow?.FlushPendingChanges() == false) throw new System.IO.IOException("Could not save pending Settings changes.");
         var copy = Continuity.Clone(state.Workspace!);
         return Continuity.Activate(copy, store.UserId, state.HedyRegion, state.HedyProtectedKey);
     }
     // All destructive transitions commit a detached candidate before changing the live editor.
     internal bool CommitWorkspace(WorkspaceDocument candidate, bool preserveWindow = false, bool preserveWidgetUndo = false)
     {
+        if (settingsWindow?.FlushPendingChanges() == false) return false;
         try
         {
             var keepRecording = recordingActive && preserveWidgetUndo && candidate.ActiveDashboardId == state.Workspace!.ActiveDashboardId && Continuity.Current(candidate, store.UserId).Current.Data.Widgets.Any(w => w.Kind == "Audio Recorder");
@@ -156,6 +158,7 @@ public partial class MainWindow
             if (preserveWindow) { next.WindowWidth = fullWidth; next.WindowHeight = fullHeight; next.Compact = state.Compact; }
             WidgetLibrary.EnsureLayout(next);
             store.Save(next);
+            settingsWindow?.Close();
             if (storyOpen) ExitBoredomMode();
             CloseNoteEditors(); PauseHedySync();
             if(state.Workspace?.ActiveDashboardId!=next.Workspace?.ActiveDashboardId || !preserveWidgetUndo && Continuity.Current(state.Workspace!,store.UserId).Current.SessionId != Continuity.Current(next.Workspace!,store.UserId).Current.SessionId) { widgetUndo.Clear(); widgetRedo.Clear(); FadeWidgetToast(null,EventArgs.Empty); }

@@ -249,6 +249,7 @@ public partial class MainWindow
 
     internal bool SaveNow()
     {
+        if (settingsWindow?.FlushPendingChanges() == false) return false;
         saveDelay.Stop(); saveTicket++;
         try
         {
