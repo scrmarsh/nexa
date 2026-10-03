@@ -18,7 +18,7 @@ internal static partial class Program
             var bitmap = new RenderTargetBitmap((int)Math.Ceiling(body.ActualWidth), (int)Math.Ceiling(body.ActualHeight), 96, 96, PixelFormats.Pbgra32); bitmap.Render(body);
             var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap)); using var stream = File.Create(Path.Combine(output, name + ".png")); encoder.Save(stream);
         }
-        Assert(App.AppVersion == "1.0.6", "App uses current project version 1.0.6");
+        Assert(App.AppVersion == "1.0.7", "App uses current project version 1.0.7");
         var splash = new SplashWindow(); splash.Show(); Pump(TimeSpan.FromMilliseconds(220));
         var tagline = Descendants(splash).OfType<TextBlock>().Single(t => t.Text == "A space for whatever comes next.");
         Assert(tagline.ActualWidth >= tagline.DesiredSize.Width && Descendants(splash).OfType<TextBlock>().Any(t => t.Text == "v" + App.AppVersion), "Splash tagline and current version are present and fit"); Capture(splash, "polish-splash"); splash.Close();

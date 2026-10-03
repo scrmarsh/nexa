@@ -37,9 +37,10 @@ internal static partial class Program
         for(var i=1;i<=12;i++) grip.RaiseEvent(new DragDeltaEventArgs(unit*i/12,72*i/12));
         Assert(RectFor(clock)==neighbor,"Slow drag does not move neighbor during preview");
         grip.RaiseEvent(new DragCompletedEventArgs(0,0,false)); Pump(TimeSpan.FromMilliseconds(100));
-        Assert(RectFor(clock)==neighbor,"Drop keeps neighboring widget in place");
+        neighbor=RectFor(clock);
+        Assert(!RectFor(notes).IntersectsWith(neighbor),"Intentional drop reflows neighboring widget without overlap");
         Assert(notes.PlacementX!=null && Math.Abs(notes.PlacementY%24)<.01,"Drop stores grid-aligned placement");
-        Assert(!RectFor(notes).IntersectsWith(RectFor(clock)),"Move resolves overlap without displacing neighbor");
+        Assert(!RectFor(notes).IntersectsWith(RectFor(clock)),"Move resolves overlap after compaction");
         var placed=RectFor(notes);
         grip.RaiseEvent(new DragStartedEventArgs(0,0)); grip.RaiseEvent(new DragDeltaEventArgs(800,300)); grip.RaiseEvent(new DragCompletedEventArgs(0,0,true));
         Assert(RectFor(notes)==placed,"Canceled fast drag leaves layout intact");
@@ -52,7 +53,7 @@ internal static partial class Program
         grip.RaiseEvent(new DragStartedEventArgs(0,0)); grip.RaiseEvent(new DragDeltaEventArgs(-unit*3,240)); grip.RaiseEvent(new DragCompletedEventArgs(0,0,false)); Pump(TimeSpan.FromMilliseconds(80));
         Assert(!RectFor(notes).IntersectsWith(RectFor(clock)),"Drag after resize remains disjoint");
         grip.RaiseEvent(new DragStartedEventArgs(0,0)); grip.RaiseEvent(new DragDeltaEventArgs(unit*5,120)); grip.RaiseEvent(new DragCompletedEventArgs(0,0,false)); Pump(TimeSpan.FromMilliseconds(80));
-        Assert(!RectFor(notes).IntersectsWith(RectFor(clock)) && RectFor(clock)==neighbor,"Fast multi-cell drop keeps neighbors stationary and avoids overlap");
+        Assert(!RectFor(notes).IntersectsWith(RectFor(clock)),"Fast multi-cell drop reflows without overlap");
         var savedNotes=JsonSerializer.Serialize(notes); var savedWidgets=JsonSerializer.Serialize(window.state.Widgets); var session=window.state.Session;
         window.StoryButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Pump(TimeSpan.FromMilliseconds(150));
         Assert(window.swarmGame!=null && window.SwarmGameZone.Visibility==Visibility.Visible,"Pixel Swarm launches from banner into whole window");

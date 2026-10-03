@@ -17,6 +17,12 @@ internal static partial class Program
         Directory.CreateDirectory(output);
         try
         {
+            if(args.Contains("--polish107"))
+            {
+                var polishApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                polishApp.InitializeComponent(); CheckPolish107();
+                Console.WriteLine($"PASS: {passed} Nexa 1.0.7 checks. Artifacts: {output}"); polishApp.Shutdown(); return 0;
+            }
             if(args.Contains("--continuityaudit"))
             {
                 CheckContinuityModels();

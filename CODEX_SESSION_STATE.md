@@ -1,10 +1,25 @@
 # Nexa Codex Session State
 
 ## Current Goal
-Verify and repair Nexa 1.0.4–1.0.6 in small, safe phases, preserving user data and recording reproducible evidence.
+Build Nexa 1.0.7 — Lightweight UI & Interaction Polish with localized changes; preserve all existing data and retain the completed 1.0.4–1.0.6 audit history below.
 
 ## Current Phase
-Complete: all reasonable targeted code/automated verification finished. Final Release build passed; final scoped review/checkpoint being recorded. External/manual limitations are listed below.
+1.0.7 implementation, final Release build and targeted validation complete. Release documentation updated; this release commit includes only reviewed release files and preserves unrelated user files. Prior verification history below remains historical.
+
+## Nexa 1.0.7 Progress
+- Initial git inspection done. Baseline main: 3bfe985. Preserve existing CODEX_SESSION_STATE history edits, LEGACY.md, PUSH.txt and unrelated untracked files.
+- Current model cannot be switched by this agent; follow the requested Sol Light scope/credit constraints without claiming a model change.
+- Direct causes identified: Home rotates the whole Settings button; PixelGrid uses fixed height with full width; drag changes only a snapped preview and moves occupied drops below neighbors; saved absolute coordinates leave gaps.
+- All requested localized fixes implemented. No broad refactor, new dependency, schema migration, data reset or integration change. Physical mouse feel and mixed-DPI monitor testing remain manual checks.
+- Group 1 complete: project/manifest version 1.0.7; Home Settings button stays stationary while its centered vector gear turns; removed only header Focus Reset; shared-size centered Pixel Timer cells; Bible reader height follows available widget body height.
+- Group 1 build: dotnet build SessionDashboard.csproj --no-restore -p:OutputPath=bin/Polish107/ PASS, zero warnings/errors. Existing NuGet assets reused; isolated output avoids replacing the running older app.
+- Group 2 complete: freely translated captured card with original grab offset; no re-layout while held; reserve physical X/Y drop, reflow into earliest available grid slots, compact upward/sideways, save existing fields; 180ms native WPF settle animation. Micro hover cannot detach a captured grip. Wide right-column placement and narrower two/one columns verified.
+- Test-discovered repairs: round pixel size/spacing down once in device pixels to avoid per-child rounding overflow; arrange final slots before starting settle transforms; allow neighboring cards to shift sideways to fill avoidable holes above a low drop. Pickups during existing animation and canceled gestures preserve saved layout.
+- Final build: dotnet build SessionDashboard.csproj -c Release --no-restore -p:OutputPath=bin/Polish107/ PASS, zero warnings/errors. Release executable bin/Polish107/Nexa.exe. Existing older app was not overwritten or force-closed.
+- Validation: --polish107 67 PASS (test-output/20261003-004636); --tiling 23 (003929); --polish104 22 (004030); --swarm 37 (004050); --focus105 83 (004137); --bible 48 (004249). Six suites / 280 assertions, including repeated model checks. Simulated WPF drag input, synthetic stores only; full guide, real timer advancement and real thirty-second autosave tested. Expanded Bible and dashboard renders inspected. Release diagnostic startup PASS with 540 pixels/four presets/three Bible editions.
+- Files: HomeWindow.cs, MainWindow.Focus.cs (icon only), MainWindow.Widgets.cs, new MainWindow.WidgetPlacement.cs, MainWindow.xaml/.xaml.cs, SessionDashboard.csproj, app.manifest; new tests/Polish107Checks.cs, runner and relevant regression expectations; ReleaseNotes.cs, README.md, CHANGELOG.md, VALIDATION.md and this state file.
+- Git: branch main; release message `fix: polish Nexa 1.0.7 interactions and layout`. Review/stage only the listed files, no user stores, secrets, captures, logs or build output. Prior push authentication was unavailable in sandbox; unsandboxed external push was rejected by automatic approval review because exact destination/source upload required explicit approval. Do not bypass that rejection; no push is authorized through that blocked route.
+- Resume: local release implementation and validation are complete. Final commit identity/status is supplied in the completion report. Do not repeat the earlier audit; begin any future task with git status and preserve unrelated changes.
 
 ## Completed Work
 - Initial recovery inspection: no prior state file existed. Reviewed git status/diff summary before editing. Existing unrelated changes in LEGACY.md, PUSH.txt and untracked user files are preserved.
@@ -65,7 +80,9 @@ Complete: all reasonable targeted code/automated verification finished. Final Re
 
 ## Git Status
 - Branch: main. Baseline commit: 525e2a2c8062a633ad752e7623a256ff0c89530c.
-- Checkpoint 3bbfbca: current-version assertions and Phase 1–2 state committed. c6d194e: stable onboarding/integration verification fixes and regression tests. Final direct/continuity runner additions and state updates uncommitted. No push this session.
+- Checkpoint 3bbfbca: current-version assertions and Phase 1–2 state. c6d194e: stable onboarding/integration fixes and tests.
+- Final verification commit: 3bfe985479d4b5fc4b0cc09a4a25bd4b20f8b2e8. All production/test/documentation changes are committed. This temporary handoff file was updated after the commit to record its exact hash and is the only uncommitted audit-owned file. No push occurred.
+- Final staged diff/secret/generated-file review passed. No user stores, credentials, logs, binaries or captures committed. Existing unrelated dirty/untracked files remain unchanged.
 - Pre-existing dirty LEGACY.md/PUSH.txt and untracked files must not be staged.
 - Prior remote push rejected by automatic approval review; no authorization to bypass that rejection.
 

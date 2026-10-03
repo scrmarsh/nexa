@@ -8,6 +8,14 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
+        new("1.0.7", "October 3, 2026", "Nexa 1.0.7 — Lightweight UI & Interaction Polish",
+        [
+            "The centered Settings gear turns on hover while its button stays still.",
+            "Drag grips lift the actual card and follow the cursor freely. Releasing reserves the selected grid position, reflows occupied slots and compacts gaps with a short settle animation.",
+            "Wide dashboards support three columns, including intentional right-column drops; narrower canvases retain responsive two- and one-column layouts.",
+            "Pixel Timer cells stay square and centered; expanded Bible widgets give extra height to the passage.",
+            "Focus Reset remains in the widget catalog; its redundant top-header button is removed. Existing saved data and integrations are preserved."
+        ]),
         new("1.0.6","October 2, 2026","Nexa 1.0.6 — Onboarding & Integrations",
         [
             "Six short welcome screens help new users choose tools, theme, sounds and a ready-to-use first space. Existing users go straight to Home.",

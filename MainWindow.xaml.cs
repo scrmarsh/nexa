@@ -55,6 +55,8 @@ public partial class MainWindow
             pixels.Add(pixel);
             PixelGrid.Children.Add(pixel);
         }
+        PixelArea.SizeChanged += (_, _) => SizeTimerPixels();
+        DpiChanged += (_, _) => Dispatcher.BeginInvoke(new Action(SizeTimerPixels));
         NotesBox.Text = state.Notes;
         NotesToggle.IsChecked = state.ShowNotes;
         ChecklistToggle.IsChecked = state.ShowChecklist;
@@ -98,6 +100,17 @@ public partial class MainWindow
         Closed += (_, _) => { clock.Stop(); saveDelay.Stop(); boredomTicker.Stop(); autosave.Stop(); closing = true; StopLocalRecording(true); StopHedy(); };
     }
 
+    private void SizeTimerPixels()
+    {
+        if(PixelArea.ActualWidth<=0 || PixelArea.ActualHeight<=0) return;
+        var cell=Math.Min(PixelArea.ActualWidth/PixelGrid.Columns,PixelArea.ActualHeight/PixelGrid.Rows);
+        // Round down once in device pixels so WPF cannot round every child upward and overflow the banner.
+        var scale=VisualTreeHelper.GetDpi(PixelArea).DpiScaleX;
+        cell=Math.Max(1/scale,Math.Floor(cell*scale)/scale);
+        PixelGrid.Width=cell*PixelGrid.Columns; PixelGrid.Height=cell*PixelGrid.Rows;
+        var gap=Math.Floor(cell*.14*scale)/scale;
+        foreach(var pixel in pixels) { pixel.Width=pixel.Height=Math.Max(.1,cell-2*gap); pixel.Margin=new Thickness(gap); pixel.CornerRadius=new CornerRadius(Math.Min(2,cell*.2)); }
+    }
     private Brush Brush(string key) => (Brush)FindResource(key);
 
     private void UpdateDeveloperToolsVisibility()

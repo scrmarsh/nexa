@@ -1,3 +1,11 @@
+## Nexa 1.0.7 — Lightweight UI & Interaction Polish
+
+Drag a widget grip to lift the actual card and move it freely. On release, Nexa uses both drop coordinates, reserves the intended grid slot, reflows occupied cards, and fills gaps upward with a short settle animation. Wide canvases support three columns; narrower canvases wrap to two or one. Resize edges retain their grid preview and saved dimensions.
+
+The Settings gear rotates inside a stationary button. Pixel Timer cells use a shared square size, center in the banner and fit display scaling. The Bible passage grows with its widget height. Focus Reset remains available as a widget; the redundant header button is removed.
+
+Existing layouts are preserved until you move a widget. Drops save through the existing position fields; no format migration or data reset is needed. See [validation evidence and manual checks](VALIDATION.md).
+
 ## Nexa 1.0.6 — Onboarding & Integrations
 
 New installations start with six short welcome screens: welcome/name, use cases and session preferences, space type, a curated tool selection, theme and sounds, then a summary and **Create my space**. Back and skip are available. Existing installations with saved data or preferences continue to Home.
@@ -14,9 +22,9 @@ Nexa helps you stay present in class, study, church or meetings. The existing se
 
 New defaults are calm: Class has Notes and Clock; Study/Focus have Notes and Focus Reset; Church has Bible, Notes and Scripture Pins; Meeting has Notes and Agenda. All include the Pixel Timer. Existing Spaces retain their widgets and saved configuration, and the complete widget catalog remains available.
 
-Drag the grip to see a grid-aligned placement preview. Nearby cards stay still; occupied destinations place the moved card at the next free grid position below. Resize with any card edge or corner. Click the countdown to edit timing, the clock to toggle seconds, or a widget title to rename it. Secondary widget controls appear on hover or keyboard focus.
+Drag a grip to move a card directly; cards settle into a compact grid when released. Resize with any card edge or corner. Click the countdown to edit timing, the clock to toggle seconds, or a widget title to rename it. Secondary widget controls appear on hover or keyboard focus.
 
-**Focus Reset** is available in the top bar and widget catalog. It gently dims the dashboard, guides five slow breaths for 40 seconds, asks you to look away for five seconds, and shows remaining time and a local note/transcript reminder. Return at any point; no online service is used.
+**Focus Reset** is available in the widget catalog. It gently dims the dashboard, guides five slow breaths for 40 seconds, asks you to look away for five seconds, and shows remaining time and a local note/transcript reminder. Return at any point; no online service is used.
 
 Under **Settings → Appearance**, enable optional focus nudges or interface sounds and adjust volume. These preferences apply across Spaces and default to off. Nudges appear quietly on returning after three minutes away during Class, Study or Focus, with a ten-minute cooldown. Original soft chimes accompany task completion, adding widgets, completing Focus Reset and session completion.
 
@@ -24,7 +32,7 @@ Common controls use reusable vector icons. A Per-Monitor V2 manifest and WPF lay
 
 # Nexa
 
-Current release: **1.0.4** · Windows desktop · October 2, 2026
+Current release: **1.0.7** · Windows desktop · October 3, 2026
 
 **Nexa is a local desktop app for building flexible Spaces with sessions, movable widgets, notes, Scripture, flashcards, recordings and saved history.** Build a Space around the information you need, edit it directly, and continue your saved work later.
 

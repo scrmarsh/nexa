@@ -19,7 +19,10 @@ public partial class MainWindow
     private readonly Dictionary<Guid, List<(Thumb Handle, ResizeEdge Edge)>> widgetResizeHandles = [];
     private readonly List<Action<DateTimeOffset>> widgetTicks = [];
     private readonly HashSet<Guid> expandedMicroWidgets = [];
+    private readonly Dictionary<Guid, Action> collapseMicroWidgets = [];
     private Border? placementPreview;
+    private bool widgetGestureActive;
+    private bool widgetRenderDeferred;
     private const double MicroWidgetHeight = 46;
     private const double WidgetGap = 8;
     private Point? addWidgetLocation;
@@ -53,9 +56,10 @@ public partial class MainWindow
     internal void RenderWidgets()
     {
         if (!widgetsReady) return;
+        if (widgetGestureActive) { widgetRenderDeferred = true; return; }
         if (WidgetLibrary.PrepareLayout(state)) Changed();
         foreach (var panel in legacyPanels.Values) { Detach(panel); parkedPanels.Children.Add(panel); }
-        WidgetCanvas.Children.Clear(); widgetFrames.Clear(); widgetResizeHandles.Clear(); widgetTicks.Clear(); expandedMicroWidgets.Clear();
+        WidgetCanvas.Children.Clear(); widgetFrames.Clear(); widgetResizeHandles.Clear(); widgetTicks.Clear(); expandedMicroWidgets.Clear(); collapseMicroWidgets.Clear();
         EditToolbar.Visibility = editingDashboard ? Visibility.Visible : Visibility.Collapsed;
         PixelBannerHost.Content = null;
         var primaryPixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
@@ -112,18 +116,21 @@ public partial class MainWindow
                 frame.Child = microView;
                 frame.MouseEnter += (_, _) =>
                 {
+                    if (widgetGestureActive) return;
                     if (!expandedMicroWidgets.Add(widget.Id)) return;
                     frame.Child = layout;
                     ArrangeWidgetFrames();
                     Panel.SetZIndex(frame, 1000);
                 };
-                frame.MouseLeave += (_, _) =>
+                void CollapseMicroWidget()
                 {
                     if (!expandedMicroWidgets.Remove(widget.Id)) return;
                     frame.Child = microView;
                     ArrangeWidgetFrames();
                     Panel.SetZIndex(frame, 0);
-                };
+                }
+                collapseMicroWidgets[widget.Id] = CollapseMicroWidget;
+                frame.MouseLeave += (_, _) => { if (!widgetGestureActive) CollapseMicroWidget(); };
             }
             if (!widget.IsMicro)
             {
@@ -197,8 +204,8 @@ public partial class MainWindow
     private void WidgetCanvasSizeChanged(object sender, SizeChangedEventArgs e) { if (widgetsReady && e.WidthChanged) ArrangeWidgetFrames(); }
     private void ArrangeWidgetFrames()
     {
-        // Keep the coordinate system and captured Thumb stationary during a drag.
-        if (placementPreview != null) return;
+        // Layout must not fight a freely moving card or rebuild its captured grip.
+        if (widgetGestureActive) return;
         if (WidgetScroller.ActualHeight <= 0 || WidgetCanvas.ActualWidth <= 0) return;
         var viewportHeight = Math.Max(1, (WidgetScroller.ViewportHeight > 0 ? WidgetScroller.ViewportHeight : WidgetScroller.ActualHeight) - (PixelBannerHost.Visibility == Visibility.Visible ? PixelBannerHost.ActualHeight + PixelBannerHost.Margin.Top + PixelBannerHost.Margin.Bottom : 0));
         if (editingDashboard)
@@ -252,7 +259,11 @@ public partial class MainWindow
                 if (!widgetFrames.TryGetValue(widget.Id, out var frame)) continue;
                 Canvas.SetTop(frame, top); frame.Height = widgetHeights[widget.Id];
                 if (frame.Child is StackPanel stack && stack.Children.OfType<ScrollViewer>().FirstOrDefault() is { } body)
+                {
                     body.Height = Math.Max(0, frame.Height - stack.Children.OfType<FrameworkElement>().Where(c => c != body).Sum(c => c.DesiredSize.Height) - 2);
+                    if(widget.Kind=="Bible" && body.Content is StackPanel biblePanel && biblePanel.Children.OfType<BibleReader>().FirstOrDefault() is {} reader)
+                        reader.Height=Math.Max(1,body.Height-biblePanel.Margin.Top-biblePanel.Margin.Bottom);
+                }
             }
             if (rows[index].Any(w => w.PlacementX == null)) top += height + (index < rows.Count - 1 ? WidgetGap : 0);
         }
@@ -303,19 +314,43 @@ public partial class MainWindow
     {
         Point anchor = new(); Rect origin = new(); double unit = 1, dx = 0, dy = 0;
         int span = 1, height = 288; double left = 0, top = 0;
+        bool physicalInput = false;
+        System.Windows.Media.Effects.Effect? originalEffect = null;
         thumb.DragStarted += (_, _) =>
         {
-            var frame = widgetFrames[widget.Id]; origin = FrameRect(frame); unit = GridUnit;
+            var frame = widgetFrames[widget.Id];
+            var visualPosition = frame.TranslatePoint(new Point(), WidgetCanvas);
+            frame.RenderTransform = Transform.Identity;
+            origin = FrameRect(frame); origin.Location = visualPosition; unit = GridUnit;
             anchor = Mouse.GetPosition(WidgetCanvas); dx = dy = 0; span = DisplaySpan(widget); height = (int)origin.Height; left = origin.Left; top = origin.Top;
-            placementPreview = new Border { Background = new SolidColorBrush(Color.FromArgb(30,139,159,255)), BorderBrush = DashboardBrush("AccentBrush"), BorderThickness = new Thickness(2), CornerRadius = new CornerRadius(12), IsHitTestVisible = false };
-            WidgetCanvas.Children.Add(placementPreview); Panel.SetZIndex(placementPreview, 2000);
-            Canvas.SetLeft(placementPreview, left); Canvas.SetTop(placementPreview, top); placementPreview.Width = origin.Width; placementPreview.Height = origin.Height;
+            physicalInput = thumb.IsMouseCaptured; widgetGestureActive = true;
+            if (resize)
+            {
+                placementPreview = new Border { Background = new SolidColorBrush(Color.FromArgb(30,139,159,255)), BorderBrush = DashboardBrush("AccentBrush"), BorderThickness = new Thickness(2), CornerRadius = new CornerRadius(12), IsHitTestVisible = false };
+                WidgetCanvas.Children.Add(placementPreview); Panel.SetZIndex(placementPreview, 2000);
+                Canvas.SetLeft(placementPreview, left); Canvas.SetTop(placementPreview, top); placementPreview.Width = origin.Width; placementPreview.Height = origin.Height;
+            }
+            else
+            {
+                frame.RenderTransform = new TranslateTransform(origin.X - Canvas.GetLeft(frame), origin.Y - Canvas.GetTop(frame));
+                originalEffect = frame.Effect;
+                frame.Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 16, ShadowDepth = 3, Opacity = .24 };
+                Panel.SetZIndex(frame, 2500);
+                if (widgetResizeHandles.TryGetValue(widget.Id, out var handles)) foreach (var (handle, _) in handles) handle.IsHitTestVisible = false;
+            }
         };
         thumb.DragDelta += (_, e) =>
         {
-            if (placementPreview == null) return;
-            if (thumb.IsMouseCaptured) { var pointer = Mouse.GetPosition(WidgetCanvas); dx = pointer.X - anchor.X; dy = pointer.Y - anchor.Y; }
+            if (!widgetGestureActive) return;
+            if (physicalInput) { var pointer = Mouse.GetPosition(WidgetCanvas); dx = pointer.X - anchor.X; dy = pointer.Y - anchor.Y; }
             else { dx = e.HorizontalChange; dy = e.VerticalChange; } // Routed input used by validation.
+            if (!resize)
+            {
+                var frame = widgetFrames[widget.Id];
+                // Absolute canvas coordinates preserve the grab offset even inside a scrolled viewport.
+                frame.RenderTransform = new TranslateTransform(origin.X + dx - Canvas.GetLeft(frame), origin.Y + dy - Canvas.GetTop(frame));
+                return;
+            }
             var minSpan = MinimumWidthSteps(widget); var startSpan = Math.Clamp((int)Math.Round((origin.Width + WidgetGap) / unit), minSpan, 20);
             if (resize)
             {
@@ -328,22 +363,36 @@ public partial class MainWindow
                 if (edge.HasFlag(ResizeEdge.Top)) { top = Math.Clamp(Math.Round((origin.Top+dy)/RowUnit)*RowUnit, Math.Max(0,origin.Bottom-1440), Math.Max(0,origin.Bottom-minimum)); height = (int)Math.Ceiling((origin.Bottom-top)/RowUnit)*24; }
                 else if (edge.HasFlag(ResizeEdge.Bottom)) height = Math.Clamp((int)Math.Round((origin.Height+dy)/RowUnit)*24,minimum,1440);
             }
-            else { left = Math.Clamp(Math.Round((origin.Left+dx)/unit)*unit,0,Math.Max(0,WidgetCanvas.ActualWidth-origin.Width)); top = Math.Max(0,Math.Round((origin.Top+dy)/RowUnit)*RowUnit); }
             var width = resize ? Math.Max(1, span*unit-WidgetGap) : origin.Width;
             var candidate = FreeWidgetPlacement(widget, left, top, width, height);
-            Canvas.SetLeft(placementPreview,candidate.X); Canvas.SetTop(placementPreview,candidate.Y); placementPreview.Width=width; placementPreview.Height=height;
-            // The captured grip stays stationary; the preview alone changes during input.
+            Canvas.SetLeft(placementPreview!,candidate.X); Canvas.SetTop(placementPreview!,candidate.Y); placementPreview!.Width=width; placementPreview.Height=height;
         };
         thumb.DragCompleted += (_, e) =>
         {
-            if (placementPreview == null) return;
-            WidgetCanvas.Children.Remove(placementPreview); placementPreview = null;
+            if (!widgetGestureActive) return;
+            if (physicalInput && !e.Canceled) { var pointer = Mouse.GetPosition(WidgetCanvas); dx = pointer.X - anchor.X; dy = pointer.Y - anchor.Y; }
+            var before = WidgetVisualPositions();
+            var frame = widgetFrames[widget.Id]; frame.RenderTransform = Transform.Identity;
+            if (placementPreview != null) { WidgetCanvas.Children.Remove(placementPreview); placementPreview = null; }
+            if (!resize)
+            {
+                frame.Effect = originalEffect; Panel.SetZIndex(frame, 0);
+                if (widgetResizeHandles.TryGetValue(widget.Id, out var handles)) foreach (var (handle, _) in handles) handle.IsHitTestVisible = true;
+            }
+            widgetGestureActive = false;
+            if (widget.IsMicro && !frame.IsMouseOver && collapseMicroWidgets.TryGetValue(widget.Id, out var collapse)) collapse();
             if (!e.Canceled && (Math.Abs(dx)>3 || Math.Abs(dy)>3))
             {
-                if (resize) { widget.Span=span; widget.Height=Math.Clamp(height,(int)MinimumWidgetHeight(widget),1440); widget.CustomSize=true; }
-                CommitWidgetPlacement(widget,left,top,resize ? span*unit-WidgetGap : origin.Width,resize ? widget.Height : origin.Height);
+                if (resize)
+                {
+                    widget.Span=span; widget.Height=Math.Clamp(height,(int)MinimumWidgetHeight(widget),1440); widget.CustomSize=true;
+                    CommitWidgetPlacement(widget,left,top,span*unit-WidgetGap,widget.Height);
+                }
+                else CommitWidgetDrop(widget, origin.X + dx, origin.Y + dy);
             }
-            ArrangeWidgetFrames();
+            if (widgetRenderDeferred) { widgetRenderDeferred = false; RenderWidgets(); } else ArrangeWidgetFrames();
+            WidgetCanvas.UpdateLayout();
+            AnimateWidgetSettle(before);
         };
     }
     private static Rect FrameRect(Border frame) => new(Canvas.GetLeft(frame), Canvas.GetTop(frame), frame.Width, frame.Height);

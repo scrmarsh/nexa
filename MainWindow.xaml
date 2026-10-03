@@ -17,7 +17,7 @@
                 </StackPanel>
                 <StackPanel x:Name="TopNavigation" Grid.Column="1" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Button Content="Home" Click="HomeClick" Padding="14,5" Margin="0,0,8,0"/>
-                    <Button Content="Focus Reset" Click="FocusResetClick" Padding="12,5" Margin="0,0,8,0"/><Button x:Name="SessionSettingsButton" Content="Session" Click="DashboardSettingsClick" Style="{StaticResource PrimaryButton}" Padding="14,5"/>
+                    <Button x:Name="SessionSettingsButton" Content="Session" Click="DashboardSettingsClick" Style="{StaticResource PrimaryButton}" Padding="14,5"/>
                     <Button x:Name="DeveloperSplashButton" Content="Preview Splash" MinWidth="132" Padding="12,6" Click="DeveloperSplashClick" Visibility="Collapsed"/>
                     <Button x:Name="DeveloperResetButton" Content="Reset dev" Click="DeveloperResetClick" Visibility="Collapsed"/>
                 </StackPanel>
@@ -75,7 +75,7 @@
                             <DockPanel Margin="0,0,0,8"><TextBlock Text="EVERY PIXEL IS PROGRESS" Style="{StaticResource Eyebrow}"/><TextBlock x:Name="PercentLabel" Text="0.0%" HorizontalAlignment="Right" Foreground="{DynamicResource PixelBrush}" FontWeight="Bold"/></DockPanel>
                             <TextBlock x:Name="MilestoneLabel" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold" Margin="0,0,0,8" Visibility="Collapsed" TextWrapping="Wrap"/>
                             <Grid>
-                                <Grid x:Name="PixelArea"><UniformGrid x:Name="PixelGrid" Columns="36" Rows="15" Height="108"/></Grid>
+                                <Grid x:Name="PixelArea" Height="108"><UniformGrid x:Name="PixelGrid" Columns="36" Rows="15" HorizontalAlignment="Center" VerticalAlignment="Center"/></Grid>
                                 <Grid x:Name="StoryArea" Visibility="Collapsed" MinHeight="108"/>
                                 <Border x:Name="CompletionBanner" Visibility="Collapsed" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="10" Padding="22" VerticalAlignment="Center" Margin="12">
                                     <StackPanel><TextBlock Text="Session over" FontSize="30" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center"/><TextBlock Text="You made it. Take a moment for yourself." Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center" Margin="0,6"/><Button Content="Dismiss banner" Click="DismissCompletionClick" HorizontalAlignment="Center" Margin="0,8,0,0"/></StackPanel>

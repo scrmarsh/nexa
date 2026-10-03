@@ -26,7 +26,7 @@ internal static partial class Program
         move.RaiseEvent(new DragStartedEventArgs(0,0)); move.RaiseEvent(new DragDeltaEventArgs(140,96));
         Assert(Rectangle(clock)==clockRect,"Neighbors stay stationary during drag preview");
         move.RaiseEvent(new DragCompletedEventArgs(0,0,false)); Pump(TimeSpan.FromMilliseconds(80));
-        Assert(Rectangle(clock)==clockRect,"Neighbors remain stationary after dropping"); CheckLayout("Moved");
+        Assert(!Rectangle(clock).IntersectsWith(Rectangle(notes)),"Drop reflows neighbors without overlap"); CheckLayout("Moved");
         var saved=Rectangle(notes); move.RaiseEvent(new DragStartedEventArgs(0,0)); move.RaiseEvent(new DragDeltaEventArgs(300,300)); move.RaiseEvent(new DragCompletedEventArgs(0,0,true));
         Assert(Rectangle(notes)==saved,"Canceled gesture does not change layout");
         var resize=window.WidgetCanvas.Children.OfType<Thumb>().Single(t=>System.Windows.Automation.AutomationProperties.GetName(t)=="Resize "+notes.Title);

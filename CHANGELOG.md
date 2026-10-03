@@ -1,3 +1,14 @@
+## Nexa 1.0.7 — Lightweight UI & Interaction Polish (2026-10-03)
+
+- Stationary Settings button with a recognizable centered vector gear that alone rotates on hover.
+- Physical widget pickup: the actual card follows the pointer with its grab offset and floats above its neighbors; layout changes wait until release.
+- Intentional X/Y grid drops reserve the chosen column and row, reflow occupied slots, compact upward and save the final positions. Wide three-column layouts remain reachable; narrower canvases wrap responsively.
+- Short native WPF settle animations for the moved and affected cards, including safe cancellation and pickup during a previous animation.
+- Square, centered Pixel Timer cells with one device-pixel-aligned size and proportional spacing; no timing-state change.
+- Remove only the top Focus Reset button; its widget, library entry and local guide remain.
+- Expanded Bible widgets allocate additional height to the passage while preserving normal controls and scrolling.
+- No schema migration, user-data reset, integration changes or new dependencies.
+
 ## Nexa 1.0.6 — Onboarding & Integrations (2026-10-02)
 
 - Six-step welcome flow with optional name, multiple use cases, timed-session and focus preferences, simple space choices, curated tools, visual theme choices, opt-in sound preview and a ready-to-use first space.
