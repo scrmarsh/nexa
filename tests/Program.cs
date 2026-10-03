@@ -17,6 +17,11 @@ internal static partial class Program
         Directory.CreateDirectory(output);
         try
         {
+            if(args.Contains("--audit106"))
+            {
+                var auditApp=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true }; auditApp.InitializeComponent(); CheckAudit106();
+                Console.WriteLine($"PASS: {passed} targeted verification checks. Artifacts: {output}"); auditApp.Shutdown(); return 0;
+            }
             if(args.Contains("--onboarding106"))
             {
                 var app106=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true }; app106.InitializeComponent(); CheckOnboarding106();

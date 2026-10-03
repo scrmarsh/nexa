@@ -1,3 +1,11 @@
+## Nexa 1.0.4–1.0.6 verification pass
+
+- Phase 1: **21 polish checks passed** (`--polish104`, `test-output/20261002-231840`). Corrected obsolete version assertions to match 1.0.6. Splash capture inspected; Timer/Stopwatch transitions, layout/autosave/reopen, developer-space preservation/access and picker scrolling/adding exercised.
+- Phase 2: **83 Focus First checks** (`test-output/20261002-231938`) and **23 layout checks** (`test-output/20261002-232018`) passed, including the full breath sequence, local recap, shared Swarm/session time, neighbors, saved placement and nudge/sound behavior.
+- Phase 3–4: baseline **74 onboarding/integration checks** pass after repairs (`test-output/20261002-233232`). New **23 targeted verification checks** pass (`--audit106`, `test-output/20261002-233139`): wizard Back/Skip/tool selection, editable Profile persistence, task date views, cache invalidation, in-flight account replacement/disconnect, new-account lists, rejected old-account mutations, malformed responses/configuration and Calendar current/next countdown.
+- Repairs are confined to integration lifecycle/input handling and regression tests. No user stores or schema changes. DPAPI tests use synthetic credentials under the loaded Windows profile; HTTP is mocked. Live OAuth/accounts, physical mouse/audio quality and actual mixed-DPI monitor movement remain **Unable to Verify**.
+- Release build into `bin/Audit/` passed with zero warnings/errors. Ongoing phase status and exact resume instructions are recorded in `CODEX_SESSION_STATE.md`.
+
 ## Nexa 1.0.6 — Onboarding & Integrations
 
 - Debug application/checks build and Release build passed with zero warnings or errors. Release output is `bin/Release106/Nexa.exe`, leaving the running 1.0.5 executable in place.

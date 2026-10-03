@@ -16,12 +16,14 @@ internal static partial class Program
         internal Func<HttpRequestMessage,string> Reply = _=>"{}";
         internal HttpStatusCode Status=HttpStatusCode.OK;
         internal bool Offline;
+        internal Func<HttpRequestMessage,CancellationToken,Task<string>>? AsyncReply;
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken cancellationToken)
         {
             if(Offline) throw new HttpRequestException("test offline");
             var body=request.Content==null?"":await request.Content.ReadAsStringAsync(cancellationToken);
             Requests.Add((request.Method.Method,request.RequestUri!.PathAndQuery,body));
-            return new HttpResponseMessage(Status) { Content=new StringContent(Reply(request),Encoding.UTF8,"application/json") };
+            var reply=AsyncReply==null?Reply(request):await AsyncReply(request,cancellationToken);
+            return new HttpResponseMessage(Status) { Content=new StringContent(reply,Encoding.UTF8,"application/json") };
         }
     }
     private static void CheckOnboarding106()

@@ -33,6 +33,7 @@ Google sign-in uses authorization code + PKCE, a random state value, and a tempo
 - Task and calendar responses remain in memory only. Nexa does not persist personal integration caches. Widget configuration stores only the chosen list/calendar identifier and view; configuration exports may therefore contain that identifier, never credentials.
 - No credentials or provider response bodies are written to logs. Failed authentication requests a reconnect. Offline and timeout states provide Refresh without blocking the dashboard. Failed writes are not automatically retried; refresh to check the provider before repeating an add operation.
 - Disconnect deletes the local encrypted authorization and clears the open widget through a re-render. It does not delete external tasks/events or revoke the provider's server-side permission. Revoke that separately in your Google/Todoist account if desired.
+- Failed refreshes clear in-memory task/event/list data. Changing a task filter cannot restore stale data. Requests bind to a connection identity; delayed results and old task actions are rejected when the account changes. Leaving a widget cancels its pending requests.
 - Keep downloaded OAuth client configuration and personal tokens out of source control. New credential/profile files are ignored by Git as an additional precaution.
 
 Automated validation uses synthetic credentials and mocked HTTP responses. No real Todoist or Google account was connected during release validation.

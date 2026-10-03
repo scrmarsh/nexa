@@ -17,7 +17,7 @@ internal static class GoogleAuthorization
     internal static void ImportConfiguration(IntegrationVault vault,string path)
     {
         using var doc=JsonDocument.Parse(File.ReadAllText(path));
-        if(!doc.RootElement.TryGetProperty("installed",out var installed)) throw new IntegrationException("Choose a Google desktop app credentials file, not a web application file.");
+        if(doc.RootElement.ValueKind!=JsonValueKind.Object || !doc.RootElement.TryGetProperty("installed",out var installed) || installed.ValueKind!=JsonValueKind.Object) throw new IntegrationException("Choose a Google desktop app credentials file, not a web application file.");
         var id=IntegrationClient.Text(installed,"client_id");
         if(!id.EndsWith(".apps.googleusercontent.com",StringComparison.Ordinal) || id.Length>300) throw new IntegrationException("Invalid Google desktop client configuration.");
         vault.Write("Google app",new IntegrationCredential { ClientId=id,ClientSecret=IntegrationClient.Text(installed,"client_secret") });
@@ -62,7 +62,8 @@ internal static class GoogleAuthorization
             if(!result.IsSuccessStatusCode) throw new IntegrationException("Google could not authorize Nexa. Check your desktop app configuration and try again.");
             using var document=JsonDocument.Parse(await result.Content.ReadAsStringAsync(token)); var root=document.RootElement;
             var access=IntegrationClient.Text(root,"access_token"); if(access.Length==0) throw new IntegrationException("Google returned no authorization.");
-            if(!root.TryGetProperty("expires_in",out var expiry) || !expiry.TryGetInt32(out var seconds) || seconds<=0) throw new IntegrationException("Google returned incomplete authorization. Try connecting again.");
+            if(root.ValueKind!=JsonValueKind.Object || !root.TryGetProperty("expires_in",out var expiry) || expiry.ValueKind!=JsonValueKind.Number || !expiry.TryGetInt32(out var seconds) || seconds<=0) throw new IntegrationException("Google returned incomplete authorization. Try connecting again.");
+            token.ThrowIfCancellationRequested();
             vault.Write(service,new IntegrationCredential { ClientId=app.ClientId,ClientSecret=app.ClientSecret,AccessToken=access,RefreshToken=IntegrationClient.Text(root,"refresh_token"),ExpiresAt=DateTimeOffset.UtcNow.AddSeconds(seconds) });
         }
         catch(HttpRequestException) { throw new IntegrationException("Offline. Connect when an internet connection is available."); }
