@@ -12,11 +12,12 @@
     <Title>Nexa</Title>
     <Description>Your workspace, your way.</Description>
     <ApplicationIcon>assets\nexa-icon.ico</ApplicationIcon>
-    <Version>0.1.10</Version><ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>0.1.11</Version><ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="tests\**\*.cs" />
+    <Compile Remove="obj\**\*.cs" />
     <EmbeddedResource Include="assets\Bible\*.json.gz" LogicalName="SessionDashboard.Bible.%(Filename)%(Extension)" />
     <Resource Include="assets\nexa-icon.ico" />
     <Resource Include="assets\nexa-icon-256.png" />

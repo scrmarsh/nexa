@@ -24,11 +24,4 @@ internal sealed partial class SettingsDialog
         escalation.Click+=(_,_)=> QueueSave("escalation", () => { state.DistractionEscalationEnabled=escalation.IsChecked==true; SaveInteractionOptions(); space?.UpdateClock(); });
         return new ScrollViewer { Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto };
     }
-    private UIElement BuildSoundTests()
-    {
-        var page=Page("Developer","Test the existing Nexa completion chime without changing dashboard content.");
-        page.Children.Add(new TextBlock { Text="Task completion, widget added, Focus Reset and session completion share this built-in soft chime. Master sounds and volume still apply.",TextWrapping=TextWrapping.Wrap });
-        var test=new Button { Content="Play completion chime",Margin=new Thickness(0,18,0,0) };
-        test.Click+=(_,_)=>space?.PlayInterfaceSound(); page.Children.Add(test); return page;
-    }
 }

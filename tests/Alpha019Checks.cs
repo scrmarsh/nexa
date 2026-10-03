@@ -19,9 +19,9 @@ internal static partial class Program
         SettingsDialog Open(MainWindow w, string section) { w.OpenMainSettings(section); Pump(TimeSpan.FromMilliseconds(70)); return w.OwnedWindows.OfType<SettingsDialog>().Single(); }
         TextBox Name(SettingsDialog s) => Descendants(s).OfType<TextBox>().Single(t => t.Name == "SessionName");
         void Click(CheckBox b, bool value) { b.IsChecked = value; b.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent)); }
-        Assert(App.AppVersion == "0.1.10" && App.VersionLabel == "Nexa 0.1.10 Alpha", "Current version and shared Alpha label");
+        Assert(App.AppVersion == "0.1.11" && App.VersionLabel == "Nexa 0.1.11 Alpha", "Current version and shared Alpha label");
         Assert(App.ReleaseLabel("0.1.10") == "Nexa 0.1.10 Alpha", "Two-digit future Alpha patches keep their full version");
-        Assert(ReleaseNotes.All.Select(r => r.Version).SequenceEqual(Enumerable.Range(1, 10).Reverse().Select(n => "0.1." + n)), "History includes all ten ordered Alpha releases");
+        Assert(ReleaseNotes.All.Select(r => r.Version).SequenceEqual(Enumerable.Range(1, 11).Reverse().Select(n => "0.1." + n)), "History includes all eleven ordered Alpha releases");
         Assert(ReleaseNotes.All.All(r => !string.IsNullOrWhiteSpace(r.Title) && !string.IsNullOrWhiteSpace(r.Summary)), "Every release has a title and description");
         Assert(ReleaseNotes.All.Last().Title == "Bug Fixes" && ReleaseNotes.All.Last().Summary == "General bug fixes and stability improvements during early Alpha development.", "Restored early release uses only the documented description");
         var store = new StateStore(Path.Combine(output, "alpha019.json"));
@@ -117,16 +117,18 @@ internal static partial class Program
         settings.CloseWithFade();
         for (var wait = 0; settings.IsVisible && wait < 20; wait++) Pump(TimeSpan.FromMilliseconds(100));
         Assert(closeAttempts == 2 && !settings.IsVisible && store.Load().Session!.Title == "Retry this edit", "Retrying the same animated close saves edits after filesystem recovery");
-        var stoppedAt = DateTimeOffset.Now; reopened.state.Session!.StoppedAt = stoppedAt; reopened.SaveNow(); settings = Open(reopened, "Session"); Name(settings).Text = "Stopped renamed"; settings.Close();
-        Assert(reopened.state.Session.StoppedAt == stoppedAt && store.Load().Session!.StoppedAt == stoppedAt, "Settings never restarts a stopped session when renaming it");
+        var stoppedAt = DateTimeOffset.Now; reopened.state.Session!.StoppedAt = stoppedAt; reopened.SaveNow(); settings = Open(reopened, "Session");
+        Assert(!Descendants(settings).OfType<TextBox>().Any(t => t.Name == "SessionName") && Descendants(settings).OfType<TextBlock>().Any(t => t.Text == "No active session"), "Stopped session shows an empty state without stale edit controls"); settings.Close();
+        Assert(reopened.state.Session.StoppedAt == stoppedAt && store.Load().Session!.StoppedAt == stoppedAt, "Settings never restarts a stopped session");
         reopened.Close();
         home = new HomeWindow(store); home.Show(); Pump(TimeSpan.FromMilliseconds(50));
         // Simulate a local history update while Home is open; Settings must use current saved data.
         var historyUpdate = store.Load(); Continuity.Current(historyUpdate.Workspace!, store.UserId).History[0].Data.Notes = "Updated historical notes"; store.Save(historyUpdate);
-        Call(home, "OpenSettings", "Session"); hs = home.OwnedWindows.OfType<SettingsDialog>().Single(); Name(hs).Text = "Home navigation pending";
+        Call(home, "OpenSettings", "Appearance"); hs = home.OwnedWindows.OfType<SettingsDialog>().Single();
+        var soundSetting = Descendants(hs).OfType<CheckBox>().Single(b => Equals(b.Content, "Interface sounds")); var soundChoice = soundSetting.IsChecked != true; Click(soundSetting, soundChoice);
         home.OpenDashboard(second.DashboardId); var resumed = (MainWindow)Application.Current.MainWindow; Pump(TimeSpan.FromMilliseconds(350));
         var savedAfterNav = store.Load(); var firstAfterNav = savedAfterNav.Workspace!.Dashboards.Single(d => d.DashboardId == dashboard.DashboardId);
-        Assert(savedAfterNav.Workspace.ActiveDashboardId == second.DashboardId && resumed.state.Workspace!.ActiveDashboardId == second.DashboardId && firstAfterNav.Current.Data.Session!.Title == "Home navigation pending", "Home navigation flushes outgoing Settings before loading a different Space");
+        Assert(savedAfterNav.Workspace.ActiveDashboardId == second.DashboardId && resumed.state.Workspace!.ActiveDashboardId == second.DashboardId && resumed.state.InterfaceSoundsEnabled == soundChoice && firstAfterNav.Current.Data.Session!.Title == "Retry this edit", "Home navigation flushes outgoing Settings before loading a different Space");
         Assert(firstAfterNav.History[0].Data.Notes == "Updated historical notes" && firstAfterNav.Current.Data.Session!.StoppedAt == stoppedAt, "Home Settings refreshes current saved state and cannot overwrite newer history");
         resumed.Close();
     }

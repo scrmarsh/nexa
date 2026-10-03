@@ -4,7 +4,7 @@ using System.Windows.Media;
 
 namespace SessionDashboard;
 
-internal sealed class DashboardCreation : NexaDialog
+internal sealed class DashboardCreation : NexaPanel
 {
     internal DashboardRecord? Result { get; private set; }
     internal readonly TextBox NameInput = new() { Text = "My Space", MaxLength = 100 };
@@ -16,11 +16,11 @@ internal sealed class DashboardCreation : NexaDialog
     private DashboardTemplate selectedTemplate;
     private readonly Dictionary<string, CheckBox> widgetChecks = new();
     private readonly WrapPanel templateGrid = new();
-    public DashboardCreation(Window owner, string userId, UserProfile? profile = null) : base()
+    public DashboardCreation(Window owner, string userId, UserProfile? profile = null)
     {
         Owner = owner; Title = "Nexa · Create Space"; Width = 820; Height = 760; MinHeight = 560; MinWidth = 620; WindowStartupLocation = WindowStartupLocation.CenterOwner;
         var custom = new DashboardTemplate("New Space", "Start from a blank canvas and pick what you want.", "#69ACFF", []);
-        options = [custom, .. DashboardTemplates.All];
+        options = [custom, .. DashboardTemplates.All.Where(t => t.Name != "Argo Pantry")];
         selectedTemplate = custom;
 
         var panel = new StackPanel { Margin = new Thickness(28) };
@@ -111,6 +111,8 @@ internal sealed class DashboardCreation : NexaDialog
         }
         Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
     }
+
+    internal void Back() => CloseWithFade(false);
 
     private void SelectTemplate(DashboardTemplate template, Button? button)
     {

@@ -2,6 +2,18 @@
 
 Development releases formerly numbered 1.0.1–1.0.8 are listed here as 0.1.1–0.1.8 Alpha. Alpha continues with 0.1.10, 0.1.11 and later patches; 0.2.x is reserved for an intentional Beta, and the eventual first stable release is 1.0.0. Original Git history and tags are unchanged.
 
+## Nexa 0.1.11 Alpha — Bug Fixes, UI Refinements & Pixel Timer Performance (2026-10-03)
+
+Keeps the Pixel Timer responsive during window changes and makes everyday Space, Settings and History interactions more predictable without changing saved data formats.
+
+- Pixel Timer cells retain a fixed, device-aligned square size and even spacing. Resize updates are debounced, unchanged grids are left intact, and pixel visuals are reused. The session countdown remains tied to the existing timestamps.
+- Fullscreen uses a gentle content transition and returns to the previous normal bounds or maximized state. Internal Space/Developer actions preserve the current window size and state.
+- Widget dragging shows a blue landing preview; row insertion supports three cards when minimum widths permit. Drops keep unrelated cards in place, while resized cards can still land at the left edge. Existing placement fields continue to save and reload.
+- Home Recent Spaces displays four cards per vertical column, expanding horizontally with a small chevron. Settings has clearer primary/Experimental navigation, a live empty Session state, and its autosave status in the fixed footer.
+- Developer Spaces expose Play Sound beside Preview Splash. Home and dashboard History add a themed, cancel-safe red Clear History action that preserves Spaces and current content.
+- Create Space uses the shared internal panel, scrollable content and fixed Back/Close footer; Argo Pantry is omitted from new choices without deleting old Spaces. The top-bar wordmark is lowercase, and caption controls are lighter.
+- No schema migration, account/integration change, data reset, widget-library consolidation or Pixel Swarm redesign.
+
 ## Nexa 0.1.10 Alpha — Interface & Navigation Cleanup (2026-10-03)
 
 Makes Nexa's internal panels, Home and dashboard navigation cleaner and more consistent while preserving active sessions and saved data.

@@ -1,3 +1,13 @@
+## Nexa 0.1.11 Alpha — Bug Fixes, UI Refinements & Pixel Timer Performance
+
+The Pixel Timer now keeps even, fixed-size device-aligned pixels while resizing, maximizing and entering fullscreen. Nexa reuses pixel visuals and leaves the running session timestamps alone. Fullscreen returns to the prior window size or maximized state.
+
+Drag a widget to see its landing position before release. A row can hold three cards when their minimum widths fit; unaffected cards stay where they are. Recent Spaces shows four cards in a vertical column and expands to more horizontal columns with the chevron. Settings keeps its autosave status in the footer and updates the Session page when a timer ends.
+
+History now offers a red **Clear History** action with a confirmation panel. It clears archived sessions across Spaces only after confirmation and keeps the Spaces and current content. Create Space has a fixed Back/Close footer, and Developer Spaces put **Play Sound** beside **Preview Splash**. Existing Spaces and saved layouts need no migration.
+
+Targeted checks: `dotnet run --project tests/SessionDashboard.Checks.csproj -- --alpha011`. See [validation](VALIDATION.md) for what was tested and hardware limits.
+
 ## Nexa 0.1.10 Alpha — Interface & Navigation Cleanup
 
 Settings, Add Widgets, History, Changelog and About feel like internal panels with a persistent bottom-left **Close** button. **Esc** closes the topmost panel or its open dropdown. Click outside to dismiss a panel; that click is consumed so the widget catalog does not reopen or begin a dashboard gesture. Settings still autosaves before dismissal.
@@ -57,7 +67,7 @@ Common controls use reusable vector icons. A Per-Monitor V2 manifest and WPF lay
 
 # Nexa
 
-Current release: **Nexa 0.1.10 Alpha** · Windows desktop · October 3, 2026
+Current release: **Nexa 0.1.11 Alpha** · Windows desktop · October 3, 2026
 
 **Nexa is a local desktop app for building flexible Spaces with sessions, movable widgets, notes, Scripture, flashcards, recordings and saved history.** Build a Space around the information you need, edit it directly, and continue your saved work later.
 
@@ -137,10 +147,10 @@ The small **DEV** control on Home opens a Space with all available widgets and a
 
 ## Launch and build
 
-A standard Release build writes `bin\Release\net10.0-windows\Nexa.exe`. The isolated Nexa 0.1.10 Alpha build is in `bin\Alpha010\Nexa.exe`, keeping any running older release undisturbed. Launch it from the project directory:
+A standard Release build writes `bin\Release\net10.0-windows\Nexa.exe`. The isolated Nexa 0.1.11 Alpha build is in `bin\Alpha011\Nexa.exe`, keeping any running older release undisturbed. Launch it from the project directory:
 
 ```powershell
-& '.\bin\Alpha010\Nexa.exe'
+& '.\bin\Alpha011\Nexa.exe'
 ```
 
 Build with the .NET 10 SDK:

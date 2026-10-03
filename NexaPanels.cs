@@ -48,7 +48,31 @@ internal static class NexaPanels
         var close = new Button { Content = "Close", MinWidth = 88, HorizontalAlignment = HorizontalAlignment.Left, ToolTip = "Close panel (Esc)", Margin = new Thickness(18, 12, 18, 12) };
         System.Windows.Automation.AutomationProperties.SetName(close, "Close panel");
         close.Click += (_, _) => panel.CloseWithFade();
-        var footer = new Border { Tag = "PanelCloseBar", Child = close, BorderThickness = new Thickness(0, 1, 0, 0) };
+        UIElement content = close;
+        if (panel is SettingsDialog settings)
+        {
+            var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            row.Children.Add(close); settings.AutoSaveStatus.Margin = new Thickness(0, 0, 18, 0);
+            settings.AutoSaveStatus.VerticalAlignment = VerticalAlignment.Center; row.Children.Add(settings.AutoSaveStatus); content = row;
+        }
+        else if (panel is NexaConfirmation confirmation)
+        {
+            var row = new DockPanel { LastChildFill = false };
+            var cancel = new Button { Content = "Cancel", MinWidth = 88, Margin = new Thickness(18, 12, 0, 12), IsDefault = true, IsCancel = true };
+            cancel.Click += (_, _) => confirmation.Cancel(); DockPanel.SetDock(cancel, Dock.Left); row.Children.Add(cancel);
+            var destroy = new Button { Content = confirmation.ConfirmLabel, MinWidth = 125, Margin = new Thickness(0, 12, 18, 12), Style = (Style)Application.Current.FindResource("DestructiveButton") };
+            destroy.Click += (_, _) => confirmation.Confirm(); DockPanel.SetDock(destroy, Dock.Right); row.Children.Add(destroy);
+            content = row;
+        }
+        else if (panel is DashboardCreation creation)
+        {
+            var row = new DockPanel { LastChildFill = false };
+            var back = new Button { Content = "Back", MinWidth = 88, Margin = new Thickness(18, 12, 0, 12) };
+            back.Click += (_, _) => creation.Back(); DockPanel.SetDock(back, Dock.Left); row.Children.Add(back);
+            close.Margin = new Thickness(0, 12, 18, 12); DockPanel.SetDock(close, Dock.Right); row.Children.Add(close);
+            content = row;
+        }
+        var footer = new Border { Tag = "PanelCloseBar", Child = content, BorderThickness = new Thickness(0, 1, 0, 0) };
         footer.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); footer.SetResourceReference(Border.BorderBrushProperty, "LineBrush");
         return footer;
     }

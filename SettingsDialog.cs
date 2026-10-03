@@ -15,6 +15,9 @@ internal sealed partial class SettingsDialog : NexaPanel
     private readonly ContentControl host = new();
     private readonly Dictionary<string, UIElement> pages = [];
     private readonly Dictionary<string, Button> tabs = [];
+    private readonly System.Windows.Threading.DispatcherTimer sessionStatusTimer = new() { Interval = TimeSpan.FromSeconds(1) };
+    private bool sessionWasActive;
+    private bool HasCurrentSession => state.Session is { StoppedAt: null } session && session.End > DateTimeOffset.Now;
 
     internal SettingsDialog(Window owner, StateStore store, AppState state, MainWindow? space, string initialSection)
     {
@@ -30,12 +33,24 @@ internal sealed partial class SettingsDialog : NexaPanel
         var sidebar = new Border { Child = nav, BorderThickness = new Thickness(0, 0, 1, 0) };
         sidebar.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); sidebar.SetResourceReference(Border.BorderBrushProperty, "LineBrush"); root.Children.Add(sidebar);
         host.Margin = new Thickness(30, 24, 30, 28); Grid.SetColumn(host, 1); root.Children.Add(host);
-        AddPage(nav, "Appearance", BuildAppearance()); AddPage(nav, "Session", BuildSession()); AddPage(nav,"Widgets",BuildWidgetPreferences()); AddPage(nav, "Account", ComingSoon("Account", "Optional sign-in and sync with Microsoft, Google or Apple are Coming Soon. Nexa remains offline-first.")); AddPage(nav, "Data", ComingSoon("Data", "Space browsing and email export tools are Coming Soon. Existing Import Space and Export Space commands remain available."));
-        AddPage(nav,"Profile",BuildProfile()); AddPage(nav,"Integrations",BuildIntegrations());
-        if(this.state.Workspace!=null && Continuity.Current(this.state.Workspace,store.UserId).PresetOrigin=="Developer mode") AddPage(nav,"Developer",BuildSoundTests());
-        nav.Children.Add(saveStatus); Content = root; SelectSection(initialSection);
+        sessionWasActive = HasCurrentSession;
+        AddPage(nav, "Appearance", BuildAppearance()); AddPage(nav, "Session", BuildSession()); AddPage(nav, "Widgets", BuildWidgetPreferences()); AddPage(nav, "Profile", BuildProfile());
+        nav.Children.Add(new Border { Height = 1, Margin = new Thickness(8, 15, 8, 18), Background = Brush("LineBrush") });
+        nav.Children.Add(new TextBlock { Text = "Experimental Features", Foreground = Brush("MutedBrush"), FontSize = 12, FontWeight = FontWeights.SemiBold, Margin = new Thickness(12, 0, 0, 12) });
+        AddPage(nav, "Account & Data", ComingSoon("Account & Data", "Optional account and data tools are in development. Import and export commands remain available from a Space."));
+        AddPage(nav, "Integrations", BuildIntegrations());
+        Content = root; SelectSection(initialSection);
         InitializeAutosave();
+        sessionStatusTimer.Tick += (_, _) =>
+        {
+            if (sessionWasActive == HasCurrentSession) return;
+            sessionWasActive = HasCurrentSession; pages["Session"] = BuildSession();
+            if (ReferenceEquals(host.Content, sessionStatusPage)) host.Content = pages["Session"];
+            sessionStatusPage = pages["Session"];
+        };
+        Loaded += (_, _) => sessionStatusTimer.Start(); Closed += (_, _) => sessionStatusTimer.Stop();
     }
+    private UIElement? sessionStatusPage;
 
     private Brush Brush(string key) => (Brush)FindResource(key);
     private void AddPage(Panel nav, string name, UIElement page)
@@ -49,6 +64,7 @@ internal sealed partial class SettingsDialog : NexaPanel
         if(!pages.ContainsKey(name)) name="Appearance";
         if (!pages.TryGetValue(name, out var page)) return;
         host.Content = page;
+        if (name == "Session") sessionStatusPage = page;
         foreach (var pair in tabs) { pair.Value.SetResourceReference(Control.BackgroundProperty, pair.Key == name ? "AccentBrush" : "PanelBrush"); pair.Value.SetResourceReference(Control.ForegroundProperty, pair.Key == name ? "BackgroundBrush" : "TextBrush"); }
         if(hedy) Dispatcher.BeginInvoke(new Action(()=> { hedySettingsSection?.BringIntoView(); hedySettingsSection?.Focus(); }));
     }

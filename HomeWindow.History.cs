@@ -36,7 +36,7 @@ internal sealed partial class HomeWindow
             entries = sort.SelectedIndex switch { 1 => entries.OrderBy(e => e.Session.OpenedAt), 2 => entries.OrderBy(e => e.Session.Title), _ => entries.OrderByDescending(e => e.Session.OpenedAt) };
             foreach (var entry in entries) list.Items.Add(new ListBoxItem { Content = $"{entry.Dashboard.Name}\n{entry.Session.Title}\n{entry.Session.OpenedAt.LocalDateTime:g}", Tag = (entry.Dashboard.DashboardId, entry.Session), Padding = new Thickness(10), Foreground = (Brush)FindResource("TextBrush") });
             selected = null; foreach (Button action in actions.Children) action.IsEnabled = false;
-            preview.Text = list.Items.Count == 0 ? "No previous sessions match your search." : "Select a session to view its saved notes and data.";
+            preview.Text = list.Items.Count == 0 ? (store.Load().Workspace?.Dashboards.All(d => d.History.Count == 0) == true ? "No session history yet." : "No previous sessions match your search.") : "Select a session to view its saved notes and data.";
         }
         void SaveChange(Action<DashboardRecord> change, bool open)
         {
@@ -74,6 +74,20 @@ internal sealed partial class HomeWindow
             if (selected == null || MessageBox.Show(dialog, "Permanently delete this historical session?", "Delete history", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
             SaveChange(d => d.History.RemoveAll(s => s.SessionId == selected.SessionId), false);
         });
+        var clearHistory = new Button { Content = "Clear History", Style = (Style)FindResource("DestructiveButton"), HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 12, 8, 0) };
+        clearHistory.Click += (_, _) =>
+        {
+            if (!NexaConfirmation.ClearAllHistory(dialog)) return;
+            try
+            {
+                var saved = store.Load(); var workspace = Continuity.Clone(saved.Workspace!);
+                foreach (var dashboard in workspace.Dashboards) dashboard.History.Clear();
+                store.Save(Continuity.Activate(workspace, store.UserId, saved.HedyRegion, saved.HedyProtectedKey));
+                Refresh();
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException) { error.Text = "Could not clear history: " + ex.Message; }
+        };
+        footer.Children.Add(clearHistory);
         list.SelectionChanged += (_, _) =>
         {
             if (list.SelectedItem is not ListBoxItem { Tag: ValueTuple<Guid, DashboardSession> entry }) return;

@@ -10,7 +10,8 @@ internal sealed partial class SettingsDialog
 {
     private readonly DispatcherTimer autosave = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private readonly Dictionary<string, Action> pendingChanges = [];
-    private readonly TextBlock saveStatus = new() { Text = "Changes save automatically.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 0) };
+    private readonly TextBlock saveStatus = new() { Text = "Changes save automatically", TextWrapping = TextWrapping.Wrap };
+    internal TextBlock AutoSaveStatus => saveStatus;
     private bool flushing;
     private void InitializeAutosave()
     {

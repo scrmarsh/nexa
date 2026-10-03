@@ -8,13 +8,13 @@ internal sealed partial class SettingsDialog
 {
     private UIElement BuildSession()
     {
-        var page = Page("Session", "Changes save automatically for this Space and session. Editing does not start a new session.");
+        var page = Page("Session", "Edit the current Space and its session.");
         var session = state.Session;
         var status = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush") };
-        if (session == null)
+        if (session == null || !HasCurrentSession)
         {
             page.Children.Add(new TextBlock { Text = "No active session", FontSize = 20, FontWeight = FontWeights.SemiBold });
-            page.Children.Add(new TextBlock { Text = "Start a session from your Space. You can still change its appearance here.", TextWrapping = TextWrapping.Wrap });
+            page.Children.Add(new TextBlock { Text = "Start a session to change session-specific settings. Space appearance remains available below.", TextWrapping = TextWrapping.Wrap });
         }
         else
         {

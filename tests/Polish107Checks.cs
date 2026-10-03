@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void CheckPolish107()
     {
-        Assert(App.AppVersion == "0.1.10", "Project metadata supplies version 0.1.10");
+        Assert(App.AppVersion == "0.1.11", "Project metadata supplies version 0.1.11");
         var store = new StateStore(Path.Combine(output, "polish107.json"));
         var cards = new[] { "Notes", "Notes", "Notes", "Clock", "Tasks", "Focus Reset" }.Select(kind => WidgetLibrary.Create(kind)).ToList();
         WidgetLibrary.ArrangeThreeColumns(cards);
@@ -77,22 +77,22 @@ internal static partial class Program
         Pump(TimeSpan.FromMilliseconds(230));
         Assert(Math.Abs(Bounds(moved).X - destination.X) < .01 && Bounds(moved).Y == 0, "Bottom card intentionally takes occupied top-right column");
         Assert(Bounds(target) != destination, "Occupied drop reflows displaced neighbor"); Layout("Occupied drop");
-        Assert(widgets.Count(w => Bounds(w).Y == 0) == 3 && widgets.Select(w => Bounds(w).Y).Distinct().Count() == 2, "Released layout fills top slots without empty rows");
+        Assert(widgets.Count(w => Bounds(w).Y == 0) == 3 && neighbors.Where(p => p.Value.X < destination.X - 1).All(p => Bounds(widgets.Single(w => w.Id == p.Key)).X == p.Value.X), "Occupied drop keeps unrelated columns stable while affected widgets flow down");
         for (var tick = 0; tick < 10 && widgets.Any(w => !Frame(w).RenderTransform.Value.IsIdentity); tick++) Pump(TimeSpan.FromMilliseconds(50));
-        Assert(widgets.All(w => w.PlacementX != null && w.PlacementY % 24 == 0) && widgets.All(w => Frame(w).RenderTransform.Value.IsIdentity), "Final compact grid saved; settle transforms finish " + string.Join(";", widgets.Select(w => $"{w.Kind}:Y={w.PlacementY},offset={Frame(w).RenderTransform.Value.OffsetX},{Frame(w).RenderTransform.Value.OffsetY}")));
+        Assert(widgets.All(w => w.PlacementX != null && Math.Abs(w.PlacementY - Bounds(w).Y) < .01) && widgets.All(w => Frame(w).RenderTransform.Value.IsIdentity), "Final stable placement is saved and settle transforms finish " + string.Join(";", widgets.Select(w => $"{w.Kind}:Y={w.PlacementY},offset={Frame(w).RenderTransform.Value.OffsetX},{Frame(w).RenderTransform.Value.OffsetY}")));
 
         var saved = JsonSerializer.Serialize(window.state.Widgets); original = Bounds(moved);
         Start(moved); Delta(moved, -500.75, 500.25); End(moved, true); Pump(TimeSpan.FromMilliseconds(230));
         Assert(JsonSerializer.Serialize(window.state.Widgets) == saved && Bounds(moved) == original && Frame(moved).Effect == null, "Cancel restores layout and lift without saving changes");
         var unit = (window.WidgetCanvas.ActualWidth + 8) / 20;
         Start(moved); Delta(moved, -original.X, 900); End(moved); Pump(TimeSpan.FromMilliseconds(230));
-        Assert(Bounds(moved).X == 0 && Bounds(moved).Y < 900 && widgets.Select(w => Bounds(w).Y).Distinct().Count() == 2, "Low drop keeps requested left column and fills avoidable slots above"); Layout("Low drop compaction");
+        Assert(Bounds(moved).X == 0 && Math.Abs(Bounds(moved).Y - 900) <= 24, "Low drop honors the requested left column and row instead of jumping upward"); Layout("Low drop stable flow");
         var resize = window.WidgetCanvas.Children.OfType<Thumb>().Single(t => System.Windows.Automation.AutomationProperties.GetName(t) == "Resize " + moved.Title);
         resize.RaiseEvent(new DragStartedEventArgs(0, 0)); resize.RaiseEvent(new DragDeltaEventArgs(unit, 48)); resize.RaiseEvent(new DragCompletedEventArgs(0, 0, false)); Pump(TimeSpan.FromMilliseconds(230));
         Assert(moved.CustomSize && moved.Height == 336 && moved.Height % 24 == 0, "Existing resize still saves useful grid dimensions"); Layout("Resized");
         original = Bounds(moved); window.WidgetScroller.ScrollToVerticalOffset(120); Pump(TimeSpan.FromMilliseconds(40));
         Start(moved); Delta(moved, -original.X, -original.Y); End(moved); Pump(TimeSpan.FromMilliseconds(230));
-        Assert(Bounds(moved).Location == new Point(), "Fast move after resize and scroll reaches top-left slot"); Layout("Move after resize");
+        Assert(Bounds(moved).Location == new Point(), "Fast move after resize and scroll reaches top-left slot (observed " + Bounds(moved).Location + ")"); Layout("Move after resize");
 
         window.Width = 820; Pump(TimeSpan.FromMilliseconds(130)); SquarePixels("Medium"); Layout("Medium");
         Assert(widgets.Count(w => Bounds(w).Y == 0) == 2, "Medium width supports two columns");

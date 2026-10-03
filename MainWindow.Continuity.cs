@@ -139,7 +139,7 @@ public partial class MainWindow
         return Continuity.Activate(copy, store.UserId, state.HedyRegion, state.HedyProtectedKey);
     }
     // All destructive transitions commit a detached candidate before changing the live editor.
-    internal bool CommitWorkspace(WorkspaceDocument candidate, bool preserveWindow = false, bool preserveWidgetUndo = false)
+    internal bool CommitWorkspace(WorkspaceDocument candidate, bool preserveWindow = true, bool preserveWidgetUndo = false)
     {
         if (settingsWindow?.FlushPendingChanges() == false) return false;
         try
@@ -310,7 +310,7 @@ public partial class MainWindow
             entries = sort.SelectedIndex switch { 1 => entries.OrderBy(s => s.OpenedAt), 2 => entries.OrderByDescending(s => s.LastAccessedAt), 3 => entries.OrderBy(s => s.Title), _ => entries.OrderByDescending(s => s.OpenedAt) };
             var view = new ListCollectionView(entries.ToList()); view.GroupDescriptions.Add(new PropertyGroupDescription("SessionDate")); list.ItemsSource = view;
             preview.Text = list.SelectedItem is DashboardSession selected ? PreviewSession(selected) : view.IsEmpty
-                ? "No previous sessions match. Reset the Space or start another timer to archive a session."
+                ? Current().History.Count == 0 ? "No session history yet." : "No previous sessions match your search."
                 : "Select a previous session to preview its saved content. Your current Space stays unchanged.";
         }
         Action("Continue this session", () =>
@@ -338,9 +338,19 @@ public partial class MainWindow
             Continuity.Current(candidate, store.UserId).History.RemoveAll(s => s.SessionId == selected.SessionId && s.UserId == store.UserId);
             if (CommitWorkspace(candidate)) Refresh();
         });
+        var clearHistory = new Button { Content = "Clear History", Style = (Style)FindResource("DestructiveButton"), Margin = new Thickness(12, 0, 0, 8) };
+        clearHistory.Click += (_, _) =>
+        {
+            if (!NexaConfirmation.ClearAllHistory(dialog) || !SaveNow()) return;
+            var candidate = CopyWorkspaceState().Workspace!;
+            foreach (var dashboard in candidate.Dashboards) dashboard.History.Clear();
+            if (CommitWorkspace(candidate)) Refresh();
+        };
+        actions.Children.Add(clearHistory);
         list.SelectionChanged += (_, _) =>
         {
-            foreach (var b in actions.Children.OfType<Button>()) b.IsEnabled = list.SelectedItem is DashboardSession;
+            foreach (var b in actions.Children.OfType<Button>().Where(b => !ReferenceEquals(b, clearHistory)))
+                b.IsEnabled = list.SelectedItem is DashboardSession;
             if (list.SelectedItem is not DashboardSession selected) return;
             preview.Text = PreviewSession(selected);
             // Viewing only updates access metadata, never copies historical content into the editor.

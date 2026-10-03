@@ -16,6 +16,13 @@ public partial class MainWindow
     private readonly DispatcherTimer clock = new() { Interval = TimeSpan.FromMilliseconds(250) };
     private readonly DispatcherTimer saveDelay = new() { Interval = TimeSpan.FromMilliseconds(600) };
     private readonly List<Border> pixels = [];
+    private readonly Stack<Border> sparePixels = [];
+    private readonly DispatcherTimer pixelResizeDelay = new() { Interval = TimeSpan.FromMilliseconds(85) };
+    private int pixelColumns, pixelRows, litPixels = -1;
+    private double pixelSize, pixelGap;
+    private string pixelShape = "";
+    internal int PixelLayoutChanges { get; private set; }
+    internal int PixelVisualsCreated { get; private set; }
     private readonly List<Border> intervals = [];
     private bool ready;
     private bool dirty;
@@ -45,10 +52,12 @@ public partial class MainWindow
         state = store.Load(); store.LoadInteractionPreferences(state);
         InitializeComponent();
         PreviewBanner.Visibility = IsPreview ? Visibility.Visible : Visibility.Collapsed;
-        if (IsPreview) Title = "Nexa · Preview";
+        if (IsPreview) Title = App.BrandWordmark + " · Preview";
         NexaChrome.Apply(this);
-        PixelArea.SizeChanged += (_, _) => SizeTimerPixels();
-        DpiChanged += (_, _) => Dispatcher.BeginInvoke(new Action(SizeTimerPixels));
+        PixelArea.SizeChanged += (_, _) => QueuePixelLayout();
+        DpiChanged += (_, _) => Dispatcher.BeginInvoke(new Action(QueuePixelLayout));
+        pixelResizeDelay.Tick += (_, _) => { pixelResizeDelay.Stop(); SizeTimerPixels(); };
+        Loaded += (_, _) => SizeTimerPixels();
         NotesBox.Text = state.Notes;
         NotesToggle.IsChecked = state.ShowNotes;
         ChecklistToggle.IsChecked = state.ShowChecklist;
@@ -91,34 +100,56 @@ public partial class MainWindow
             if (closingAfterTransition) { closingAfterTransition = false; return; }
             if (!SaveForClose()) e.Cancel = true;
         };
-        Closed += (_, _) => { clock.Stop(); saveDelay.Stop(); boredomTicker.Stop(); autosave.Stop(); closing = true; StopLocalRecording(true); StopHedy(); };
+        Closed += (_, _) => { clock.Stop(); saveDelay.Stop(); pixelResizeDelay.Stop(); boredomTicker.Stop(); autosave.Stop(); closing = true; StopLocalRecording(true); StopHedy(); };
+    }
+
+    private void QueuePixelLayout()
+    {
+        if (PixelArea.ActualWidth <= 0 || PixelArea.ActualHeight <= 0) return;
+        pixelResizeDelay.Stop(); pixelResizeDelay.Start();
     }
 
     private void SizeTimerPixels()
     {
-        if(PixelArea.ActualWidth<=0 || PixelArea.ActualHeight<=0) return;
-        var width=PixelArea.ActualWidth; var height=PixelArea.ActualHeight;
-        var scale=VisualTreeHelper.GetDpi(PixelArea).DpiScaleX;
-        var target=Math.Max(12,Math.Sqrt(width*height/16000));
-        var columns=Math.Max(1,(int)Math.Floor((width+2)/(target+2)));
-        var rows=Math.Max(1,(int)Math.Floor((height+2)/(target+2)));
-        var size=Math.Min((width-2*(columns-1))/columns,(height-2*(rows-1))/rows);
-        size=Math.Max(1/scale,Math.Floor(size*scale)/scale);
-        var gapX=columns>1 ? (width-columns*size)/(columns-1) : 0;
-        var gapY=rows>1 ? (height-rows*size)/(rows-1) : 0;
-        var count=columns*rows;
-        if(pixels.Count!=count)
+        if (PixelArea.ActualWidth <= 0 || PixelArea.ActualHeight <= 0) return;
+        var scale = VisualTreeHelper.GetDpi(PixelArea).DpiScaleX;
+        var (columns, rows, size, gap) = PixelMetrics(PixelArea.ActualWidth, PixelArea.ActualHeight, scale);
+        if (columns == pixelColumns && rows == pixelRows && Math.Abs(size - pixelSize) < .001 && Math.Abs(gap - pixelGap) < .001 && pixelShape == state.PixelShape) return;
+        PixelLayoutChanges++;
+        pixelColumns = columns; pixelRows = rows; pixelSize = size; pixelGap = gap; pixelShape = state.PixelShape;
+        var count = columns * rows;
+        if (previousHead >= 0 && previousHead < pixels.Count) pixels[previousHead].BeginAnimation(OpacityProperty, null);
+        previousHead = -1; headAnimating = false; litPixels = -1;
+        while (pixels.Count > count)
         {
-            pixels.Clear(); PixelGrid.Children.Clear(); previousHead=-1; headAnimating=false;
-            for(var i=0;i<count;i++) { var pixel=new Border { IsHitTestVisible=false,Background=DashboardBrush("PixelOffBrush") }; pixels.Add(pixel); PixelGrid.Children.Add(pixel); }
+            var pixel = pixels[^1]; pixels.RemoveAt(pixels.Count - 1); PixelGrid.Children.Remove(pixel);
+            if (sparePixels.Count < 5000) sparePixels.Push(pixel);
         }
-        for(var i=0;i<count;i++)
+        while (pixels.Count < count)
         {
-            var pixel=pixels[i]; pixel.Width=pixel.Height=size;
-            pixel.CornerRadius=new CornerRadius(state.PixelShape=="Circle" ? size/2 : 0);
-            Canvas.SetLeft(pixel,i%columns*(size+gapX)); Canvas.SetTop(pixel,i/columns*(size+gapY));
+            var pixel = sparePixels.Count > 0 ? sparePixels.Pop() : new Border { IsHitTestVisible = false };
+            if (pixel.Background == null) PixelVisualsCreated++;
+            pixel.Background = DashboardBrush("PixelOffBrush"); pixels.Add(pixel); PixelGrid.Children.Add(pixel);
         }
-        if(ready) UpdateClock();
+        PixelGrid.Width = columns * size + (columns - 1) * gap;
+        PixelGrid.Height = rows * size + (rows - 1) * gap;
+        for (var i = 0; i < count; i++)
+        {
+            var pixel = pixels[i]; pixel.Width = pixel.Height = size;
+            pixel.CornerRadius = new CornerRadius(state.PixelShape == "Circle" ? size / 2 : 0);
+            Canvas.SetLeft(pixel, i % columns * (size + gap)); Canvas.SetTop(pixel, i / columns * (size + gap));
+        }
+        if (ready) UpdateClock();
+    }
+
+    internal static (int Columns, int Rows, double Size, double Gap) PixelMetrics(double width, double height, double scale)
+    {
+        // Whole device pixels avoid a wider gap every few cells at fractional DPI scales.
+        var size = Math.Max(1, Math.Round(12 * scale)) / scale;
+        var gap = Math.Max(1, Math.Round(2 * scale)) / scale;
+        var columns = Math.Max(1, (int)Math.Floor((width + gap + .001) / (size + gap)));
+        var rows = Math.Max(1, (int)Math.Floor((height + gap + .001) / (size + gap)));
+        return (columns, rows, size, gap);
     }
     private Brush Brush(string key) => (Brush)FindResource(key);
 
@@ -127,8 +158,11 @@ public partial class MainWindow
         var isDeveloperDashboard = state.Workspace != null &&
             Continuity.Current(state.Workspace, store.UserId).PresetOrigin == "Developer mode";
         DeveloperSplashButton.Visibility = isDeveloperDashboard ? Visibility.Visible : Visibility.Collapsed;
+        DeveloperSoundButton.Visibility = isDeveloperDashboard ? Visibility.Visible : Visibility.Collapsed;
         DeveloperResetButton.Visibility = isDeveloperDashboard ? Visibility.Visible : Visibility.Collapsed;
     }
+
+    private void DeveloperSoundClick(object sender, RoutedEventArgs e) => PlayInterfaceSound();
 
     private void DeveloperSplashClick(object sender, RoutedEventArgs e)
     {
@@ -449,6 +483,7 @@ public partial class MainWindow
         PercentLabel.Foreground = DashboardBrush("PixelBrush");
         previousHead = -1;
         headAnimating = false;
+        litPixels = -1;
         if (storyOpen) RenderStory();
     }
     private void ThemeSelected(object sender, SelectionChangedEventArgs e)
@@ -475,21 +510,26 @@ public partial class MainWindow
         if (!fullscreen)
         {
             if (state.Compact) { SetCompact(false); Changed(); }
-            restoreBounds = new Rect(Left, Top, Width, Height); restoreWindowState = WindowState;
-            WindowState = WindowState.Normal; WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.NoResize;
-            WindowState = WindowState.Maximized; fullscreen = true; FullscreenButton.Content = "\uE923"; FullscreenButton.ToolTip = "Restore window (Esc)";
+            restoreWindowState = WindowState;
+            restoreBounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
+            fullscreen = true;
+            ResizeMode = ResizeMode.NoResize;
+            WindowState = WindowState.Maximized; FullscreenButton.ToolTip = "Exit fullscreen (Esc)";
         }
         else
         {
-            WindowState = WindowState.Normal; WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.CanResize;
-            Left = restoreBounds.Left; Top = restoreBounds.Top; Width = restoreBounds.Width; Height = restoreBounds.Height;
-            WindowState = restoreWindowState; fullscreen = false; FullscreenButton.Content = "\uE922"; FullscreenButton.ToolTip = "Fullscreen (F11)";
+            WindowState = WindowState.Normal; ResizeMode = ResizeMode.CanResize;
+            if (restoreWindowState == WindowState.Normal)
+            { Left = restoreBounds.Left; Top = restoreBounds.Top; Width = restoreBounds.Width; Height = restoreBounds.Height; }
+            WindowState = restoreWindowState; fullscreen = false; FullscreenButton.ToolTip = "Fullscreen (F11)";
         }
         DashboardHeader.Height=fullscreen ? 50 : 44; DashboardHeader.Padding=new Thickness(12,fullscreen ? 8 : 4,12,4);
-        DashboardShell.Opacity = 0.72; DashboardShell.BeginAnimation(OpacityProperty, new DoubleAnimation(.72, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
-        var scale = new ScaleTransform(.985, .985); DashboardShell.RenderTransformOrigin = new Point(.5, .5); DashboardShell.RenderTransform = scale;
-        scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(.985, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
-        scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(.985, 1, TimeSpan.FromMilliseconds(220)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+        var duration = TimeSpan.FromMilliseconds(260);
+        var easing = new CubicEase { EasingMode = EasingMode.EaseInOut };
+        DashboardShell.BeginAnimation(OpacityProperty, new DoubleAnimation(.94, 1, duration) { EasingFunction = easing });
+        var scale = new ScaleTransform(.992, .992); DashboardShell.RenderTransformOrigin = new Point(.5, .5); DashboardShell.RenderTransform = scale;
+        scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(.992, 1, duration) { EasingFunction = easing });
+        scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(.992, 1, duration) { EasingFunction = easing });
     }
     private void WindowKeyDown(object sender, KeyEventArgs e)
     {
@@ -568,12 +608,14 @@ public partial class MainWindow
         }
         PercentLabel.Text = $"{progress * 100:0.0}%";
         SessionProgressBar.Value=progress*100;
-        var head = (int)Math.Floor(progress * pixels.Count);
-        for (var i = 0; i < pixels.Count; i++)
-        {
-            pixels[i].Background = DashboardBrush(i < head ? "PixelBrush" : "PixelOffBrush");
-            if (i != head && i == previousHead) { pixels[i].BeginAnimation(OpacityProperty, null); headAnimating = false; }
-        }
+        var head = Math.Clamp((int)Math.Floor(progress * pixels.Count), 0, pixels.Count);
+        if (previousHead >= 0 && previousHead < pixels.Count && (previousHead != head || session?.IsRunning(now) != true))
+        { pixels[previousHead].BeginAnimation(OpacityProperty, null); pixels[previousHead].Opacity = 1; headAnimating = false; }
+        if (litPixels < 0)
+            for (var i = 0; i < pixels.Count; i++) pixels[i].Background = DashboardBrush(i < head ? "PixelBrush" : "PixelOffBrush");
+        else if (head != litPixels)
+            for (var i = Math.Min(head, litPixels); i < Math.Max(head, litPixels); i++) pixels[i].Background = DashboardBrush(i < head ? "PixelBrush" : "PixelOffBrush");
+        litPixels = head;
         if (head < pixels.Count && session?.IsRunning(now) == true)
         {
             pixels[head].Background = DashboardBrush("PixelBrush");
@@ -585,7 +627,6 @@ public partial class MainWindow
         }
         else if (previousHead >= 0 && previousHead < pixels.Count) { pixels[previousHead].BeginAnimation(OpacityProperty, null); headAnimating = false; }
         previousHead = head;
-        PixelGrid.Effect = null;
         if (session == null) return;
         var effectiveNow = session.StoppedAt ?? now;
         foreach (var card in intervals)

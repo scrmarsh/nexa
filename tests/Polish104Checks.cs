@@ -18,7 +18,7 @@ internal static partial class Program
             var bitmap = new RenderTargetBitmap((int)Math.Ceiling(body.ActualWidth), (int)Math.Ceiling(body.ActualHeight), 96, 96, PixelFormats.Pbgra32); bitmap.Render(body);
             var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap)); using var stream = File.Create(Path.Combine(output, name + ".png")); encoder.Save(stream);
         }
-        Assert(App.AppVersion == "0.1.10", "App uses current project version 0.1.10");
+        Assert(App.AppVersion == "0.1.11", "App uses current project version 0.1.11");
         var splash = new SplashWindow(); splash.Show(); Pump(TimeSpan.FromMilliseconds(220));
         var tagline = Descendants(splash).OfType<TextBlock>().Single(t => t.Text == "A space for whatever comes next.");
         Assert(tagline.ActualWidth >= tagline.DesiredSize.Width && Descendants(splash).OfType<TextBlock>().Any(t => t.Text == App.VersionLabel), "Splash tagline and current version are present and fit"); Capture(splash, "polish-splash"); splash.Close();
@@ -28,7 +28,7 @@ internal static partial class Program
         var workspace = new WorkspaceDocument { UserId = store.UserId, Dashboards = [normal, dev], ActiveDashboardId = normal.DashboardId };
         store.Save(Continuity.Activate(workspace, store.UserId));
         var home = new HomeWindow(store); home.Show(); Pump(TimeSpan.FromMilliseconds(220));
-        Assert(home.Recent.Children.Count == 1 && Descendants(home.Recent).OfType<TextBlock>().Any(t => t.Text == "Existing Space"), "Recent Spaces excludes developer spaces");
+        Assert(home.Recent.Children.OfType<StackPanel>().Single().Children.OfType<Button>().Count() == 1 && Descendants(home.Recent).OfType<TextBlock>().Any(t => t.Text == "Existing Space"), "Recent Spaces excludes developer spaces");
         Assert(Descendants(home).OfType<TextBlock>().Any(t => t.Text.Contains(App.VersionLabel)), "Home shows shared current version"); Capture(home, "polish-home"); home.Close();
         var window = new MainWindow(store); window.Show(); Pump(TimeSpan.FromMilliseconds(220));
         Assert(window.state.Notes == "Keep these notes", "Existing dashboard opens with its data intact");

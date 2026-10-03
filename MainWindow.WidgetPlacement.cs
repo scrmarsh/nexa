@@ -7,6 +7,100 @@ namespace SessionDashboard;
 
 public partial class MainWindow
 {
+    private readonly List<Border> dropGhosts = [];
+
+    // A row insertion is planned without moving live widgets. The plan is committed only on release.
+    private bool TryPlanRowInsertion(WidgetInstance moved, double x, double y, out Dictionary<Guid, Rect> plan, out Dictionary<Guid, int> spans)
+    {
+        plan = []; spans = [];
+        if (WidgetCanvas.ActualWidth < 640 + WidgetGap || !widgetFrames.TryGetValue(moved.Id, out var frame)) return false;
+        var center = y + frame.Height / 2;
+        var rows = state.Widgets.Where(w => w.Id != moved.Id && widgetFrames.ContainsKey(w.Id))
+            .GroupBy(w => Math.Round(Canvas.GetTop(widgetFrames[w.Id]) / RowUnit))
+            .Select(group => group.OrderBy(w => Canvas.GetLeft(widgetFrames[w.Id])).ToArray())
+            .Where(row => row.Length is > 0 and < 3)
+            .OrderBy(row => Math.Abs(center - (Canvas.GetTop(widgetFrames[row[0].Id]) + row.Max(w => widgetFrames[w.Id].Height) / 2)))
+            .FirstOrDefault();
+        if (rows == null) return false;
+        var top = Canvas.GetTop(widgetFrames[rows[0].Id]);
+        var rowHeight = rows.Max(w => widgetFrames[w.Id].Height);
+        if (Math.Abs(center - (top + rowHeight / 2)) > Math.Max(75, rowHeight / 3)) return false;
+        var ordered = rows.ToList();
+        // Use the pointer's requested left edge for insertion. A resized, wide card
+        // must still be able to land in the first column when dropped at x = 0.
+        var insertion = ordered.FindIndex(w => x < Canvas.GetLeft(widgetFrames[w.Id]) + widgetFrames[w.Id].Width / 2);
+        ordered.Insert(insertion < 0 ? ordered.Count : insertion, moved);
+        var minima = ordered.ToDictionary(w => w.Id, MinimumWidthSteps);
+        if (minima.Values.Sum() > 20) return false;
+        var desired = ordered.ToDictionary(w => w.Id, DisplaySpan);
+        var widths = ordered.ToDictionary(w => w.Id, w => minima[w.Id]);
+        spans = widths;
+        var remaining = Math.Min(20 - widths.Values.Sum(), Math.Max(0, desired.Values.Sum() - widths.Values.Sum()));
+        while (remaining-- > 0)
+        {
+            var next = ordered.OrderByDescending(w => desired[w.Id] - widths[w.Id]).First();
+            widths[next.Id]++;
+        }
+        var column = 0;
+        foreach (var widget in ordered)
+        {
+            var height = widgetFrames[widget.Id].Height;
+            plan[widget.Id] = new Rect(column * GridUnit, top, widths[widget.Id] * GridUnit - WidgetGap, height);
+            column += widths[widget.Id];
+        }
+        return true;
+    }
+
+    private void UpdateWidgetDropPreview(WidgetInstance moved, double x, double y)
+    {
+        if (placementPreview == null) return;
+        Rect landing; Dictionary<Guid, Rect> plan;
+        if (TryPlanRowInsertion(moved, x, y, out plan, out _)) landing = plan[moved.Id];
+        else
+        {
+            var frame = widgetFrames[moved.Id]; var span = DisplaySpan(moved);
+            landing = new Rect(Math.Clamp(Math.Round(x / GridUnit), 0, 20 - span) * GridUnit,
+                Math.Max(0, Math.Round(y / RowUnit) * RowUnit), frame.Width, frame.Height);
+            plan = StableDropPlan(moved, landing);
+        }
+        var neighbors = plan.Where(pair => pair.Key != moved.Id &&
+            (pair.Value.Location - FrameRect(widgetFrames[pair.Key]).Location).Length > 1 ||
+            pair.Key != moved.Id && Math.Abs(pair.Value.Width - widgetFrames[pair.Key].Width) > 1).ToArray();
+        while (dropGhosts.Count < neighbors.Length)
+        {
+            var ghost = new Border { Background = new SolidColorBrush(Color.FromArgb(24, 91, 124, 255)), BorderBrush = DashboardBrush("AccentBrush"), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10), IsHitTestVisible = false, Opacity = .6 };
+            WidgetCanvas.Children.Add(ghost); Panel.SetZIndex(ghost, 1800); dropGhosts.Add(ghost);
+        }
+        for (var i = 0; i < dropGhosts.Count; i++)
+        {
+            dropGhosts[i].Visibility = i < neighbors.Length ? Visibility.Visible : Visibility.Collapsed;
+            if (i >= neighbors.Length) continue;
+            var rect = neighbors[i].Value; dropGhosts[i].Width = rect.Width; dropGhosts[i].Height = rect.Height;
+            Canvas.SetLeft(dropGhosts[i], rect.X); Canvas.SetTop(dropGhosts[i], rect.Y);
+        }
+        placementPreview.Width = landing.Width; placementPreview.Height = landing.Height;
+        Canvas.SetLeft(placementPreview, landing.X); Canvas.SetTop(placementPreview, landing.Y);
+    }
+
+    private Dictionary<Guid, Rect> StableDropPlan(WidgetInstance moved, Rect destination)
+    {
+        var packed = new Dictionary<Guid, Rect> { [moved.Id] = destination };
+        foreach (var other in state.Widgets.Where(w => w.Id != moved.Id && widgetFrames.ContainsKey(w.Id))
+            .OrderBy(w => Canvas.GetTop(widgetFrames[w.Id])).ThenBy(w => Canvas.GetLeft(widgetFrames[w.Id])))
+        {
+            var rect = FrameRect(widgetFrames[other.Id]);
+            while (packed.Values.FirstOrDefault(hit => PlacementOverlaps(hit, rect)) is var hit && hit.Width > 0)
+                rect.Y = Math.Ceiling((hit.Bottom + WidgetGap) / RowUnit) * RowUnit;
+            packed[other.Id] = rect;
+        }
+        return packed;
+    }
+
+    private void ClearWidgetDropPreview()
+    {
+        foreach (var ghost in dropGhosts) WidgetCanvas.Children.Remove(ghost);
+        dropGhosts.Clear();
+    }
     private Dictionary<Guid, Point> WidgetVisualPositions() => widgetFrames.ToDictionary(
         pair => pair.Key, pair => pair.Value.TranslatePoint(new Point(), WidgetCanvas));
 
@@ -16,38 +110,16 @@ public partial class MainWindow
 
     private void CommitWidgetDrop(WidgetInstance moved, double x, double y, bool preserveAnchor=false)
     {
+        if (!preserveAnchor && TryPlanRowInsertion(moved, x, y, out var insertion, out var spans))
+        {
+            foreach (var widget in state.Widgets.Where(w => spans.ContainsKey(w.Id))) widget.Span = spans[widget.Id];
+            StoreWidgetPositions(insertion); Changed(); SaveNow(); return;
+        }
         var frame = widgetFrames[moved.Id];
         var span = DisplaySpan(moved);
         var column = Math.Clamp((int)Math.Round(x / GridUnit), 0, 20 - span);
         var destination = new Rect(column * GridUnit, Math.Clamp(preserveAnchor ? y : Math.Round(y / RowUnit) * RowUnit, 0, 720000), frame.Width, frame.Height);
-        var others = state.Widgets.Where(w => w.Id != moved.Id && widgetFrames.ContainsKey(w.Id))
-            .OrderBy(w => Canvas.GetTop(widgetFrames[w.Id])).ThenBy(w => Canvas.GetLeft(widgetFrames[w.Id])).ToList();
-
-        Dictionary<Guid,Rect> Pack(Rect anchor)=>PackWidgetFrames(others,new() { [moved.Id]=anchor });
-
-        var packed = Pack(destination);
-        if(!preserveAnchor)
-        {
-        // Remove empty space above the selected card without passing cards in its chosen column.
-        var above = packed.Where(p => p.Key != moved.Id).Select(p => p.Value)
-            .Where(r => r.Top < destination.Top && r.Left < destination.Right + WidgetGap - .01 && r.Right + WidgetGap > destination.Left + .01);
-        destination.Y = above.Any() ? Math.Ceiling((above.Max(r => r.Bottom) + WidgetGap) / RowUnit) * RowUnit : 0;
-        packed = Pack(destination);
-        // A hole in another column can still fit this card: keep its requested column,
-        // but let neighbors shift sideways instead of leaving a needless extra row.
-        var otherRects = packed.Where(p => p.Key != moved.Id).Select(p => p.Value).ToArray();
-        var bottom = packed.Values.Max(r => r.Bottom);
-        for (var row = 0d; row * RowUnit < destination.Y; row++)
-        {
-            var hole = Enumerable.Range(0, 21 - span).Any(col =>
-                otherRects.All(r => !PlacementOverlaps(r, new Rect(col * GridUnit, row * RowUnit, destination.Width, destination.Height))));
-            if (!hole) continue;
-            var anchor = destination; anchor.Y = row * RowUnit;
-            var compacted = Pack(anchor);
-            if (compacted.Values.Max(r => r.Bottom) > bottom + .01) continue;
-            packed = compacted; break;
-        }
-        }
+        var packed = StableDropPlan(moved, destination);
         StoreWidgetPositions(packed);
         Changed(); SaveNow();
     }

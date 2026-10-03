@@ -8,7 +8,16 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
-        new(App.AppVersion, "October 3, 2026", "Interface & Navigation Cleanup", "Makes Nexa's internal panels, Home and dashboard navigation cleaner and more consistent.",
+        new(App.AppVersion, "October 3, 2026", "Bug Fixes, UI Refinements & Pixel Timer Performance", "Stabilizes window resizing, Pixel Timer rendering, widget placement and internal navigation.",
+        [
+            "Fixed-size, device-aligned pixels reuse visuals and update only when the grid changes after resizing settles.",
+            "Fullscreen restores the previous window state; internal Space actions preserve window bounds.",
+            "Widget drop previews show insertion and stable reflow, with proportional widths where a row can fit three widgets.",
+            "Recent Spaces uses four compact cards in one column and a side chevron for older columns.",
+            "Settings navigation, empty Session state and persistent autosave footer are clearer. Create Space has a fixed Back/Close footer.",
+            "History gains a themed confirmation before clearing all archived sessions. Developer sound preview and title controls are refined."
+        ]),
+        new("0.1.10", "October 3, 2026", "Interface & Navigation Cleanup", "Makes Nexa's internal panels, Home and dashboard navigation cleaner and more consistent.",
         [
             "Settings, Add Widgets, History, Changelog and About use shared panel chrome with a persistent bottom-left Close button.",
             "Escape and outside clicks dismiss the topmost panel. Outside clicks are consumed so Add Widgets cannot reopen from the same click.",

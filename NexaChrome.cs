@@ -49,7 +49,7 @@ internal static class NexaChrome
         var buttons = new StackPanel { Orientation = Orientation.Horizontal }; DockPanel.SetDock(buttons, Dock.Right); dock.Children.Add(buttons);
         void Add(string glyph, string label, Action action)
         {
-            var button = new Button { Content = glyph, FontFamily = new FontFamily("Segoe MDL2 Assets"), FontSize = 14, ToolTip = label, Width = 40, Height = 36, Padding = new Thickness(0), Margin = new Thickness(0, 4, 0, 4), Background = Brushes.Transparent, BorderThickness = new Thickness(0) };
+            var button = new Button { Content = glyph, ToolTip = label, Style = (Style)Application.Current.FindResource(label == "Close" ? "CaptionCloseButton" : "CaptionControlButton") };
             System.Windows.Automation.AutomationProperties.SetName(button, label); WindowChrome.SetIsHitTestVisibleInChrome(button, true);
             button.Click += (_, _) => action(); buttons.Children.Add(button);
         }

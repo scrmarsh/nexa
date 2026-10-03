@@ -44,7 +44,7 @@ internal static partial class Program
             window.WidgetCanvas.RaiseEvent(e);
             e.RoutedEvent = Mouse.MouseDownEvent; window.WidgetCanvas.RaiseEvent(e); return e;
         }
-        Assert(App.AppVersion == "0.1.10" && App.VersionLabel == "Nexa 0.1.10 Alpha", "Shared version displays two-digit Alpha patch correctly");
+        Assert(App.AppVersion == "0.1.11" && App.VersionLabel == "Nexa 0.1.11 Alpha", "Shared version displays two-digit Alpha patch correctly");
         var store = new StateStore(Path.Combine(output, "navigation.json"));
         var initial = new AppState { WidgetLayoutInitialized = true, Widgets = [WidgetLibrary.Create("Notes", "notes")], Notes = "Keep my active notes", Session = new Session { Title = "Navigation class", Start = DateTimeOffset.Now.AddMinutes(-1), End = DateTimeOffset.Now.AddMinutes(30), IntervalMinutes = 5 } }; store.Save(initial);
         var first = Continuity.Current(initial.Workspace!, store.UserId); first.Name = "Space 0"; first.Current.LastAccessedAt = DateTimeOffset.Now;
@@ -56,11 +56,12 @@ internal static partial class Program
         Assert(Descendants(home).OfType<Border>().Any(b => Equals(b.Tag, "WindowCaption")), "Home retains its primary window controls");
         Assert(!Descendants(home).OfType<TextBlock>().Any(t => t.Text.StartsWith("Hey,") || t.Text.StartsWith("Welcome back,")) && store.LoadProfile().DisplayName == "Saved profile name", "Home has no greeting while profile name remains intact");
         Assert(Descendants(home).OfType<Button>().Count(b => Equals(b.Content, "Changelog")) == 1, "Home keeps only the footer Changelog link");
-        Assert(home.Recent.Children.OfType<Button>().Select(b => (Guid)b.Tag).SequenceEqual(initial.Workspace.Dashboards.Where(d => d.PresetOrigin != "Developer mode").OrderByDescending(d => d.Current.LastAccessedAt).Take(4).Select(d => d.DashboardId)), "Recent Spaces shows exactly four newest non-developer spaces");
-        Assert(home.Recent.Children.OfType<Button>().All(b => b.ActualWidth <= 280 && b.ActualHeight <= 84), "Recent cards stay compact");
-        Tap(home, "More"); Pump(TimeSpan.FromMilliseconds(100));
-        Assert(home.Recent.Children.Count == 7 && home.Recent.Children.OfType<Button>().Select(b => Math.Round(b.TranslatePoint(new Point(), home.Recent).X)).Distinct().Count() >= 3, "More expands all recent cards into additional columns"); Capture(home, "navigation-home-expanded");
-        Tap(home, "Less"); Pump(TimeSpan.FromMilliseconds(50)); Assert(home.Recent.Children.Count == 4, "Less restores four recent spaces");
+        var firstColumn = home.Recent.Children.OfType<StackPanel>().First();
+        Assert(firstColumn.Children.OfType<Button>().Select(b => (Guid)b.Tag).SequenceEqual(initial.Workspace.Dashboards.Where(d => d.PresetOrigin != "Developer mode").OrderByDescending(d => d.Current.LastAccessedAt).Take(4).Select(d => d.DashboardId)), "Recent Spaces shows exactly four newest non-developer spaces");
+        Assert(firstColumn.Children.OfType<Button>().All(b => b.ActualWidth <= 280 && b.ActualHeight <= 84), "Recent cards stay compact");
+        Tap(home, ">"); Pump(TimeSpan.FromMilliseconds(100));
+        Assert(home.Recent.Children.OfType<StackPanel>().SelectMany(column => column.Children.OfType<Button>()).Count() == 7 && home.Recent.Children.OfType<StackPanel>().Count() == 2, "Chevron expands older spaces into columns of four"); Capture(home, "navigation-home-expanded");
+        Tap(home, "<"); Pump(TimeSpan.FromMilliseconds(50)); Assert(firstColumn.Children.OfType<Button>().Count() == 4 && home.Recent.Children.OfType<StackPanel>().Count() == 1, "Chevron collapse restores four recent spaces");
         foreach (var entry in new[] { (Method: "OpenAbout", Name: "About"), (Method: "OpenChangelog", Name: "Changelog"), (Method: "OpenHistory", Name: "History") })
         {
             Call(home, entry.Method); Pump(TimeSpan.FromMilliseconds(180)); var panel = home.OwnedWindows.OfType<NexaDialog>().Single(); PanelChrome(panel, entry.Name);

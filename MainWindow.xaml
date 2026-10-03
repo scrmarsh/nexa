@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:SessionDashboard"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        Title="Nexa" Width="1220" Height="880" MinWidth="960" MinHeight="660"
+        Title="nexa" Width="1220" Height="880" MinWidth="960" MinHeight="660"
         Background="{DynamicResource BackgroundBrush}" Foreground="{DynamicResource TextBrush}"
         FontFamily="Segoe UI" FontSize="14" WindowStartupLocation="CenterScreen" PreviewKeyDown="WindowKeyDown" PreviewMouseWheel="GentleMouseWheel">
     <Grid>
@@ -20,12 +20,14 @@
                     <Button x:Name="SessionSettingsButton" Content="Session" Click="DashboardSettingsClick" Style="{StaticResource PrimaryButton}" Padding="14,5"/>
                     <Button x:Name="AddWidgetButton" Content="Add Widget" Click="AddWidgetClick" Padding="14,5" Margin="8,0,0,0"/>
                     <Button x:Name="DeveloperSplashButton" Content="Preview Splash" MinWidth="132" Padding="12,6" Click="DeveloperSplashClick" Visibility="Collapsed"/>
+                    <Button x:Name="DeveloperSoundButton" Content="Play Sound" MinWidth="106" Padding="12,6" Margin="8,0,0,0" Click="DeveloperSoundClick" Visibility="Collapsed"/>
                     <Button x:Name="DeveloperResetButton" Content="Reset dev" Click="DeveloperResetClick" Visibility="Collapsed"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
-                    <Button x:Name="MinimizeButton" Content="&#xE921;" FontFamily="Segoe MDL2 Assets" Click="MinimizeClick" Width="40" Padding="0" Background="Transparent" BorderThickness="0" ToolTip="Minimize"/>
-                    <Button x:Name="FullscreenButton" Content="&#xE922;" FontFamily="Segoe MDL2 Assets" Click="FullscreenClick" Width="40" Padding="0" Background="Transparent" BorderThickness="0" ToolTip="Fullscreen (F11)"/>
-                    <Button x:Name="ExitButton" Content="&#xE8BB;" FontFamily="Segoe MDL2 Assets" Click="ExitClick" Width="40" Padding="0" Background="Transparent" BorderThickness="0" ToolTip="Close"/>
+                    <Button x:Name="MinimizeButton" Content="&#xE921;" Style="{StaticResource CaptionControlButton}" Click="MinimizeClick" ToolTip="Minimize"/>
+                    <Button x:Name="MaximizeButton" Content="&#xE922;" Style="{StaticResource CaptionControlButton}" Click="MaximizeClick" ToolTip="Maximize"/>
+                    <Button x:Name="FullscreenButton" Content="&#xE740;" Style="{StaticResource CaptionControlButton}" Click="FullscreenClick" ToolTip="Fullscreen (F11)"/>
+                    <Button x:Name="ExitButton" Content="&#xE8BB;" Style="{StaticResource CaptionCloseButton}" Click="ExitClick" ToolTip="Close"/>
                 </StackPanel>
             </Grid>        </Border>
     <Grid Margin="24" Background="{DynamicResource BackgroundBrush}">
@@ -86,7 +88,7 @@
                             <Button x:Name="StoryButton" Content="I'm bored" Click="StoryClick" HorizontalAlignment="Left" Margin="0,8,0,0"/>
                             </StackPanel>
                             <Grid Grid.Column="1">
-                                <Grid x:Name="PixelArea" Height="260"><Canvas x:Name="PixelGrid" IsHitTestVisible="False"/></Grid>
+                                <Grid x:Name="PixelArea" Height="260" ClipToBounds="True"><Canvas x:Name="PixelGrid" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/></Grid>
                                 <Grid x:Name="StoryArea" Visibility="Collapsed" MinHeight="108"/>
                                 <Border x:Name="CompletionBanner" Visibility="Collapsed" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="10" Padding="22" VerticalAlignment="Center" Margin="12">
                                     <StackPanel><TextBlock Text="Session over" FontSize="30" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center"/><TextBlock Text="You made it. Take a moment for yourself." Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center" Margin="0,6"/><Button Content="Dismiss banner" Click="DismissCompletionClick" HorizontalAlignment="Center" Margin="0,8,0,0"/></StackPanel>

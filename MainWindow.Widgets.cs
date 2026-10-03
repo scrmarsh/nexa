@@ -333,6 +333,9 @@ public partial class MainWindow
             }
             else
             {
+                placementPreview = new Border { Background = new SolidColorBrush(Color.FromArgb(38, 91, 124, 255)), BorderBrush = DashboardBrush("AccentBrush"), BorderThickness = new Thickness(2), CornerRadius = new CornerRadius(10), IsHitTestVisible = false };
+                WidgetCanvas.Children.Add(placementPreview); Panel.SetZIndex(placementPreview, 1900);
+                UpdateWidgetDropPreview(widget, origin.X, origin.Y);
                 frame.RenderTransform = new TranslateTransform(origin.X - Canvas.GetLeft(frame), origin.Y - Canvas.GetTop(frame));
                 originalEffect = frame.Effect;
                 frame.Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 16, ShadowDepth = 3, Opacity = .24 };
@@ -350,6 +353,7 @@ public partial class MainWindow
                 var frame = widgetFrames[widget.Id];
                 // Absolute canvas coordinates preserve the grab offset even inside a scrolled viewport.
                 frame.RenderTransform = new TranslateTransform(origin.X + dx - Canvas.GetLeft(frame), origin.Y + dy - Canvas.GetTop(frame));
+                UpdateWidgetDropPreview(widget, origin.X + dx, origin.Y + dy);
                 return;
             }
             ResizeAtPointer();
@@ -381,6 +385,7 @@ public partial class MainWindow
             var before = WidgetVisualPositions();
             var frame = widgetFrames[widget.Id]; frame.RenderTransform = Transform.Identity;
             if (placementPreview != null) { WidgetCanvas.Children.Remove(placementPreview); placementPreview = null; }
+            ClearWidgetDropPreview();
             if (!resize)
             {
                 frame.Effect = originalEffect; Panel.SetZIndex(frame, 0);
@@ -708,7 +713,11 @@ public partial class MainWindow
         menu.VerticalOffset = 6;
         menu.IsOpen = true;
     }
-    private void MaximizeClick(object sender, RoutedEventArgs e) => NexaChrome.ToggleMaximize(this);
+    private void MaximizeClick(object sender, RoutedEventArgs e)
+    {
+        if (fullscreen) { ToggleFullscreen(); WindowState = WindowState.Maximized; }
+        else NexaChrome.ToggleMaximize(this);
+    }
     private void HomeClick(object sender, RoutedEventArgs e)
     {
         if (!SaveNow()) return;

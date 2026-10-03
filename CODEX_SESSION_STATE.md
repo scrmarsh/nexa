@@ -1,10 +1,19 @@
 # Nexa Codex Session State
 
 ## Current Goal
-Build Nexa 0.1.10 Alpha - Interface & Navigation Cleanup. Shared panel dismissal/chrome, hidden scrollbars, Home Recent Spaces and dashboard navigation/tips only. Preserve data, timer continuity and Settings autosave; no widget consolidation or Pixel Swarm overhaul.
+Build Nexa 0.1.11 Alpha — Bug Fixes, UI Refinements & Pixel Timer Performance. Preserve user data and session continuity; no 0.1.12 widget consolidation or 0.1.13 Pixel Swarm redesign.
 
 ## Current Phase
-Complete: implementation, builds, validation and release review. Commit on main with the requested release message; final report provides its hash. No push requested.
+Implementation complete. Final release build, targeted verification and Git review are in progress. Commit on main with the requested release message when checks pass. No push requested.
+
+## Nexa 0.1.11 Alpha Progress
+- Request read from attachment `abc95995-17fc-4d79-94ac-0cce7aa5da7c/Pasted text.txt`. Baseline main `80146d8631419504583e2c7e12cb316bff3e07e5`. Preserve pre-existing dirty `LEGACY.md`, `PUSH.txt` and unrelated untracked files; do not stage them.
+- Pixel Timer has device-aligned fixed square cells/even spacing, delayed resize layout, pooled visuals, and incremental fill updates. Existing timestamp-based session state remains authoritative. Fullscreen keeps prior normal bounds or maximized state; a brief content fade/scale softens transitions. Internal workspace resets/switches preserve window geometry.
+- Widget drag preview shows a blue landing shape and displaced-neighbor ghosts; three-across row insertion respects minimum widths. Stable drops preserve unrelated positions and honor left-edge placement after resize/scroll. No placement schema migration.
+- Recent Spaces uses four-card vertical columns with a chevron to expand horizontally. Settings primary/Experimental navigation, live no-session state, fixed-footer autosave status, Developer Play Sound, History Clear History confirmation, Create Space internal panel/Back/Close/filter, lowercase nexa branding and lighter caption controls are implemented.
+- Isolated Debug, Release and check-runner builds PASS zero warnings/errors. Existing WPF-generated default `obj` cache required fresh `obj/Alpha011b/` intermediate using restored assets; outputs are `bin/Checks011/` and `bin/Alpha011/`. Older running app was not overwritten. Release `--verify-startup` succeeds with 1,134 pixels, four presets and three packaged Bible editions; its render was inspected (`test-output/alpha011-final-startup`).
+- `--alpha011` 52 PASS (`test-output/20261003-171307`); `--polish107` 67 PASS (`171219`); `--alpha010` 72 PASS (`170445`); `--alpha019` 48 PASS (`170615`); `--continuityaudit` 42 PASS (`171413`); `--swarm` 37 PASS (`171517`); `--polish104` 22 PASS (`171845`). Seven suites / 340 assertions, with repeated coverage. Isolated synthetic stores and routed WPF input only. A real wide-widget left-edge regression was repaired; dashboard Clear History remains enabled without a selected row.
+- CHANGELOG, README and VALIDATION updated. No real user state, credentials, integration services or live audio devices were opened by checks. Physical mouse, mixed-DPI monitor and audible sound remain manual validation limits.
 
 ## Nexa 0.1.10 Alpha Progress
 - Request read completely from attachment 2bfbb76f-e5de-487b-b53f-92d02988f895/Pasted text.txt. Baseline main 897993de4323e4986f83b3a35b24fe3ba8d877d6. Preserve unrelated LEGACY.md, PUSH.txt and untracked user files.

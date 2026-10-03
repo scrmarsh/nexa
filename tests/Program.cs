@@ -17,6 +17,12 @@ internal static partial class Program
         Directory.CreateDirectory(output);
         try
         {
+            if(args.Contains("--alpha011"))
+            {
+                var stabilizationApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                stabilizationApp.InitializeComponent(); CheckAlpha011();
+                Console.WriteLine($"PASS: {passed} Alpha 0.1.11 stabilization checks. Artifacts: {output}"); stabilizationApp.Shutdown(); return 0;
+            }
             if(args.Contains("--alpha010"))
             {
                 var navigationApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
