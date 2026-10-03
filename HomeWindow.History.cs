@@ -11,8 +11,9 @@ internal sealed partial class HomeWindow
     private void OpenHistory()
     {
         if (!FlushSettingsForNavigation()) return;
-        var dialog = new NexaDialog { Title = "Nexa · History", Owner = this, Width = 1000, Height = 700, MinWidth = 740, MinHeight = 500, WindowStartupLocation = WindowStartupLocation.CenterOwner };
+        var dialog = new NexaPanel { Title = "Nexa · History", Owner = this, Width = 1000, Height = 700, MinWidth = 740, MinHeight = 500, WindowStartupLocation = WindowStartupLocation.CenterOwner };
         var root = new DockPanel { Margin = new Thickness(24) };
+        var heading = new TextBlock { Text = "History", FontSize = 26, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 16) }; DockPanel.SetDock(heading, Dock.Top); root.Children.Add(heading);
         var search = new TextBox { ToolTip = "Search session names and notes", Margin = new Thickness(0, 0, 0, 16) };
         System.Windows.Automation.AutomationProperties.SetName(search, "Search history");
         var filters = new Grid { Margin = new Thickness(0, 0, 0, 16) }; filters.ColumnDefinitions.Add(new()); filters.ColumnDefinitions.Add(new() { Width = new GridLength(150) }); filters.ColumnDefinitions.Add(new() { Width = new GridLength(160) });

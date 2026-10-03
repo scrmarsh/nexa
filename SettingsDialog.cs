@@ -5,7 +5,7 @@ using System.Windows.Media;
 
 namespace SessionDashboard;
 
-internal sealed partial class SettingsDialog : NexaDialog
+internal sealed partial class SettingsDialog : NexaPanel
 {
     private readonly StateStore store;
     private readonly AppState standaloneState;

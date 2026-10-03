@@ -2,6 +2,17 @@
 
 Development releases formerly numbered 1.0.1–1.0.8 are listed here as 0.1.1–0.1.8 Alpha. Alpha continues with 0.1.10, 0.1.11 and later patches; 0.2.x is reserved for an intentional Beta, and the eventual first stable release is 1.0.0. Original Git history and tags are unchanged.
 
+## Nexa 0.1.10 Alpha — Interface & Navigation Cleanup (2026-10-03)
+
+Makes Nexa's internal panels, Home and dashboard navigation cleaner and more consistent while preserving active sessions and saved data.
+
+- Shared secondary-panel chrome for Settings, Add Widgets, History, Changelog and About, with a persistent bottom-left Close button outside scrolling content. Main Home/dashboard window controls remain.
+- Esc dismisses the topmost panel; open dropdowns receive Esc first. Outside clicks are consumed before dashboard handlers, preventing Add Widgets from immediately reopening.
+- Dedicated Add Widget beside Session. Empty dashboard clicks still open the catalog; canvas plus shortcuts and their extra placement allowance are removed.
+- Global scrollbar controls are hidden while ScrollViewer wheel, trackpad and keyboard input remain available.
+- Home removes both greetings and the duplicate upper Changelog link. Recent Spaces defaults to four compact cards; More expands into additional columns where width permits, and Less restores four.
+- Subtle centered tips rotate every 45 seconds outside widget layout and pointer input. No widget consolidation, Pixel Swarm overhaul, new dependency, saved schema change or data reset.
+
 ## Nexa 0.1.9 Alpha — Versioning & Session Stability (2026-10-03)
 
 Introduces Nexa's Alpha version numbering system, improves release history and version labeling, and fixes active-session state handling and settings persistence.

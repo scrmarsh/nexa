@@ -16,7 +16,7 @@ internal static partial class Program
         object? Call(object target, string name, params object?[] args) => target.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).Single(m => m.Name == name && m.GetParameters().Length == args.Length).Invoke(target, args);
         void Set(object target, string name, object value) => target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(target, value);
         void Tap(DependencyObject scope, string label) => Descendants(scope).OfType<Button>().Single(b => Equals(b.Content, label)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-        Assert(App.AppVersion == "0.1.9", "Current version is 0.1.9");
+        Assert(App.AppVersion == "0.1.10", "Current version is 0.1.10");
         var cases = new Dictionary<string, decimal> { ["2+3*4"] = 14, ["(2+3)*4"] = 20, ["1.5+2.25"] = 3.75m, ["200*10%"] = 20, ["-4+8/2"] = 0, ["9-2"] = 7, ["100/4"] = 25, ["50%"] = .5m };
         foreach (var item in cases) Assert(Calculator.Evaluate(item.Key) == item.Value, "Calculator evaluates " + item.Key);
         foreach (var invalid in new[] { "2/0", "1.2.3", "2+", "x", new string('1', 257) })
@@ -32,9 +32,9 @@ internal static partial class Program
         initial.Notes = "Keep local notes"; store.Save(Continuity.Activate(Continuity.Migrate(new AppState { Widgets = initial.Widgets, WidgetLayoutInitialized = true, Session = initial.Session, Notes = initial.Notes }, store.UserId), store.UserId));
         var profile = store.LoadProfile(); profile.DisplayName = "Student"; store.SaveProfile(profile);
         var home = new HomeWindow(store); home.Show(); Pump(TimeSpan.FromMilliseconds(180));
-        Assert(Descendants(home).OfType<TextBlock>().Any(t => t.Text == "Welcome back, Student") && !Descendants(home).OfType<TextBlock>().Any(t => t.Text.Contains("Auto-saved")), "Home greeting is personalized with no autosave label");
+        Assert(!Descendants(home).OfType<TextBlock>().Any(t => t.Text.StartsWith("Welcome back,") || t.Text.StartsWith("Hey,")) && !Descendants(home).OfType<TextBlock>().Any(t => t.Text.Contains("Auto-saved")), "Home keeps profile data without greetings or autosave clutter");
         Call(home, "OpenSettings", "Profile"); var homeSettings = home.OwnedWindows.OfType<SettingsDialog>().Single(); profile.DisplayName = ""; store.SaveProfile(profile); homeSettings.Close();
-        Assert(!Descendants(home).OfType<TextBlock>().Any(t => t.IsVisible && t.Text.StartsWith("Welcome back,")), "Clearing profile name immediately hides Home greeting after Settings closes"); home.Close();
+        Assert(!Descendants(home).OfType<TextBlock>().Any(t => t.IsVisible && t.Text.StartsWith("Welcome back,")), "Home remains greeting-free after profile changes"); home.Close();
         var window = new MainWindow(store) { Width = 1220 }; window.Show(); Pump(TimeSpan.FromMilliseconds(200));
         Border Frame(WidgetInstance widget) => window.WidgetCanvas.Children.OfType<Border>().Single(b => Equals(b.Tag, widget.Id));
         Rect Bounds(WidgetInstance widget) { var frame = Frame(widget); return new Rect(Canvas.GetLeft(frame), Canvas.GetTop(frame), frame.Width, frame.Height); }

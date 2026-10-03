@@ -18,6 +18,7 @@
                 <StackPanel x:Name="TopNavigation" Grid.Column="1" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Button Content="Home" Click="HomeClick" Padding="14,5" Margin="0,0,8,0"/>
                     <Button x:Name="SessionSettingsButton" Content="Session" Click="DashboardSettingsClick" Style="{StaticResource PrimaryButton}" Padding="14,5"/>
+                    <Button x:Name="AddWidgetButton" Content="Add Widget" Click="AddWidgetClick" Padding="14,5" Margin="8,0,0,0"/>
                     <Button x:Name="DeveloperSplashButton" Content="Preview Splash" MinWidth="132" Padding="12,6" Click="DeveloperSplashClick" Visibility="Collapsed"/>
                     <Button x:Name="DeveloperResetButton" Content="Reset dev" Click="DeveloperResetClick" Visibility="Collapsed"/>
                 </StackPanel>
@@ -199,6 +200,7 @@
         </DockPanel>
     </Grid>
     </DockPanel>
+    <TextBlock x:Name="DashboardTip" Text="Tip: Click empty space to add a widget." HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="16,0,16,5" MaxWidth="600" FontSize="11" Foreground="{DynamicResource MutedBrush}" Opacity="0.65" IsHitTestVisible="False" Panel.ZIndex="5" TextAlignment="Center" TextWrapping="Wrap"/>
     <Grid x:Name="SwarmGameZone" Panel.ZIndex="100" Visibility="Collapsed" Background="{DynamicResource BackgroundBrush}" ClipToBounds="True" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
     </Grid>
 </Window>

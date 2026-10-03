@@ -1,10 +1,21 @@
 # Nexa Codex Session State
 
 ## Current Goal
-Prepare Nexa 0.1.9 Alpha - Versioning & Session Stability. Keep this release limited to numbering/history/version labels, active-session Settings, automatic persistence and data safety. No widget/menu/game redesign.
+Build Nexa 0.1.10 Alpha - Interface & Navigation Cleanup. Shared panel dismissal/chrome, hidden scrollbars, Home Recent Spaces and dashboard navigation/tips only. Preserve data, timer continuity and Settings autosave; no widget consolidation or Pixel Swarm overhaul.
 
 ## Current Phase
-Nexa 0.1.9 Alpha implementation, targeted validation and release documentation complete. Commit identity is reported with completion.
+Complete: implementation, builds, validation and release review. Commit on main with the requested release message; final report provides its hash. No push requested.
+
+## Nexa 0.1.10 Alpha Progress
+- Request read completely from attachment 2bfbb76f-e5de-487b-b53f-92d02988f895/Pasted text.txt. Baseline main 897993de4323e4986f83b3a35b24fe3ba8d877d6. Preserve unrelated LEGACY.md, PUSH.txt and untracked user files.
+- Shared owned-panel shell removes only secondary title bars; primary Home/dashboard chrome remains. Persistent bottom-left Close stays outside scrolling content. Shared topmost Esc and consumed outside clicks preserve session/autosave behavior; native dropdowns receive Escape first.
+- Dashboard Add Widget beside Session; remove canvas plus shortcut and its placement allowance. Empty-space adding remains. Noninteractive centered tips rotate every 45 seconds outside widget layout.
+- Home removes both greetings and duplicate upper Changelog. Four most recent non-developer Spaces default to compact two-column cards; More expands into additional columns where width permits and Less restores four.
+- Global scrollbar style hides only controls; ScrollViewer providers/input remain. Project/manifest and shared labels use 0.1.10 Alpha; historical 0.1.9 remains an explicit release entry.
+- No saved schema, widget consolidation, game overhaul, new dependency, integration or user-data changes. Isolated Debug, final Release and check-runner builds PASS zero warnings/errors; output bin/Alpha010/Nexa.exe avoids the running default Debug executable.
+- Five targeted suites PASS: --alpha010 72 (test-output/20261003-145906), --alpha019 47 (144658), --polish104 22 (144907), --polish107 67 (145014), --continuityaudit 42 (150016): 250 assertions, including repeated shared model checks. Covers persistent Close, panel/stack/dropdown Escape, consumed outside clicks, scrolling with hidden chrome, Recent Spaces, tips, exact session continuity, debounced autosave/retry, timer/stopwatch and drag/resize/reload.
+- Final review corrected dashboard History’s old modal path: it now uses shared outside-click dismissal, with a body heading and preserved archived/current content. Its actual WPF checks and screenshot pass. Continuity verifies import/export, owner isolation, reset/continue/merge, real autosave and I/O recovery.
+- Home, dashboard, Settings, Add Widgets, History, Changelog, About and expanded Recent Spaces renders inspected. Synthetic stores and routed WPF input only; physical mouse/trackpad checks remain manual. No personal data or live integration accounts opened; existing running app preserved. VALIDATION.md records actual evidence and limits.
 
 ## Nexa 0.1.9 Alpha Progress
 - Baseline main: 29d72029ed93d402e81fdad72434d9a2be3db330. Preserve unrelated LEGACY.md, PUSH.txt and untracked user files; do not stage them.

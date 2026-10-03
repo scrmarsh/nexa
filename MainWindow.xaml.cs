@@ -77,6 +77,7 @@ public partial class MainWindow
         InitializeContinuity();
         UpdateDeveloperToolsVisibility();
         InitializeWidgets();
+        InitializeDashboardTips();
         Countdown.Cursor = System.Windows.Input.Cursors.Hand; Countdown.ToolTip = "Click to edit session duration";
         Countdown.MouseLeftButtonUp += SessionTimeEditClick;
         foreach (var button in TopNavigation.Children.OfType<Button>().Where(b => b.Content is string text && text == "Home")) button.Content = NexaIcons.Label("Home");
@@ -492,6 +493,7 @@ public partial class MainWindow
     }
     private void WindowKeyDown(object sender, KeyEventArgs e)
     {
+        if (NexaPanels.HandleEscape(this, e)) return;
         if(HandleWidgetUndoKey(e)) return;
         if (e.Key == Key.Escape && focusedWidget != null) { ClearWidgetFocus(); e.Handled = true; return; }
         if (e.Key == Key.Escape && storyOpen) { ExitBoredomMode(); e.Handled = true; return; }
@@ -516,6 +518,7 @@ public partial class MainWindow
         Detach(CountdownHost); CompactTimerHost.Visibility = compact ? Visibility.Visible : Visibility.Collapsed;
         if (compact) CompactTimerHost.Children.Add(CountdownHost); else PixelInfo.Children.Insert(0, CountdownHost);
         FooterStatus.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
+        DashboardTip.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
         SessionRange.Visibility = Visibility.Collapsed;
         Countdown.FontSize = compact ? 32 : 40;
     }

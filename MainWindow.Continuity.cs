@@ -194,7 +194,7 @@ public partial class MainWindow
         Continuity.Access(Continuity.Current(candidate, store.UserId));
         if (!CommitWorkspace(candidate)) RefreshDashboardPicker();
     }
-    private NexaDialog Dialog(string title, double width = 720, double height = 650) => new NexaDialog()
+    private NexaDialog Dialog(string title, double width = 720, double height = 650) => new NexaPanel()
     {
         Title = title, Width = width, Height = height, MinWidth = 420, MinHeight = 300, Owner = this,
         WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = Brush("BackgroundBrush"), Foreground = Brush("TextBrush")
@@ -259,6 +259,7 @@ public partial class MainWindow
         if (!SaveNow()) return;
         var dialog = Dialog("Previous sessions — " + Continuity.Current(state.Workspace!, store.UserId).Name, 1050, 740);
         var root = new DockPanel { Margin = new Thickness(20) };
+        var heading = new TextBlock { Text = "History", FontSize = 26, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 16) }; DockPanel.SetDock(heading, Dock.Top); root.Children.Add(heading);
         var filters = new WrapPanel { Margin = new Thickness(0, 0, 0, 12) }; DockPanel.SetDock(filters, Dock.Top); root.Children.Add(filters);
         filters.Children.Add(new TextBlock { Text = "Search name / notes ", VerticalAlignment = VerticalAlignment.Center });
         var search = new TextBox { Width = 180, Margin = new Thickness(0, 0, 12, 0) }; filters.Children.Add(search);
@@ -346,7 +347,7 @@ public partial class MainWindow
             selected.LastAccessedAt = DateTimeOffset.Now; Changed();
         };
         search.TextChanged += (_, _) => Refresh(); date.SelectedDateChanged += (_, _) => Refresh(); sort.SelectionChanged += (_, _) => Refresh();
-        Refresh(); dialog.Content = root; dialog.ShowDialog();
+        Refresh(); dialog.Content = root; dialog.ShowDismissible();
     }
     internal static string PreviewSession(DashboardSession session)
     {

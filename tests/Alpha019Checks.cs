@@ -19,9 +19,9 @@ internal static partial class Program
         SettingsDialog Open(MainWindow w, string section) { w.OpenMainSettings(section); Pump(TimeSpan.FromMilliseconds(70)); return w.OwnedWindows.OfType<SettingsDialog>().Single(); }
         TextBox Name(SettingsDialog s) => Descendants(s).OfType<TextBox>().Single(t => t.Name == "SessionName");
         void Click(CheckBox b, bool value) { b.IsChecked = value; b.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent)); }
-        Assert(App.AppVersion == "0.1.9" && App.VersionLabel == "Nexa 0.1.9 Alpha", "Current version and shared Alpha label");
+        Assert(App.AppVersion == "0.1.10" && App.VersionLabel == "Nexa 0.1.10 Alpha", "Current version and shared Alpha label");
         Assert(App.ReleaseLabel("0.1.10") == "Nexa 0.1.10 Alpha", "Two-digit future Alpha patches keep their full version");
-        Assert(ReleaseNotes.All.Select(r => r.Version).SequenceEqual(Enumerable.Range(1, 9).Reverse().Select(n => "0.1." + n)), "History includes all nine ordered Alpha releases");
+        Assert(ReleaseNotes.All.Select(r => r.Version).SequenceEqual(Enumerable.Range(1, 10).Reverse().Select(n => "0.1." + n)), "History includes all ten ordered Alpha releases");
         Assert(ReleaseNotes.All.All(r => !string.IsNullOrWhiteSpace(r.Title) && !string.IsNullOrWhiteSpace(r.Summary)), "Every release has a title and description");
         Assert(ReleaseNotes.All.Last().Title == "Bug Fixes" && ReleaseNotes.All.Last().Summary == "General bug fixes and stability improvements during early Alpha development.", "Restored early release uses only the documented description");
         var store = new StateStore(Path.Combine(output, "alpha019.json"));

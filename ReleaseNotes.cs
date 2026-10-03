@@ -8,7 +8,16 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
-        new(App.AppVersion, "October 3, 2026", "Versioning & Session Stability", "Introduces Nexa's Alpha version numbering system, improves release history and version labeling, and fixes active-session state handling and settings persistence.",
+        new(App.AppVersion, "October 3, 2026", "Interface & Navigation Cleanup", "Makes Nexa's internal panels, Home and dashboard navigation cleaner and more consistent.",
+        [
+            "Settings, Add Widgets, History, Changelog and About use shared panel chrome with a persistent bottom-left Close button.",
+            "Escape and outside clicks dismiss the topmost panel. Outside clicks are consumed so Add Widgets cannot reopen from the same click.",
+            "A dedicated Add Widget button sits beside Session; empty dashboard space stays clear and remains clickable.",
+            "Scrollbar controls are hidden while wheel, trackpad and keyboard scrolling remain available.",
+            "Home removes greetings and its duplicate Changelog link. Recent Spaces starts with four compact cards and expands with More.",
+            "Subtle centered dashboard tips leave widget layout and pointer input untouched. Session timing, autosave and saved data are preserved."
+        ]),
+        new("0.1.9", "October 3, 2026", "Versioning & Session Stability", "Introduces Nexa's Alpha version numbering system, improves release history and version labeling, and fixes active-session state handling and settings persistence.",
         [
             "One shared Alpha version label across Home, About, splash and release history.",
             "Settings recognizes the existing session from the dashboard or Home without creating or restarting it.",

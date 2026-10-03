@@ -39,20 +39,13 @@
           </ControlTemplate></Setter.Value></Setter>
         </Style>
         <Style TargetType="Expander"><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/></Style>
+        <!-- Keep ScrollViewer input/extent behavior; hide only the scrollbar controls. -->
         <Style TargetType="ScrollBar">
-            <Setter Property="Width" Value="10"/>
-            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
-            <Setter Property="Template"><Setter.Value>
-                <ControlTemplate TargetType="ScrollBar">
-                    <Grid Background="{TemplateBinding Background}">
-                        <Track x:Name="PART_Track" IsDirectionReversed="True" Orientation="Vertical">
-                            <Track.DecreaseRepeatButton><RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="False"/></Track.DecreaseRepeatButton>
-                            <Track.Thumb><Thumb><Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="{DynamicResource AccentBrush}" CornerRadius="4" Margin="2,0"/></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
-                            <Track.IncreaseRepeatButton><RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="False"/></Track.IncreaseRepeatButton>
-                        </Track>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value></Setter>
+            <Setter Property="Width" Value="0"/><Setter Property="Height" Value="0"/>
+            <Setter Property="MinWidth" Value="0"/><Setter Property="MinHeight" Value="0"/>
+            <Setter Property="MaxWidth" Value="0"/><Setter Property="MaxHeight" Value="0"/>
+            <Setter Property="Focusable" Value="False"/><Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ScrollBar"><Border/></ControlTemplate></Setter.Value></Setter>
         </Style>
       </ResourceDictionary>
     </Application.Resources>

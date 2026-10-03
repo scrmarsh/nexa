@@ -12,10 +12,11 @@ internal sealed partial class HomeWindow : NexaDialog
 {
     private readonly StateStore store;
     internal AppState Saved { get; private set; }
-    internal readonly StackPanel Recent = new();
+    internal readonly WrapPanel Recent = new() { ItemWidth = 288, ItemHeight = 84, HorizontalAlignment = HorizontalAlignment.Left };
+    private readonly Button recentMore = new() { Content = "More", Padding = new Thickness(12, 6, 12, 6), HorizontalAlignment = HorizontalAlignment.Right };
+    private bool recentExpanded;
     internal readonly Button ContinueButton;
     private readonly TextBlock feedback = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 20, 0, 0) };
-    private readonly TextBlock profileGreeting = new() { FontSize = 14, Margin = new Thickness(0, 10, 0, 0) };
     internal HomeWindow(StateStore store)
     {
         this.store = store; Saved = store.Load();
@@ -25,7 +26,6 @@ internal sealed partial class HomeWindow : NexaDialog
         Title = "Nexa"; Width = Saved.WindowWidth; Height = Saved.WindowHeight; MinWidth = 740; MinHeight = 550; WindowStartupLocation = WindowStartupLocation.CenterScreen;
         var panel = new StackPanel { Margin = new Thickness(60, 36, 60, 40), MaxWidth = 960 };
         BuildHomeHeader(panel);
-        profileGreeting.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush"); panel.Children.Add(profileGreeting); RefreshProfileGreeting();
         var actions = new System.Windows.Controls.Primitives.UniformGrid { Columns = 3, Margin = new Thickness(0, 32, 0, 0) };
         Button IconAction(string label, string asset, Color hoverColor)
         {
@@ -70,16 +70,11 @@ internal sealed partial class HomeWindow : NexaDialog
         actions.Children.Add(ContinueButton);
         var import = IconAction("Import Space", "import.png", Color.FromRgb(255, 176, 75));
         import.Click += (_, _) => ImportDashboard(); actions.Children.Add(import); panel.Children.Add(actions);
-        panel.Children.Add(new TextBlock { Text = "Recent Spaces", FontSize = 20, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 22, 0, 12) });
-        foreach (var d in (Saved.Workspace?.Dashboards ?? []).Where(d => d.PresetOrigin != "Developer mode").OrderByDescending(d => d.Current.LastAccessedAt))
-        {
-            var content = new StackPanel(); content.Children.Add(new TextBlock { Text = d.Name, FontSize = 17, FontWeight = FontWeights.SemiBold });
-            content.Children.Add(new TextBlock { Text = $"{d.PresetOrigin} · Last opened {d.Current.LastAccessedAt.LocalDateTime:g}", Foreground = (Brush)FindResource("MutedBrush"), Margin = new Thickness(0, 7, 0, 0) });
-            var button = new Button { Content = content, HorizontalContentAlignment = HorizontalAlignment.Left, Padding = new Thickness(16, 12, 16, 12), Margin = new Thickness(0, 0, 0, 7) };
-            button.Click += (_, _) => OpenDashboard(d.DashboardId); Recent.Children.Add(button);
-        }
-        if (Recent.Children.Count == 0) Recent.Children.Add(new TextBlock { Text = "Your first Space starts here. Choose a template or a blank canvas.", TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("MutedBrush") });
-        panel.Children.Add(Recent);
+        var recentHeading = new DockPanel { Margin = new Thickness(0, 22, 0, 12) };
+        DockPanel.SetDock(recentMore, Dock.Right); recentHeading.Children.Add(recentMore);
+        recentHeading.Children.Add(new TextBlock { Text = "Recent Spaces", FontSize = 20, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center });
+        recentMore.Click += (_, _) => { recentExpanded = !recentExpanded; RefreshRecentSpaces(); };
+        panel.Children.Add(recentHeading); panel.Children.Add(Recent); RefreshRecentSpaces();
         if (!string.IsNullOrWhiteSpace(store.Warning)) { feedback.Text = store.Warning; panel.Children.Add(feedback); var hide = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(6) }; hide.Tick += (_, _) => { hide.Stop(); feedback.Visibility = Visibility.Collapsed; }; Loaded += (_, _) => hide.Start(); Closed += (_, _) => hide.Stop(); }
         var footer = new Grid { Margin = new Thickness(0, 22, 0, 0) }; footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto }); footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
         var left = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };

@@ -63,7 +63,7 @@ internal static class NexaChrome
         var brand = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(14, 0, 8, 0) };
         brand.Children.Add(new Image { Source = Icon, Width = 22, Height = 22, Margin = new Thickness(0, 0, 10, 0) });
         brand.Children.Add(new TextBlock { Text = window.Title, VerticalAlignment = VerticalAlignment.Center, FontWeight = FontWeights.SemiBold }); dock.Children.Add(brand);
-        var caption = new Border { Height = 44, BorderThickness = new Thickness(0, 0, 0, 1), Child = dock }; caption.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); caption.SetResourceReference(Border.BorderBrushProperty, "LineBrush"); return caption;
+        var caption = new Border { Tag = "WindowCaption", Height = 44, BorderThickness = new Thickness(0, 0, 0, 1), Child = dock }; caption.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); caption.SetResourceReference(Border.BorderBrushProperty, "LineBrush"); return caption;
     }
     internal static void TransferBounds(Window source, Window target)
     {
@@ -81,20 +81,25 @@ internal class NexaDialog : Window
     private bool wrapping;
     private bool closingWithFade;
     internal UIElement? Body { get; private set; }
-    internal NexaDialog()
+    internal bool IsPanel { get; }
+    internal NexaDialog(bool panel = false)
     {
+        IsPanel = panel;
         NexaChrome.Apply(this);
+        if (panel)
+        {
+            ShowInTaskbar = false; ResizeMode = ResizeMode.NoResize;
+            WindowChrome.SetWindowChrome(this, new WindowChrome { CaptionHeight = 0, ResizeBorderThickness = new Thickness(0), GlassFrameThickness = new Thickness(0), UseAeroCaptionButtons = false });
+        }
         SetResourceReference(BackgroundProperty, "BackgroundBrush"); SetResourceReference(ForegroundProperty, "TextBrush");
+        Loaded += (_, _) => NexaPanels.Register(this);
+        Closed += (_, _) => NexaPanels.Unregister(this);
+        PreviewKeyDown += (_, e) => NexaPanels.HandleEscape(this, e);
+        SourceInitialized += (_, _) => { if (panel && Owner != null) NexaPanels.FitOwner(this); };
     }
     internal void ShowDismissible()
     {
-        if (Owner is { } owner)
-        {
-            System.Windows.Input.MouseButtonEventHandler? outside = null;
-            outside = (_, _) => { if (IsVisible && !closingWithFade) CloseWithFade(); };
-            owner.AddHandler(UIElement.PreviewMouseDownEvent, outside, true);
-            Closed += (_, _) => owner.RemoveHandler(UIElement.PreviewMouseDownEvent, outside);
-        }
+        NexaPanels.EnableOutsideDismissal(this);
         Show();
         Activate();
     }
@@ -123,7 +128,13 @@ internal class NexaDialog : Window
         Body = body;
         wrapping = true;
         Content = null;
-        var dock = new DockPanel(); var caption = NexaChrome.Caption(this); DockPanel.SetDock(caption, Dock.Top); dock.Children.Add(caption); dock.Children.Add(body);
+        var dock = new DockPanel();
+        if (IsPanel)
+        {
+            var footer = NexaPanels.CloseFooter(this); DockPanel.SetDock(footer, Dock.Bottom); dock.Children.Add(footer);
+        }
+        else { var caption = NexaChrome.Caption(this); DockPanel.SetDock(caption, Dock.Top); dock.Children.Add(caption); }
+        dock.Children.Add(body);
         var frame = new Border { Child = dock, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), SnapsToDevicePixels = true };
         frame.SetResourceReference(Border.BorderBrushProperty, "LineBrush");
         Content = frame; wrapping = false;

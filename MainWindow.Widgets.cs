@@ -164,11 +164,6 @@ public partial class MainWindow
             }
             WidgetCanvas.Children.Add(frame); widgetFrames.Add(widget.Id, frame);
         }
-        var addWidget = new Button { Tag = "AddWidgetShortcut", Width = 88, Height = 88, Background = Brushes.Transparent, BorderThickness = new Thickness(0), Padding = new Thickness(16), Opacity = .28, ToolTip = "Add widget" };
-        System.Windows.Automation.AutomationProperties.SetName(addWidget, "Add widget");
-        addWidget.Content = NexaIcons.Create("Add widget");
-        addWidget.MouseEnter += (_, _) => addWidget.Opacity = .8; addWidget.MouseLeave += (_, _) => addWidget.Opacity = .28;
-        addWidget.Click += (_, e) => { addWidgetLocation = new Point(Canvas.GetLeft(addWidget), Canvas.GetTop(addWidget)); AddWidgetClick(addWidget, e); }; WidgetCanvas.Children.Add(addWidget);
         ArrangeWidgetFrames(); UpdateWidgetClocks(DateTimeOffset.Now);
     }
     private ControlTemplate HandleTemplate(string text)
@@ -290,18 +285,6 @@ public partial class MainWindow
             Canvas.SetTop(frame,rect.Y); occupied.Add(rect);
         }
         WidgetCanvas.Height = Math.Max(WidgetCanvas.Height, widgetFrames.Values.Select(f => Canvas.GetTop(f) + f.Height).DefaultIfEmpty(0).Max());
-        if (WidgetCanvas.Children.OfType<Button>().FirstOrDefault(b => Equals(b.Tag, "AddWidgetShortcut")) is { } add)
-        {
-            Point? slot = null;
-            for (var y = 0d; y + 96 <= WidgetCanvas.Height && slot == null; y += 24)
-                for (var x = 0d; x + 96 <= WidgetCanvas.ActualWidth; x += 24)
-                {
-                    var area = new Rect(x, y, 96, 96);
-                    if (widgetFrames.Values.All(f => !area.IntersectsWith(new Rect(Canvas.GetLeft(f), Canvas.GetTop(f), f.Width, f.Height)))) { slot = new Point(x, y); break; }
-                }
-            if (slot == null) { slot = new Point((WidgetCanvas.ActualWidth - 88) / 2, top + WidgetGap); WidgetCanvas.Height = Math.Max(WidgetCanvas.Height, top + 104); }
-            Canvas.SetLeft(add, slot.Value.X); Canvas.SetTop(add, slot.Value.Y);
-        }
         foreach (var (id, handles) in widgetResizeHandles)
         {
             var frame = widgetFrames[id];
@@ -553,8 +536,10 @@ public partial class MainWindow
     private void DoneEditingClick(object sender, RoutedEventArgs e) { if (!SaveNow()) return; editingDashboard = false; RenderWidgets(); }
     private void AddWidgetClick(object sender, RoutedEventArgs e)
     {
+        if (NexaPanels.DismissTopmost(this)) { addWidgetLocation = null; e.Handled = true; return; }
         var location = addWidgetLocation; addWidgetLocation = null;
         var dialog = Dialog("Nexa · Add widget", 680, 720); var root = new DockPanel { Margin = new Thickness(24) };
+        var heading = new TextBlock { Text = "Add Widgets", FontSize = 26, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 16) }; DockPanel.SetDock(heading, Dock.Top); root.Children.Add(heading);
         var search = new TextBox { ToolTip = "Search widgets", Margin = new Thickness(0, 0, 0, 16) }; System.Windows.Automation.AutomationProperties.SetName(search, "Search widgets"); DockPanel.SetDock(search, Dock.Top); root.Children.Add(search);
         var list = new StackPanel(); root.Children.Add(new ScrollViewer { Content = list, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, CanContentScroll = false });
         void Refresh()

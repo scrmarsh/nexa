@@ -12,11 +12,8 @@ internal sealed partial class HomeWindow
     {
         var header = new Grid(); header.ColumnDefinitions.Add(new() { Width = new GridLength(300) }); header.ColumnDefinitions.Add(new() { Width = new GridLength(32) }); header.ColumnDefinitions.Add(new());
         var brand = new StackPanel(); header.Children.Add(brand);
-        var profile=store.LoadProfile();
-        if(!string.IsNullOrWhiteSpace(profile.DisplayName)) brand.Children.Add(new TextBlock { Text="Hey, "+profile.DisplayName+".",FontSize=16,Margin=new Thickness(0,0,0,8) });
         brand.Children.Add(new NexaLogo { Width = 290, Height = 92, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(-10, 0, 0, 0) });
         brand.Children.Add(new TextBlock { Text = App.VersionLabel, Foreground = (Brush)FindResource("MutedBrush"), FontSize = 13, Margin = new Thickness(0, 8, 0, 12) });
-        var changelog = new Button { Content = "Changelog", HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(16, 8, 16, 8) }; changelog.Click += (_, _) => OpenChangelog(); brand.Children.Add(changelog);
         var tagline = new TextBlock { Text = "", FontSize = 24, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("TextBrush"), VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 25, 0, 0), MinHeight = 64 };
         System.Windows.Automation.AutomationProperties.SetName(tagline, "Home tagline"); Grid.SetColumn(tagline, 2); header.Children.Add(tagline); panel.Children.Add(header);
         const string phrase = "a space for whatever comes next";
@@ -39,7 +36,7 @@ internal sealed partial class HomeWindow
         Loaded += (_, _) => typing.Start(); Closed += (_, _) => typing.Stop();
     }
 
-    private NexaDialog InfoDialog(string title, double width = 720, double height = 620) => new() { Title = "Nexa · " + title, Owner = this, Width = width, Height = height, MinWidth = 540, MinHeight = 440, WindowStartupLocation = WindowStartupLocation.CenterOwner };
+    private NexaDialog InfoDialog(string title, double width = 720, double height = 620) => new NexaPanel { Title = "Nexa · " + title, Owner = this, Width = width, Height = height, MinWidth = 540, MinHeight = 440, WindowStartupLocation = WindowStartupLocation.CenterOwner };
     private TextBlock Copy(string text, double size = 14) => new() { Text = text, FontSize = size, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("MutedBrush"), Margin = new Thickness(0, 0, 0, 16), LineHeight = size * 1.55 };
 
     private void OpenAbout()
