@@ -155,6 +155,18 @@ internal static partial class Program
             ((SolidColorBrush)space.FullContent.Resources["DashboardPanelBrush"]).Color == Colors.White &&
             ((SolidColorBrush)app.Resources["AccentBrush"]).Color == (Color)ColorConverter.ConvertFromString("#38BDF8"),
             "Space Settings switches global and dashboard chrome to Light/Aurora immediately");
+        Assert(((SolidColorBrush)space.Background).Color == Color.FromRgb(239, 243, 248) &&
+            ((SolidColorBrush)space.DashboardHeader.Background).Color == Colors.White &&
+            ((SolidColorBrush)settings.Background).Color == Color.FromRgb(239, 243, 248),
+            "Light selection repaints the visible Space, header and Settings window");
+        Snapshot(space, "appearance-light-space", 1100, 760);
+        modeSelector.SelectedItem = ThemeMode.Dark; Pump(TimeSpan.FromMilliseconds(70));
+        Assert(((SolidColorBrush)space.Background).Color != Color.FromRgb(239, 243, 248) &&
+            ((SolidColorBrush)space.DashboardHeader.Background).Color != Colors.White &&
+            ((SolidColorBrush)settings.Background).Color != Color.FromRgb(239, 243, 248),
+            "Dark selection repaints the visible Space, header and Settings window");
+        Snapshot(space, "appearance-dark-space", 1100, 760);
+        modeSelector.SelectedItem = ThemeMode.Light;
         settings.FlushPendingChanges(); settings.Close(); space.Close();
         var home = new HomeWindow(appearanceStore) { Left = -10000, Top = -10000,
             WindowStartupLocation = WindowStartupLocation.Manual, ShowActivated = false };
