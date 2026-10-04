@@ -4,6 +4,8 @@
 
 The anchored Pixel Timer now resizes from its right edge and leaves usable top-row space for other widgets. Its target menu has Date, Time and Use Today's Date; the latter proposes one hour from now without starting a session. Dashboard cards compact after editing, use their rendered bounds for placement, show a blue landing preview and scroll near the viewport edges during a drag.
 
+- Follow-up: the Pixel Timer defaults to the 360-pixel expanded Clock height and can be resized vertically from its bottom edge. Its height saves per Space without changing the timer or Pixel Swarm behavior.
+
 Clock, Stopwatch and Calendar have saved Compact/Expanded modes. Session Timeline can open Audio Recorder or Hedy Notes without starting capture. Session settings are visible only in a Space, alongside a separate global Settings action; theme changes apply immediately from Home or a Space. Home/splash branding and the Home footer have been refined.
 
 Calendar now supports Google and Outlook as optional read-only sources, with the selected provider/calendar saved per widget. OAuth authorization uses PKCE and owner-scoped Windows protected storage; no account is needed for local tools. Water Bottle Counter has a filling glass; Notes uses a larger ruled writing surface. Existing Task List/Notes/Counter consolidation, Focus Reset category and verified Experimental Updates remain available.

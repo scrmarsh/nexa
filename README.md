@@ -1,6 +1,6 @@
 ## Nexa 0.1.12 Alpha — Dashboard & Widget UX Update
 
-The Pixel Timer stays anchored at the top-left. Drag its right edge to change only its width; compact cards such as Clock can share the remaining top row. Click its time to set a target date and time, or choose **Use Today's Date** to propose one hour from now without starting a session. Cards show a blue landing preview and compact upward after moves, removals or smaller resizes. Drag near the viewport's top or bottom to scroll through a long Space.
+The Pixel Timer stays anchored at the top-left. It starts at the same height as an expanded digital-and-analog Clock. Drag its right edge to change its width or its bottom edge to change its height; both dimensions save with the Space. Compact cards such as Clock can share the remaining top row. Click the timer to set a target date and time, or choose **Use Today's Date** to propose one hour from now without starting a session. Cards show a blue landing preview and compact upward after moves, removals or smaller resizes. Drag near the viewport's top or bottom to scroll through a long Space.
 
 Clock, Stopwatch and Calendar offer saved **Compact** and **Expanded** views. Session Timeline opens Audio Recorder and Hedy Notes without automatically recording. Global Settings sits immediately left of the per-Space **Session** button; Home Settings no longer shows a Session tab. Notes has a ruled writing surface, and Water Bottle Counter shows a glass that fills with the saved count.
 

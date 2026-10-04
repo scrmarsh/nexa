@@ -38,6 +38,7 @@ public sealed class WidgetInstance
     public decimal Value { get; set; }
     public int WaterBottleGoal { get; set; } = 8;
     public int BannerSpan { get; set; } = 13;
+    public int BannerHeight { get; set; } = 360;
     public string CounterMode { get; set; } = "Standard";
     public string DisplayMode { get; set; } = "Auto";
     public List<TaskItem> Items { get; set; } = [];
@@ -264,7 +265,7 @@ public static class WidgetLibrary
                 w.FlashcardDecks.Count > 1000 || w.FlashcardDecks.Any(deck => deck == null || deck.Id == Guid.Empty || string.IsNullOrWhiteSpace(deck.Name) || deck.Name.Length > 200 || deck.Cards == null || deck.Cards.Count > 10000 || deck.Cards.Any(card => card == null || card.Id == Guid.Empty || card.Front == null || card.Back == null || card.StudyState == null || card.Front.Length > 10000 || card.Back.Length > 10000)) ||
                 w.Column < 0 || w.GridColumns is not (12 or 20) || w.Span < 1 || w.Column + w.Span > w.GridColumns || w.Row is < 0 or > 30000 || w.Height < 24 || w.Height > 1440 || w.TimerMinutes is < 1 or > 10080 || w.TimerDurationSeconds is < 1 or > 604800 || !double.IsFinite(w.StopwatchElapsedSeconds) || w.StopwatchElapsedSeconds < 0 ||
                 w.Categories.Any(c => c == null) || w.Fields.Any(f => f == null) || w.Increment == 0 ||
-                w.CounterMode is not ("Standard" or "Distraction") || w.DisplayMode is not ("Auto" or "Compact" or "Expanded") || w.WaterBottleGoal is < 1 or > 100 || w.BannerSpan is < 9 or > 20) throw new InvalidDataException("Invalid widget configuration.");
+                w.CounterMode is not ("Standard" or "Distraction") || w.DisplayMode is not ("Auto" or "Compact" or "Expanded") || w.WaterBottleGoal is < 1 or > 100 || w.BannerSpan is < 9 or > 20 || w.BannerHeight is < 312 or > 960) throw new InvalidDataException("Invalid widget configuration.");
             if (w.PanelKey.Length > 0 && (!new[] { "pixels", "setup", "timeline", "notes", "tasks", "hedy" }.Contains(w.PanelKey) || !panels.Add(w.PanelKey))) throw new InvalidDataException("Invalid linked panel.");
         }
     }

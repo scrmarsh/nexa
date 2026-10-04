@@ -40,6 +40,12 @@ internal static partial class Program
             "Pixel Timer occupies only its anchored visible width");
         Assert(Bounds(clock).Top == 0 && Bounds(clock).Left >= pixelWidth,
             "A compact Clock can share the Pixel Timer top row");
+        Descendants(Frame(clock)).OfType<Button>().Single(b => Equals(b.Content,"Expanded")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Pump(TimeSpan.FromMilliseconds(80));
+        Assert(Math.Abs(window.PixelBannerContainer.ActualHeight - Bounds(clock).Height) < 1 && window.PixelBannerContainer.ActualHeight == 360,
+            "Pixel Timer defaults to the expanded digital-and-analog Clock height");
+        Descendants(Frame(clock)).OfType<Button>().Single(b => Equals(b.Content,"Compact")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Pump(TimeSpan.FromMilliseconds(80));
         var resize = window.PixelWidthHandle;
         resize.RaiseEvent(new DragStartedEventArgs(0, 0));
         resize.RaiseEvent(new DragDeltaEventArgs(100, 0));
@@ -50,6 +56,23 @@ internal static partial class Program
             "Pixel right-edge drag changes width without changing height");
         Assert(window.state.Widgets.Single(w => w.Id == pixel.Id).BannerSpan == store.Load().Widgets.Single(w => w.Id == pixel.Id).BannerSpan,
             "Pixel width saves through existing widget state");
+        var widened = window.PixelBannerContainer.ActualWidth;
+        var heightGrip = window.PixelHeightHandle;
+        heightGrip.RaiseEvent(new DragStartedEventArgs(0,0));
+        heightGrip.RaiseEvent(new DragDeltaEventArgs(0,48));
+        heightGrip.RaiseEvent(new DragCompletedEventArgs(0,0,false));
+        Pump(TimeSpan.FromMilliseconds(100));
+        Assert(window.PixelBannerContainer.ActualHeight == pixelHeight + 48 && Math.Abs(window.PixelBannerContainer.ActualWidth - widened) < 1 &&
+            window.PixelBannerContainer.VerticalAlignment == VerticalAlignment.Top,
+            "Bottom-edge drag changes only Pixel Timer height");
+        Assert(store.Load().Widgets.Single(w => w.Id == pixel.Id).BannerHeight == pixelHeight + 48,
+            "Pixel Timer height persists to the current Space");
+        heightGrip.RaiseEvent(new DragStartedEventArgs(0,0));
+        heightGrip.RaiseEvent(new DragDeltaEventArgs(0,-48));
+        heightGrip.RaiseEvent(new DragCompletedEventArgs(0,0,false));
+        Pump(TimeSpan.FromMilliseconds(100));
+        Assert(window.PixelBannerContainer.ActualHeight == pixelHeight,
+            "Dragging upward restores the default banner height");
         Assert(Descendants(Frame(clock)).OfType<Button>().Any(b => Equals(b.Content, "Compact")) &&
             Descendants(Frame(stopwatch)).OfType<Button>().Any(b => Equals(b.Content, "Expanded")) &&
             Descendants(Frame(calendar)).OfType<Button>().Any(b => Equals(b.Content, "Expanded")),
@@ -117,7 +140,17 @@ internal static partial class Program
         var rectangles = window.state.Widgets.Where(w => w.Kind != "Pixel timer").Select(Bounds).ToArray();
         Assert(rectangles.SelectMany((a,i) => rectangles.Skip(i+1).Select(b => a.IntersectsWith(b))).All(overlap => !overlap),
             "Compaction leaves widget cards disjoint");
+        heightGrip.RaiseEvent(new DragStartedEventArgs(0,0));
+        heightGrip.RaiseEvent(new DragDeltaEventArgs(0,24));
+        heightGrip.RaiseEvent(new DragCompletedEventArgs(0,0,false));
+        Pump(TimeSpan.FromMilliseconds(80));
         window.Close();
+        var reopenedWindow = new MainWindow(store) { Width = 1450, Height = 950 };
+        reopenedWindow.Show(); Pump(TimeSpan.FromMilliseconds(180));
+        Assert(reopenedWindow.PixelBannerContainer.ActualHeight == pixelHeight + 24 &&
+            reopenedWindow.state.Widgets.Single(w => w.Id == pixel.Id).BannerHeight == pixelHeight + 24,
+            "Saved Pixel Timer height restores when the Space reopens");
+        reopenedWindow.Close();
         using var http = new HttpClient(new CalendarReplies());
         var client = new IntegrationClient(store, http);
         client.Vault.Write("Outlook Calendar", new IntegrationCredential { AccessToken = "synthetic", ExpiresAt = DateTimeOffset.UtcNow.AddHours(1) });

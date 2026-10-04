@@ -26,6 +26,7 @@ public partial class MainWindow
     private const double MicroWidgetHeight = 46;
     private const double WidgetGap = 8;
     private double pixelResizeWidth;
+    private double pixelResizeHeight;
     private Point? addWidgetLocation;
     private Guid? compactedPreviewId;
     private Brush DashboardBrush(string key) => (Brush)FullContent.FindResource("Dashboard" + key);
@@ -41,6 +42,8 @@ public partial class MainWindow
         PixelBannerHost.SizeChanged += (_, _) => ArrangeWidgetFrames();
         PixelWidthHandle.DragStarted += (_, _) => pixelResizeWidth = PixelBannerContainer.Width;
         PixelWidthHandle.DragCompleted += (_, _) => { Changed(); SaveNow(); ArrangeWidgetFrames(); };
+        PixelHeightHandle.DragStarted += (_, _) => pixelResizeHeight = PixelBannerContainer.Height;
+        PixelHeightHandle.DragCompleted += (_, _) => { Changed(); SaveNow(); ArrangeWidgetFrames(); };
         WidgetCanvas.MouseLeftButtonDown += (_, e) => { if (ReferenceEquals(e.OriginalSource, WidgetCanvas)) { addWidgetLocation = e.GetPosition(WidgetCanvas); e.Handled = true; AddWidgetClick(WidgetCanvas, new RoutedEventArgs()); } };
         WidgetScroller.ScrollChanged += (_, e) => { if (ReferenceEquals(e.OriginalSource, WidgetScroller) && (e.ViewportHeightChange != 0 || e.ViewportWidthChange != 0)) ArrangeWidgetFrames(); };
         var adaptedWidgets = WidgetLibrary.PrepareLayout(state);
@@ -194,7 +197,8 @@ public partial class MainWindow
             button.Click += (_, _) =>
             {
                 widget.DisplayMode = mode;
-                widget.Height = mode == "Compact" ? WidgetLibrary.MinimumHeight(widget) : Math.Max(widget.Height, WidgetLibrary.MinimumHeight(widget));
+                widget.Height = mode == "Compact" ? WidgetLibrary.MinimumHeight(widget) :
+                    Math.Max(widget.Height, widget.Kind == "Clock" ? 360 : WidgetLibrary.MinimumHeight(widget));
                 widget.Span = mode == "Compact" ? MinimumWidthSteps(widget) : Math.Max(widget.Span, MinimumWidthSteps(widget));
                 widget.CustomSize = true;
                 Changed(); RenderWidgets(); CompactWidgetLayout();
@@ -241,20 +245,36 @@ public partial class MainWindow
         pixel.BannerSpan = Math.Clamp((int)Math.Round((pixelResizeWidth + WidgetGap) / GridUnit), 9, 20);
         UpdatePixelBannerWidth(); ArrangeWidgetFrames();
     }
+    private void PixelBannerResizeHeightDelta(object sender, DragDeltaEventArgs e)
+    {
+        var pixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
+        if (pixel == null) return;
+        pixelResizeHeight += e.VerticalChange;
+        pixel.BannerHeight = Math.Clamp((int)Math.Round(pixelResizeHeight / RowUnit) * (int)RowUnit, 312, 960);
+        UpdatePixelBannerHeight(); ArrangeWidgetFrames();
+    }
     private void UpdatePixelBannerWidth()
     {
         var pixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
         if (pixel == null || WidgetCanvas.ActualWidth <= 0) return;
         PixelBannerContainer.Width = Math.Min(WidgetCanvas.ActualWidth, Math.Max(450, pixel.BannerSpan * GridUnit - WidgetGap));
     }
+    private void UpdatePixelBannerHeight()
+    {
+        var pixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
+        if (pixel == null) return;
+        PixelBannerContainer.Height = pixel.BannerHeight;
+        PixelArea.Height = Math.Max(260, pixel.BannerHeight - 32);
+    }
     private Rect? PixelObstacle => PixelBannerContainer.Visibility == Visibility.Visible && PixelBannerContainer.ActualHeight > 0
-        ? new Rect(0, 0, PixelBannerContainer.ActualWidth, PixelBannerContainer.ActualHeight) : null;
+        ? new Rect(0, 0, PixelBannerContainer.ActualWidth, PixelBannerContainer.Height) : null;
     private void ArrangeWidgetFrames()
     {
         // Layout must not fight a freely moving card or rebuild its captured grip.
         if (widgetGestureActive) return;
         if (WidgetScroller.ActualHeight <= 0 || WidgetCanvas.ActualWidth <= 0) return;
         UpdatePixelBannerWidth();
+        UpdatePixelBannerHeight();
         var viewportHeight = Math.Max(1, WidgetScroller.ViewportHeight > 0 ? WidgetScroller.ViewportHeight : WidgetScroller.ActualHeight);
         if (editingDashboard)
         {
