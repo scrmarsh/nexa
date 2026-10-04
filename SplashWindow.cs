@@ -16,7 +16,6 @@ internal sealed class SplashWindow : Window
         Width = 620; Height = 330; WindowStartupLocation = WindowStartupLocation.CenterScreen; Background = new SolidColorBrush(Color.FromRgb(10, 14, 23));
         var panel = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         panel.Children.Add(new NexaLogo { Width = 480, Height = 152 });
-        panel.Children.Add(new TextBlock { Text = "alpha", Foreground = new SolidColorBrush(Color.FromRgb(166, 177, 200)), FontSize = 13, HorizontalAlignment = HorizontalAlignment.Center });
         panel.Children.Add(new TextBlock { Text = "a space for whatever comes next.", Foreground = new SolidColorBrush(Color.FromRgb(166, 177, 200)), FontSize = 15, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 12, 0, 0) });
         var content = new Grid();
         content.Children.Add(panel);
