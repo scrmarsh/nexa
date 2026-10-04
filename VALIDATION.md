@@ -1,4 +1,9 @@
-## Nexa 0.1.12 Alpha — Widget System Cleanup & Experimental Updates
+## Nexa 0.1.12 Alpha — Dashboard & Widget UX Update
+
+- The exact `dotnet build '.\SessionDashboard.csproj'` passes with zero warnings/errors. An isolated Release build to `bin/Alpha012Ux/` also passes. Its `--verify-startup` probe succeeds using a synthetic store; the rendered dashboard was inspected.
+- `--dashboard012` **19 checks** pass. The suite exercises a live WPF Space with a Pixel Timer sharing the top row with Clock, anchored horizontal resizing and persistence, Clock/Stopwatch/Calendar mode transitions, disconnected Calendar and saved Outlook source selection, the date/time target editor (including midnight rollover), preserved active-session identity, ruled Notes surface, Water glass, upward compaction and non-overlapping cards. Synthetic Graph responses validate Outlook calendar/event mapping; no real Microsoft account was connected.
+- Existing `--alpha012` **24 checks** pass, covering idempotent legacy widget migration, saved content, numeric release comparison, verified installer download, rejected untrusted assets, optional startup preference and the Settings update page. `--continuityaudit` **42 checks** pass for account/data isolation, save/reopen and autosave; `--swarm` **37 checks** pass for game/timer/data preservation; `--menurepair` **7 checks** pass for outside dismissal and the Developer Space. Tests use isolated stores.
+- Manual hardware checks remain for physical mouse capture/edge scrolling, audible sounds, mixed-DPI monitor moves, and live Google/Microsoft OAuth. A published setup asset and SHA-256 digest are still required for a real update installation.
 
 - Follow-up `--menurepair`: **7 checks** (`test-output/20261003-183237`) pass for outside pointer dismissal, first-click owner activation, nested topmost-only dismissal, and opening a legacy Developer Space with its task content intact. `--alpha012`: **24 checks** rerun successfully (`test-output/20261003-183250`). These use routed WPF events and an isolated store; physical pointer input remains a manual check.
 

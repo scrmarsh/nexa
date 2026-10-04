@@ -15,7 +15,7 @@ internal static partial class Program
     }
     private static void CheckAlpha012()
     {
-        Assert(App.VersionLabel == "Nexa 0.1.12 Alpha" && ReleaseNotes.All[0].Title.Contains("Widget System Cleanup"), "Current version and release history");
+        Assert(App.VersionLabel == "Nexa 0.1.12 Alpha" && ReleaseNotes.All[0].Title.Contains("Dashboard & Widget UX"), "Current version and release history");
         var visible = WidgetLibrary.Definitions.Select(d => d.Name).ToList();
         Assert(visible.Contains("Task List") && visible.Contains("Notes") && visible.Contains("Counter") && !visible.Contains("Agenda") && !visible.Contains("Distraction counter"), "Consolidated Add Widget catalog");
         Assert(WidgetLibrary.Definition("Focus Reset").Group == "Mindfulness", "Focus Reset category");
@@ -39,7 +39,7 @@ internal static partial class Program
         var reopened = migrationStore.Load();
         Assert(reopened.Widgets.Count == legacy.Widgets.Count && reopened.Widgets.Single(w => w.Id == agenda.Id).Items.Single().Text == "Review next steps" && reopened.Widgets.Single(w => w.Id == counter.Id).CounterMode == "Distraction", "Migrated widgets survive save and reopen");
         var another = WidgetLibrary.Create("Task List"); Assert(another.Id != tasks.Id && another.Items.Count == 0, "Independent task instances");
-        var clock = WidgetLibrary.Create("Clock"); Assert(clock.DisplayMode == "Compact" && WidgetLibrary.MinimumHeight(clock) == 96, "Clock compact mode");
+        var clock = WidgetLibrary.Create("Clock"); Assert(clock.DisplayMode == "Compact" && WidgetLibrary.MinimumHeight(clock) == 120, "Clock compact mode");
         clock.DisplayMode = "Expanded"; Assert(WidgetLibrary.MinimumWidth(clock) >= 340 && WidgetLibrary.MinimumHeight(clock) >= 288, "Clock expanded minimum");
         var timer = WidgetLibrary.Create("Timer"); timer.DisplayMode = "Expanded"; Assert(WidgetLibrary.MinimumHeight(timer) >= 288, "Timer expanded minimum");
         Assert(ExperimentalUpdater.IsNewer(new Version(0, 1, 10), "Alpha", new Version(0, 1, 9)) && !ExperimentalUpdater.IsNewer(new Version(0, 1, 9), "Alpha", new Version(0, 1, 10)), "Numeric version comparison");

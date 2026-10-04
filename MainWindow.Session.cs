@@ -8,6 +8,7 @@ namespace SessionDashboard;
 public partial class MainWindow
 {
     private Window? sessionEditor;
+    internal static DateTime SuggestedPixelTarget(DateTime localNow) => localNow.AddHours(1);
     private readonly Dictionary<DayOfWeek, CheckBox> sessionDayChecks = [];
     private List<DayOfWeek> SelectedSessionDays() => sessionDayChecks.Where(pair => pair.Value.IsChecked == true).Select(pair => pair.Key).ToList();
     internal void SetSessionDays(IEnumerable<DayOfWeek> days)
@@ -17,15 +18,40 @@ public partial class MainWindow
     private void SessionTimeEditClick(object sender, RoutedEventArgs e)
     {
         if (sessionEditor != null) { sessionEditor.Activate(); return; }
-        var dialog = Dialog("Nexa · Edit session", 700, 420);
+        var dialog = Dialog("Nexa · Pixel Timer", 390, 300);
         sessionEditor = dialog;
         var content = new StackPanel { Margin = new Thickness(24) };
-        content.Children.Add(new TextBlock { Text = "Session times", FontSize = 20, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 16) });
-        Detach(InlineSessionHost); InlineSessionHost.Visibility = Visibility.Visible; content.Children.Add(InlineSessionHost);
-        var feedback = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 0), Foreground = Brush("MutedBrush") };
-        feedback.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding(nameof(TextBlock.Text)) { Source = Feedback }); content.Children.Add(feedback);
-        dialog.Content = new ScrollViewer { Content = content, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
-        dialog.Closed += (_, _) => { Detach(InlineSessionHost); InlineSessionHost.Visibility = Visibility.Collapsed; LegacyContent.Children.Add(InlineSessionHost); sessionEditor = null; };
+        content.Children.Add(new TextBlock { Text = "When should this session end?", FontSize = 19, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 16) });
+        var initial = state.Session?.End.LocalDateTime ?? state.Draft.EndDate.AddMinutes(state.Draft.EndMinutes);
+        var date = new DatePicker { SelectedDate = initial.Date, Margin = new Thickness(0, 0, 0, 10) };
+        var time = new TextBox { Text = initial.ToString("h:mm tt", CultureInfo.CurrentCulture), Margin = new Thickness(0, 0, 0, 12) };
+        content.Children.Add(new TextBlock { Text = "Date" }); content.Children.Add(date);
+        content.Children.Add(new TextBlock { Text = "Time" }); content.Children.Add(time);
+        var today = new Button { Content = "Use Today's Date", Style = (Style)FindResource("PrimaryButton"), HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 14) };
+        today.Click += (_, _) => { var target = SuggestedPixelTarget(DateTime.Now); date.SelectedDate = target.Date; time.Text = target.ToString("h:mm tt", CultureInfo.CurrentCulture); };
+        content.Children.Add(today);
+        var status = new TextBlock { Foreground = Brush("MutedBrush"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) }; content.Children.Add(status);
+        var apply = new Button { Content = "Set target", HorizontalAlignment = HorizontalAlignment.Left };
+        apply.Click += (_, _) =>
+        {
+            if (date.SelectedDate == null || !DateTime.TryParse(time.Text, CultureInfo.CurrentCulture, DateTimeStyles.NoCurrentDateDefault, out var parsed)) { status.Text = "Choose a valid date and time."; return; }
+            var target = date.SelectedDate.Value.Date + parsed.TimeOfDay;
+            if (TimeZoneInfo.Local.IsInvalidTime(target) || target <= DateTime.Now) { status.Text = "Choose a future local time."; return; }
+            if (state.Session is { } session)
+            {
+                if (target <= session.Start.LocalDateTime || target > session.Start.LocalDateTime.AddDays(7)) { status.Text = "Target must be after session start and within seven days."; return; }
+                session.End = new DateTimeOffset(target);
+                session.ConfiguredDurationMinutes = (session.End - session.Start).TotalMinutes;
+                session.ReachedMilestones.Clear(); Milestones.Collect(session, DateTimeOffset.Now);
+                BuildTimeline(); UpdateClock();
+            }
+            state.Draft.EndDate = target.Date; state.Draft.EndMinutes = target.Hour * 60 + target.Minute;
+            EndDate.SelectedDate = target.Date; EndTime.Value = target.TimeOfDay;
+            Changed("Target updated."); if (SaveNow()) dialog.CloseWithFade();
+        };
+        content.Children.Add(apply);
+        dialog.Content = content;
+        dialog.Closed += (_, _) => sessionEditor = null;
         dialog.ShowDismissible();
     }
     private void InitializeInlineSession()

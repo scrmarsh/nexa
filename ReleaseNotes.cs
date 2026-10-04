@@ -8,10 +8,13 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
-        new(App.AppVersion, "October 3, 2026", "Widget System Cleanup & Experimental Updates", "Consolidates overlapping widgets and adds an optional, verified GitHub Releases update flow.",
+        new(App.AppVersion, "October 3, 2026", "Dashboard & Widget UX Update", "Improves dashboard placement, simplifies the Pixel Timer, adds responsive widgets and optional calendars while preserving local Spaces.",
         [
             "Task List, Notes and Counter absorb compatible older widget types without discarding saved content or layouts.",
-            "Clock and Timer have direct Compact and Expanded modes; Focus Reset lives under Mindfulness.",
+            "Cards compact after edits, support edge scrolling and show a blue landing preview. The anchored Pixel Timer resizes horizontally and leaves room for a neighbor.",
+            "Clock, Stopwatch and Calendar have direct Compact and Expanded modes. Session settings belong to each Space; the timer target menu is simpler.",
+            "Session Timeline opens the local Audio Recorder or Hedy Notes. Notes has a ruled writing surface and Water Bottle Counter has a filling glass.",
+            "Google and Outlook calendars can show a selected agenda in a Space. Connections are optional and stored with Windows protection.",
             "Experimental Updates can check official releases, show notes and download a verified setup installer after confirmation. Startup checks are off by default."
         ]),
         new("0.1.11", "October 3, 2026", "Bug Fixes, UI Refinements & Pixel Timer Performance", "Stabilizes window resizing, Pixel Timer rendering, widget placement and internal navigation.",

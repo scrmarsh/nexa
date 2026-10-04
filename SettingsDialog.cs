@@ -34,7 +34,9 @@ internal sealed partial class SettingsDialog : NexaPanel
         sidebar.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); sidebar.SetResourceReference(Border.BorderBrushProperty, "LineBrush"); root.Children.Add(sidebar);
         host.Margin = new Thickness(30, 24, 30, 28); Grid.SetColumn(host, 1); root.Children.Add(host);
         sessionWasActive = HasCurrentSession;
-        AddPage(nav, "Appearance", BuildAppearance()); AddPage(nav, "Session", BuildSession()); AddPage(nav, "Widgets", BuildWidgetPreferences()); AddPage(nav, "Profile", BuildProfile());
+        AddPage(nav, "Appearance", BuildAppearance());
+        if (this.space != null) AddPage(nav, "Session", BuildSession());
+        AddPage(nav, "Widgets", BuildWidgetPreferences()); AddPage(nav, "Profile", BuildProfile());
         nav.Children.Add(new Border { Height = 1, Margin = new Thickness(8, 15, 8, 18), Background = Brush("LineBrush") });
         nav.Children.Add(new TextBlock { Text = "Experimental Features", Foreground = Brush("MutedBrush"), FontSize = 12, FontWeight = FontWeights.SemiBold, Margin = new Thickness(12, 0, 0, 12) });
         AddPage(nav, "Account & Data", ComingSoon("Account & Data", "Optional account and data tools are in development. Import and export commands remain available from a Space."));
@@ -44,6 +46,7 @@ internal sealed partial class SettingsDialog : NexaPanel
         InitializeAutosave();
         sessionStatusTimer.Tick += (_, _) =>
         {
+            if (!pages.ContainsKey("Session")) return;
             if (sessionWasActive == HasCurrentSession) return;
             sessionWasActive = HasCurrentSession; pages["Session"] = BuildSession();
             if (ReferenceEquals(host.Content, sessionStatusPage)) host.Content = pages["Session"];
@@ -61,6 +64,7 @@ internal sealed partial class SettingsDialog : NexaPanel
     }
     internal void SelectSection(string name)
     {
+        if (!FlushPendingChanges()) return;
         var hedy=name=="Hedy"; if(hedy) name="Integrations";
         if(!pages.ContainsKey(name)) name="Appearance";
         if (!pages.TryGetValue(name, out var page)) return;
@@ -96,11 +100,12 @@ internal sealed partial class SettingsDialog : NexaPanel
         var mode = new ComboBox { ItemsSource = Enum.GetValues<ThemeMode>(), SelectedItem = store.LoadThemeMode(), MinHeight = 40 }; Field(page, "Light mode", mode);
         var theme = new ComboBox { ItemsSource = Enum.GetValues<AppTheme>(), SelectedItem = store.LoadAppTheme(), MinHeight = 40 }; Field(page, "App theme", theme);
         var note = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 12, 0, 0) }; page.Children.Add(note);
-        void SaveAppearance() => QueueSave("appearance", () =>
+        void SaveAppearance()
         {
             if (mode.SelectedItem is not ThemeMode m || theme.SelectedItem is not AppTheme t) return;
-            store.SavePreferences(m, t); Theme.Apply(Application.Current.Resources, m, t); space?.RefreshThemeViews(); note.Text = "Appearance saved.";
-        });
+            Theme.Apply(Application.Current.Resources, m, t); space?.RefreshThemeViews();
+            QueueSave("appearance", () => { store.SavePreferences(m, t); note.Text = "Appearance saved."; });
+        }
         mode.SelectionChanged += (_, _) => SaveAppearance(); theme.SelectionChanged += (_, _) => SaveAppearance();
         return page;
     }

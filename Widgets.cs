@@ -29,6 +29,7 @@ public sealed class WidgetInstance
     public bool ShowSeconds { get; set; } = true;
     public bool ShowElapsed { get; set; }
     public string ExternalListId { get; set; } = "";
+    public string CalendarService { get; set; } = "Google Calendar";
     public string IntegrationView { get; set; } = "Today";
     public List<string> Categories { get; set; } = [];
     public List<string> Fields { get; set; } = [];
@@ -36,6 +37,7 @@ public sealed class WidgetInstance
     public List<string> CalculationHistory { get; set; } = [];
     public decimal Value { get; set; }
     public int WaterBottleGoal { get; set; } = 8;
+    public int BannerSpan { get; set; } = 13;
     public string CounterMode { get; set; } = "Standard";
     public string DisplayMode { get; set; } = "Auto";
     public List<TaskItem> Items { get; set; } = [];
@@ -79,11 +81,11 @@ public static class WidgetLibrary
     public static IReadOnlyList<WidgetDefinition> Definitions { get; } =
     [
         new("Timer", "Session", "Independent countdown or elapsed timer.", "timer", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
-        new("Stopwatch", "Session", "Digital and analog elapsed time with pause and resume.", "stopwatch", MinHeight: 360, DefaultSpan: 6, DefaultHeight: 384, MinWidth: 240, CanMinimize: false),
+        new("Stopwatch", "Session", "Digital and analog elapsed time with pause and resume.", "stopwatch", MinHeight: 360, DefaultSpan: 6, DefaultHeight: 384, MinWidth: 280, CanMinimize: false),
         new("Clock", "Session", "Your local date and time.", "clock", MinHeight: 96, DefaultSpan: 4, DefaultHeight: 120, MinWidth: 200, CanMinimize: false),
         new("Todoist", "Integrations", "Optional connected tasks.", "externalTasks", MinHeight:288, DefaultHeight:384, CanMinimize:false),
         new("Google Tasks", "Integrations", "Optional connected task lists.", "externalTasks", MinHeight:288, DefaultHeight:384, CanMinimize:false),
-        new("Calendar", "Integrations", "Optional Google Calendar schedule.", "calendar", MinHeight:288, DefaultHeight:384, CanMinimize:false),
+        new("Calendar", "Integrations", "Optional Google or Outlook schedule.", "calendar", MinHeight:216, DefaultHeight:240, CanMinimize:false),
         new("Progress bar", "Session", "Progress of your dashboard session.", "progress", MinHeight: 120, DefaultSpan: 6, DefaultHeight: 144, MinWidth: 240, CanMinimize: false),
         new("Pixel timer", "Session", "The original pixel display and story.", "progress", 6, 480, CanMinimize: false),
         new("Session controls", "Session", "Schedule sessions and manage timer presets.", "setup", 4, 480),
@@ -120,7 +122,7 @@ public static class WidgetLibrary
         var canonical = CanonicalKind(kind);
         var title = kind is "Task" or "Tasks" ? "Task List" : kind == "Session timeline" ? "Session Timeline" : kind == canonical ? canonical : kind;
         return new() { Kind = canonical, Title = title, PanelKey = panelKey, GridColumns = 20, Span = d.DefaultSpan, Height = Math.Max(d.DefaultHeight, d.MinHeight), TimerMinutes = kind == "Break timer" ? 5 : 25,
-            CounterMode = kind is "Distraction counter" or "Distraction Counter" ? "Distraction" : "Standard", DisplayMode = canonical is "Clock" or "Timer" or "Break timer" ? "Compact" : "Auto" };
+            CounterMode = kind is "Distraction counter" or "Distraction Counter" ? "Distraction" : "Standard", DisplayMode = canonical is "Clock" or "Timer" or "Break timer" or "Stopwatch" or "Calendar" ? "Compact" : "Auto" };
     }
     public static void EnsureLayout(DashboardData data)
     {
@@ -178,8 +180,11 @@ public static class WidgetLibrary
     private static string MergeLegacyText(string first, string second) =>
         string.IsNullOrWhiteSpace(first) ? second : string.IsNullOrWhiteSpace(second) || first.Contains(second, StringComparison.Ordinal) ? first :
         second.Contains(first, StringComparison.Ordinal) ? second : first + "\n\n" + second;
-    public static int MinimumWidth(WidgetInstance widget) => widget.DisplayMode == "Expanded" && widget.Kind is ("Clock" or "Timer" or "Break timer") ? 340 : Definition(widget.Kind).MinWidth;
-    public static int MinimumHeight(WidgetInstance widget) => widget.DisplayMode == "Expanded" && widget.Kind is ("Clock" or "Timer" or "Break timer") ? 288 : Definition(widget.Kind).MinHeight;
+    public static int MinimumWidth(WidgetInstance widget) => widget.DisplayMode == "Expanded" && widget.Kind is ("Clock" or "Timer" or "Break timer" or "Stopwatch") ? 340 : Definition(widget.Kind).MinWidth;
+    public static int MinimumHeight(WidgetInstance widget) => widget.Kind == "Calendar" ? widget.DisplayMode == "Expanded" ? 384 : 216
+        : widget.Kind == "Stopwatch" ? widget.DisplayMode == "Compact" ? 192 : 360
+        : widget.Kind == "Clock" ? widget.DisplayMode == "Compact" ? 120 : 288
+        : widget.DisplayMode == "Expanded" && widget.Kind is ("Timer" or "Break timer") ? 288 : Definition(widget.Kind).MinHeight;
     public static void Arrange(List<WidgetInstance> widgets, bool singleColumn)
     {
         UpgradeGrid(widgets);
@@ -244,7 +249,8 @@ public static class WidgetLibrary
         var panels = new HashSet<string>();
         foreach (var w in data.Widgets)
         {
-            if(w.ExternalListId==null || w.ExternalListId.Length>1024 || w.IntegrationView is not ("Today" or "Upcoming" or "All")) throw new InvalidDataException("Invalid integration widget configuration.");
+            if(w.ExternalListId==null || w.ExternalListId.Length>1024 || w.IntegrationView is not ("Today" or "Upcoming" or "All") ||
+                w.CalendarService is not ("Google Calendar" or "Outlook Calendar")) throw new InvalidDataException("Invalid integration widget configuration.");
             if (w.ScripturePins == null || w.ScripturePins.Count > 10000 || w.ScripturePins.Any(p => p == null || p.Id == Guid.Empty ||
                 !BibleLibrary.Books.Contains(p.Book) || !BibleLibrary.Translations.Contains(p.Translation) || p.Chapter is < 1 or > 150 ||
                 p.Verse is < 1 or > 176 || p.EndVerse < p.Verse || p.EndVerse > 176 || p.Text == null || p.Note == null) ||
@@ -258,7 +264,7 @@ public static class WidgetLibrary
                 w.FlashcardDecks.Count > 1000 || w.FlashcardDecks.Any(deck => deck == null || deck.Id == Guid.Empty || string.IsNullOrWhiteSpace(deck.Name) || deck.Name.Length > 200 || deck.Cards == null || deck.Cards.Count > 10000 || deck.Cards.Any(card => card == null || card.Id == Guid.Empty || card.Front == null || card.Back == null || card.StudyState == null || card.Front.Length > 10000 || card.Back.Length > 10000)) ||
                 w.Column < 0 || w.GridColumns is not (12 or 20) || w.Span < 1 || w.Column + w.Span > w.GridColumns || w.Row is < 0 or > 30000 || w.Height < 24 || w.Height > 1440 || w.TimerMinutes is < 1 or > 10080 || w.TimerDurationSeconds is < 1 or > 604800 || !double.IsFinite(w.StopwatchElapsedSeconds) || w.StopwatchElapsedSeconds < 0 ||
                 w.Categories.Any(c => c == null) || w.Fields.Any(f => f == null) || w.Increment == 0 ||
-                w.CounterMode is not ("Standard" or "Distraction") || w.DisplayMode is not ("Auto" or "Compact" or "Expanded") || w.WaterBottleGoal is < 1 or > 100) throw new InvalidDataException("Invalid widget configuration.");
+                w.CounterMode is not ("Standard" or "Distraction") || w.DisplayMode is not ("Auto" or "Compact" or "Expanded") || w.WaterBottleGoal is < 1 or > 100 || w.BannerSpan is < 9 or > 20) throw new InvalidDataException("Invalid widget configuration.");
             if (w.PanelKey.Length > 0 && (!new[] { "pixels", "setup", "timeline", "notes", "tasks", "hedy" }.Contains(w.PanelKey) || !panels.Add(w.PanelKey))) throw new InvalidDataException("Invalid linked panel.");
         }
     }

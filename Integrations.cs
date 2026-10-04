@@ -70,7 +70,7 @@ internal sealed class IntegrationClient
     internal async Task<JsonDocument> Send(string service,HttpMethod method,string url,object? body,CancellationToken token,string? overrideToken=null,Guid? expectedConnection=null)
     {
         var uri=new Uri(url);
-        var expected=service switch { "Todoist"=>"api.todoist.com","Google Tasks"=>"tasks.googleapis.com","Google Calendar"=>"www.googleapis.com",_=>"" };
+        var expected=service switch { "Todoist"=>"api.todoist.com","Google Tasks"=>"tasks.googleapis.com","Google Calendar"=>"www.googleapis.com","Outlook Calendar"=>"graph.microsoft.com",_=>"" };
         if(uri.Scheme!="https" || uri.Host!=expected) throw new IntegrationException("Invalid integration endpoint.");
         var access=overrideToken??await Access(service,token,expectedConnection);
         if(string.IsNullOrWhiteSpace(access) || access.Any(c=>c<=32 || c>=127)) throw new IntegrationException("Invalid authorization. Reconnect in Settings / Integrations.");
@@ -99,11 +99,14 @@ internal sealed class IntegrationClient
             if(string.IsNullOrEmpty(credential.RefreshToken)) throw new IntegrationException("Authorization expired. Reconnect in Settings / Integrations.");
             var form=new Dictionary<string,string> { ["client_id"]=credential.ClientId,["refresh_token"]=credential.RefreshToken,["grant_type"]="refresh_token" };
             if(credential.ClientSecret.Length>0) form["client_secret"]=credential.ClientSecret;
-            using var response=await http.PostAsync("https://oauth2.googleapis.com/token",new FormUrlEncodedContent(form),token);
-            if(!response.IsSuccessStatusCode) throw new IntegrationException("Google authorization expired. Reconnect in Settings / Integrations.");
+            if(service=="Outlook Calendar") form["scope"]="offline_access Calendars.Read User.Read";
+            var endpoint=service=="Outlook Calendar"?"https://login.microsoftonline.com/common/oauth2/v2.0/token":"https://oauth2.googleapis.com/token";
+            using var response=await http.PostAsync(endpoint,new FormUrlEncodedContent(form),token);
+            if(!response.IsSuccessStatusCode) throw new IntegrationException(service+" authorization expired. Reconnect in Settings / Integrations.");
             using var doc=JsonDocument.Parse(await response.Content.ReadAsStringAsync(token)); credential.AccessToken=Text(doc.RootElement,"access_token");
-            if(credential.AccessToken.Length==0) throw new IntegrationException("Google authorization could not be renewed.");
-            if(doc.RootElement.ValueKind!=JsonValueKind.Object || !doc.RootElement.TryGetProperty("expires_in",out var expiry) || expiry.ValueKind!=JsonValueKind.Number || !expiry.TryGetInt32(out var seconds) || seconds<=0) throw new IntegrationException("Google authorization could not be renewed.");
+            if(credential.AccessToken.Length==0) throw new IntegrationException(service+" authorization could not be renewed.");
+            if(doc.RootElement.ValueKind!=JsonValueKind.Object || !doc.RootElement.TryGetProperty("expires_in",out var expiry) || expiry.ValueKind!=JsonValueKind.Number || !expiry.TryGetInt32(out var seconds) || seconds<=0) throw new IntegrationException(service+" authorization could not be renewed.");
+            var replacement=Text(doc.RootElement,"refresh_token"); if(replacement.Length>0) credential.RefreshToken=replacement;
             credential.ExpiresAt=DateTimeOffset.UtcNow.AddSeconds(seconds);
             // A disconnect during an in-flight refresh must not reconnect the account.
             if(Vault.Read(service)?.ConnectionId!=credential.ConnectionId) throw new IntegrationException("Connection changed. Refresh to use the current account.");
@@ -120,7 +123,8 @@ internal sealed class IntegrationClient
         Vault.Write("Todoist",new IntegrationCredential { AccessToken=access.Trim() });
     }
     internal ITaskProvider TaskProvider(string service,Guid? connection=null)=>new TaskProvider(this,service,connection);
-    internal ICalendarProvider CalendarProvider(Guid? connection=null)=>new GoogleCalendarProvider(this,connection);
+    internal ICalendarProvider CalendarProvider(Guid? connection=null)=>CalendarProvider("Google Calendar",connection);
+    internal ICalendarProvider CalendarProvider(string service,Guid? connection=null)=>service=="Outlook Calendar"?new OutlookCalendarProvider(this,connection):new GoogleCalendarProvider(this,connection);
     internal async Task<List<JsonElement>> Pages(string service,string url,string field,string cursorField,string cursorParameter,CancellationToken token,Guid? expectedConnection=null)
     {
         var all=new List<JsonElement>(); string cursor="";
@@ -196,5 +200,56 @@ internal sealed class GoogleCalendarProvider(IntegrationClient client,Guid? conn
             DateTimeOffset Read(JsonElement value) => DateTimeOffset.Parse(IntegrationClient.Text(value,allDay?"date":"dateTime"),System.Globalization.CultureInfo.InvariantCulture);
             return new CalendarEntry(IntegrationClient.Text(x,"summary"),Read(s),Read(e),allDay);
         }).ToList();
+    }
+}
+
+internal sealed class OutlookCalendarProvider(IntegrationClient client,Guid? connection=null) : ICalendarProvider
+{
+    public async Task<List<ExternalList>> Calendars(CancellationToken token)
+    {
+        var items=await Pages("https://graph.microsoft.com/v1.0/me/calendars?$select=id,name",token);
+        return items.Select(x=>new ExternalList(IntegrationClient.Text(x,"id"),IntegrationClient.Text(x,"name"))).ToList();
+    }
+    public async Task<List<CalendarEntry>> Schedule(string calendar,DateTimeOffset day,CancellationToken token)
+    {
+        var localDate=day.LocalDateTime.Date;
+        var start=new DateTimeOffset(localDate).ToUniversalTime();
+        var end=new DateTimeOffset(localDate.AddDays(1)).ToUniversalTime();
+        var url="https://graph.microsoft.com/v1.0/me/calendars/"+IntegrationClient.Encode(calendar)
+            +"/calendarView?startDateTime="+IntegrationClient.Encode(start.ToString("o"))
+            +"&endDateTime="+IntegrationClient.Encode(end.ToString("o"))
+            +"&$select=subject,start,end,isAllDay&$top=100";
+        var items=await Pages(url,token);
+        return items.Select(item=>
+        {
+            if(!item.TryGetProperty("start",out var startValue) || !item.TryGetProperty("end",out var endValue))
+                throw new IntegrationException("Calendar returned an incomplete event. Refresh to try again.");
+            DateTimeOffset Read(JsonElement value)
+            {
+                var raw=IntegrationClient.Text(value,"dateTime");
+                if(!DateTimeOffset.TryParse(raw,System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal,out var parsed))
+                    throw new IntegrationException("Calendar returned an invalid event time.");
+                return parsed;
+            }
+            return new CalendarEntry(IntegrationClient.Text(item,"subject"),Read(startValue),Read(endValue),
+                item.TryGetProperty("isAllDay",out var allDay) && allDay.ValueKind==JsonValueKind.True);
+        }).OrderBy(x=>x.Start).ToList();
+    }
+    private async Task<List<JsonElement>> Pages(string url,CancellationToken token)
+    {
+        var all=new List<JsonElement>();
+        for(var page=0;page<20;page++)
+        {
+            using var document=await client.Send("Outlook Calendar",HttpMethod.Get,url,null,token,expectedConnection:connection);
+            var root=document.RootElement;
+            if(!root.TryGetProperty("value",out var values) || values.ValueKind!=JsonValueKind.Array)
+                throw new IntegrationException("Calendar returned an unexpected response.");
+            all.AddRange(values.EnumerateArray().Select(item=>item.Clone()));
+            var next=IntegrationClient.Text(root,"@odata.nextLink");
+            if(next.Length==0) return all;
+            url=next;
+        }
+        throw new IntegrationException("Too many events to display. Select a smaller calendar.");
     }
 }

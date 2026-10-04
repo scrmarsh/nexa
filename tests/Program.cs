@@ -29,6 +29,12 @@ internal static partial class Program
                 app012.InitializeComponent(); CheckAlpha012();
                 Console.WriteLine($"PASS: {passed} Alpha 0.1.12 widget/update checks. Artifacts: {output}"); app012.Shutdown(); return 0;
             }
+            if(args.Contains("--dashboard012"))
+            {
+                var app012 = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                app012.InitializeComponent(); CheckDashboard012();
+                Console.WriteLine($"PASS: {passed} Alpha 0.1.12 dashboard/calendar checks. Artifacts: {output}"); app012.Shutdown(); return 0;
+            }
             if(args.Contains("--alpha011"))
             {
                 var stabilizationApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };

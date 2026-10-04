@@ -1,6 +1,12 @@
 # Changelog
 
-## Nexa 0.1.12 Alpha — Widget System Cleanup & Experimental Updates (2026-10-03)
+## Nexa 0.1.12 Alpha — Dashboard & Widget UX Update (2026-10-03)
+
+The anchored Pixel Timer now resizes from its right edge and leaves usable top-row space for other widgets. Its target menu has Date, Time and Use Today's Date; the latter proposes one hour from now without starting a session. Dashboard cards compact after editing, use their rendered bounds for placement, show a blue landing preview and scroll near the viewport edges during a drag.
+
+Clock, Stopwatch and Calendar have saved Compact/Expanded modes. Session Timeline can open Audio Recorder or Hedy Notes without starting capture. Session settings are visible only in a Space, alongside a separate global Settings action; theme changes apply immediately from Home or a Space. Home/splash branding and the Home footer have been refined.
+
+Calendar now supports Google and Outlook as optional read-only sources, with the selected provider/calendar saved per widget. OAuth authorization uses PKCE and owner-scoped Windows protected storage; no account is needed for local tools. Water Bottle Counter has a filling glass; Notes uses a larger ruled writing surface. Existing Task List/Notes/Counter consolidation, Focus Reset category and verified Experimental Updates remain available.
 
 - Follow-up repair: clicking outside a menu closes the topmost panel even when Windows consumes the first click to reactivate its owner. An older Developer Space now migrates retired widget kinds before DEV fills in missing widgets, preventing a duplicate linked Task List and preserving existing content.
 

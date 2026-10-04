@@ -1,4 +1,10 @@
-## Nexa 0.1.12 Alpha — Widget System Cleanup & Experimental Updates
+## Nexa 0.1.12 Alpha — Dashboard & Widget UX Update
+
+The Pixel Timer stays anchored at the top-left. Drag its right edge to change only its width; compact cards such as Clock can share the remaining top row. Click its time to set a target date and time, or choose **Use Today's Date** to propose one hour from now without starting a session. Cards show a blue landing preview and compact upward after moves, removals or smaller resizes. Drag near the viewport's top or bottom to scroll through a long Space.
+
+Clock, Stopwatch and Calendar offer saved **Compact** and **Expanded** views. Session Timeline opens Audio Recorder and Hedy Notes without automatically recording. Global Settings sits immediately left of the per-Space **Session** button; Home Settings no longer shows a Session tab. Notes has a ruled writing surface, and Water Bottle Counter shows a glass that fills with the saved count.
+
+The Calendar widget works disconnected and can show Google or Outlook calendars when connected. Choose a provider and calendar independently in each Space; account connections are managed in **Settings → Integrations**. Read-only calendar authorization is optional, and local Spaces remain usable offline. See [integration setup](INTEGRATIONS.md).
 
 Add **Task List** for independent checklists with add, complete, remove and reorder controls; its title can be edited on the card. Notes absorbs Topics and Custom Fields, while Counter includes an optional Distraction mode in its title menu. Old widget kinds migrate when opened, preserving their content and placement. Focus Reset appears under Mindfulness. Clock and Timer provide Compact and Expanded controls, and expanded cards retain usable minimum sizes.
 
@@ -157,10 +163,10 @@ The small **DEV** control on Home opens a Space with all available widgets and a
 
 ## Launch and build
 
-A standard Release build writes `bin\Release\net10.0-windows\Nexa.exe`. The isolated Nexa 0.1.12 Alpha build is in `bin\Alpha012\Nexa.exe`, keeping any running older release undisturbed. Launch it from the project directory:
+A Release build writes `bin\Release\net10.0-windows\Nexa.exe`. Launch it from the project directory after closing any older Nexa instance:
 
 ```powershell
-& '.\bin\Alpha012\Nexa.exe'
+& '.\bin\Release\net10.0-windows\Nexa.exe'
 ```
 
 Build with the .NET 10 SDK:

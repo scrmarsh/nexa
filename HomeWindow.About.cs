@@ -16,7 +16,7 @@ internal sealed partial class HomeWindow
         brand.Children.Add(new TextBlock { Text = App.VersionLabel, Foreground = (Brush)FindResource("MutedBrush"), FontSize = 13, Margin = new Thickness(0, 8, 0, 12) });
         var tagline = new TextBlock { Text = "", FontSize = 24, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("TextBrush"), VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 25, 0, 0), MinHeight = 64 };
         System.Windows.Automation.AutomationProperties.SetName(tagline, "Home tagline"); Grid.SetColumn(tagline, 2); header.Children.Add(tagline); panel.Children.Add(header);
-        const string phrase = "a space for whatever comes next";
+        const string phrase = "a space for whatever comes next.";
         var position = 0; var hold = 0; var restartDelay = 0; var fading = false; var typing = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(55) };
         typing.Tick += (_, _) =>
         {
@@ -48,7 +48,7 @@ internal sealed partial class HomeWindow
         var body = new StackPanel { Margin = new Thickness(28) };
         body.Children.Add(new NexaLogo { Width = 260, Height = 82, HorizontalAlignment = HorizontalAlignment.Left });
         body.Children.Add(Copy(App.VersionLabel, 13));
-        body.Children.Add(new TextBlock { Text = "A space for whatever comes next", FontSize = 24, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 16) });
+        body.Children.Add(new TextBlock { Text = "a space for whatever comes next.", FontSize = 24, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 16) });
         body.Children.Add(Copy(ReleaseNotes.Description));
         body.Children.Add(new TextBlock { Text = "Made for your sessions", FontSize = 18, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 12) });
         body.Children.Add(Copy(ReleaseNotes.UseCases));

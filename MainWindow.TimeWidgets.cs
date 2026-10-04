@@ -13,8 +13,8 @@ public partial class MainWindow
         var display = new TextBlock { FontFamily = new FontFamily("Consolas"), FontSize = 30, Margin = new Thickness(0, 8, 0, 12) };
         panel.Children.Add(display);
         AnalogClock? analog = null;
-        if (stopwatch) { analog = new AnalogClock { Height = 144, MinHeight = 120, Margin = new Thickness(0, 0, 0, 8) }; panel.Children.Add(analog); }
-        var controls = new WrapPanel();
+        if (stopwatch) analog = new AnalogClock { Height = 144, MinHeight = 120, Margin = new Thickness(0, 8, 0, 8), Visibility = widget.DisplayMode == "Compact" ? Visibility.Collapsed : Visibility.Visible };
+        Panel controls = stopwatch ? new StackPanel { Orientation = Orientation.Horizontal } : new WrapPanel();
         Button Control(string name, Action action)
         {
             var button = new Button { Content = name, MinWidth = 64, Padding = new Thickness(8, 6, 8, 6), Margin = new Thickness(0, 0, 6, 6) };
@@ -31,16 +31,18 @@ public partial class MainWindow
         {
             var now = DateTimeOffset.Now;
             if (stopwatch && widget.StopwatchStartedAt is { } began) { widget.StopwatchElapsedSeconds += Math.Max(0, (now - began).TotalSeconds); widget.StopwatchStartedAt = null; }
+            else if (stopwatch) widget.StopwatchStartedAt = now;
             else if (!stopwatch && widget.TimerStart != null && widget.TimerStopped == null) widget.TimerStopped = now;
         });
-        resume = Control("Resume", () =>
+        if (!stopwatch) resume = Control("Resume", () =>
         {
             if (stopwatch) widget.StopwatchStartedAt = DateTimeOffset.Now;
             else if (widget.TimerStopped is { } stopped) { var paused = DateTimeOffset.Now - stopped; widget.TimerStart += paused; widget.TimerEnd += paused; widget.TimerStopped = null; }
         });
         Control("Reset", () => { if (stopwatch) { widget.StopwatchElapsedSeconds = 0; widget.StopwatchStartedAt = null; } else widget.TimerStart = widget.TimerEnd = widget.TimerStopped = null; });
         panel.Children.Add(controls);
-        if (!stopwatch) AddDisplayModeControls(panel, widget);
+        if (stopwatch) { panel.Children.Add(analog!); AddDisplayModeControls(panel, widget); }
+        else AddDisplayModeControls(panel, widget);
         if (!stopwatch)
         {
             var duration = new WrapPanel { Margin = new Thickness(0, 6, 0, 0) };
@@ -86,7 +88,9 @@ public partial class MainWindow
             display.Text = total >= 3600 ? $"{total / 3600:00}:{total / 60 % 60:00}:{total % 60:00}" : $"{total / 60:00}:{total % 60:00}";
             if (stopwatch) { display.Text += "." + ((long)(value * 1000) % 1000).ToString("000"); analog!.SetElapsed(value); }
             if (!stopwatch && !widget.ShowSeconds) display.Text = $"{total / 3600:00}:{total / 60 % 60:00}";
-            start!.IsEnabled = !begun; pause!.IsEnabled = running; resume!.IsEnabled = paused && (stopwatch || value > 0 || widget.ShowElapsed);
+            start!.IsEnabled = !begun; pause!.IsEnabled = stopwatch ? begun : running;
+            if (stopwatch) pause.Content = paused ? "Resume" : "Pause";
+            else resume!.IsEnabled = paused && (value > 0 || widget.ShowElapsed);
         }
         widgetTicks.Add(Update);
         if (stopwatch) stopwatchTicks.Add(now => { if (widget.StopwatchStartedAt != null) Update(now); });

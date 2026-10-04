@@ -11,6 +11,22 @@ public partial class MainWindow
     private void BuildSessionTimeline(StackPanel panel, WidgetInstance widget)
     {
         panel.Children.Add(new TextBlock { Text = state.Session?.Title ?? "Your session notes", FontWeight = FontWeights.SemiBold });
+        var shortcuts = new WrapPanel { Margin = new Thickness(0, 8, 0, 10) };
+        var recorder = new Button { Content = "Open Audio Recorder", Margin = new Thickness(0, 0, 8, 5) };
+        var hedyNotes = new Button { Content = "Open Hedy Notes", Margin = new Thickness(0, 0, 8, 5) };
+        var shortcutStatus = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush") };
+        void OpenTool(string kind)
+        {
+            if (kind == "Hedy Notes" && string.IsNullOrWhiteSpace(state.HedyProtectedKey))
+            { shortcutStatus.Text = "Hedy Notes is not configured. Connect Hedy in Integrations first."; OpenMainSettings("Integrations"); return; }
+            var target = state.Widgets.FirstOrDefault(w => w.Kind == kind) ?? AddWidget(kind);
+            ArrangeWidgetFrames();
+            if (widgetFrames.TryGetValue(target.Id, out var frame)) WidgetScroller.ScrollToVerticalOffset(Math.Max(0, Canvas.GetTop(frame) - 40));
+            FocusWidget(target.Id);
+        }
+        recorder.Click += (_, _) => OpenTool("Audio Recorder");
+        hedyNotes.Click += (_, _) => OpenTool("Hedy Notes");
+        shortcuts.Children.Add(recorder); shortcuts.Children.Add(hedyNotes); panel.Children.Add(shortcuts); panel.Children.Add(shortcutStatus);
         // A standalone manual notes area also works before a timed session starts.
         var note = new TextBox { AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, MinHeight = 64, MaxLength = 100000, ToolTip = "Add a timeline note" };
         var add = new Button { Content = "Add note", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 6, 0, 10) };

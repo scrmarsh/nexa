@@ -26,11 +26,22 @@ Tasks requests the Google Tasks scope for reading, completing and adding tasks. 
 
 Google sign-in uses authorization code + PKCE, a random state value, and a temporary loopback listener bound to `127.0.0.1`. Refresh authorization is renewed when needed. Google may restrict testing accounts or require consent verification for wider distribution. See [desktop OAuth setup](https://developers.google.com/identity/protocols/oauth2/native-app), [Google Tasks reference](https://developers.google.com/workspace/tasks/reference/rest), and [Calendar events reference](https://developers.google.com/workspace/calendar/api/v3/reference/events/list).
 
+## Outlook Calendar
+
+Outlook Calendar is an optional, read-only Microsoft Graph connection. No Microsoft application ID or secret ships with Nexa.
+
+1. Register a Microsoft application that supports the account types you intend to connect. Enable public client/desktop authentication and a `http://localhost` loopback redirect URI. Grant delegated `Calendars.Read` and `User.Read` permission.
+2. Paste the application (client) ID into **Settings → Integrations → Microsoft public application client ID**, then choose **Save Microsoft app ID**.
+3. Choose **Connect** under Outlook Calendar. Your browser opens the Microsoft consent page. Nexa uses authorization code with PKCE and a temporary localhost listener; no client secret is needed.
+4. In a Calendar widget, choose **Outlook Calendar** and the desired calendar. That selection saves with the Space. The widget lists today's events and current/next timing; it does not create or change events.
+
+Nexa renews expired access with the refresh token kept in Windows protected storage. A disconnected or offline account leaves the Calendar widget and local Space usable. See Microsoft's [authorization-code flow](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow), [calendar listing](https://learn.microsoft.com/en-us/graph/api/user-list-calendars?view=graph-rest-1.0), and [calendarView](https://learn.microsoft.com/en-us/graph/api/user-list-calendarview?view=graph-rest-1.0) documentation. Live sign-in requires your own app registration and was not exercised by the automated checks.
+
 ## Privacy, storage and failures
 
 - Profiles and preferences live under `profiles/<hash of Nexa user ID>/` beside the existing local store. Existing eligible theme/sound preferences are copied once; originals are retained.
 - Credentials use Windows DPAPI CurrentUser encryption with additional entropy derived from the Nexa user ID. Encrypted credentials and client configuration remain separate from dashboard state, history and exports.
-- Task and calendar responses remain in memory only. Nexa does not persist personal integration caches. Widget configuration stores only the chosen list/calendar identifier and view; configuration exports may therefore contain that identifier, never credentials.
+- Task and calendar responses remain in memory only. Nexa does not persist personal integration caches. Widget configuration stores only the chosen list/calendar identifier, calendar provider and view; configuration exports may therefore contain those identifiers, never credentials.
 - No credentials or provider response bodies are written to logs. Failed authentication requests a reconnect. Offline and timeout states provide Refresh without blocking the dashboard. Failed writes are not automatically retried; refresh to check the provider before repeating an add operation.
 - Disconnect deletes the local encrypted authorization and clears the open widget through a re-render. It does not delete external tasks/events or revoke the provider's server-side permission. Revoke that separately in your Google/Todoist account if desired.
 - Failed refreshes clear in-memory task/event/list data. Changing a task filter cannot restore stale data. Requests bind to a connection identity; delayed results and old task actions are rejected when the account changes. Leaving a widget cancels its pending requests.

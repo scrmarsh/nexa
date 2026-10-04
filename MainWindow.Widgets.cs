@@ -25,6 +25,7 @@ public partial class MainWindow
     private bool widgetRenderDeferred;
     private const double MicroWidgetHeight = 46;
     private const double WidgetGap = 8;
+    private double pixelResizeWidth;
     private Point? addWidgetLocation;
     private Guid? compactedPreviewId;
     private Brush DashboardBrush(string key) => (Brush)FullContent.FindResource("Dashboard" + key);
@@ -38,6 +39,8 @@ public partial class MainWindow
         stopwatchRefresh.Tick += (_, _) => { var now = DateTimeOffset.Now; foreach (var tick in stopwatchTicks) tick(now); };
         Closed += (_, _) => stopwatchRefresh.Stop();
         PixelBannerHost.SizeChanged += (_, _) => ArrangeWidgetFrames();
+        PixelWidthHandle.DragStarted += (_, _) => pixelResizeWidth = PixelBannerContainer.Width;
+        PixelWidthHandle.DragCompleted += (_, _) => { Changed(); SaveNow(); ArrangeWidgetFrames(); };
         WidgetCanvas.MouseLeftButtonDown += (_, e) => { if (ReferenceEquals(e.OriginalSource, WidgetCanvas)) { addWidgetLocation = e.GetPosition(WidgetCanvas); e.Handled = true; AddWidgetClick(WidgetCanvas, new RoutedEventArgs()); } };
         WidgetScroller.ScrollChanged += (_, e) => { if (ReferenceEquals(e.OriginalSource, WidgetScroller) && (e.ViewportHeightChange != 0 || e.ViewportWidthChange != 0)) ArrangeWidgetFrames(); };
         var adaptedWidgets = WidgetLibrary.PrepareLayout(state);
@@ -67,7 +70,7 @@ public partial class MainWindow
         EditToolbar.Visibility = editingDashboard ? Visibility.Visible : Visibility.Collapsed;
         PixelBannerHost.Content = null;
         var primaryPixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
-        PixelBannerHost.Visibility = primaryPixel == null ? Visibility.Collapsed : Visibility.Visible;
+        PixelBannerContainer.Visibility = primaryPixel == null ? Visibility.Collapsed : Visibility.Visible;
         if (primaryPixel != null) { Detach(PixelPanel); PixelPanel.Margin = new Thickness(0); PixelPanel.Padding = new Thickness(16); PixelPanel.BorderThickness = new Thickness(0); PixelBannerHost.Content = PixelPanel; }
         foreach (var widget in state.Widgets.Where(w => w != primaryPixel))
         {
@@ -92,7 +95,7 @@ public partial class MainWindow
             {
                 widget.IsMicro = !widget.IsMicro;
                 expandedMicroWidgets.Remove(widget.Id);
-                Changed(); SaveNow(); RenderWidgets();
+                Changed(); RenderWidgets(); CompactWidgetLayout();
             });
             var titleEditor = new TextBox { Text = widget.Title, FontSize = 14, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center, Background = Brushes.Transparent, BorderThickness = new Thickness(0), Padding = new Thickness(0), MaxLength = 100, ToolTip = "Edit widget title; drag the grip to move" };
             System.Windows.Automation.AutomationProperties.SetName(titleEditor, "Widget title " + widget.Title);
@@ -179,21 +182,22 @@ public partial class MainWindow
     }
     private double RowUnit => 24;
     private double GridUnit => (Math.Max(1, WidgetCanvas.ActualWidth) + WidgetGap) / 20;
-    private int MinimumWidthSteps(WidgetInstance widget) => Math.Clamp((int)Math.Ceiling((Math.Min(WidgetLibrary.MinimumWidth(widget), widget.Span <= 7 && widget.DisplayMode != "Expanded" ? 240 : double.PositiveInfinity) + WidgetGap) / GridUnit), 1, 20);
+    private int MinimumWidthSteps(WidgetInstance widget) => Math.Clamp((int)Math.Ceiling((Math.Min(WidgetLibrary.MinimumWidth(widget), widget.Kind != "Stopwatch" && widget.Span <= 7 && widget.DisplayMode != "Expanded" ? 240 : double.PositiveInfinity) + WidgetGap) / GridUnit), 1, 20);
     private int DisplaySpan(WidgetInstance widget) => WidgetCanvas.ActualWidth < 640 + WidgetGap ? 20 : widget.IsMicro && !expandedMicroWidgets.Contains(widget.Id) ? 4 : Math.Clamp(widget.Span, MinimumWidthSteps(widget), 20);
     private static double MinimumWidgetHeight(WidgetInstance widget) => WidgetLibrary.MinimumHeight(widget);
     private void AddDisplayModeControls(StackPanel panel, WidgetInstance widget)
     {
-        var modes = new WrapPanel { Margin = new Thickness(0, 6, 0, 0) };
+        var modes = new WrapPanel { Margin = new Thickness(0, 6, 0, 0), HorizontalAlignment = HorizontalAlignment.Right };
         foreach (var mode in new[] { "Compact", "Expanded" })
         {
             var button = new Button { Content = mode, FontSize = 11, Padding = new Thickness(5, 2, 5, 2), Margin = new Thickness(0, 0, 5, 0), Opacity = widget.DisplayMode == mode ? 1 : .6 };
             button.Click += (_, _) =>
             {
                 widget.DisplayMode = mode;
-                widget.Height = Math.Max(widget.Height, WidgetLibrary.MinimumHeight(widget));
-                widget.Span = Math.Max(widget.Span, MinimumWidthSteps(widget));
-                Changed(); RenderWidgets(); SaveNow();
+                widget.Height = mode == "Compact" ? WidgetLibrary.MinimumHeight(widget) : Math.Max(widget.Height, WidgetLibrary.MinimumHeight(widget));
+                widget.Span = mode == "Compact" ? MinimumWidthSteps(widget) : Math.Max(widget.Span, MinimumWidthSteps(widget));
+                widget.CustomSize = true;
+                Changed(); RenderWidgets(); CompactWidgetLayout();
             };
             modes.Children.Add(button);
         }
@@ -229,12 +233,29 @@ public partial class MainWindow
         textBox.Height = Math.Max(minHeight, Math.Ceiling(formatted.Height + textBox.Padding.Top + textBox.Padding.Bottom + 14));
     }
     private void WidgetCanvasSizeChanged(object sender, SizeChangedEventArgs e) { if (widgetsReady && e.WidthChanged) ArrangeWidgetFrames(); }
+    private void PixelBannerResizeDelta(object sender, DragDeltaEventArgs e)
+    {
+        var pixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
+        if (pixel == null || WidgetCanvas.ActualWidth <= 0) return;
+        pixelResizeWidth += e.HorizontalChange;
+        pixel.BannerSpan = Math.Clamp((int)Math.Round((pixelResizeWidth + WidgetGap) / GridUnit), 9, 20);
+        UpdatePixelBannerWidth(); ArrangeWidgetFrames();
+    }
+    private void UpdatePixelBannerWidth()
+    {
+        var pixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
+        if (pixel == null || WidgetCanvas.ActualWidth <= 0) return;
+        PixelBannerContainer.Width = Math.Min(WidgetCanvas.ActualWidth, Math.Max(450, pixel.BannerSpan * GridUnit - WidgetGap));
+    }
+    private Rect? PixelObstacle => PixelBannerContainer.Visibility == Visibility.Visible && PixelBannerContainer.ActualHeight > 0
+        ? new Rect(0, 0, PixelBannerContainer.ActualWidth, PixelBannerContainer.ActualHeight) : null;
     private void ArrangeWidgetFrames()
     {
         // Layout must not fight a freely moving card or rebuild its captured grip.
         if (widgetGestureActive) return;
         if (WidgetScroller.ActualHeight <= 0 || WidgetCanvas.ActualWidth <= 0) return;
-        var viewportHeight = Math.Max(1, (WidgetScroller.ViewportHeight > 0 ? WidgetScroller.ViewportHeight : WidgetScroller.ActualHeight) - (PixelBannerHost.Visibility == Visibility.Visible ? PixelBannerHost.ActualHeight + PixelBannerHost.Margin.Top + PixelBannerHost.Margin.Bottom : 0));
+        UpdatePixelBannerWidth();
+        var viewportHeight = Math.Max(1, WidgetScroller.ViewportHeight > 0 ? WidgetScroller.ViewportHeight : WidgetScroller.ActualHeight);
         if (editingDashboard)
         {
             var lines = new GeometryGroup();
@@ -285,27 +306,28 @@ public partial class MainWindow
             {
                 if (!widgetFrames.TryGetValue(widget.Id, out var frame)) continue;
                 Canvas.SetTop(frame, top); frame.Height = widgetHeights[widget.Id];
-                if (frame.Child is StackPanel stack && stack.Children.OfType<ScrollViewer>().FirstOrDefault() is { } body)
-                {
-                    body.Height = Math.Max(0, frame.Height - stack.Children.OfType<FrameworkElement>().Where(c => c != body).Sum(c => c.DesiredSize.Height) - 2);
-                    if(widget.Kind=="Bible" && body.Content is StackPanel biblePanel && biblePanel.Children.OfType<BibleReader>().FirstOrDefault() is {} reader)
-                        reader.Height=Math.Max(1,body.Height-biblePanel.Margin.Top-biblePanel.Margin.Bottom);
-                }
+                FitWidgetBody(frame, widget);
             }
             if (rows[index].Any(w => w.PlacementX == null)) top += height + (index < rows.Count - 1 ? WidgetGap : 0);
         }
-        WidgetCanvas.Height = Math.Max(viewportHeight, top);
+        WidgetCanvas.Height = Math.Max(Math.Max(viewportHeight, top), PixelObstacle?.Bottom ?? 0);
         foreach (var widget in state.Widgets.Where(w => widgetFrames.ContainsKey(w.Id) && w.PlacementX != null))
         {
             var frame = widgetFrames[widget.Id]; Canvas.SetLeft(frame, Math.Clamp(widget.PlacementX!.Value * WidgetCanvas.ActualWidth, 0, Math.Max(0, WidgetCanvas.ActualWidth - frame.Width))); Canvas.SetTop(frame, widget.PlacementY);
         }
         // Resolve only actual collisions in visual order, including responsive monitor/window changes.
-        var occupied = new List<Rect>();
+        var occupied = new List<Rect>(); if (PixelObstacle is { } pixelBounds) occupied.Add(pixelBounds);
         foreach(var frame in widgetFrames.Values.OrderBy(Canvas.GetTop).ThenBy(Canvas.GetLeft))
         {
             var rect=FrameRect(frame);
-            while(occupied.FirstOrDefault(r=>r.IntersectsWith(rect)) is var hit && hit.Width>0) rect.Y=Math.Ceiling((hit.Bottom+WidgetGap)/RowUnit)*RowUnit;
-            Canvas.SetTop(frame,rect.Y); occupied.Add(rect);
+            if (PixelObstacle is { } pixel && PlacementOverlaps(pixel, rect))
+            {
+                var right = Math.Ceiling((pixel.Right + WidgetGap) / GridUnit) * GridUnit;
+                if (right + rect.Width <= WidgetCanvas.ActualWidth + .5 && !occupied.Skip(1).Any(r => PlacementOverlaps(r, new Rect(right, rect.Y, rect.Width, rect.Height))))
+                    rect.X = right;
+            }
+            while(occupied.FirstOrDefault(r=>PlacementOverlaps(r,rect)) is var hit && hit.Width>0) rect.Y=Math.Ceiling((hit.Bottom+WidgetGap)/RowUnit)*RowUnit;
+            Canvas.SetLeft(frame,rect.X); Canvas.SetTop(frame,rect.Y); occupied.Add(rect);
         }
         WidgetCanvas.Height = Math.Max(WidgetCanvas.Height, widgetFrames.Values.Select(f => Canvas.GetTop(f) + f.Height).DefaultIfEmpty(0).Max());
         foreach (var (id, handles) in widgetResizeHandles)
@@ -338,6 +360,23 @@ public partial class MainWindow
         bool physicalInput = false;
         Dictionary<Guid,Rect> resizeOrigin = [];
         System.Windows.Media.Effects.Effect? originalEffect = null;
+        var edgeScroll = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+        edgeScroll.Tick += (_, _) =>
+        {
+            if (!widgetGestureActive || !physicalInput || resize) { edgeScroll.Stop(); return; }
+            var pointer = Mouse.GetPosition(WidgetScroller);
+            var zone = Math.Min(70, WidgetScroller.ViewportHeight / 4);
+            var speed = pointer.Y < zone ? -2 - 16 * Math.Clamp((zone - pointer.Y) / zone, 0, 1)
+                : pointer.Y > WidgetScroller.ViewportHeight - zone ? 2 + 16 * Math.Clamp((pointer.Y - WidgetScroller.ViewportHeight + zone) / zone, 0, 1) : 0;
+            if (speed == 0) return;
+            var before = WidgetScroller.VerticalOffset;
+            WidgetScroller.ScrollToVerticalOffset(Math.Clamp(before + speed, 0, WidgetScroller.ScrollableHeight));
+            if (Math.Abs(WidgetScroller.VerticalOffset - before) < .01) return;
+            var now = Mouse.GetPosition(WidgetCanvas); dx = now.X - anchor.X; dy = now.Y - anchor.Y;
+            var frame = widgetFrames[widget.Id];
+            frame.RenderTransform = new TranslateTransform(origin.X + dx - Canvas.GetLeft(frame), origin.Y + dy - Canvas.GetTop(frame));
+            UpdateWidgetDropPreview(widget, origin.X + dx, origin.Y + dy);
+        };
         thumb.DragStarted += (_, _) =>
         {
             ClearWidgetFocus();
@@ -347,6 +386,7 @@ public partial class MainWindow
             origin = FrameRect(frame); origin.Location = visualPosition; unit = GridUnit;
             anchor = Mouse.GetPosition(WidgetCanvas); dx = dy = 0; span = DisplaySpan(widget); height = (int)origin.Height; left = origin.Left; top = origin.Top;
             physicalInput = thumb.IsMouseCaptured; widgetGestureActive = true;
+            if (physicalInput && !resize) edgeScroll.Start();
             resizeOrigin=widgetFrames.ToDictionary(p=>p.Key,p=>FrameRect(p.Value));
             if (resize)
             {
@@ -403,6 +443,7 @@ public partial class MainWindow
         thumb.DragCompleted += (_, e) =>
         {
             if (!widgetGestureActive) return;
+            edgeScroll.Stop();
             if (physicalInput && !e.Canceled) { var pointer = Mouse.GetPosition(WidgetCanvas); dx = pointer.X - anchor.X; dy = pointer.Y - anchor.Y; }
             if (physicalInput && resize && !e.Canceled) ResizeAtPointer();
             var before = WidgetVisualPositions();
@@ -426,6 +467,7 @@ public partial class MainWindow
                 else CommitWidgetDrop(widget, origin.X + dx, origin.Y + dy);
             }
             if (widgetRenderDeferred) { widgetRenderDeferred = false; RenderWidgets(); } else ArrangeWidgetFrames();
+            if (!e.Canceled && resize && height < origin.Height - 3) CompactWidgetLayout();
             WidgetCanvas.UpdateLayout();
             AnimateWidgetSettle(before);
         };
@@ -454,11 +496,22 @@ public partial class MainWindow
                 var pins = new StackPanel(); BuildScripturePins(pins, widget);
                 panel.Children.Add(new ScrollViewer { Content = pins, Height = Math.Max(190, widget.Height - 74), VerticalScrollBarVisibility = ScrollBarVisibility.Disabled }); break;
             case "text": case "links":
-                var text = new TextBox { Text = widget.Text, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, MinHeight = 110, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled, ToolTip = widget.Placeholder };
+                var notesSurface = widget.Kind == "Notes";
+                var text = new TextBox { Text = widget.Text, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, MinHeight = 110, VerticalScrollBarVisibility = notesSurface ? ScrollBarVisibility.Auto : ScrollBarVisibility.Disabled, ToolTip = widget.Placeholder };
                 System.Windows.Automation.AutomationProperties.SetName(text, widget.Title);
-                text.Loaded += (_, _) => FitTextBoxHeight(text, 110);
-                text.SizeChanged += (_, e) => { if (e.WidthChanged) FitTextBoxHeight(text, 110); };
-                text.TextChanged += (_, _) => { widget.Text = text.Text; if (widget.Kind == "Notes" && widget.PanelKey == "notes") state.Notes = text.Text; FitTextBoxHeight(text, 110); Changed(); Dispatcher.BeginInvoke(new Action(ArrangeWidgetFrames)); }; panel.Children.Add(text);
+                if (notesSurface)
+                {
+                    text.FontSize = 16; text.SetValue(TextBlock.LineHeightProperty, 28.0); text.SetValue(TextBlock.LineStackingStrategyProperty, LineStackingStrategy.BlockLineHeight);
+                    text.Padding = new Thickness(12, 4, 12, 4);
+                    var rule = DashboardBrush("LineBrush").Clone(); rule.Opacity = .45;
+                    var paper = new DrawingGroup();
+                    paper.Children.Add(new GeometryDrawing(DashboardBrush("PanelBrush"), null, new RectangleGeometry(new Rect(0, 0, 256, 28))));
+                    paper.Children.Add(new GeometryDrawing(null, new Pen(rule, 1), new LineGeometry(new Point(0, 27.5), new Point(256, 27.5))));
+                    text.Background = new DrawingBrush(paper) { TileMode = TileMode.Tile, ViewportUnits = BrushMappingMode.Absolute, ViewboxUnits = BrushMappingMode.Absolute, Viewport = new Rect(0, 0, 256, 28), Viewbox = new Rect(0, 0, 256, 28), Stretch = Stretch.None };
+                    panel.Margin = new Thickness(6, 2, 6, 4);
+                }
+                else { text.Loaded += (_, _) => FitTextBoxHeight(text, 110); text.SizeChanged += (_, e) => { if (e.WidthChanged) FitTextBoxHeight(text, 110); }; }
+                text.TextChanged += (_, _) => { widget.Text = text.Text; if (notesSurface && widget.PanelKey == "notes") state.Notes = text.Text; if (!notesSurface) FitTextBoxHeight(text, 110); Changed(); if (!notesSurface) Dispatcher.BeginInvoke(new Action(ArrangeWidgetFrames)); }; panel.Children.Add(text);
                 if (editor is "bible" or "links")
                 {
                     var open = new Button { Content = editor == "bible" ? "Open passage online" : "Open first link", Margin = new Thickness(0, 10, 0, 0) };
@@ -547,13 +600,21 @@ public partial class MainWindow
     private void BuildWaterBottleCounter(StackPanel panel, WidgetInstance widget)
     {
         var goal = Math.Clamp(widget.WaterBottleGoal, 1, 100);
-        var count = new TextBlock { FontSize = 40, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 3) };
+        var glass = new Grid { Width = 76, Height = 102, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 2, 0, 8) };
+        var glassShape = Geometry.Parse("M8,7 L68,7 L61,94 L15,94 Z");
+        var water = new System.Windows.Shapes.Path { Data = glassShape, Fill = DashboardBrush("AccentBrush"), Opacity = .75 };
+        glass.Children.Add(water);
+        glass.Children.Add(new System.Windows.Shapes.Path { Data = glassShape, Stroke = DashboardBrush("AccentBrush"), StrokeThickness = 3, Fill = Brushes.Transparent });
+        panel.Children.Add(glass);
+        var count = new TextBlock { FontSize = 30, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 3), HorizontalAlignment = HorizontalAlignment.Center };
         var caption = new TextBlock { Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 0, 0, 10) };
         var progress = new ProgressBar { Height = 6, Minimum = 0, Maximum = goal, Foreground = DashboardBrush("AccentBrush"), Background = DashboardBrush("LineBrush"), BorderThickness = new Thickness(0) };
         void Refresh()
         {
-            count.Text = widget.Value.ToString("0.##", CultureInfo.CurrentCulture);
-            caption.Text = $"{(widget.Value == 1 ? "bottle" : "bottles")} · goal {goal}";
+            count.Text = $"{widget.Value:0.##} / {goal}";
+            caption.Text = widget.Value == 1 ? "bottle" : "bottles";
+            var fill = 86 * Math.Clamp((double)widget.Value / goal, 0, 1);
+            water.Clip = new RectangleGeometry(new Rect(0, 94 - fill, 76, fill));
             progress.Maximum = goal;
             progress.Value = Math.Clamp((double)widget.Value, 0, goal);
         }
@@ -696,7 +757,7 @@ public partial class MainWindow
         // Archive first so even a confirmed removal remains recoverable from history.
         Continuity.Archive(d); d.Current.SessionId = Guid.NewGuid(); d.Current.OpenedAt = DateTimeOffset.Now;
         d.Current.Data.Widgets.RemoveAll(w => w.Id == widget.Id);
-        if (CommitWorkspace(candidate, preserveWidgetUndo: true)) { widgetUndo.Push(removed); widgetRedo.Clear(); while(widgetUndo.Count>20) { var recent=widgetUndo.Take(20).Reverse().ToArray(); widgetUndo.Clear(); foreach(var item in recent) widgetUndo.Push(item); } RenderWidgets(); ShowWidgetRemovedToast(); }
+        if (CommitWorkspace(candidate, preserveWidgetUndo: true)) { widgetUndo.Push(removed); widgetRedo.Clear(); while(widgetUndo.Count>20) { var recent=widgetUndo.Take(20).Reverse().ToArray(); widgetUndo.Clear(); foreach(var item in recent) widgetUndo.Push(item); } RenderWidgets(); CompactWidgetLayout(); ShowWidgetRemovedToast(); }
     }
     private void ConfigureWidget(WidgetInstance widget)
     {
@@ -764,6 +825,7 @@ public partial class MainWindow
     }
     private void ThemeClick(object sender, RoutedEventArgs e) => OpenLegacyPanel(ThemePanel, "Theme & display");
     private void DashboardSettingsClick(object sender, RoutedEventArgs e) => OpenMainSettings("Session");
+    private void GlobalSettingsClick(object sender, RoutedEventArgs e) => OpenMainSettings("Appearance");
     private void RenameDashboardClick(object sender, RoutedEventArgs e)
     {
         var value = DashboardNameEditor.Text.Trim();

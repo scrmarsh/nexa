@@ -9,20 +9,25 @@ public partial class MainWindow
     private IntegrationClient Connections => integrationClient??=new IntegrationClient(store);
     private UIElement BuildIntegrationWidget(WidgetInstance widget)
     {
-        var service=widget.Kind=="Calendar"?"Google Calendar":widget.Kind;
+        var service=widget.Kind=="Calendar" && widget.CalendarService=="Outlook Calendar"?"Outlook Calendar":widget.Kind=="Calendar"?"Google Calendar":widget.Kind;
         var calendar=widget.Kind=="Calendar";
         var client=Connections; var provider=calendar?null:client.TaskProvider(service);
-        var panel=new StackPanel(); var status=new TextBlock { Text="Not connected. Your local tools are ready.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,10) }; panel.Children.Add(status);
+        var panel=new StackPanel();
+        if(calendar) panel.Children.Add(new TextBlock { Text=DateTime.Now.ToString("dddd, MMMM d"),FontSize=18,FontWeight=FontWeights.SemiBold,Margin=new Thickness(0,0,0,8) });
+        var status=new TextBlock { Text="Not connected. Your local tools are ready.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,10) }; panel.Children.Add(status);
+        var sources=new ComboBox { ItemsSource=new[] { "Google Calendar","Outlook Calendar" },SelectedItem=service,Margin=new Thickness(0,0,0,8),Visibility=calendar?Visibility.Visible:Visibility.Collapsed };
+        panel.Children.Add(sources);
         var lists=new ComboBox { DisplayMemberPath="Name",Margin=new Thickness(0,0,0,8) }; panel.Children.Add(lists);
         var filter=new ComboBox { ItemsSource=new[] { "Today","Upcoming","All" },SelectedItem=widget.IntegrationView,Margin=new Thickness(0,0,0,8),Visibility=calendar?Visibility.Collapsed:Visibility.Visible }; panel.Children.Add(filter);
         var summary=new TextBlock { TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,10),Visibility=calendar?Visibility.Visible:Visibility.Collapsed }; panel.Children.Add(summary);
-        var content=new StackPanel(); panel.Children.Add(new ScrollViewer { Content=content,MaxHeight=240,VerticalScrollBarVisibility=ScrollBarVisibility.Auto });
+        var content=new StackPanel(); panel.Children.Add(new ScrollViewer { Content=content,MaxHeight=widget.DisplayMode=="Expanded"?360:150,VerticalScrollBarVisibility=ScrollBarVisibility.Auto });
         var actions=new StackPanel { Orientation=Orientation.Horizontal,Margin=new Thickness(0,10,0,0) };
         var refresh=new Button { Content="Refresh",Margin=new Thickness(0,0,8,0) }; var settings=new Button { Content="Connections" }; settings.Click+=(_,_)=>OpenMainSettings("Integrations"); actions.Children.Add(refresh); actions.Children.Add(settings); panel.Children.Add(actions);
+        if(calendar) AddDisplayModeControls(panel,widget);
         var input=new TextBox { MaxLength=500,Margin=new Thickness(0,10,0,6),Visibility=calendar?Visibility.Collapsed:Visibility.Visible }; panel.Children.Add(input);
         var add=new Button { Content="Add task",HorizontalAlignment=HorizontalAlignment.Left,Visibility=calendar?Visibility.Collapsed:Visibility.Visible }; panel.Children.Add(add);
         CancellationTokenSource? pending=null; var lifetime=new CancellationTokenSource();
-        bool loading=false,initialized=false; Guid? loadedConnection=null; List<ExternalTask> tasks=[]; List<CalendarEntry> events=[];
+        bool loading=false,initialized=false,sourceReloadPending=false; Guid? loadedConnection=null; List<ExternalTask> tasks=[]; List<CalendarEntry> events=[];
         void ClearData(bool resetLists)
         {
             tasks.Clear(); events.Clear(); content.Children.Clear(); summary.Text="";
@@ -69,7 +74,7 @@ public partial class MainWindow
                 status.Text="Loading...";
                 if(!initialized)
                 {
-                    var available=calendar?await client.CalendarProvider(account).Calendars(token):await provider!.Lists(token);
+                    var available=calendar?await client.CalendarProvider(service,account).Calendars(token):await provider!.Lists(token);
                     if(service=="Todoist") available.Insert(0,new ExternalList("","All projects"));
                     CheckConnection(account,token); lists.ItemsSource=available;
                     lists.SelectedItem=available.FirstOrDefault(l=>l.Id==widget.ExternalListId)??available.FirstOrDefault(); initialized=true;
@@ -78,8 +83,10 @@ public partial class MainWindow
                 if(chosen.Id!=widget.ExternalListId) { widget.ExternalListId=chosen.Id; Changed(); }
                 if(calendar)
                 {
-                    var schedule=await client.CalendarProvider(account).Schedule(chosen.Id,DateTimeOffset.Now,token); CheckConnection(account,token); events=schedule; content.Children.Clear();
-                    foreach(var item in events) content.Children.Add(new TextBlock { Text=$"{(item.AllDay?"All day":item.Start.LocalDateTime.ToString("h:mm tt"))}  {item.Title}",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,6,0,6) });
+                    var schedule=await client.CalendarProvider(service,account).Schedule(chosen.Id,DateTimeOffset.Now,token); CheckConnection(account,token); events=schedule; content.Children.Clear();
+                    foreach(var item in events.Take(widget.DisplayMode=="Expanded"?30:3))
+                        content.Children.Add(new TextBlock { Text=(item.AllDay?"All day":item.Start.LocalDateTime.ToString("h:mm tt")+"–"+item.End.LocalDateTime.ToString("h:mm tt"))+"  "+item.Title
+                            +(widget.DisplayMode=="Expanded"?"  ·  "+chosen.Name+" ("+service+")":""),TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,6,0,6) });
                     if(events.Count==0) content.Children.Add(new TextBlock { Text="Nothing scheduled today." });
                 }
                 else { var result=await provider!.Tasks(chosen.Id,token); CheckConnection(account,token); tasks=result; RenderTasks(); }
@@ -87,9 +94,19 @@ public partial class MainWindow
             }
             catch(Exception ex) when(ex is IntegrationException or System.IO.IOException or UnauthorizedAccessException or System.Text.Json.JsonException or FormatException or OperationCanceledException)
             { ClearData(true); if(!token.IsCancellationRequested) status.Text=ex is IntegrationException?ex.Message:"Could not load this service. Refresh to try again."; }
-            finally { loading=false; refresh.IsEnabled=true; lists.IsEnabled=true; add.IsEnabled=client.Vault.Connected(service) && lists.SelectedItem!=null; }
+            finally
+            {
+                loading=false; refresh.IsEnabled=true; lists.IsEnabled=true; add.IsEnabled=client.Vault.Connected(service) && lists.SelectedItem!=null;
+                if(sourceReloadPending) { sourceReloadPending=false; await Load(); }
+            }
         }
         refresh.Click+=async (_,_)=>await Load();
+        sources.SelectionChanged+=async (_,_)=>
+        {
+            if(!calendar || sources.SelectedItem is not string selected || selected==service) return;
+            pending?.Cancel(); service=selected; widget.CalendarService=selected; widget.ExternalListId=""; ClearData(true); Changed(); SaveNow();
+            if(loading) sourceReloadPending=true; else await Load();
+        };
         lists.SelectionChanged+=async (_,_)=> { if(!loading && initialized) await Load(); };
         filter.SelectionChanged+=(_,_)=> { widget.IntegrationView=(string?)filter.SelectedItem??"Today"; Changed(); RenderTasks(); };
         add.Click+=async (_,_)=>

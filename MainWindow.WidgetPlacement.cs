@@ -48,6 +48,11 @@ public partial class MainWindow
             plan[widget.Id] = new Rect(column * GridUnit, top, widths[widget.Id] * GridUnit - WidgetGap, height);
             column += widths[widget.Id];
         }
+        if (PixelObstacle is { } pixel && plan.Values.Any(rect => PlacementOverlaps(pixel, rect))) { plan.Clear(); spans.Clear(); return false; }
+        var planned = plan;
+        if (state.Widgets.Where(w => !ordered.Contains(w) && widgetFrames.ContainsKey(w.Id))
+            .Any(w => planned.Values.Any(rect => PlacementOverlaps(FrameRect(widgetFrames[w.Id]), rect))))
+        { plan.Clear(); spans.Clear(); return false; }
         return true;
     }
 
@@ -84,16 +89,16 @@ public partial class MainWindow
 
     private Dictionary<Guid, Rect> StableDropPlan(WidgetInstance moved, Rect destination)
     {
-        var packed = new Dictionary<Guid, Rect> { [moved.Id] = destination };
-        foreach (var other in state.Widgets.Where(w => w.Id != moved.Id && widgetFrames.ContainsKey(w.Id))
-            .OrderBy(w => Canvas.GetTop(widgetFrames[w.Id])).ThenBy(w => Canvas.GetLeft(widgetFrames[w.Id])))
+        if (PixelObstacle is { } pixel && PlacementOverlaps(pixel, destination))
         {
-            var rect = FrameRect(widgetFrames[other.Id]);
-            while (packed.Values.FirstOrDefault(hit => PlacementOverlaps(hit, rect)) is var hit && hit.Width > 0)
-                rect.Y = Math.Ceiling((hit.Bottom + WidgetGap) / RowUnit) * RowUnit;
-            packed[other.Id] = rect;
+            // A card may fit to the right of the visible timer; only a real
+            // intersection moves it below the anchored banner.
+            destination.Y = Math.Ceiling((pixel.Bottom + WidgetGap) / RowUnit) * RowUnit;
         }
-        return packed;
+        var packed = new Dictionary<Guid, Rect> { [moved.Id] = destination };
+        var others = state.Widgets.Where(w => w.Id != moved.Id && widgetFrames.ContainsKey(w.Id))
+            .OrderBy(w => Canvas.GetTop(widgetFrames[w.Id])).ThenBy(w => Canvas.GetLeft(widgetFrames[w.Id]));
+        return PackWidgetFrames(others, packed);
     }
 
     private void ClearWidgetDropPreview()
@@ -124,6 +129,15 @@ public partial class MainWindow
         Changed(); SaveNow();
     }
 
+    private void CompactWidgetLayout()
+    {
+        if (widgetGestureActive || widgetFrames.Count == 0) return;
+        var ordered = state.Widgets.Where(w => widgetFrames.ContainsKey(w.Id))
+            .OrderBy(w => Canvas.GetTop(widgetFrames[w.Id])).ThenBy(w => Canvas.GetLeft(widgetFrames[w.Id]));
+        StoreWidgetPositions(PackWidgetFrames(ordered, []));
+        Changed(); ArrangeWidgetFrames(); SaveNow();
+    }
+
     private Dictionary<Guid,Rect> PackWidgetFrames(IEnumerable<WidgetInstance> widgets,Dictionary<Guid,Rect> positions)
     {
         foreach(var widget in widgets)
@@ -132,13 +146,14 @@ public partial class MainWindow
             var maxColumn=20-DisplaySpan(widget);
             var preferred=Math.Clamp((int)Math.Round(current.X/GridUnit),0,maxColumn);
             var columns=Enumerable.Range(0,maxColumn+1).OrderBy(c=>Math.Abs(c-preferred)).ThenBy(c=>c).ToArray();
-            var lastRow=Math.Ceiling((positions.Values.Select(r=>r.Bottom).DefaultIfEmpty(0).Max()+WidgetGap)/RowUnit);
+            var lastRow=Math.Ceiling((Math.Max(positions.Values.Select(r=>r.Bottom).DefaultIfEmpty(0).Max(),PixelObstacle?.Bottom ?? 0)
+                + widgets.Sum(w=>widgetFrames[w.Id].Height+WidgetGap)+WidgetGap)/RowUnit);
             Rect? slot=null;
             for(var row=0;row<=lastRow && slot==null;row++)
                 foreach(var col in columns)
                 {
                     var candidate=new Rect(col*GridUnit,row*RowUnit,current.Width,current.Height);
-                    if(positions.Values.Any(r=>PlacementOverlaps(r,candidate))) continue;
+                    if(positions.Values.Any(r=>PlacementOverlaps(r,candidate)) || PixelObstacle is { } pixel && PlacementOverlaps(pixel,candidate)) continue;
                     slot=candidate; break;
                 }
             positions[widget.Id]=slot!.Value;
@@ -161,7 +176,7 @@ public partial class MainWindow
 
     private void ResizeWidgetVisual(WidgetInstance active, Rect anchor, Dictionary<Guid, Rect> original)
     {
-        var occupied=new List<Rect> { anchor };
+        var occupied=new List<Rect> { anchor }; if (PixelObstacle is { } pixel) occupied.Add(pixel);
         var frame=widgetFrames[active.Id]; Canvas.SetLeft(frame,anchor.X); Canvas.SetTop(frame,anchor.Y); frame.Width=anchor.Width; frame.Height=anchor.Height;
         FitWidgetBody(frame,active);
         foreach(var pair in original.Where(p=>p.Key!=active.Id).OrderBy(p=>p.Value.Y).ThenBy(p=>p.Value.X))
@@ -178,6 +193,8 @@ public partial class MainWindow
         if(frame.Child is not StackPanel stack || stack.Children.OfType<ScrollViewer>().FirstOrDefault() is not {} body) return;
         if(body.Content is FrameworkElement content) content.MaxWidth=Math.Max(1,frame.Width-2-content.Margin.Left-content.Margin.Right);
         body.Height=Math.Max(0,frame.Height-stack.Children.OfType<FrameworkElement>().Where(c=>c!=body).Sum(c=>c.DesiredSize.Height)-2);
+        if (widget.Kind == "Notes" && body.Content is StackPanel notesPanel && notesPanel.Children.OfType<TextBox>().FirstOrDefault() is { } notes)
+            notes.Height = Math.Max(110, body.Height - notesPanel.Margin.Top - notesPanel.Margin.Bottom - 2);
         if(widget.Kind=="Bible" && body.Content is StackPanel biblePanel && biblePanel.Children.OfType<BibleReader>().FirstOrDefault() is {} reader)
             reader.Height=Math.Max(1,body.Height-biblePanel.Margin.Top-biblePanel.Margin.Bottom);
     }

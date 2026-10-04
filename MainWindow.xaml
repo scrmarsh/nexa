@@ -17,6 +17,7 @@
                 </StackPanel>
                 <StackPanel x:Name="TopNavigation" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Button Content="Home" Click="HomeClick" Padding="14,5" Margin="0,0,8,0"/>
+                    <Button x:Name="GlobalSettingsButton" Content="Settings" Click="GlobalSettingsClick" Padding="14,5" Margin="0,0,8,0"/>
                     <Button x:Name="SessionSettingsButton" Content="Session" Click="DashboardSettingsClick" Style="{StaticResource PrimaryButton}" Padding="14,5"/>
                     <Button x:Name="AddWidgetButton" Content="Add Widget" Click="AddWidgetClick" Padding="14,5" Margin="8,0,0,0"/>
                     <Button x:Name="DeveloperSplashButton" Content="Preview Splash" MinWidth="132" Padding="12,6" Click="DeveloperSplashClick" Visibility="Collapsed"/>
@@ -190,7 +191,15 @@
                 </StackPanel>
             </ScrollViewer>
         </Grid>
-            <ScrollViewer x:Name="WidgetScroller" Background="Transparent" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled"><StackPanel><ContentControl x:Name="PixelBannerHost" Margin="0,0,0,12"/><Canvas x:Name="WidgetCanvas" SizeChanged="WidgetCanvasSizeChanged"/></StackPanel></ScrollViewer>
+            <ScrollViewer x:Name="WidgetScroller" Background="Transparent" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled"><Grid>
+                <Canvas x:Name="WidgetCanvas" SizeChanged="WidgetCanvasSizeChanged"/>
+                <Grid x:Name="PixelBannerContainer" HorizontalAlignment="Left" VerticalAlignment="Top" Panel.ZIndex="10">
+                    <ContentControl x:Name="PixelBannerHost"/>
+                    <Thumb x:Name="PixelWidthHandle" Width="12" HorizontalAlignment="Right" Cursor="SizeWE" DragDelta="PixelBannerResizeDelta" ToolTip="Resize Pixel Timer width" AutomationProperties.Name="Resize Pixel Timer width">
+                        <Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="Transparent" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="0,0,2,0"/></ControlTemplate></Thumb.Template>
+                    </Thumb>
+                </Grid>
+            </Grid></ScrollViewer>
         </DockPanel>
         <DockPanel x:Name="FooterStatus" Grid.Row="2" Margin="0,12,0,0">
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="12,0,0,0">

@@ -39,7 +39,7 @@ internal sealed partial class SettingsDialog
     {
         var page=Page("Integrations","Optional connections. Your local spaces always work without them.");
         var client=new IntegrationClient(store);
-        foreach(var service in new[] { "Todoist","Google Tasks","Google Calendar" })
+        foreach(var service in new[] { "Todoist","Google Tasks","Google Calendar","Outlook Calendar" })
         {
             var section=new StackPanel { Margin=new Thickness(0,0,0,24) }; page.Children.Add(section);
             section.Children.Add(new TextBlock { Text=service,FontSize=20,FontWeight=FontWeights.SemiBold });
@@ -56,6 +56,7 @@ internal sealed partial class SettingsDialog
                 try
                 {
                     if(service=="Todoist") { var value=secret!.Password; secret.Clear(); await client.ConnectTodoist(value,pending.Token); }
+                    else if(service=="Outlook Calendar") await MicrosoftAuthorization.Connect(client.Vault,pending.Token);
                     else await GoogleAuthorization.Connect(client.Vault,service,pending.Token);
                     status.Text="Connected. Select a project or list in the widget."; disconnect.IsEnabled=true; space?.RenderWidgets();
                 }
@@ -73,7 +74,14 @@ internal sealed partial class SettingsDialog
             try { GoogleAuthorization.ImportConfiguration(client.Vault,picker.FileName); googleSetup.Content="Google connection configured"; }
             catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException or IntegrationException) { MessageBox.Show(this,ex is IntegrationException?ex.Message:"Could not read the configuration file.","Google connection"); }
         }; page.Children.Add(googleSetup);
-        page.Children.Add(new TextBlock { Text="Google requires a registered desktop app with Tasks / Calendar APIs enabled. See INTEGRATIONS.md. Calendar access is read-only. Disconnect removes local authorization; Google account settings can revoke the app's permission.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,0) });
+        var microsoftId=new TextBox { MaxLength=80,Margin=new Thickness(0,16,0,6),ToolTip="Your Microsoft application (client) ID" };
+        Field(page,"Microsoft public application client ID",microsoftId);
+        var microsoftSetup=new Button { Content="Save Microsoft app ID",HorizontalAlignment=HorizontalAlignment.Left };
+        var microsoftStatus=new TextBlock { TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,5,0,0) };
+        microsoftSetup.Click+=(_,_)=> { try { MicrosoftAuthorization.Configure(client.Vault,microsoftId.Text.Trim()); microsoftStatus.Text="Microsoft app configured."; }
+            catch(Exception ex) when(ex is IntegrationException or IOException or UnauthorizedAccessException) { microsoftStatus.Text=ex is IntegrationException?ex.Message:"Could not save the Microsoft app ID."; } };
+        page.Children.Add(microsoftSetup); page.Children.Add(microsoftStatus);
+        page.Children.Add(new TextBlock { Text="Google and Microsoft require registered desktop/public apps. See INTEGRATIONS.md. Calendar access is read-only. Disconnect removes locally saved authorization; revoke permission in the provider account if needed.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,0) });
         hedySettingsSection=new Border { Child=BuildHedy(),Margin=new Thickness(0,28,0,0),Focusable=true }; page.Children.Add(hedySettingsSection);
         return new ScrollViewer { Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto };
     }
