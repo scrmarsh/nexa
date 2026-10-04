@@ -1,3 +1,9 @@
+## Nexa 0.1.13 Alpha — Pixel Swarm & Appearance
+
+- Debug and Release builds and the `--swarm013` focused suite pass: 33 checks covering timer-pixel seeds, input/aim/fire, pause, health, stage progression, relief and weapons, upgrades, bounded enemies, local per-user stats, routed WPF menu actions, real session continuation, autosave, return without note loss, and immediate/persisted Appearance changes. Start, play and pause screenshots were inspected. The isolated Release startup probe succeeded with 759 pixels, four presets and three packaged Bible translations.
+- Previous `--shared012` suite passes 10 checks for neighboring Pixel Timer/widget resize and live theme selection. Previous `--dashboard012` suite passes 24 checks for saved dashboard sizing, calendar, notes and water counter; its synthetic Windows credential check requires the normal Windows profile.
+- Real keyboard/mouse play, mixed-DPI monitor movement and live long-session performance still need manual testing on the target hardware. Test stores are isolated under ignored `test-output`; no existing user data was reset.
+
 ## Shared-edge and appearance follow-up (0.1.12 Alpha)
 
 - Isolated Debug and Release builds pass with zero warnings/errors. Release startup probe succeeds with four presets, all three packaged Bible editions and a rendered Pixel Timer (`test-output/shared012-startup`). `--shared012` passes 10 WPF checks: Pixel Timer card edge and adjacency, live width trade with Clock, normal widget pair resizing and cancellation, saved/reopened geometry, and immediate/persisted Space Settings palette selection.

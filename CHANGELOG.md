@@ -1,5 +1,11 @@
 # Changelog
 
+## Nexa 0.1.13 Alpha — Pixel Swarm & Appearance (2026-10-04)
+
+Pixel Swarm now opens a start menu before a run. Move with WASD or arrow keys, aim with the mouse and click to fire the Pixel Blaster. Survive three escalating stages: drifting timer pixels, pursuing enemies and white relief orbs, then mixed enemies, limited weapon pickups, bosses and experience upgrades. Health, score and a results screen make runs replayable; pause, restart and return remain available. Best score and run statistics save locally per Nexa user, separate from Space data. The existing session timer and autosave continue while the game is open.
+
+Appearance changes to Light/Dark mode and the app accent now update live Home, Settings and Space surfaces and persist across restarts. A Space's own accent still applies to its Pixel Timer and selected Space accents. Existing dashboards and preference files need no migration.
+
 ## Nexa 0.1.12 Alpha — Dashboard & Widget UX Update (2026-10-03)
 
 The anchored Pixel Timer now resizes from its right edge and leaves usable top-row space for other widgets. Its target menu has Date, Time and Use Today's Date; the latter proposes one hour from now without starting a session. Dashboard cards compact after editing, use their rendered bounds for placement, show a blue landing preview and scroll near the viewport edges during a drag.

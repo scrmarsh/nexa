@@ -1,5 +1,9 @@
 # Nexa Codex Session State
 
+## Current task — Nexa 0.1.13 Alpha
+
+Pixel Swarm overhaul and Appearance fixes are implemented on the existing branch. The game now has a start menu, WASD/arrows, mouse aim and click fire, health, pause, escalating stages/enemies, white relief pickups, limited Machine Gun/Grenade Launcher pickups, XP upgrades, bosses, score/results and per-owner local stats. It still seeds from Pixel Timer pixels and leaves the dashboard/session timer and autosave alone. Theme changes retarget direct brush references in live and detached settings views; dashboard chrome follows global mode/accent while Space accent remains independent. Project/manifest version is 0.1.13. `--swarm013` 33 checks, `--shared012` 10 and `--dashboard012` 24 pass, the latter under the normal Windows profile for synthetic DPAPI. Debug and isolated Release builds pass, and the Release startup probe succeeded. Final diff review and commit are next. Preserve unrelated dirty `LEGACY.md`, `PUSH.txt` and untracked assets/scripts.
+
 ## Current follow-up — shared widget boundaries and theme
 Pixel Timer and normal widgets now use the same neutral card edge. The timer remains anchored but can share a row or column with an adjacent widget across the normal 8-DIP gap. Boundary drags resize both cards live, preserve the pair's overall footprint, stop at minimum sizes, and save through existing `WidgetInstance` geometry; no schema migration. Normal saved X positions snap visually to grid columns, and nearby gaps close without changing persisted positions until a user edit. Space Settings no longer reloads the old app theme during immediate selection; theme palette resources update and the selection autosaves. Synthetic `--shared012` 10 checks, `--dashboard012` 24 checks, `--tiling` 23 checks and `--swarm` 37 checks pass. Preserve unrelated dirty `LEGACY.md`, `PUSH.txt` and untracked files.
 

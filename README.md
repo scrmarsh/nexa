@@ -1,3 +1,9 @@
+## Nexa 0.1.13 Alpha — Pixel Swarm & Appearance
+
+**I'm bored** opens a Pixel Swarm start menu. Move with WASD or arrow keys, aim with the mouse, and click to fire. Escape pauses. Survive increasingly hostile stages, collect white relief orbs and limited weapons, choose upgrades as you earn XP, and try to beat your best score. Return to Nexa at any time; the Space timer and autosave keep running. Scores and run statistics are local to your Nexa user.
+
+Appearance now applies Light/Dark mode and the selected app color immediately across Home, Settings and Spaces. Both choices save for the next launch; a Space's own timer accent remains independent.
+
 ## Nexa 0.1.12 Alpha — Dashboard & Widget UX Update
 
 The Pixel Timer stays anchored at the top-left and uses the same rounded edge as other widgets. It starts at the same height as an expanded digital-and-analog Clock. Drag the gap between it and a neighboring card to trade width or height; both dimensions save with the Space. Compact cards such as Clock can share the top row with an 8-pixel gap. Click the timer to set a target date and time, or choose **Use Today's Date** to propose one hour from now without starting a session. Cards show a blue landing preview and compact upward after moves, removals or smaller resizes. Drag near the viewport's top or bottom to scroll through a long Space.
@@ -83,7 +89,7 @@ Common controls use reusable vector icons. A Per-Monitor V2 manifest and WPF lay
 
 # Nexa
 
-Current release: **Nexa 0.1.12 Alpha** · Windows desktop · October 3, 2026
+Current release: **Nexa 0.1.13 Alpha** · Windows desktop · October 4, 2026
 
 **Nexa is a local desktop app for building flexible Spaces with sessions, movable widgets, notes, Scripture, flashcards, recordings and saved history.** Build a Space around the information you need, edit it directly, and continue your saved work later.
 
@@ -157,7 +163,7 @@ Changes save automatically, with a 30-second safety-net autosave and a brief sav
 
 ## Pixel Swarm and developer tools
 
-**I'm bored** in the pixel timer opens Pixel Swarm. Lit timer pixels become enemies; move with the mouse, click or hold to shoot, collect power dots and survive while clearing the swarm. **Back to timer** or Esc restores the Space. Session timing and autosave continue; the game follows the active app theme and does not change saved session data.
+**I'm bored** in the Pixel Timer opens Pixel Swarm. Lit timer pixels seed the arena. Choose **Play**, move with WASD or arrow keys, aim with the mouse, and click to shoot; hold to fire when you collect a Machine Gun. White relief orbs slow enemy pressure in Stage 2. Later stages add varied enemies, weapon pickups, XP upgrades and bosses. Escape pauses; **Return to Nexa** restores the Space. Session timing and autosave continue, and game stats are stored separately from dashboard exports.
 
 The small **DEV** control on Home opens a Space with all available widgets and a timer starting halfway elapsed, plus splash preview and themed reset tools.
 

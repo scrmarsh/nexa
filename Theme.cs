@@ -48,12 +48,22 @@ public static class Theme
 
     public static void Apply(ResourceDictionary resources, ThemeMode mode, AppTheme theme = AppTheme.Nexa)
     {
+        var old = PaletteBrushes(resources);
         currentMode = mode;
         currentTheme = theme;
         (currentAccent, currentPixel) = AppPalette(theme);
         ApplyPalette(resources, mode, currentAccent, currentPixel);
         if (Application.Current != null)
-            foreach (Window window in Application.Current.Windows) Invalidate(window);
+        {
+            var replacements = Replacements(old, resources);
+            foreach (Window window in Application.Current.Windows)
+            {
+                Retarget(window, replacements);
+                if (window is SettingsDialog settings) settings.RefreshAppearance(replacements);
+                if (window is MainWindow space) space.RefreshThemeViews();
+                Invalidate(window);
+            }
+        }
     }
     private static void Invalidate(DependencyObject root)
     {
@@ -63,13 +73,40 @@ public static class Theme
     }
     public static void ApplyDashboard(ResourceDictionary resources, string accent, string pixel)
     {
-        var palette = new ResourceDictionary(); ApplyPalette(palette, currentMode, accent, pixel);
+        var old = PaletteBrushes(resources, "Dashboard");
+        var palette = new ResourceDictionary(); ApplyPalette(palette, currentMode, currentAccent, currentPixel);
+        palette["AccentBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(accent));
+        palette["PixelBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(pixel));
         foreach (string key in palette.Keys)
         {
             var name = "Dashboard" + key;
             if (resources[name] is SolidColorBrush existing && !existing.IsFrozen && palette[key] is SolidColorBrush next) existing.Color = next.Color;
             else resources[name] = palette[key];
         }
+        if (Application.Current != null)
+            foreach (Window window in Application.Current.Windows) Retarget(window, Replacements(old, resources));
+    }
+
+    private static Dictionary<string, Brush> PaletteBrushes(ResourceDictionary resources, string prefix = "") =>
+        new[] { "AccentBrush", "PixelBrush", "BackgroundBrush", "PanelBrush", "LineBrush", "TextBrush", "MutedBrush", "SurfaceBrush", "PixelOffBrush", "InputBrush" }
+            .Where(key => resources[prefix + key] is Brush)
+            .ToDictionary(key => prefix + key, key => (Brush)resources[prefix + key]);
+    private static Dictionary<Brush, Brush> Replacements(Dictionary<string, Brush> before, ResourceDictionary resources) =>
+        before.Where(pair => resources[pair.Key] is Brush next && !ReferenceEquals(pair.Value, next))
+            .GroupBy(pair => pair.Value).ToDictionary(group => group.Key, group => (Brush)resources[group.First().Key]);
+    internal static void Retarget(DependencyObject root, Dictionary<Brush, Brush> replacements)
+    {
+        if (replacements.Count == 0) return;
+        var values = root.GetLocalValueEnumerator();
+        while (values.MoveNext())
+        {
+            var entry = values.Current;
+            if (entry.Value is Brush brush && replacements.TryGetValue(brush, out var replacement))
+                root.SetValue(entry.Property, replacement);
+        }
+        if (root is not Visual and not System.Windows.Media.Media3D.Visual3D) return;
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+            Retarget(VisualTreeHelper.GetChild(root, i), replacements);
     }
 
     private static void SystemPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)

@@ -56,6 +56,11 @@ internal sealed partial class SettingsDialog : NexaPanel
     }
     private UIElement? sessionStatusPage;
 
+    internal void RefreshAppearance(Dictionary<Brush, Brush> replacements)
+    {
+        foreach (var page in pages.Values) Theme.Retarget(page, replacements);
+    }
+
     private Brush Brush(string key) => (Brush)FindResource(key);
     private void AddPage(Panel nav, string name, UIElement page)
     {

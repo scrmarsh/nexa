@@ -106,7 +106,7 @@ public partial class MainWindow
             if (closingAfterTransition) { closingAfterTransition = false; return; }
             if (!SaveForClose()) e.Cancel = true;
         };
-        Closed += (_, _) => { clock.Stop(); saveDelay.Stop(); pixelResizeDelay.Stop(); boredomTicker.Stop(); autosave.Stop(); closing = true; StopLocalRecording(true); StopHedy(); };
+        Closed += (_, _) => { if (storyOpen) SaveSwarmRun(); clock.Stop(); saveDelay.Stop(); pixelResizeDelay.Stop(); boredomTicker.Stop(); autosave.Stop(); closing = true; StopLocalRecording(true); StopHedy(); };
     }
 
     private void QueuePixelLayout()
@@ -484,7 +484,6 @@ public partial class MainWindow
     private void ApplyColors()
     {
         if (previousHead >= 0 && previousHead < pixels.Count) pixels[previousHead].BeginAnimation(OpacityProperty, null);
-        Theme.Apply(Application.Current.Resources, store.LoadThemeMode(), store.LoadAppTheme());
         Theme.ApplyDashboard(FullContent.Resources, state.AccentColor, state.PixelColor);
         PercentLabel.Foreground = DashboardBrush("PixelBrush");
         previousHead = -1;
@@ -544,10 +543,16 @@ public partial class MainWindow
     }
     private void WindowKeyDown(object sender, KeyEventArgs e)
     {
+        if (storyOpen && e.Key == Key.Escape)
+        {
+            swarmGame?.TogglePause();
+            swarmFrameClock.Restart();
+            ShowSwarmOverlay();
+            e.Handled = true; return;
+        }
         if (NexaPanels.HandleEscape(this, e)) return;
         if(HandleWidgetUndoKey(e)) return;
         if (e.Key == Key.Escape && focusedWidget != null) { ClearWidgetFocus(); e.Handled = true; return; }
-        if (e.Key == Key.Escape && storyOpen) { ExitBoredomMode(); e.Handled = true; return; }
         if (e.Key == Key.F11 || (e.Key == Key.Escape && fullscreen)) { ToggleFullscreen(); e.Handled = true; }
     }
     private void DismissCompletionClick(object sender, RoutedEventArgs e) { completionDismissed = true; CompletionBanner.Visibility = Visibility.Collapsed; }

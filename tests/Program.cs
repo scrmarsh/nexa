@@ -17,6 +17,12 @@ internal static partial class Program
         Directory.CreateDirectory(output);
         try
         {
+            if(args.Contains("--swarm013") || args.Contains("--swarm"))
+            {
+                var gameApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                gameApp.InitializeComponent(); CheckSwarm013();
+                Console.WriteLine($"PASS: {passed} Pixel Swarm 0.1.13 and appearance checks. Artifacts: {output}"); gameApp.Shutdown(); return 0;
+            }
             if(args.Contains("--shared012"))
             {
                 var sharedApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
@@ -142,7 +148,7 @@ internal static partial class Program
                 previewApp.Shutdown();
                 return 0;
             }
-            if (args.Contains("--swarm"))
+            if (args.Contains("--swarmlegacy"))
             {
                 CheckSwarmModels();
                 var swarmApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
