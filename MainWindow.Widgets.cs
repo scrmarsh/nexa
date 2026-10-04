@@ -27,6 +27,12 @@ public partial class MainWindow
     private const double WidgetGap = 8;
     private double pixelResizeWidth;
     private double pixelResizeHeight;
+    private SharedEdge? pixelSharedWidth;
+    private SharedEdge? pixelSharedHeight;
+    private int pixelSharedWidthSteps;
+    private int pixelSharedHeightSteps;
+    private int pixelInitialSpan;
+    private int pixelInitialHeight;
     private Point? addWidgetLocation;
     private Guid? compactedPreviewId;
     private Brush DashboardBrush(string key) => (Brush)FullContent.FindResource("Dashboard" + key);
@@ -40,10 +46,54 @@ public partial class MainWindow
         stopwatchRefresh.Tick += (_, _) => { var now = DateTimeOffset.Now; foreach (var tick in stopwatchTicks) tick(now); };
         Closed += (_, _) => stopwatchRefresh.Stop();
         PixelBannerHost.SizeChanged += (_, _) => ArrangeWidgetFrames();
-        PixelWidthHandle.DragStarted += (_, _) => pixelResizeWidth = PixelBannerContainer.Width;
-        PixelWidthHandle.DragCompleted += (_, _) => { Changed(); SaveNow(); ArrangeWidgetFrames(); };
-        PixelHeightHandle.DragStarted += (_, _) => pixelResizeHeight = PixelBannerContainer.Height;
-        PixelHeightHandle.DragCompleted += (_, _) => { Changed(); SaveNow(); ArrangeWidgetFrames(); };
+        PixelWidthHandle.DragStarted += (_, _) =>
+        {
+            pixelResizeWidth = PixelBannerContainer.Width;
+            pixelInitialSpan = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer")?.BannerSpan ?? 13;
+            pixelSharedWidth = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer") is { } pixel && PixelObstacle is { } bounds
+                ? FindSharedEdge(pixel, bounds, ResizeEdge.Right) : null;
+            pixelSharedWidthSteps = 0;
+            if (pixelSharedWidth != null) widgetGestureActive = true;
+        };
+        PixelWidthHandle.DragCompleted += (_, e) =>
+        {
+            if (pixelSharedWidth is { } pair)
+            {
+                if (e.Canceled) ShowSharedResize(pair, 0);
+                else if (pixelSharedWidthSteps != 0) CommitSharedResize(pair, pixelSharedWidthSteps);
+                widgetGestureActive = false; pixelSharedWidth = null;
+            }
+            else if (e.Canceled)
+            {
+                if (state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer") is { } pixel) pixel.BannerSpan = pixelInitialSpan;
+            }
+            else { Changed(); SaveNow(); }
+            ArrangeWidgetFrames();
+        };
+        PixelHeightHandle.DragStarted += (_, _) =>
+        {
+            pixelResizeHeight = PixelBannerContainer.Height;
+            pixelInitialHeight = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer")?.BannerHeight ?? 360;
+            pixelSharedHeight = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer") is { } pixel && PixelObstacle is { } bounds
+                ? FindSharedEdge(pixel, bounds, ResizeEdge.Bottom) : null;
+            pixelSharedHeightSteps = 0;
+            if (pixelSharedHeight != null) widgetGestureActive = true;
+        };
+        PixelHeightHandle.DragCompleted += (_, e) =>
+        {
+            if (pixelSharedHeight is { } pair)
+            {
+                if (e.Canceled) ShowSharedResize(pair, 0);
+                else if (pixelSharedHeightSteps != 0) CommitSharedResize(pair, pixelSharedHeightSteps);
+                widgetGestureActive = false; pixelSharedHeight = null;
+            }
+            else if (e.Canceled)
+            {
+                if (state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer") is { } pixel) pixel.BannerHeight = pixelInitialHeight;
+            }
+            else { Changed(); SaveNow(); }
+            ArrangeWidgetFrames();
+        };
         WidgetCanvas.MouseLeftButtonDown += (_, e) => { if (ReferenceEquals(e.OriginalSource, WidgetCanvas)) { addWidgetLocation = e.GetPosition(WidgetCanvas); e.Handled = true; AddWidgetClick(WidgetCanvas, new RoutedEventArgs()); } };
         WidgetScroller.ScrollChanged += (_, e) => { if (ReferenceEquals(e.OriginalSource, WidgetScroller) && (e.ViewportHeightChange != 0 || e.ViewportWidthChange != 0)) ArrangeWidgetFrames(); };
         var adaptedWidgets = WidgetLibrary.PrepareLayout(state);
@@ -74,10 +124,21 @@ public partial class MainWindow
         PixelBannerHost.Content = null;
         var primaryPixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
         PixelBannerContainer.Visibility = primaryPixel == null ? Visibility.Collapsed : Visibility.Visible;
-        if (primaryPixel != null) { Detach(PixelPanel); PixelPanel.Margin = new Thickness(0); PixelPanel.Padding = new Thickness(16); PixelPanel.BorderThickness = new Thickness(0); PixelBannerHost.Content = PixelPanel; }
+        if (primaryPixel != null)
+        {
+            Detach(PixelPanel);
+            PixelPanel.Margin = new Thickness(0);
+            PixelPanel.Padding = new Thickness(16);
+            PixelPanel.Background = DashboardBrush("PanelBrush");
+            PixelPanel.BorderBrush = DashboardBrush("LineBrush");
+            PixelPanel.BorderThickness = new Thickness(1);
+            PixelPanel.CornerRadius = new CornerRadius(12);
+            PixelPanel.ClipToBounds = true;
+            PixelBannerHost.Content = PixelPanel;
+        }
         foreach (var widget in state.Widgets.Where(w => w != primaryPixel))
         {
-            var frame = new Border { Background = DashboardBrush("PanelBrush"), BorderBrush = Brush(editingDashboard ? "AccentBrush" : "LineBrush"), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12), Tag = widget.Id, ClipToBounds = true };
+            var frame = new Border { Background = DashboardBrush("PanelBrush"), BorderBrush = DashboardBrush("LineBrush"), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12), Tag = widget.Id, ClipToBounds = true };
             var layout = new StackPanel(); frame.Child = layout;
             var header = new DockPanel { Margin = new Thickness(12, 8, 10, 8) }; layout.Children.Add(header);
             var buttons = new StackPanel { Orientation = Orientation.Horizontal }; DockPanel.SetDock(buttons, Dock.Right); header.Children.Add(buttons);
@@ -242,6 +303,12 @@ public partial class MainWindow
         var pixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
         if (pixel == null || WidgetCanvas.ActualWidth <= 0) return;
         pixelResizeWidth += e.HorizontalChange;
+        if (pixelSharedWidth is { } pair)
+        {
+            pixelSharedWidthSteps = SharedStep(pair, pixelResizeWidth - pair.FirstBounds.Width);
+            ShowSharedResize(pair, pixelSharedWidthSteps);
+            return;
+        }
         pixel.BannerSpan = Math.Clamp((int)Math.Round((pixelResizeWidth + WidgetGap) / GridUnit), 9, 20);
         UpdatePixelBannerWidth(); ArrangeWidgetFrames();
     }
@@ -250,6 +317,12 @@ public partial class MainWindow
         var pixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
         if (pixel == null) return;
         pixelResizeHeight += e.VerticalChange;
+        if (pixelSharedHeight is { } pair)
+        {
+            pixelSharedHeightSteps = SharedStep(pair, pixelResizeHeight - pair.FirstBounds.Height);
+            ShowSharedResize(pair, pixelSharedHeightSteps);
+            return;
+        }
         pixel.BannerHeight = Math.Clamp((int)Math.Round(pixelResizeHeight / RowUnit) * (int)RowUnit, 312, 960);
         UpdatePixelBannerHeight(); ArrangeWidgetFrames();
     }
@@ -257,17 +330,18 @@ public partial class MainWindow
     {
         var pixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
         if (pixel == null || WidgetCanvas.ActualWidth <= 0) return;
-        PixelBannerContainer.Width = Math.Min(WidgetCanvas.ActualWidth, Math.Max(450, pixel.BannerSpan * GridUnit - WidgetGap));
+        var minimumSpan = (int)Math.Ceiling((450 + WidgetGap) / GridUnit);
+        PixelBannerContainer.Width = Math.Min(WidgetCanvas.ActualWidth, Math.Max(pixel.BannerSpan, minimumSpan) * GridUnit - WidgetGap);
     }
     private void UpdatePixelBannerHeight()
     {
         var pixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
         if (pixel == null) return;
         PixelBannerContainer.Height = pixel.BannerHeight;
-        PixelArea.Height = Math.Max(260, pixel.BannerHeight - 32);
+        PixelArea.Height = Math.Max(260, pixel.BannerHeight - 34);
     }
-    private Rect? PixelObstacle => PixelBannerContainer.Visibility == Visibility.Visible && PixelBannerContainer.ActualHeight > 0
-        ? new Rect(0, 0, PixelBannerContainer.ActualWidth, PixelBannerContainer.Height) : null;
+    private Rect? PixelObstacle => PixelBannerContainer.Visibility == Visibility.Visible && PixelBannerContainer.Height > 0
+        ? new Rect(0, 0, PixelBannerContainer.Width, PixelBannerContainer.Height) : null;
     private void ArrangeWidgetFrames()
     {
         // Layout must not fight a freely moving card or rebuild its captured grip.
@@ -333,42 +407,56 @@ public partial class MainWindow
         WidgetCanvas.Height = Math.Max(Math.Max(viewportHeight, top), PixelObstacle?.Bottom ?? 0);
         foreach (var widget in state.Widgets.Where(w => widgetFrames.ContainsKey(w.Id) && w.PlacementX != null))
         {
-            var frame = widgetFrames[widget.Id]; Canvas.SetLeft(frame, Math.Clamp(widget.PlacementX!.Value * WidgetCanvas.ActualWidth, 0, Math.Max(0, WidgetCanvas.ActualWidth - frame.Width))); Canvas.SetTop(frame, widget.PlacementY);
+            var frame = widgetFrames[widget.Id];
+            var column = Math.Clamp((int)Math.Round(widget.PlacementX!.Value * WidgetCanvas.ActualWidth / GridUnit), 0, 20 - DisplaySpan(widget));
+            Canvas.SetLeft(frame, column * GridUnit); Canvas.SetTop(frame, widget.PlacementY);
         }
         // Resolve only actual collisions in visual order, including responsive monitor/window changes.
         var occupied = new List<Rect>(); if (PixelObstacle is { } pixelBounds) occupied.Add(pixelBounds);
         foreach(var frame in widgetFrames.Values.OrderBy(Canvas.GetTop).ThenBy(Canvas.GetLeft))
         {
             var rect=FrameRect(frame);
-            if (PixelObstacle is { } pixel && PlacementOverlaps(pixel, rect))
+            if (PixelObstacle is { } pixel && rect.Top < pixel.Bottom && rect.Bottom > pixel.Top)
             {
-                var right = Math.Ceiling((pixel.Right + WidgetGap) / GridUnit) * GridUnit;
-                if (right + rect.Width <= WidgetCanvas.ActualWidth + .5 && !occupied.Skip(1).Any(r => PlacementOverlaps(r, new Rect(right, rect.Y, rect.Width, rect.Height))))
+                var right = Math.Ceiling((pixel.Right + WidgetGap) / GridUnit - .001) * GridUnit;
+                if (rect.Left <= right + GridUnit + .5 && right + rect.Width <= WidgetCanvas.ActualWidth + .5 &&
+                    !occupied.Skip(1).Any(r => PlacementOverlaps(r, new Rect(right, rect.Y, rect.Width, rect.Height))))
                     rect.X = right;
+            }
+            var neighbor = occupied.Where(r => r.Right + WidgetGap <= rect.Left + .5 &&
+                    rect.Left <= r.Right + WidgetGap + GridUnit + .5 &&
+                    Math.Min(r.Bottom, rect.Bottom) - Math.Max(r.Top, rect.Top) >= .6 * Math.Min(r.Height, rect.Height))
+                .OrderByDescending(r => r.Right).FirstOrDefault();
+            if (neighbor.Width > 0)
+            {
+                var snug = neighbor.Right + WidgetGap;
+                var candidate = new Rect(snug, rect.Y, rect.Width, rect.Height);
+                if (candidate.Right <= WidgetCanvas.ActualWidth + .5 && !occupied.Any(r => PlacementOverlaps(r, candidate))) rect.X = snug;
             }
             while(occupied.FirstOrDefault(r=>PlacementOverlaps(r,rect)) is var hit && hit.Width>0) rect.Y=Math.Ceiling((hit.Bottom+WidgetGap)/RowUnit)*RowUnit;
             Canvas.SetLeft(frame,rect.X); Canvas.SetTop(frame,rect.Y); occupied.Add(rect);
         }
         WidgetCanvas.Height = Math.Max(WidgetCanvas.Height, widgetFrames.Values.Select(f => Canvas.GetTop(f) + f.Height).DefaultIfEmpty(0).Max());
-        foreach (var (id, handles) in widgetResizeHandles)
-        {
-            var frame = widgetFrames[id];
-            foreach (var (handle, edge) in handles)
-            {
-                var horizontal = (edge & (ResizeEdge.Left | ResizeEdge.Right)) != 0;
-                var vertical = (edge & (ResizeEdge.Top | ResizeEdge.Bottom)) != 0;
-                var corner = horizontal && vertical;
-                handle.Width = corner ? Math.Min(12, frame.Width) : horizontal ? Math.Min(8, frame.Width) : Math.Max(1, frame.Width - 24);
-                handle.Height = corner ? Math.Min(12, frame.Height) : vertical ? Math.Min(8, frame.Height) : Math.Max(1, frame.Height - 24);
-                Canvas.SetLeft(handle, Canvas.GetLeft(frame) + (edge.HasFlag(ResizeEdge.Right) ? frame.Width - handle.Width : horizontal ? 0 : 12));
-                Canvas.SetTop(handle, Canvas.GetTop(frame) + (edge.HasFlag(ResizeEdge.Bottom) ? frame.Height - handle.Height : vertical ? 0 : 12));
-            }
-        }
+        foreach (var id in widgetResizeHandles.Keys) PositionResizeHandles(id);
         if(IsPreview && state.Workspace is {} workspace && compactedPreviewId!=workspace.ActiveDashboardId)
         {
             compactedPreviewId=workspace.ActiveDashboardId;
             var ordered=state.Widgets.Where(w=>widgetFrames.ContainsKey(w.Id)).OrderBy(w=>Canvas.GetTop(widgetFrames[w.Id])).ThenBy(w=>Canvas.GetLeft(widgetFrames[w.Id]));
             StoreWidgetPositions(PackWidgetFrames(ordered,[])); Changed(); ArrangeWidgetFrames(); SaveNow();
+        }
+    }
+    private void PositionResizeHandles(Guid id)
+    {
+        if (!widgetResizeHandles.TryGetValue(id, out var handles) || !widgetFrames.TryGetValue(id, out var frame)) return;
+        foreach (var (handle, edge) in handles)
+        {
+            var horizontal = (edge & (ResizeEdge.Left | ResizeEdge.Right)) != 0;
+            var vertical = (edge & (ResizeEdge.Top | ResizeEdge.Bottom)) != 0;
+            var corner = horizontal && vertical;
+            handle.Width = corner ? Math.Min(12, frame.Width) : horizontal ? 12 : Math.Max(1, frame.Width - 24);
+            handle.Height = corner ? Math.Min(12, frame.Height) : vertical ? 12 : Math.Max(1, frame.Height - 24);
+            Canvas.SetLeft(handle, Canvas.GetLeft(frame) + (edge.HasFlag(ResizeEdge.Right) ? frame.Width - (corner ? handle.Width : handle.Width / 2) : horizontal ? (corner ? 0 : -handle.Width / 2) : 12));
+            Canvas.SetTop(handle, Canvas.GetTop(frame) + (edge.HasFlag(ResizeEdge.Bottom) ? frame.Height - (corner ? handle.Height : handle.Height / 2) : vertical ? (corner ? 0 : -handle.Height / 2) : 12));
         }
     }
     [Flags]
@@ -378,6 +466,7 @@ public partial class MainWindow
         Point anchor = new(); Rect origin = new(); double unit = 1, dx = 0, dy = 0;
         int span = 1, height = 288; double left = 0, top = 0;
         bool physicalInput = false;
+        SharedEdge? shared = null; int sharedSteps = 0;
         Dictionary<Guid,Rect> resizeOrigin = [];
         System.Windows.Media.Effects.Effect? originalEffect = null;
         var edgeScroll = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
@@ -410,6 +499,7 @@ public partial class MainWindow
             resizeOrigin=widgetFrames.ToDictionary(p=>p.Key,p=>FrameRect(p.Value));
             if (resize)
             {
+                shared = FindSharedEdge(widget, origin, edge); sharedSteps = 0;
                 placementPreview = new Border { Background = new SolidColorBrush(Color.FromArgb(30,139,159,255)), BorderBrush = DashboardBrush("AccentBrush"), BorderThickness = new Thickness(2), CornerRadius = new CornerRadius(12), IsHitTestVisible = false };
                 WidgetCanvas.Children.Add(placementPreview); Panel.SetZIndex(placementPreview, 2000);
                 Canvas.SetLeft(placementPreview, left); Canvas.SetTop(placementPreview, top); placementPreview.Width = origin.Width; placementPreview.Height = origin.Height;
@@ -443,6 +533,12 @@ public partial class MainWindow
         };
         void ResizeAtPointer()
         {
+            if (shared is { } pair)
+            {
+                sharedSteps = SharedStep(pair, pair.Horizontal ? dx : dy);
+                ShowSharedResize(pair, sharedSteps);
+                return;
+            }
             var minSpan = MinimumWidthSteps(widget); var startSpan = Math.Clamp((int)Math.Round((origin.Width + WidgetGap) / unit), minSpan, 20);
             if (resize)
             {
@@ -477,6 +573,15 @@ public partial class MainWindow
             }
             widgetGestureActive = false;
             if (widget.IsMicro && !frame.IsMouseOver && collapseMicroWidgets.TryGetValue(widget.Id, out var collapse)) collapse();
+            if (shared is { } pair)
+            {
+                if (e.Canceled) ShowSharedResize(pair, 0);
+                else if (sharedSteps != 0) CommitSharedResize(pair, sharedSteps);
+                shared = null;
+                if (widgetRenderDeferred) { widgetRenderDeferred = false; RenderWidgets(); } else ArrangeWidgetFrames();
+                WidgetCanvas.UpdateLayout(); AnimateWidgetSettle(before);
+                return;
+            }
             if (!e.Canceled && (Math.Abs(dx)>3 || Math.Abs(dy)>3))
             {
                 if (resize)

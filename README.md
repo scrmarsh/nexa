@@ -1,6 +1,6 @@
 ## Nexa 0.1.12 Alpha — Dashboard & Widget UX Update
 
-The Pixel Timer stays anchored at the top-left. It starts at the same height as an expanded digital-and-analog Clock. Drag its right edge to change its width or its bottom edge to change its height; both dimensions save with the Space. Compact cards such as Clock can share the remaining top row. Click the timer to set a target date and time, or choose **Use Today's Date** to propose one hour from now without starting a session. Cards show a blue landing preview and compact upward after moves, removals or smaller resizes. Drag near the viewport's top or bottom to scroll through a long Space.
+The Pixel Timer stays anchored at the top-left and uses the same rounded edge as other widgets. It starts at the same height as an expanded digital-and-analog Clock. Drag the gap between it and a neighboring card to trade width or height; both dimensions save with the Space. Compact cards such as Clock can share the top row with an 8-pixel gap. Click the timer to set a target date and time, or choose **Use Today's Date** to propose one hour from now without starting a session. Cards show a blue landing preview and compact upward after moves, removals or smaller resizes. Drag near the viewport's top or bottom to scroll through a long Space.
 
 Clock, Stopwatch and Calendar offer saved **Compact** and **Expanded** views. Session Timeline opens Audio Recorder and Hedy Notes without automatically recording. Global Settings sits immediately left of the per-Space **Session** button; Home Settings no longer shows a Session tab. Notes has a ruled writing surface, and Water Bottle Counter shows a glass that fills with the saved count.
 
@@ -119,7 +119,7 @@ Click empty Space area or its faint asset plus to open **Add widget**. The chose
 
 Drag a widget's grip to lift the card with a shadow. Nearby cards animate and resize as you insert it between or beside them; open-space drops retain the chosen position. Cancel restores the previous layout. Titles, configure, duplicate and remove controls are available directly on screen. Resize from an edge or corner, or use Configure.
 
-Notes and readers start at half width; the primary Pixel Timer occupies its own full-width banner. Clocks start small and reveal a themed analog face when enlarged. Cards have rounded corners, an 8-pixel gap and useful minimum dimensions; minimized cards release their unused grid space and narrow windows reflow the layout. Bible keeps its internal reader scroll, and long Session Notes feeds may scroll inside their card.
+Notes and readers start at half width; the anchored Pixel Timer acts as a permanent card and leaves room beside it for other widgets. Drag a shared edge to grow one card while its neighbor shrinks in place, subject to readable minimum sizes. Clocks start small and reveal a themed analog face when enlarged. Cards have rounded corners, an 8-pixel gap and useful minimum dimensions; minimized cards release their unused grid space and narrow windows reflow the layout. Bible keeps its internal reader scroll, and long Session Notes feeds may scroll inside their card.
 
 Minimize is available only for suitable widgets. Bible, Scripture Pins, session widgets, clocks and timers remain expanded. Pomodoro is retired; existing cards become normal timers while retaining their data.
 

@@ -1,5 +1,8 @@
 # Nexa Codex Session State
 
+## Current follow-up — shared widget boundaries and theme
+Pixel Timer and normal widgets now use the same neutral card edge. The timer remains anchored but can share a row or column with an adjacent widget across the normal 8-DIP gap. Boundary drags resize both cards live, preserve the pair's overall footprint, stop at minimum sizes, and save through existing `WidgetInstance` geometry; no schema migration. Normal saved X positions snap visually to grid columns, and nearby gaps close without changing persisted positions until a user edit. Space Settings no longer reloads the old app theme during immediate selection; theme palette resources update and the selection autosaves. Synthetic `--shared012` 10 checks, `--dashboard012` 24 checks, `--tiling` 23 checks and `--swarm` 37 checks pass. Preserve unrelated dirty `LEGACY.md`, `PUSH.txt` and untracked files.
+
 ## Current Goal — 0.1.12 Alpha
 Pixel Timer height follow-up: `BannerHeight` is an additive per-widget field defaulting to 360 DIP, matching a newly expanded Clock. A bottom Thumb resizes it in 24-DIP steps from 312 to 960 while retaining the anchored top-left and independent right-edge width grip. PixelArea grows with it so the pixels use the added space. Isolated Debug/Release builds, Release startup/render inspection, `--dashboard012` 24 checks and `--swarm` 37 checks pass. The default Debug executable is currently locked by a running Nexa instance; separate build output avoided closing it. Existing user data was not opened by tests.
 

@@ -1,3 +1,9 @@
+## Shared-edge and appearance follow-up (0.1.12 Alpha)
+
+- Isolated Debug and Release builds pass with zero warnings/errors. Release startup probe succeeds with four presets, all three packaged Bible editions and a rendered Pixel Timer (`test-output/shared012-startup`). `--shared012` passes 10 WPF checks: Pixel Timer card edge and adjacency, live width trade with Clock, normal widget pair resizing and cancellation, saved/reopened geometry, and immediate/persisted Space Settings palette selection.
+- Updated `--dashboard012` passes 24 checks, including Pixel/Clock width exchange, Pixel/Notes height exchange, widget content and saved layout reload. `--tiling` passes 23 checks. `--swarm` passes 37 checks for timer/data continuity and autosave.
+- Tests use synthetic Space data and routed drag events. Physical pointer feel, every monitor scaling combination, and every possible widget arrangement remain manual checks. Existing user stores were not modified; no schema migration is required.
+
 ## Nexa 0.1.12 Alpha — Dashboard & Widget UX Update
 
 - Pixel Timer height follow-up: isolated Debug and Release builds pass with zero warnings/errors. Startup probe passed and the taller banner render was inspected. `--dashboard012` **24 checks** pass, including default height equal to expanded Clock, bottom-edge resize without width movement, save/reopen, and the existing dashboard/calendar checks. `--swarm` **37 checks** pass with the taller timer pixels. The running Debug executable locked only the default output; it was left open and builds used separate output folders.

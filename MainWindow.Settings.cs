@@ -26,7 +26,10 @@ public partial class MainWindow
     }
     internal void RefreshThemeViews()
     {
-        ApplyColors();
+        // The selected app theme is already live; reloading stored preferences
+        // here would undo it during the autosave debounce.
+        Theme.ApplyDashboard(FullContent.Resources, state.AccentColor, state.PixelColor);
+        PercentLabel.Foreground = DashboardBrush("PixelBrush");
         if (storyOpen) RenderStory();
     }
 }

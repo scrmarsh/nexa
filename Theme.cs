@@ -80,33 +80,38 @@ public static class Theme
 
     private static void ApplyPalette(ResourceDictionary resources, ThemeMode mode, string accentHex, string pixelHex)
     {
+        void Set(string key, Color color)
+        {
+            if (resources[key] is SolidColorBrush existing && !existing.IsFrozen) existing.Color = color;
+            else resources[key] = new SolidColorBrush(color);
+        }
         var accent = (Color)ColorConverter.ConvertFromString(accentHex);
         var pixel = (Color)ColorConverter.ConvertFromString(pixelHex);
         var light = mode == ThemeMode.Light || (mode == ThemeMode.System && IsWindowsAppThemeLight());
-        resources["AccentBrush"] = new SolidColorBrush(accent);
-        resources["PixelBrush"] = new SolidColorBrush(pixel);
+        Set("AccentBrush", accent);
+        Set("PixelBrush", pixel);
 
         if (light)
         {
-            resources["BackgroundBrush"] = new SolidColorBrush(Color.FromRgb(239, 243, 248));
-            resources["PanelBrush"] = new SolidColorBrush(Colors.White);
-            resources["LineBrush"] = new SolidColorBrush(Color.FromRgb(185, 198, 212));
-            resources["TextBrush"] = new SolidColorBrush(Color.FromRgb(29, 39, 50));
-            resources["MutedBrush"] = new SolidColorBrush(Color.FromRgb(66, 82, 99));
-            resources["SurfaceBrush"] = new SolidColorBrush(Color.FromRgb(222, 231, 240));
-            resources["PixelOffBrush"] = new SolidColorBrush(Color.FromRgb(222, 229, 236));
-            resources["InputBrush"] = new SolidColorBrush(Color.FromRgb(250, 252, 254));
+            Set("BackgroundBrush", Color.FromRgb(239, 243, 248));
+            Set("PanelBrush", Colors.White);
+            Set("LineBrush", Color.FromRgb(185, 198, 212));
+            Set("TextBrush", Color.FromRgb(29, 39, 50));
+            Set("MutedBrush", Color.FromRgb(66, 82, 99));
+            Set("SurfaceBrush", Color.FromRgb(222, 231, 240));
+            Set("PixelOffBrush", Color.FromRgb(222, 229, 236));
+            Set("InputBrush", Color.FromRgb(250, 252, 254));
             return;
         }
 
-        resources["BackgroundBrush"] = new SolidColorBrush(Color.FromRgb((byte)(5 + accent.R * .018), (byte)(6 + accent.G * .018), (byte)(7 + accent.B * .018)));
-        resources["SurfaceBrush"] = new SolidColorBrush(Color.FromRgb((byte)(14 + accent.R * .07), (byte)(14 + accent.G * .07), (byte)(14 + accent.B * .07)));
-        resources["InputBrush"] = new SolidColorBrush(Color.FromRgb((byte)(7 + accent.R * .025), (byte)(7 + accent.G * .025), (byte)(7 + accent.B * .025)));
-        resources["PixelOffBrush"] = new SolidColorBrush(Color.FromRgb((byte)(14 + accent.R * .04), (byte)(14 + accent.G * .04), (byte)(14 + accent.B * .04)));
-        resources["PanelBrush"] = new SolidColorBrush(Color.FromRgb((byte)(8 + accent.R * .045), (byte)(10 + accent.G * .045), (byte)(10 + accent.B * .045)));
-        resources["LineBrush"] = new SolidColorBrush(Color.FromRgb((byte)(24 + accent.R * .12), (byte)(24 + accent.G * .12), (byte)(24 + accent.B * .12)));
-        resources["TextBrush"] = new SolidColorBrush(Color.FromRgb(240, 242, 255));
-        resources["MutedBrush"] = new SolidColorBrush(Color.FromRgb(164, 172, 199));
+        Set("BackgroundBrush", Color.FromRgb((byte)(5 + accent.R * .018), (byte)(6 + accent.G * .018), (byte)(7 + accent.B * .018)));
+        Set("SurfaceBrush", Color.FromRgb((byte)(14 + accent.R * .07), (byte)(14 + accent.G * .07), (byte)(14 + accent.B * .07)));
+        Set("InputBrush", Color.FromRgb((byte)(7 + accent.R * .025), (byte)(7 + accent.G * .025), (byte)(7 + accent.B * .025)));
+        Set("PixelOffBrush", Color.FromRgb((byte)(14 + accent.R * .04), (byte)(14 + accent.G * .04), (byte)(14 + accent.B * .04)));
+        Set("PanelBrush", Color.FromRgb((byte)(8 + accent.R * .045), (byte)(10 + accent.G * .045), (byte)(10 + accent.B * .045)));
+        Set("LineBrush", Color.FromRgb((byte)(24 + accent.R * .12), (byte)(24 + accent.G * .12), (byte)(24 + accent.B * .12)));
+        Set("TextBrush", Color.FromRgb(240, 242, 255));
+        Set("MutedBrush", Color.FromRgb(164, 172, 199));
     }
 
     private static bool IsWindowsAppThemeLight()

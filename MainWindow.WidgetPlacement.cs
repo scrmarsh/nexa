@@ -8,6 +8,104 @@ namespace SessionDashboard;
 public partial class MainWindow
 {
     private readonly List<Border> dropGhosts = [];
+    private sealed record SharedEdge(WidgetInstance First, WidgetInstance Second, Rect FirstBounds, Rect SecondBounds,
+        bool Horizontal, bool ActiveIsFirst, int FirstMinimum, int SecondMinimum);
+
+    private SharedEdge? FindSharedEdge(WidgetInstance active, Rect bounds, ResizeEdge edge)
+    {
+        var horizontal = edge is ResizeEdge.Left or ResizeEdge.Right;
+        var vertical = edge is ResizeEdge.Top or ResizeEdge.Bottom;
+        if (!horizontal && !vertical) return null;
+        var firstIsActive = edge is ResizeEdge.Right or ResizeEdge.Bottom;
+        var candidates = state.Widgets.Where(w => w.Id != active.Id && widgetFrames.ContainsKey(w.Id))
+            .Select(w => (Widget: w, Bounds: FrameRect(widgetFrames[w.Id])))
+            .ToList();
+        if (state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer" && w.Id != active.Id) is { } pixel && PixelObstacle is { } pixelBounds)
+            candidates.Add((pixel, pixelBounds));
+        var nearby = candidates.Select(candidate =>
+        {
+            var before = firstIsActive ? bounds : candidate.Bounds;
+            var after = firstIsActive ? candidate.Bounds : bounds;
+            var gap = horizontal ? after.Left - before.Right : after.Top - before.Bottom;
+            var overlap = horizontal
+                ? Math.Min(before.Bottom, after.Bottom) - Math.Max(before.Top, after.Top)
+                : Math.Min(before.Right, after.Right) - Math.Max(before.Left, after.Left);
+            var required = .6 * (horizontal ? Math.Min(before.Height, after.Height) : Math.Min(before.Width, after.Width));
+            return (candidate.Widget, candidate.Bounds, Gap: gap, Overlap: overlap, Required: required);
+        }).Where(c => c.Gap >= WidgetGap - 2 &&
+            c.Gap <= (horizontal ? GridUnit : RowUnit) + WidgetGap + 1 && c.Overlap >= c.Required)
+          .OrderBy(c => c.Gap).FirstOrDefault();
+        if (nearby.Widget == null) return null;
+        var first = firstIsActive ? active : nearby.Widget;
+        var second = firstIsActive ? nearby.Widget : active;
+        // The timer is anchored at the origin; it can only be the first card.
+        if (second.Kind == "Pixel timer") return null;
+        return new SharedEdge(first, second, firstIsActive ? bounds : nearby.Bounds,
+            firstIsActive ? nearby.Bounds : bounds, horizontal, firstIsActive,
+            first.Kind == "Pixel timer" ? horizontal ? (int)Math.Ceiling((450 + WidgetGap) / GridUnit) : 312 / 24 : horizontal ? MinimumWidthSteps(first) : (int)Math.Ceiling(MinimumWidgetHeight(first) / RowUnit),
+            horizontal ? MinimumWidthSteps(second) : (int)Math.Ceiling(MinimumWidgetHeight(second) / RowUnit));
+    }
+
+    private int SharedStep(SharedEdge edge, double drag)
+    {
+        var unit = edge.Horizontal ? GridUnit : RowUnit;
+        var first = (int)Math.Round(((edge.Horizontal ? edge.FirstBounds.Width : edge.FirstBounds.Height) + (edge.Horizontal ? WidgetGap : 0)) / unit);
+        var second = (int)Math.Round(((edge.Horizontal ? edge.SecondBounds.Width : edge.SecondBounds.Height) + (edge.Horizontal ? WidgetGap : 0)) / unit);
+        return Math.Clamp((int)Math.Round(drag / unit), edge.FirstMinimum - first, second - edge.SecondMinimum);
+    }
+    private (Rect First, Rect Second) SharedBounds(SharedEdge edge, int steps)
+    {
+        var delta = steps * (edge.Horizontal ? GridUnit : RowUnit);
+        var first = edge.FirstBounds; var second = edge.SecondBounds;
+        if (edge.Horizontal) { first.Width += delta; second.X += delta; second.Width -= delta; }
+        else { first.Height += delta; second.Y += delta; second.Height -= delta; }
+        return (first, second);
+    }
+    private void ShowSharedResize(SharedEdge edge, int steps)
+    {
+        var (first, second) = SharedBounds(edge, steps);
+        void Set(WidgetInstance widget, Rect rect)
+        {
+            if (widget.Kind == "Pixel timer")
+            {
+                if (edge.Horizontal) PixelBannerContainer.Width = rect.Width;
+                else { PixelBannerContainer.Height = rect.Height; PixelArea.Height = Math.Max(260, rect.Height - 34); }
+                return;
+            }
+            var frame = widgetFrames[widget.Id];
+            Canvas.SetLeft(frame, rect.X); Canvas.SetTop(frame, rect.Y); frame.Width = rect.Width; frame.Height = rect.Height;
+            FitWidgetBody(frame, widget); PositionResizeHandles(widget.Id);
+        }
+        Set(edge.First, first); Set(edge.Second, second);
+        var active = edge.ActiveIsFirst ? first : second;
+        if (placementPreview != null)
+        {
+            Canvas.SetLeft(placementPreview, active.X); Canvas.SetTop(placementPreview, active.Y);
+            placementPreview.Width = active.Width; placementPreview.Height = active.Height;
+        }
+    }
+    private void CommitSharedResize(SharedEdge edge, int steps)
+    {
+        var (first, second) = SharedBounds(edge, steps);
+        if (edge.Horizontal)
+        {
+            var firstSpan = (int)Math.Round((first.Width + WidgetGap) / GridUnit);
+            if (edge.First.Kind == "Pixel timer") edge.First.BannerSpan = firstSpan;
+            else { edge.First.Span = firstSpan; edge.First.CustomSize = true; }
+            edge.Second.Span = (int)Math.Round((second.Width + WidgetGap) / GridUnit);
+        }
+        else
+        {
+            if (edge.First.Kind == "Pixel timer") edge.First.BannerHeight = (int)first.Height;
+            else { edge.First.Height = (int)first.Height; edge.First.CustomSize = true; }
+            edge.Second.Height = (int)second.Height;
+        }
+        edge.Second.CustomSize = true;
+        var positions = new Dictionary<Guid, Rect> { [edge.Second.Id] = second };
+        if (edge.First.Kind != "Pixel timer") positions[edge.First.Id] = first;
+        StoreWidgetPositions(positions);
+        Changed(); SaveNow();
+    }
 
     // A row insertion is planned without moving live widgets. The plan is committed only on release.
     private bool TryPlanRowInsertion(WidgetInstance moved, double x, double y, out Dictionary<Guid, Rect> plan, out Dictionary<Guid, int> spans)

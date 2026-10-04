@@ -195,11 +195,11 @@
                 <Canvas x:Name="WidgetCanvas" SizeChanged="WidgetCanvasSizeChanged"/>
                 <Grid x:Name="PixelBannerContainer" HorizontalAlignment="Left" VerticalAlignment="Top" Panel.ZIndex="10">
                     <ContentControl x:Name="PixelBannerHost"/>
-                    <Thumb x:Name="PixelWidthHandle" Width="12" HorizontalAlignment="Right" Margin="0,0,0,12" Cursor="SizeWE" DragDelta="PixelBannerResizeDelta" ToolTip="Resize Pixel Timer width" AutomationProperties.Name="Resize Pixel Timer width">
-                        <Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="Transparent" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="0,0,2,0"/></ControlTemplate></Thumb.Template>
+                    <Thumb x:Name="PixelWidthHandle" Width="12" HorizontalAlignment="Right" Margin="0,0,-6,12" Cursor="SizeWE" DragDelta="PixelBannerResizeDelta" ToolTip="Resize Pixel Timer width" AutomationProperties.Name="Resize Pixel Timer width">
+                        <Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="Transparent"/></ControlTemplate></Thumb.Template>
                     </Thumb>
-                    <Thumb x:Name="PixelHeightHandle" Height="12" VerticalAlignment="Bottom" Cursor="SizeNS" DragDelta="PixelBannerResizeHeightDelta" ToolTip="Resize Pixel Timer height" AutomationProperties.Name="Resize Pixel Timer height">
-                        <Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="Transparent" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="0,0,0,2"/></ControlTemplate></Thumb.Template>
+                    <Thumb x:Name="PixelHeightHandle" Height="12" VerticalAlignment="Bottom" Margin="0,0,0,-6" Cursor="SizeNS" DragDelta="PixelBannerResizeHeightDelta" ToolTip="Resize Pixel Timer height" AutomationProperties.Name="Resize Pixel Timer height">
+                        <Thumb.Template><ControlTemplate TargetType="Thumb"><Border Background="Transparent"/></ControlTemplate></Thumb.Template>
                     </Thumb>
                 </Grid>
             </Grid></ScrollViewer>

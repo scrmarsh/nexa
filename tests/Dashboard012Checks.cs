@@ -25,6 +25,8 @@ internal static partial class Program
         var pixel = WidgetLibrary.Create("Pixel timer", "pixels");
         var notes = WidgetLibrary.Create("Notes", "notes");
         var clock = WidgetLibrary.Create("Clock");
+        pixel.BannerSpan = 12;
+        clock.Span = 8;
         var calendar = WidgetLibrary.Create("Calendar");
         var stopwatch = WidgetLibrary.Create("Stopwatch");
         var water = WidgetLibrary.Create("Water Bottle Counter");
@@ -46,25 +48,34 @@ internal static partial class Program
             "Pixel Timer defaults to the expanded digital-and-analog Clock height");
         Descendants(Frame(clock)).OfType<Button>().Single(b => Equals(b.Content,"Compact")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         Pump(TimeSpan.FromMilliseconds(80));
+        window.state.Widgets.Single(w => w.Id == clock.Id).Span = 8;
+        typeof(MainWindow).GetMethod("ArrangeWidgetFrames", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(window, null);
+        var clockWidth = Bounds(clock).Width;
         var resize = window.PixelWidthHandle;
         resize.RaiseEvent(new DragStartedEventArgs(0, 0));
         resize.RaiseEvent(new DragDeltaEventArgs(100, 0));
         resize.RaiseEvent(new DragCompletedEventArgs(0, 0, false));
         Pump(TimeSpan.FromMilliseconds(120));
         Assert(window.state.Widgets.Single(w => w.Id == pixel.Id).BannerSpan > pixel.BannerSpan &&
-            window.PixelBannerContainer.ActualWidth > pixelWidth && Math.Abs(window.PixelBannerContainer.ActualHeight - pixelHeight) < 1,
-            "Pixel right-edge drag changes width without changing height");
+            window.PixelBannerContainer.ActualWidth > pixelWidth && Math.Abs(window.PixelBannerContainer.ActualHeight - pixelHeight) < 1 &&
+            Bounds(clock).Width < clockWidth && Bounds(clock).Top == 0 &&
+            Math.Abs(window.PixelBannerContainer.ActualWidth + Bounds(clock).Width - pixelWidth - clockWidth) < 1,
+            "Pixel right-edge drag grows the timer and shrinks the adjacent Clock in place");
         Assert(window.state.Widgets.Single(w => w.Id == pixel.Id).BannerSpan == store.Load().Widgets.Single(w => w.Id == pixel.Id).BannerSpan,
             "Pixel width saves through existing widget state");
         var widened = window.PixelBannerContainer.ActualWidth;
+        var savedNotes = window.state.Widgets.Single(w => w.Id == notes.Id);
+        savedNotes.Height = 360; savedNotes.CustomSize = true;
+        typeof(MainWindow).GetMethod("ArrangeWidgetFrames", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(window, null);
+        var notesHeight = Bounds(notes).Height;
         var heightGrip = window.PixelHeightHandle;
         heightGrip.RaiseEvent(new DragStartedEventArgs(0,0));
         heightGrip.RaiseEvent(new DragDeltaEventArgs(0,48));
         heightGrip.RaiseEvent(new DragCompletedEventArgs(0,0,false));
         Pump(TimeSpan.FromMilliseconds(100));
-        Assert(window.PixelBannerContainer.ActualHeight == pixelHeight + 48 && Math.Abs(window.PixelBannerContainer.ActualWidth - widened) < 1 &&
+        Assert(window.PixelBannerContainer.ActualHeight == pixelHeight + 48 && Bounds(notes).Height == notesHeight - 48 && Math.Abs(window.PixelBannerContainer.ActualWidth - widened) < 1 &&
             window.PixelBannerContainer.VerticalAlignment == VerticalAlignment.Top,
-            "Bottom-edge drag changes only Pixel Timer height");
+            "Bottom-edge drag grows the Pixel Timer and shrinks the widget below");
         Assert(store.Load().Widgets.Single(w => w.Id == pixel.Id).BannerHeight == pixelHeight + 48,
             "Pixel Timer height persists to the current Space");
         heightGrip.RaiseEvent(new DragStartedEventArgs(0,0));

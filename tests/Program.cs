@@ -17,6 +17,12 @@ internal static partial class Program
         Directory.CreateDirectory(output);
         try
         {
+            if(args.Contains("--shared012"))
+            {
+                var sharedApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                sharedApp.InitializeComponent(); CheckShared012();
+                Console.WriteLine($"PASS: {passed} shared-edge and appearance checks. Artifacts: {output}"); sharedApp.Shutdown(); return 0;
+            }
             if(args.Contains("--menurepair"))
             {
                 var repairApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
