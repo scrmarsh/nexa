@@ -14,7 +14,7 @@ Version remains **0.1.24 Alpha**. The working branch is `codex/nexaween-final-02
 - The old Appearance tab explicitly opened a lockout window while seasonal mode was active. It now stays accessible in the same Settings window with a single neon-green-labeled top toggle. Ordinary customization is hidden during seasonal mode and restored afterward. The footer no longer contains a duplicate seasonal switch/pumpkin.
 - Session settings have no sidebar/global clock tab or seasonal controls. Global settings restore General/Experimental grouping, with Updates still experimental and Add Bugs at the bottom. Saving feedback starts hidden, appears after successful persistence, and fades after about two seconds.
 - Widget rectangles formerly clipped all bug rendering, hiding creatures over cards. They now protect hit testing while the viewport bounds protect rendering, keeping legs below navigation. Independent behavior/appearance selectors apply to the actual manager. Retired Creepy behavior maps to Classic while retaining its Creepy appearance; old numeric values remain readable.
-- The separate ecosystem-map UI and its window-bounds path are retired. Overlay persistence, reusable movement/rendering, nests/resources/webs and squash statistics remain. Switching a full single-species population to All Bugs frees excess slots and preferentially adds underrepresented species without squash credit.
+- The separate ecosystem-map UI and its window-bounds path are retired. Overlay persistence, reusable movement/rendering, nests/resources/webs and squash statistics remain. Enabling the overlay resumes a legacy paused state so retired world controls cannot leave bugs frozen. Switching a full single-species population to All Bugs frees excess slots and preferentially adds underrepresented species without squash credit.
 
 ## Interface, sounds and scoring
 
@@ -28,9 +28,9 @@ Version remains **0.1.24 Alpha**. The working branch is `codex/nexaween-final-02
 
 ## Verification
 
-Release build: **0 warnings, 0 errors**. The complete **eleven-route suite passed 371 checks**. An additional **two read-only existing-workspace compatibility checks passed**.
+Release build: **0 warnings, 0 errors**. The complete **eleven-route suite passed 372 checks**. An additional **two read-only existing-workspace compatibility checks passed**.
 
-Local acceptance evidence: `verification/acceptance-20261027-153534/`. These logs and private fixture copies are intentionally ignored by Git. The package receives an isolated `--verify-startup` check before delivery.
+Local acceptance evidence: `verification/acceptance-20261027-154655/`. These logs and private fixture copies are intentionally ignored by Git. The package receives an isolated `--verify-startup` check before delivery.
 
 The existing-workspace compatibility check uses a read-only isolated snapshot, not the live application file. It loaded **8 Spaces and 49 archived reports**, required no recovery records, and verified that loading did not rewrite the snapshot. Credentials and recordings were not copied or exercised. No personal data enters Git.
 

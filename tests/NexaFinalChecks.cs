@@ -120,6 +120,9 @@ internal static partial class Program
         typeof(MainWindow).GetMethod("ApplySettings", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(main, null);
         Assert(main.Topmost, "Applying settings cannot drop fullscreen behind the taskbar"); main.ToggleFullscreen();
         Assert(NexaWindowBounds.TryWorkArea((FrameworkElement)main.Content, out var safeArea) && !safeArea.IsEmpty, "Notification work-area projection uses the actual window monitor and client DIPs");
+        var pausedOverlay = NexaEcosystem.For(uiStore); pausedOverlay.Manager.WorldPaused = true;
+        main.ApplyBugPreferences(new BugPreferences(true, BugSpecies.Ants, BugDensity.Low, behavior));
+        Assert(main.BugsRunning && !pausedOverlay.Manager.WorldPaused, "Enabling the dashboard overlay resumes a legacy paused world without retired controls");
         main.Close();
     }
 }

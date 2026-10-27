@@ -33,7 +33,8 @@ public partial class MainWindow
             ecosystem.Attach(this, () => IsVisible && WindowState != WindowState.Minimized && DashboardShell.IsVisible);
             ecosystem.Changed += EcosystemChanged;
         }
-        ecosystem!.ApplyPreferences(preferences); ecosystem.ApplySeason(Options);
+        ecosystem!.Manager.WorldPaused = false; // Add Bugs is now the overlay enable/resume control.
+        ecosystem.ApplyPreferences(preferences); ecosystem.ApplySeason(Options);
         bugGeometryDirty = true; UpdateBugActivity(); EcosystemChanged();
     }
     private void DashboardSquashed(BugEntity bug) => ecosystem?.RecordSquash(bug, this);
