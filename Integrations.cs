@@ -55,7 +55,7 @@ internal interface ITaskProvider
 internal interface ICalendarProvider
 {
     Task<List<ExternalList>> Calendars(CancellationToken token);
-    Task<List<CalendarEntry>> Schedule(string calendar,DateTimeOffset day,CancellationToken token);
+    Task<List<CalendarEntry>> Schedule(string calendar,DateTimeOffset day,CancellationToken token,string? timeZone=null);
 }
 
 internal sealed class IntegrationClient
@@ -188,10 +188,10 @@ internal sealed class GoogleCalendarProvider(IntegrationClient client,Guid? conn
         var items=await client.Pages("Google Calendar","https://www.googleapis.com/calendar/v3/users/me/calendarList?maxResults=250","items","nextPageToken","pageToken",token,connection);
         return items.Select(x=>new ExternalList(IntegrationClient.Text(x,"id"),IntegrationClient.Text(x,"summary"))).ToList();
     }
-    public async Task<List<CalendarEntry>> Schedule(string calendar,DateTimeOffset day,CancellationToken token)
+    public async Task<List<CalendarEntry>> Schedule(string calendar,DateTimeOffset day,CancellationToken token,string? timeZone=null)
     {
-        var start=day.LocalDateTime.Date; var end=start.AddDays(1);
-        var url="https://www.googleapis.com/calendar/v3/calendars/"+IntegrationClient.Encode(calendar)+"/events?singleEvents=true&orderBy=startTime&maxResults=250&timeMin="+IntegrationClient.Encode(new DateTimeOffset(start).ToString("o"))+"&timeMax="+IntegrationClient.Encode(new DateTimeOffset(end).ToString("o"));
+        var start=NexaTime.Local(day,timeZone).Date; var end=start.AddDays(1);
+        var url="https://www.googleapis.com/calendar/v3/calendars/"+IntegrationClient.Encode(calendar)+"/events?singleEvents=true&orderBy=startTime&maxResults=250&timeMin="+IntegrationClient.Encode(NexaTime.Instant(start,timeZone).ToString("o"))+"&timeMax="+IntegrationClient.Encode(NexaTime.Instant(end,timeZone).ToString("o"));
         var items=await client.Pages("Google Calendar",url,"items","nextPageToken","pageToken",token,connection);
         return items.Where(x=>IntegrationClient.Text(x,"status")!="cancelled").Select(x=>
         {
@@ -210,11 +210,11 @@ internal sealed class OutlookCalendarProvider(IntegrationClient client,Guid? con
         var items=await Pages("https://graph.microsoft.com/v1.0/me/calendars?$select=id,name",token);
         return items.Select(x=>new ExternalList(IntegrationClient.Text(x,"id"),IntegrationClient.Text(x,"name"))).ToList();
     }
-    public async Task<List<CalendarEntry>> Schedule(string calendar,DateTimeOffset day,CancellationToken token)
+    public async Task<List<CalendarEntry>> Schedule(string calendar,DateTimeOffset day,CancellationToken token,string? timeZone=null)
     {
-        var localDate=day.LocalDateTime.Date;
-        var start=new DateTimeOffset(localDate).ToUniversalTime();
-        var end=new DateTimeOffset(localDate.AddDays(1)).ToUniversalTime();
+        var localDate=NexaTime.Local(day,timeZone).Date;
+        var start=NexaTime.Instant(localDate,timeZone);
+        var end=NexaTime.Instant(localDate.AddDays(1),timeZone);
         var url="https://graph.microsoft.com/v1.0/me/calendars/"+IntegrationClient.Encode(calendar)
             +"/calendarView?startDateTime="+IntegrationClient.Encode(start.ToString("o"))
             +"&endDateTime="+IntegrationClient.Encode(end.ToString("o"))

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Nexa" xmlns:c2pa="http://c2pa.org/manifest">
+  <defs>
+    <clipPath id="tile">
+      <rect width="512" height="512" rx="116"/>
+    </clipPath>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="#1C102A"/>
+  <polygon points="512,0 512,512 0,512" fill="#A855F7" clip-path="url(#tile)"/>
+  <line x1="128" y1="384" x2="384" y2="128" stroke="#A855F7" stroke-width="38" stroke-linecap="round"/>
+  <polyline points="128,384 128,128 384,384 384,128" fill="none" stroke="#FFFFFF" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

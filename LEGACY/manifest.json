@@ -1,0 +1,1172 @@
+[
+  {
+    "Action": "Move",
+    "Source": "PUSH.md",
+    "Destination": "LEGACY/notes/PUSH.md"
+  },
+  {
+    "Action": "Move",
+    "Source": "PUSH.txt",
+    "Destination": "LEGACY/notes/PUSH.txt"
+  },
+  {
+    "Action": "Move",
+    "Source": "CODEX_SESSION_STATE.md",
+    "Destination": "LEGACY/notes/CODEX_SESSION_STATE.md"
+  },
+  {
+    "Action": "Move",
+    "Source": "NEXA024_CONTINUATION.md",
+    "Destination": "LEGACY/notes/NEXA024_CONTINUATION.md"
+  },
+  {
+    "Action": "Move",
+    "Source": "PHASE1_ACCEPTANCE.md",
+    "Destination": "LEGACY/notes/PHASE1_ACCEPTANCE.md"
+  },
+  {
+    "Action": "Move",
+    "Source": "VALIDATION.md",
+    "Destination": "LEGACY/notes/VALIDATION.md"
+  },
+  {
+    "Action": "Move",
+    "Source": "LEGACY.md",
+    "Destination": "LEGACY/notes/LEGACY.md"
+  },
+  {
+    "Action": "Move",
+    "Source": "MainWindow.SessionSettings.cs",
+    "Destination": "LEGACY/source/MainWindow.SessionSettings.cs"
+  },
+  {
+    "Action": "Move",
+    "Source": "BugSpriteAtlas.cs",
+    "Destination": "LEGACY/source/BugSpriteAtlas.cs"
+  },
+  {
+    "Action": "Move",
+    "Source": "References",
+    "Destination": "LEGACY/notes/Original-product-outline.md"
+  },
+  {
+    "Action": "Move",
+    "Source": "package-lock.json",
+    "Destination": "LEGACY/tools/package-lock.json"
+  },
+  {
+    "Action": "Move",
+    "Source": "run.txt",
+    "Destination": "LEGACY/tools/run.txt"
+  },
+  {
+    "Action": "Move",
+    "Source": "nexa.ico",
+    "Destination": "LEGACY/assets/nexa.ico"
+  },
+  {
+    "Action": "Move",
+    "Source": "tests\\Nexa024.Checks.csproj",
+    "Destination": "LEGACY/tests/Nexa024.Checks.csproj"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.Economy.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.Economy.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.EconomyModels.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.EconomyModels.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.Expansion.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.Expansion.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.ExpansionModels.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.ExpansionModels.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.Frontiers.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.Frontiers.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.GamePresentation.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.GamePresentation.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.GpuTelemetry.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.GpuTelemetry.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.Landscape.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.Landscape.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.Launcher.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.Launcher.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.Library.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.Library.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.Minimap.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.Minimap.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.PerformanceOverlay.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.PerformanceOverlay.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.PerformanceTelemetry.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.PerformanceTelemetry.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.PoliticalRegions.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.PoliticalRegions.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.StrategicView.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.StrategicView.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/Aevoria.WorkArea.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/Aevoria.WorkArea.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ArcadeRandom.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ArcadeRandom.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ArcadeWorld.Controller.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ArcadeWorld.Controller.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ArcadeWorld.Models.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ArcadeWorld.Models.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ArcadeWorld.Store.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ArcadeWorld.Store.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/BattlefieldWindow.Armies.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/BattlefieldWindow.Armies.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/BattlefieldWindow.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/BattlefieldWindow.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/BattlefieldWindow.Nations.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/BattlefieldWindow.Nations.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/BugHabitats.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/BugHabitats.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ColonyWars.Civilizations.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ColonyWars.Civilizations.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ColonyWars.Infinite.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ColonyWars.Infinite.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ColonyWars.Models.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ColonyWars.Models.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ColonyWars.Persistence.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ColonyWars.Persistence.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ColonyWars.Rendering.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ColonyWars.Rendering.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ColonyWars.Simulation.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ColonyWars.Simulation.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ColonyWars.Strategy.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ColonyWars.Strategy.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ColonyWars.Territory.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ColonyWars.Territory.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ColonyWars.TerritoryRendering.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ColonyWars.TerritoryRendering.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/ColonyWars.Webs.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/ColonyWars.Webs.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/DashboardBugs.Arcade.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/DashboardBugs.Arcade.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/DashboardBugs.Camera.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/DashboardBugs.Camera.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/DashboardBugs.Interaction.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/DashboardBugs.Interaction.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/HistoricalAtlas.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/HistoricalAtlas.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/HistoricalAtlas.Models.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/HistoricalAtlas.Models.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/HistoricalAtlas.Window.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/HistoricalAtlas.Window.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.Bugs.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.Bugs.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.Chunks.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.Chunks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.Civilization.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.Civilization.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.CivilizationModels.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.CivilizationModels.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.Continents.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.Continents.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.Cultures.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.Cultures.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.Detail.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.Detail.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.Development.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.Development.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.Dialog.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.Dialog.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.GrandModels.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.GrandModels.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.GrandStore.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.GrandStore.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.GrandTerrain.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.GrandTerrain.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.HydrologyView.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.HydrologyView.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.Models.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.Models.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.NationModels.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.NationModels.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.NationRendering.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.NationRendering.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.Nations.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.Nations.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.NationSimulation.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.NationSimulation.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.PoliticalLand.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.PoliticalLand.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.SettlementRendering.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.SettlementRendering.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.Store.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.Store.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/LivingWorld.Terrain.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/LivingWorld.Terrain.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/MainWindow.WebSweep.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/MainWindow.WebSweep.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/SettingsDialog.ArcadeWorld.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/SettingsDialog.ArcadeWorld.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "removed/SettingsDialog.ColonyWars.cs",
+    "Destination": "LEGACY/embedded-aevoria/source/SettingsDialog.ColonyWars.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/AEVORIA_CHANGELOG.md",
+    "Destination": "LEGACY/embedded-aevoria/archive/AEVORIA_CHANGELOG.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/CIVILIZATIONS024.md",
+    "Destination": "LEGACY/embedded-aevoria/archive/CIVILIZATIONS024.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/DEVELOPMENT024.md",
+    "Destination": "LEGACY/embedded-aevoria/archive/DEVELOPMENT024.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/HARDWARE_ACCELERATION_RESEARCH.md",
+    "Destination": "LEGACY/embedded-aevoria/archive/HARDWARE_ACCELERATION_RESEARCH.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/HISTORICAL_COMPATIBILITY_CHECKPOINT.md",
+    "Destination": "LEGACY/embedded-aevoria/archive/HISTORICAL_COMPATIBILITY_CHECKPOINT.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/manifest.json",
+    "Destination": "LEGACY/embedded-aevoria/archive/manifest.json"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/NATIONS024.md",
+    "Destination": "LEGACY/embedded-aevoria/archive/NATIONS024.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/README-before-master.md",
+    "Destination": "LEGACY/embedded-aevoria/archive/README-before-master.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/RELEASE019.md",
+    "Destination": "LEGACY/embedded-aevoria/archive/RELEASE019.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/RELEASE020.md",
+    "Destination": "LEGACY/embedded-aevoria/archive/RELEASE020.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/RELEASE021.md",
+    "Destination": "LEGACY/embedded-aevoria/archive/RELEASE021.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/RELEASE022.md",
+    "Destination": "LEGACY/embedded-aevoria/archive/RELEASE022.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/RELEASE023.md",
+    "Destination": "LEGACY/embedded-aevoria/archive/RELEASE023.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/AevoriaAChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/AevoriaAChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/AevoriaBChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/AevoriaBChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/AevoriaCChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/AevoriaCChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/AevoriaDChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/AevoriaDChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/AevoriaDPerfChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/AevoriaDPerfChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/AevoriaPerformanceMatrix.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/AevoriaPerformanceMatrix.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Alpha010Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Alpha010Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Alpha011Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Alpha011Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Alpha012Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Alpha012Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Alpha019Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Alpha019Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Appearance015Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Appearance015Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Arcade017Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Arcade017Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Arcade020Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Arcade020Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Audit106Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Audit106Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Battlefield021Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Battlefield021Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/BibleChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/BibleChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Bugs014Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Bugs014Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Calm018Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Calm018Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Civilizations024Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Civilizations024Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/ColonyWars019Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/ColonyWars019Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/ColonyWarsCombat019Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/ColonyWarsCombat019Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/ColonyWarsSoak019Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/ColonyWarsSoak019Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/ColonyWarsUi019Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/ColonyWarsUi019Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Cultures024Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Cultures024Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Dashboard012Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Dashboard012Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/DirectAuditChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/DirectAuditChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/DistributionChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/DistributionChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Endurance021Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Endurance021Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Focus105Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Focus105Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Habitat018Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Habitat018Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/HardwareAudit.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/HardwareAudit.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/HistoricalAtlasChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/HistoricalAtlasChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Infinite021Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Infinite021Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Living023Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Living023Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Living024Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Living024Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Nations024Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Nations024Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/NaturalWeb021Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/NaturalWeb021Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Onboarding106Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Onboarding106Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Polish104Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Polish104Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Polish107Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Polish107Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/PoliticalRenderAudit.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/PoliticalRenderAudit.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/PreviewChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/PreviewChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Program.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Program.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/PurposeWidgetChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/PurposeWidgetChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Push104Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Push104Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Release016Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Release016Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Release017Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Release017Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Release018Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Release018Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/RevisionChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/RevisionChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/ScrollWeb018Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/ScrollWeb018Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/SessionDashboard.Checks.csproj",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/SessionDashboard.Checks.csproj"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Stability108Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Stability108Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Strategy021Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Strategy021Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Swarm013Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Swarm013Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/SwarmChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/SwarmChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/Territory021Checks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/Territory021Checks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/WidgetSizingChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/WidgetSizingChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tests/WidgetTilingChecks.cs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tests/WidgetTilingChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/assets/history/age-of-kingdoms.json",
+    "Destination": "LEGACY/embedded-aevoria/archive/assets/history/age-of-kingdoms.json"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/assets/history/civilizations.json",
+    "Destination": "LEGACY/embedded-aevoria/archive/assets/history/civilizations.json"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/docs/historical-atlas-source.json",
+    "Destination": "LEGACY/embedded-aevoria/archive/docs/historical-atlas-source.json"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/docs/Nexa_Grand_Historical_Update_Civilizations_to_4000.docx",
+    "Destination": "LEGACY/embedded-aevoria/archive/docs/Nexa_Grand_Historical_Update_Civilizations_to_4000.docx"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tools/Build-HistoricalAtlas.mjs",
+    "Destination": "LEGACY/embedded-aevoria/archive/tools/Build-HistoricalAtlas.mjs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "remaining-legacy/tools/Import-HistoricalAtlas.ps1",
+    "Destination": "LEGACY/embedded-aevoria/archive/tools/Import-HistoricalAtlas.ps1"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/ANIMATION_NOTES.md",
+    "Destination": "LEGACY/implementation-staging/ANIMATION_NOTES.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/archive_legacy.py",
+    "Destination": "LEGACY/implementation-staging/archive_legacy.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/BugAnimation.cs",
+    "Destination": "LEGACY/implementation-staging/BugAnimation.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/BugHabitatVisuals.cs",
+    "Destination": "LEGACY/implementation-staging/BugHabitatVisuals.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/BugNavigation.cs",
+    "Destination": "LEGACY/implementation-staging/BugNavigation.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/BugOverlay.cs",
+    "Destination": "LEGACY/implementation-staging/BugOverlay.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/BugVisuals.Animation.cs",
+    "Destination": "LEGACY/implementation-staging/BugVisuals.Animation.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/BugVisuals.cs",
+    "Destination": "LEGACY/implementation-staging/BugVisuals.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/finalize_core.py",
+    "Destination": "LEGACY/implementation-staging/finalize_core.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/finalize_docs.py",
+    "Destination": "LEGACY/implementation-staging/finalize_docs.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/finalize_release.ps1",
+    "Destination": "LEGACY/implementation-staging/finalize_release.ps1"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/finish_animation_checks.py",
+    "Destination": "LEGACY/implementation-staging/finish_animation_checks.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/fix_core_text.py",
+    "Destination": "LEGACY/implementation-staging/fix_core_text.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/harden_ecosystem.py",
+    "Destination": "LEGACY/implementation-staging/harden_ecosystem.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/MainWindow.ClassSchedule.cs",
+    "Destination": "LEGACY/implementation-staging/MainWindow.ClassSchedule.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/MainWindow.Ecosystem.cs",
+    "Destination": "LEGACY/implementation-staging/MainWindow.Ecosystem.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/MainWindow.Feedback.cs",
+    "Destination": "LEGACY/implementation-staging/MainWindow.Feedback.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/MainWindow.PresetTiming.cs",
+    "Destination": "LEGACY/implementation-staging/MainWindow.PresetTiming.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/Nexa024AnimationChecks.cs",
+    "Destination": "LEGACY/implementation-staging/Nexa024AnimationChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/Nexa024CoreChecks.cs",
+    "Destination": "LEGACY/implementation-staging/Nexa024CoreChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/Nexa024EcosystemChecks.cs",
+    "Destination": "LEGACY/implementation-staging/Nexa024EcosystemChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/Nexa024ReliabilityChecks.cs",
+    "Destination": "LEGACY/implementation-staging/Nexa024ReliabilityChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NexaBranding.cs",
+    "Destination": "LEGACY/implementation-staging/NexaBranding.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NexaEcosystem.Models.cs",
+    "Destination": "LEGACY/implementation-staging/NexaEcosystem.Models.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NexaEcosystem.Simulation.cs",
+    "Destination": "LEGACY/implementation-staging/NexaEcosystem.Simulation.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NexaEcosystem.Store.cs",
+    "Destination": "LEGACY/implementation-staging/NexaEcosystem.Store.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NexaEcosystem.Window.cs",
+    "Destination": "LEGACY/implementation-staging/NexaEcosystem.Window.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NexaFeedback.cs",
+    "Destination": "LEGACY/implementation-staging/NexaFeedback.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NexaFollowupChecks.cs",
+    "Destination": "LEGACY/implementation-staging/NexaFollowupChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NexaFollowupDesignChecks.cs",
+    "Destination": "LEGACY/implementation-staging/NexaFollowupDesignChecks.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NexaMotion.cs",
+    "Destination": "LEGACY/implementation-staging/NexaMotion.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NexaSelection.cs",
+    "Destination": "LEGACY/implementation-staging/NexaSelection.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NexaWebGeometry.cs",
+    "Destination": "LEGACY/implementation-staging/NexaWebGeometry.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/Nexaween.Animation.cs",
+    "Destination": "LEGACY/implementation-staging/Nexaween.Animation.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/Nexaween.Placement.cs",
+    "Destination": "LEGACY/implementation-staging/Nexaween.Placement.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NEXAWEEN024_IMPLEMENTATION.md",
+    "Destination": "LEGACY/implementation-staging/NEXAWEEN024_IMPLEMENTATION.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/NexaWindowBounds.cs",
+    "Destination": "LEGACY/implementation-staging/NexaWindowBounds.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/organize_legacy.ps1",
+    "Destination": "LEGACY/implementation-staging/organize_legacy.ps1"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/PHASE1_ACCEPTANCE.md",
+    "Destination": "LEGACY/implementation-staging/PHASE1_ACCEPTANCE.md"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/PixelTiming.cs",
+    "Destination": "LEGACY/implementation-staging/PixelTiming.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/PixelTiming.followup.cs",
+    "Destination": "LEGACY/implementation-staging/PixelTiming.followup.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/refine_animation.py",
+    "Destination": "LEGACY/implementation-staging/refine_animation.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/refine_ecosystem.py",
+    "Destination": "LEGACY/implementation-staging/refine_ecosystem.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/refine_flight.py",
+    "Destination": "LEGACY/implementation-staging/refine_flight.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/render_seasonal_brand.ps1",
+    "Destination": "LEGACY/implementation-staging/render_seasonal_brand.ps1"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/SettingsDialog.Ecosystem.cs",
+    "Destination": "LEGACY/implementation-staging/SettingsDialog.Ecosystem.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/SettingsDialog.Navigation.cs",
+    "Destination": "LEGACY/implementation-staging/SettingsDialog.Navigation.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/SplashWindow.followup.cs",
+    "Destination": "LEGACY/implementation-staging/SplashWindow.followup.cs"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stabilize_save_check.py",
+    "Destination": "LEGACY/implementation-staging/stabilize_save_check.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_animation.py",
+    "Destination": "LEGACY/implementation-staging/stage_animation.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_core.py",
+    "Destination": "LEGACY/implementation-staging/stage_core.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_ecosystem.py",
+    "Destination": "LEGACY/implementation-staging/stage_ecosystem.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_feedback.py",
+    "Destination": "LEGACY/implementation-staging/stage_feedback.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_async_and_polish.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_async_and_polish.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_behavior.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_behavior.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_branding.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_branding.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_checks.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_checks.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_controls.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_controls.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_core.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_core.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_decorations.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_decorations.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_design_checks.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_design_checks.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_editors.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_editors.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_finish.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_finish.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_flight.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_flight.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_movement.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_movement.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_navigation.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_navigation.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_schedule_fix.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_schedule_fix.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_score_ui.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_score_ui.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_scoring.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_scoring.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_validation.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_validation.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_followup_webs.py",
+    "Destination": "LEGACY/implementation-staging/stage_followup_webs.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_history.py",
+    "Destination": "LEGACY/implementation-staging/stage_history.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_schedule_zones.py",
+    "Destination": "LEGACY/implementation-staging/stage_schedule_zones.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_widget_target_layout.py",
+    "Destination": "LEGACY/implementation-staging/stage_widget_target_layout.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/stage_widget_targets.py",
+    "Destination": "LEGACY/implementation-staging/stage_widget_targets.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/start_followup.py",
+    "Destination": "LEGACY/implementation-staging/start_followup.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/test_and_finish_seasonal.py",
+    "Destination": "LEGACY/implementation-staging/test_and_finish_seasonal.py"
+  },
+  {
+    "Action": "Recover source",
+    "Source": "implementation/WidgetActivity.cs",
+    "Destination": "LEGACY/implementation-staging/WidgetActivity.cs"
+  }
+]

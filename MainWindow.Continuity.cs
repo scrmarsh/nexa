@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
@@ -13,18 +13,19 @@ namespace SessionDashboard;
 
 public partial class MainWindow
 {
-    private readonly DispatcherTimer autosave = new() { Interval = TimeSpan.FromSeconds(30) };
+    private readonly DispatcherTimer autosave = new() { Interval = TimeSpan.FromMinutes(5) };
     private Task? pendingWrite;
     private long revision, saveTicket;
     private bool closing, updatingDashboardPicker;
     internal bool HasUnsavedChanges => dirty;
     internal TimeSpan AutosaveInterval => autosave.Interval;
-    private static bool SaveException(Exception ex) => ex is IOException or UnauthorizedAccessException or JsonException or InvalidOperationException;
+    private static bool SaveException(Exception ex) => ex is IOException or InvalidDataException or UnauthorizedAccessException or JsonException or InvalidOperationException;
 
     private void InitializeContinuity()
     {
         var recovery = store.Warning;
         state.Workspace ??= Continuity.Migrate(state, store.UserId);
+        InitializeReliability();
         state.Workspace.CleanShutdown = false;
         Continuity.Access(Continuity.Current(state.Workspace, store.UserId));
         ready = false;
@@ -70,11 +71,17 @@ public partial class MainWindow
     private void ShowSaveStatus(string text, bool fade = false, bool warning = false)
     {
         var saving=text=="Auto-saving...";
+        if (warning) saveFailureVisible = true;
+        else if (!saving) saveFailureVisible = false;
+        if (warning) { notifications?.Show("autosave", "Autosave failed — retrying...", "⚠", 3, null); saveRetry.Start(); }
+        else if (saving && saveFailureVisible) { } // Keep an unresolved failure visible during a retry.
+        else if (Options.ShowAutosaveNotifications) notifications?.Show("autosave", saving ? "Autosaving..." : "Autosave complete", saving ? "🔄" : "✓", seconds: saving ? null : 2);
+        else notifications?.Dismiss("autosave");
         var rotation=(RotateTransform)SaveSpinner.RenderTransform;
         rotation.BeginAnimation(RotateTransform.AngleProperty,null);
         SaveSpinner.Visibility=saving ? Visibility.Visible : Visibility.Collapsed;
-        if(saving) rotation.BeginAnimation(RotateTransform.AngleProperty,new DoubleAnimation(0,360,TimeSpan.FromSeconds(1.1)) { RepeatBehavior=RepeatBehavior.Forever });
-        if(text=="saved") { lastSuccessfulSaveAt=DateTimeOffset.Now; text="Auto-saved · Saved at "+lastSuccessfulSaveAt.Value.LocalDateTime.ToString("t"); }
+        if(saving && NexaMotion.Allowed(Options)) rotation.BeginAnimation(RotateTransform.AngleProperty,new DoubleAnimation(0,360,TimeSpan.FromSeconds(1.1)) { RepeatBehavior=RepeatBehavior.Forever });
+        if(text=="saved") { SavedFeedback(); lastSuccessfulSaveAt=DateTimeOffset.Now; text="Auto-saved · Saved at "+lastSuccessfulSaveAt.Value.LocalDateTime.ToString("t"); }
         SaveStatus.BeginAnimation(OpacityProperty, null);
         SaveStatus.Text = text; SaveStatus.Opacity = 1;
         SaveStatus.Foreground = warning ? Brushes.SandyBrown : Brush("MutedBrush");
@@ -109,6 +116,7 @@ public partial class MainWindow
     }
     internal bool SaveForClose()
     {
+
         if (!StopLocalRecording(true)) return false;
         state.Workspace!.CleanShutdown = true;
         var now = DateTimeOffset.Now;
@@ -119,6 +127,7 @@ public partial class MainWindow
         Continuity.Access(Continuity.Current(state.Workspace, store.UserId));
         return false;
     }
+
     private void CloseNoteEditors()
     {
         foreach (var editor in noteWindows.Values.ToList()) editor.Close();
@@ -157,12 +166,14 @@ public partial class MainWindow
             store.LoadInteractionPreferences(next);
             if (preserveWindow) { next.WindowWidth = fullWidth; next.WindowHeight = fullHeight; next.Compact = state.Compact; }
             WidgetLibrary.EnsureLayout(next);
+            try { pendingWrite?.GetAwaiter().GetResult(); } catch (Exception ex) when (SaveException(ex)) { }
             store.Save(next);
             settingsWindow?.Close();
             if (storyOpen) ExitBoredomMode();
             CloseNoteEditors(); PauseHedySync();
             if(state.Workspace?.ActiveDashboardId!=next.Workspace?.ActiveDashboardId || !preserveWidgetUndo && Continuity.Current(state.Workspace!,store.UserId).Current.SessionId != Continuity.Current(next.Workspace!,store.UserId).Current.SessionId) { widgetUndo.Clear(); widgetRedo.Clear(); FadeWidgetToast(null,EventArgs.Empty); }
             ready = false; state = next; revision++; saveTicket++; dirty = false; saveDelay.Stop();
+            ApplyReliabilityOptions();
             if (keepRecording) recordingSession = state.Session;
             UpdateRecordingSource(); UpdateRecordingStatus();
             NotesBox.Text = state.Notes; NotesToggle.IsChecked = state.ShowNotes; ChecklistToggle.IsChecked = state.ShowChecklist;
@@ -209,7 +220,7 @@ public partial class MainWindow
     }
     private void ResetDashboardClick(object sender, RoutedEventArgs e)
     {
-        if (MessageBox.Show(this, "Start a fresh Space session?\n\nThis archives the current session and clears notes, tasks, timer, draft text and story progress. Space name, presets, colors and panel settings are preserved.",
+        if (MessageBox.Show(this, "Start a fresh Space session?\n\nThis archives the current session and clears session notes, session tasks, counters and timers. Permanent content, widgets, layout, presets, settings and history are preserved.",
             "Reset Space", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) != MessageBoxResult.OK) return;
         if (!SaveNow()) return;
         var candidate = CopyWorkspaceState().Workspace!;
@@ -362,23 +373,44 @@ public partial class MainWindow
     internal static string PreviewSession(DashboardSession session)
     {
         var data = session.Data;
-        var text = new StringBuilder($"Previous session\n{session.Title}\n{session.OpenedAt.LocalDateTime:F}\nLast accessed: {session.LastAccessedAt.LocalDateTime:g}\n{session.Summary}\n\nNOTES\n{data.Notes}\n\nTASKS\n");
+        var text = new StringBuilder($"Previous session\n{session.Title}\n{NexaTime.Local(session.OpenedAt, session.TimeZoneId):F}\nLast accessed: {NexaTime.Local(session.LastAccessedAt, session.TimeZoneId):g}\n{session.Summary}\n\nNOTES\n{data.Notes}\n\nTASKS\n");
+        text.Insert(0, $"SESSION REPORT\nID: {session.SessionId}\nPreset: {session.PresetName} ({session.PresetId})\nTime zone: {session.TimeZoneId}\nScheduled UTC: {session.ScheduledStart:O} → {session.ScheduledEnd:O}\nObserved UTC: {session.OpenedAt.ToUniversalTime():O} → {session.UpdatedAt.ToUniversalTime():O}\nArchived UTC: {session.ClosedAt?.ToUniversalTime():O}\n\n");
+        var ledger = data.Productivity;
+        text.AppendLine($"\nPRODUCTIVITY\nScore: {ledger.Score}\nBase points: {ledger.Events.Sum(e => e.BasePoints)}\nBonus points: {ledger.Events.Sum(e => e.BonusPoints)}\nActions: {ledger.Events.Count}\nBugs squashed: {ledger.BugsSquashed}\nFrenzy activations: {ledger.FrenzyActivations}");
+        foreach (var category in ledger.Events.GroupBy(e => e.Category)) text.AppendLine($"{category.Key}: {category.Count()} actions, {category.Sum(e => e.BasePoints + e.BonusPoints)} points");
+        foreach (var action in ledger.Events) text.AppendLine($"{NexaTime.Local(action.At, session.TimeZoneId):g} · {action.Category}: {action.Description} (+{action.BasePoints + action.BonusPoints})");
+        text.AppendLine("\nTASKS");
         foreach (var task in data.Tasks) text.AppendLine($"{(task.Done ? "☑" : "☐")} {task.Text}");
         if (data.Session is { } timer)
         {
-            text.AppendLine($"\nTIMER\n{timer.Title}\n{timer.Start.LocalDateTime:g} → {timer.End.LocalDateTime:g}\nStopped: {timer.StoppedAt?.LocalDateTime.ToString("g") ?? "No"}");
+            text.AppendLine($"\nTIMER\n{timer.Title}\n{NexaTime.Local(timer.Start, session.TimeZoneId):g} → {NexaTime.Local(timer.End, session.TimeZoneId):g}\nStopped: {timer.StoppedAt?.LocalDateTime.ToString("g") ?? "No"}");
             foreach (var note in timer.IntervalNotes.OrderBy(p => p.Key)) text.AppendLine($"\nInterval {note.Key + 1}\n{note.Value}");
             foreach (var note in timer.HedyIntervalNotes.OrderBy(p => p.Key)) text.AppendLine($"\nHedy interval {note.Key + 1}\n{note.Value}");
             text.AppendLine("\nHEDY TRANSCRIPT\n" + timer.HedyTranscript);
+            foreach (var summary in timer.IntervalSummaries.OrderBy(p => p.Key)) text.AppendLine($"Summary {summary.Key + 1}: {summary.Value}");
+            foreach (var entry in timer.TimelineEntries.OrderBy(e => e.CreatedAt)) text.AppendLine($"{NexaTime.Local(entry.CreatedAt, session.TimeZoneId):g} · {entry.Source}: {entry.Text}\nAudio: {entry.AudioPath}");
+            text.AppendLine($"Recording: {timer.LocalRecordingPath} ({timer.LocalRecordingSeconds:0} seconds)");
         }
         text.AppendLine("\nSTORY\n" + data.StoryNode + "\n" + string.Join("\n", data.StoryHistory));
         foreach (var widget in data.Widgets)
         {
             text.AppendLine($"\n{widget.Title}\n{widget.Text}");
-            if (WidgetLibrary.Definition(widget.Kind).Editor == "counter") text.AppendLine("Count: " + widget.Value);
+            text.AppendLine($"Scope: {(widget.SessionScoped ? "Session" : "Permanent")}\nTimer: {widget.TimerStart:O} → {widget.TimerEnd:O} · stopped {widget.TimerStopped:O}\nStopwatch: {widget.StopwatchElapsedSeconds + (widget.StopwatchStartedAt is { } began ? Math.Max(0, (session.UpdatedAt - began).TotalSeconds) : 0):0.###} seconds, {widget.StopwatchLaps.Count} laps\nFlashcards: {widget.FlashcardDecks.Sum(d => d.Cards.Count)} cards in {widget.FlashcardDecks.Count} decks");
+            if (widget.StopwatchLaps.Count > 0) text.AppendLine("Laps (seconds): " + string.Join(", ", widget.StopwatchLaps.Select(value => value.ToString("0.###"))));
+            if (widget.CalculationHistory.Count > 0) text.AppendLine("Calculations: " + string.Join("; ", widget.CalculationHistory));
+            if (widget.Distribution != null) text.AppendLine("Distribution tracker:\n" + JsonSerializer.Serialize(widget.Distribution, Continuity.Json));
+            if (WidgetLibrary.Definition(widget.Kind).Editor is "counter" or "waterBottles" or "beer") text.AppendLine("Count: " + widget.Value);
             foreach (var item in widget.Items) text.AppendLine($"{(item.Done ? "☑" : "☐")} {item.Text}");
-            foreach (var record in widget.Records) text.AppendLine($"{record.CreatedAt.LocalDateTime:g} · {record.Name} · {string.Join(", ", record.Categories)} · {string.Join("; ", record.Values.Select(p => p.Key + ": " + p.Value))}");
-            foreach (var pin in widget.ScripturePins) text.AppendLine($"{pin.Reference} · {pin.Translation}\n{pin.Text}\nNote: {pin.Note}");
+            foreach (var record in widget.Records) text.AppendLine($"{NexaTime.Local(record.CreatedAt, session.TimeZoneId):g} · {record.Name} · {string.Join(", ", record.Categories)} · {string.Join("; ", record.Values.Select(p => p.Key + ": " + p.Value))}");
+            foreach (var deck in widget.FlashcardDecks)
+                foreach (var card in deck.Cards) text.AppendLine($"Study · {deck.Name}: {card.Front} · {card.StudyState}");
+            foreach (var snapshot in widget.IntegrationSnapshots)
+            {
+                text.AppendLine($"Observed {NexaTime.Local(snapshot.CapturedAt, session.TimeZoneId):g} · {snapshot.Service} · {snapshot.ListName} · {snapshot.TotalItems} items");
+                foreach (var item in snapshot.Items) text.AppendLine($"  {item.Title} · {item.Status} · Due {item.Due} · {item.Start:O} → {item.End:O}");
+                if (snapshot.TotalItems > snapshot.Items.Count) text.AppendLine($"  Snapshot limited to the first {snapshot.Items.Count} items.");
+            }
+            foreach (var pin in widget.ScripturePins) text.AppendLine($"{pin.Reference} · {pin.Translation} · {(pin.Permanent ? "Permanent" : "Session")}\n{pin.Text}\nNote: {pin.Note}");
             text.AppendLine($"Layout: column {widget.Column + 1}, row {widget.Row + 1}, width {widget.Span}/12, height {widget.Height}");
         }
         text.AppendLine($"\nCONFIGURATION\nNotes panel: {(data.ShowNotes ? "Shown" : "Hidden")}\nChecklist: {(data.ShowChecklist ? "Shown" : "Hidden")}\nAlways on top: {data.AlwaysOnTop}\nCompact mode: {data.Compact}\nAccent: {data.AccentColor} · Pixels: {data.PixelColor}\nWindow: {data.WindowWidth:0} × {data.WindowHeight:0}");

@@ -10,15 +10,21 @@
     <RootNamespace>SessionDashboard</RootNamespace>
     <Product>Nexa</Product>
     <Title>Nexa</Title>
-    <Description>Your workspace, your way.</Description>
-    <ApplicationIcon>assets\nexa-icon.ico</ApplicationIcon>
-    <Version>0.1.13</Version><ApplicationManifest>app.manifest</ApplicationManifest>
+    <Description>NEXAWEEN — A space for whatever haunts you next.</Description>
+    <ApplicationIcon>assets\nexa-icon-seasonal.ico</ApplicationIcon>
+    <Version>0.1.24</Version><ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
+    <RuntimeHostConfigurationOption Include="Switch.System.Windows.DoNotScaleForDpiChanges" Value="false" />
+    <Compile Remove="LEGACY\**\*.cs" /><Page Remove="LEGACY\**\*.xaml" /><ApplicationDefinition Remove="LEGACY\**\*.xaml" />
+    <Compile Remove="verification\**\*.cs" /><Page Remove="verification\**\*.xaml" /><ApplicationDefinition Remove="verification\**\*.xaml" />
     <Compile Remove="tests\**\*.cs" />
+    <Compile Remove="test-output\**\*.cs" />
+    <Page Remove="test-output\**\*.xaml" />
     <Compile Remove="obj\**\*.cs" />
     <EmbeddedResource Include="assets\Bible\*.json.gz" LogicalName="SessionDashboard.Bible.%(Filename)%(Extension)" />
+    <Resource Include="assets\nexa-icon-seasonal.ico" /><Resource Include="assets\nexa-icon-seasonal-256.png" /><Resource Include="assets\nexa-logo-full-dark-seasonal.svg" />
     <Resource Include="assets\nexa-icon.ico" />
     <Resource Include="assets\nexa-icon-256.png" />
     <Resource Include="assets\add.png" />

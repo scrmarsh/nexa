@@ -46,7 +46,7 @@ public partial class MainWindow
         void RenderTasks()
         {
             if(!ConnectionMatches(loadedConnection)) { ClearData(true); status.Text="Connection changed. Refresh to reconnect."; return; }
-            content.Children.Clear(); var today=DateOnly.FromDateTime(DateTime.Now);
+            content.Children.Clear(); var today=DateOnly.FromDateTime(NexaTime.Local(DateTimeOffset.UtcNow,Options.TimeZoneId).DateTime);
             var visible=tasks.Where(t=>widget.IntegrationView=="All" || widget.IntegrationView=="Upcoming" && t.Due>today || widget.IntegrationView=="Today" && t.Due==today).OrderBy(t=>t.Due);
             foreach(var task in visible)
             {
@@ -54,7 +54,7 @@ public partial class MainWindow
                 check.Click+=async (_,_)=>
                 {
                     check.IsEnabled=false;
-                    try { var account=loadedConnection; using var cancel=CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token); cancel.CancelAfter(TimeSpan.FromSeconds(20)); CheckConnection(account,cancel.Token); await provider!.Complete(widget.ExternalListId,task.Id,cancel.Token); CheckConnection(account,cancel.Token); tasks.Remove(task); RenderTasks(); PlayInterfaceSound(); }
+                    try { var account=loadedConnection; using var cancel=CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token); cancel.CancelAfter(TimeSpan.FromSeconds(20)); CheckConnection(account,cancel.Token); await provider!.Complete(widget.ExternalListId,task.Id,cancel.Token); CheckConnection(account,cancel.Token); TrackExternalCompletion(widget,service,task.Id,task.Title); tasks.Remove(task); RenderTasks(); PlayInterfaceSound(); }
                     catch(Exception ex) when(ex is IntegrationException or OperationCanceledException or System.IO.IOException or UnauthorizedAccessException) { if(!ConnectionMatches(loadedConnection)) ClearData(true); check.IsChecked=false; check.IsEnabled=true; status.Text=ex is IntegrationException?ex.Message:"Could not complete task. Refresh to check its status."; }
                 }; content.Children.Add(check);
             }
@@ -83,13 +83,13 @@ public partial class MainWindow
                 if(chosen.Id!=widget.ExternalListId) { widget.ExternalListId=chosen.Id; Changed(); }
                 if(calendar)
                 {
-                    var schedule=await client.CalendarProvider(service,account).Schedule(chosen.Id,DateTimeOffset.Now,token); CheckConnection(account,token); events=schedule; content.Children.Clear();
+                    var schedule=await client.CalendarProvider(service,account).Schedule(chosen.Id,DateTimeOffset.UtcNow,token,Options.TimeZoneId); CheckConnection(account,token); events=schedule; CaptureCalendarSnapshot(widget,service,chosen.Name,events); content.Children.Clear();
                     foreach(var item in events.Take(widget.DisplayMode=="Expanded"?30:3))
-                        content.Children.Add(new TextBlock { Text=(item.AllDay?"All day":item.Start.LocalDateTime.ToString("h:mm tt")+"–"+item.End.LocalDateTime.ToString("h:mm tt"))+"  "+item.Title
+                        content.Children.Add(new TextBlock { Text=(item.AllDay?"All day":NexaTime.Clock(item.Start,Options)+"–"+NexaTime.Clock(item.End,Options))+"  "+item.Title
                             +(widget.DisplayMode=="Expanded"?"  ·  "+chosen.Name+" ("+service+")":""),TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,6,0,6) });
                     if(events.Count==0) content.Children.Add(new TextBlock { Text="Nothing scheduled today." });
                 }
-                else { var result=await provider!.Tasks(chosen.Id,token); CheckConnection(account,token); tasks=result; RenderTasks(); }
+                else { var result=await provider!.Tasks(chosen.Id,token); CheckConnection(account,token); tasks=result; CaptureTaskSnapshot(widget,service,chosen.Name,tasks); RenderTasks(); }
                 status.Text="Updated "+DateTime.Now.ToString("h:mm tt");
             }
             catch(Exception ex) when(ex is IntegrationException or System.IO.IOException or UnauthorizedAccessException or System.Text.Json.JsonException or FormatException or OperationCanceledException)

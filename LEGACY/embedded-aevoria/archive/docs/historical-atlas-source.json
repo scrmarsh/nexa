@@ -1,0 +1,1627 @@
+{
+    "SchemaVersion":  1,
+    "Document":  "Nexa_Grand_Historical_Update_Civilizations_to_4000.docx",
+    "Sha256":  "1b0eb5fe571550126dc6d6f37ec35ac645a3de7ea105ce41fc7a1525e98068ad",
+    "Blocks":  [
+                   {
+                       "Index":  1,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "LIVING WORLDS"
+                                 ]
+                   },
+                   {
+                       "Index":  2,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "THE GRAND HISTORICAL UPDATE"
+                                 ]
+                   },
+                   {
+                       "Index":  3,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Civilization Atlas \u0026 Speculative Futures • Origins to Year 4000"
+                                 ]
+                   },
+                   {
+                       "Index":  4,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Design reference for Nexa / SessionDashboard  |  Historical catalog + fictional future timeline"
+                                 ]
+                   },
+                   {
+                       "Index":  5,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "October 2026 • Working worldbuilding edition"
+                                 ]
+                   },
+                   {
+                       "Index":  6,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     ""
+                                 ]
+                   },
+                   {
+                       "Index":  7,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "How to use this atlas"
+                                 ]
+                   },
+                   {
+                       "Index":  8,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Part I surveys a wide selection of historical cultures, states, kingdoms, empires and modern countries. It is a curated game-design inventory, not an exhaustive or uniformly dated history of every human society. City-states, broad cultures, dynasties and sovereign states are deliberately distinguished in the design model."
+                                 ]
+                   },
+                   {
+                       "Index":  9,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Part II is ORIGINAL FICTION, beginning after 2026 and extending to 4000. Its wars, successor states, exotic weapons and unusual names are creative scenarios inspired loosely by current geography, strategic trends and cultural symbols. They are not predictions or real historical claims."
+                                 ]
+                   },
+                   {
+                       "Index":  10,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Important historical cautions: biblical primeval narratives (including antediluvian peoples) have no universally established archaeological dating; Troy is an archaeological city and a setting of legendary narratives, not a verified account of the Trojan War as told in epic. Several older terms are umbrellas or contested identifications. Historical titles and institutions are era-specific; do not automatically give every culture kings and queens."
+                                 ]
+                   },
+                   {
+                       "Index":  11,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Worldbuilding rule: human civilization labels and animals/insects are gameplay avatars, not assertions that a people or culture possesses the traits of an animal. Use historically attested symbols when available; fictional emblems are marked invented."
+                                 ]
+                   },
+                   {
+                       "Index":  12,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "PART I — HISTORICAL CIVILIZATION ATLAS"
+                                 ]
+                   },
+                   {
+                       "Index":  13,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "1. Prehistoric cultures and early settlements (before c. 3500 BCE)"
+                                 ]
+                   },
+                   {
+                       "Index":  14,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Early agricultural societies are not all states or civilizations."
+                                 ]
+                   },
+                   {
+                       "Index":  15,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Natufian culture; Göbekli Tepe communities; Jericho; Çatalhöyük; Mehrgarh; Hassuna; Samarra; Halaf; Ubaid; Uruk; Vinča; Cucuteni–Trypillia; Yangshao; Hemudu; Dawenkou; Hongshan; Liangzhu; Badarian; Naqada I; Naqada II; Naqada III; Caral–Supe / Norte Chico."
+                                 ]
+                   },
+                   {
+                       "Index":  16,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "2. Early Bronze Age (c. 3500–2000 BCE)"
+                                 ]
+                   },
+                   {
+                       "Index":  17,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Mesopotamian cities and Nile kingdoms emerge alongside independent Asian developments."
+                                 ]
+                   },
+                   {
+                       "Index":  18,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Sumer; Eridu; Uruk; Ur; Kish; Lagash; Nippur; Umma; Shuruppak; Mari; Ebla; Nagar; Akkadian Empire; Gutian dynasties; Ur III; Elam; early Assyria; Old Kingdom Egypt; Early Dynastic Egypt; Kerma; Early Harappan settlements; Indus civilization; Harappa; Mohenjo-daro; Dholavira; Rakhigarhi; Longshan; Shimao; Cycladic culture; Early Minoans."
+                                 ]
+                   },
+                   {
+                       "Index":  19,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "3. Middle and Late Bronze Age (c. 2000–1200 BCE)"
+                                 ]
+                   },
+                   {
+                       "Index":  20,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Many states coexisted and traded rather than forming a single succession."
+                                 ]
+                   },
+                   {
+                       "Index":  21,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Old Babylonian Empire; Old Assyrian Kingdom; Middle Assyrian Empire; Kassite Babylonia; Mitanni; Hurrian states; Hittite Kingdom and Empire; Arzawa; Wilusa / Troy; Ugarit; Yamhad; Qatna; Canaanite city-states; Hyksos dynasties; Middle Kingdom Egypt; New Kingdom Egypt; Kerma; Minoan palace states; Mycenaean Greece; Mycenae; Pylos; Tiryns; Shang; Erlitou culture; Vedic communities; Bactria–Margiana / Oxus civilization."
+                                 ]
+                   },
+                   {
+                       "Index":  22,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "4. Iron Age and early classical states (c. 1200–500 BCE)"
+                                 ]
+                   },
+                   {
+                       "Index":  23,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Israelite and Levantine kingdoms, major empires and city-states."
+                                 ]
+                   },
+                   {
+                       "Index":  24,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Neo-Assyrian Empire; Neo-Babylonian Empire; Urartu; Medes; Lydia; Phrygia; Aramaean kingdoms; Israel; Judah; Edom; Moab; Ammon; Philistine cities; Tyre; Sidon; Byblos; Carthage; Achaemenid Persia; Kush / Napata; late dynastic Egypt; Dʿmt; Athens; Sparta; Corinth; Thebes; Argos; Macedon; Etruscans; Roman Kingdom; early Roman Republic; Samnites; Scythian polities; Thracian polities; Kuru; Panchala; Kosala; Magadha; Vatsa; Avanti; Gandhara; Kamboja; Nanda Empire; Western Zhou; Eastern Zhou; Qin; Chu; Qi; Jin; Yan; Zhao; Wei; Wu; Yue; Olmec; Chavín; Zapotec; Paracas."
+                                 ]
+                   },
+                   {
+                       "Index":  25,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "5. Classical and late antique empires (c. 500 BCE–500 CE)"
+                                 ]
+                   },
+                   {
+                       "Index":  26,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Separate republican, imperial, regional and dynastic phases."
+                                 ]
+                   },
+                   {
+                       "Index":  27,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Macedonian Empire; Ptolemaic Egypt; Seleucid Empire; Antigonid Macedonia; Pergamon; Pontus; Roman Republic; Roman Empire; Western Roman Empire; Eastern Roman Empire; Numidia; Mauretania; Gaulish confederations; Iceni; Goths; Vandals; Franks; Sasanian Persia; Parthian Empire; Nabataea; Judea; Hasmoneans; Herodian kingdom; Palmyra; Osroene; Armenia; Maurya; Shunga; Indo-Greek Kingdoms; Kushan Empire; Satavahana; Gupta Empire; Tamil Chera, Chola and Pandya polities; Qin dynasty; Western and Eastern Han; Cao Wei; Shu Han; Eastern Wu; Jin dynasty; Xiongnu; Xianbei; Goguryeo; Baekje; Silla; Gaya; Yamato; Aksum; Meroë; Garamantes; Nok; Teotihuacan; Classic Maya polities; Nazca; Moche; Hopewell."
+                                 ]
+                   },
+                   {
+                       "Index":  28,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "6. Early medieval era (c. 500–1000 CE)"
+                                 ]
+                   },
+                   {
+                       "Index":  29,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Contemporaneous Christian, Islamic, African, Asian and American states."
+                                 ]
+                   },
+                   {
+                       "Index":  30,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Byzantine Empire; Ostrogoths; Visigoths; Merovingian Franks; Carolingian Empire; East Francia; West Francia; Lombard Kingdom; Asturias; Wessex; Mercia; Northumbria; East Anglia; Essex; Sussex; Kent; Danelaw; Danish and Norwegian kingdoms; Kievan Rus’; First Bulgarian Empire; Great Moravia; early Poland; Croatia; Gwynedd; Rashidun Caliphate; Umayyad Caliphate; Abbasid Caliphate; Córdoba; Fatimids; Aghlabids; Tulunids; Samanids; Saffarids; Ghaznavids; Buyids; Khazars; Ghana Empire; Makuria; Alodia; Nobatia; Idrisids; Tang; Sui; Tibetan Empire; Uyghur Khaganate; Göktürks; Pala; Pratihara; Rashtrakuta; Chalukya; Pallava; Srivijaya; Khmer Empire; Pagan; Balhae; Goryeo; Heian Japan; Maya kingdoms; Wari; Tiwanaku; Cahokia precursors."
+                                 ]
+                   },
+                   {
+                       "Index":  31,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "7. High and late medieval era (c. 1000–1500 CE)"
+                                 ]
+                   },
+                   {
+                       "Index":  32,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "A world of kingdoms, sultanates, confederacies, republics and dynasties."
+                                 ]
+                   },
+                   {
+                       "Index":  33,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "England; Scotland; France; Holy Roman Empire; Castile; León; Aragon; Navarre; Portugal; Sicily; Naples; Venice; Genoa; Florence; Pisa; Papal States; Burgundy; Hungary; Poland; Lithuania; Bohemia; Sweden; Denmark; Norway; Kalmar Union; Novgorod; Muscovy; Second Bulgarian Empire; Serbian Empire; Nicaea; Trebizond; Jerusalem; Antioch; Edessa; Tripoli; Teutonic state; Great Seljuks; Sultanate of Rum; Ayyubids; Mamluks; Khwarazmians; Mongol Empire; Golden Horde; Ilkhanate; Chagatai Khanate; Timurids; Ottoman early state; Delhi Sultanate; Vijayanagara; Hoysala; Kakatiya; Bengal Sultanate; Majapahit; Singhasari; Đại Việt; Champa; Sukhothai; Ayutthaya; Lan Na; Lan Xang; Song; Liao; Western Xia; Jin; Yuan; Ming; Kamakura; Ashikaga; Joseon; Mali; Songhai; Kanem–Bornu; Great Zimbabwe; Benin; Kilwa; Ifat; Ajuran; Toltec; Chimú; Cusco/Inca precursors; Mexica; Pueblo societies."
+                                 ]
+                   },
+                   {
+                       "Index":  34,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "8. Early modern / Renaissance to 1700"
+                                 ]
+                   },
+                   {
+                       "Index":  35,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Overlapping monarchies, republics, imperial systems and indigenous polities."
+                                 ]
+                   },
+                   {
+                       "Index":  36,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Tudor England; Stuart Scotland; Valois France; Bourbon France; Spanish Monarchy; Portuguese Empire; Habsburg Monarchy; Dutch Republic; Polish–Lithuanian Commonwealth; Tsardom of Russia; Brandenburg–Prussia; Vasa Sweden; Denmark–Norway; Ottoman Empire; Safavid Empire; Mughal Empire; Ming; Qing; Tokugawa Japan; Joseon; Toungoo; Konbaung; Brunei; Aceh; Malacca; Mataram; Kandy; Kongo; Ndongo; Matamba; Dahomey; Oyo; Adal; Funj; Saadi Morocco; Mutapa; Rozvi; Aztec Empire; Inca Empire; Purépecha State; Tlaxcala; K’iche’ Maya; Itza Maya; Haudenosaunee Confederacy; Powhatan Confederacy; Mapuche polities; Spanish viceroyalties; Portuguese Brazil; New France; New Netherland; English American colonies."
+                                 ]
+                   },
+                   {
+                       "Index":  37,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "9. Enlightenment, revolutions and industrial era (c. 1700–1914)"
+                                 ]
+                   },
+                   {
+                       "Index":  38,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Modern nations often have predecessor states, changing constitutions and colonial histories."
+                                 ]
+                   },
+                   {
+                       "Index":  39,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Great Britain; United Kingdom; British Empire; French First Republic; First French Empire; Bourbon Restoration; Second French Empire; French Third Republic; Spain; Portuguese Empire; Dutch colonial empire; Russian Empire; Prussia; German Empire; Austrian Empire; Austria-Hungary; Italy; Sardinia; Two Sicilies; late Ottoman Empire; Greece; Romania; Serbia; Bulgaria; Montenegro; United States; Confederate States; Canada; Mexican Empire and republics; Gran Colombia; Brazil Empire; Argentina; Chile; Peru; Bolivia; Paraguay; Uruguay; Haiti; Qing; Empire of Japan; Korean Empire; Sikh Empire; Maratha Confederacy; Nepal; Afghanistan; Qajar Iran; Egyptian Khedivate; Ethiopia; Zulu Kingdom; Ashanti Empire; Sokoto Caliphate; Wassoulou Empire; Mahdist State; Buganda; Rwanda; Burundi; Hawaii; Tahiti; Tonga."
+                                 ]
+                   },
+                   {
+                       "Index":  40,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "10. 20th-century transitions and contemporary states"
+                                 ]
+                   },
+                   {
+                       "Index":  41,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "These represent successive political phases, not unique cultures."
+                                 ]
+                   },
+                   {
+                       "Index":  42,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Weimar Germany; Nazi Germany; Soviet Union; Russian Federation; West Germany; East Germany; French Fourth Republic; French Fifth Republic; Italian Republic; Second Polish Republic; Polish People’s Republic; modern Poland; Czechoslovakia; Czechia; Slovakia; Yugoslavia; Serbia; Croatia; Slovenia; Bosnia and Herzegovina; Montenegro; North Macedonia; Republic of China; People’s Republic of China; modern Japan; North Korea; South Korea; India; Pakistan; Bangladesh; Vietnam; Indonesia; Philippines; Malaysia; Singapore; Thailand; Türkiye; Iran; Iraq; Israel; Palestine; Saudi Arabia; United Arab Emirates; Egypt; South Africa; Nigeria; Kenya; Ethiopia; Ghana; DR Congo; modern United States; modern Canada; modern Brazil; Australia; New Zealand."
+                                 ]
+                   },
+                   {
+                       "Index":  43,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Biblical peoples and traditions: special source classification"
+                                 ]
+                   },
+                   {
+                       "Index":  44,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Biblical sources describe Israel, Judah, Canaanites, Amorites, Hittites, Jebusites, Perizzites, Hivites, Girgashites, Midianites, Amalekites, Edomites, Moabites, Ammonites and Philistines, among others. Some also appear in independent texts or archaeological records; their chronology and identity should be evaluated case by case. Genesis primeval figures and pre-Flood peoples belong in a separate textual-tradition layer, not an archaeologically verified dated civilization list."
+                                 ]
+                   },
+                   {
+                       "Index":  45,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Additional global coverage needed"
+                                 ]
+                   },
+                   {
+                       "Index":  46,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Indigenous nations and peoples of North America (including Haudenosaunee, Cherokee, Muscogee, Navajo, Inuit, Lakota, Ojibwe and many more); many Maya city-states and dynasties; Mixtec, Totonac, Muisca, Mapuche and Amazonian societies; Yoruba, Hausa, Igbo, Amazigh, Tuareg and many African kingdoms; Māori iwi, Aboriginal Australian nations and Pacific Island polities; Turkic, Mongol and Siberian confederations; Indian regional kingdoms; Chinese regional states and Southeast Asian dynasties. The eventual implementation should use an extensible dataset instead of a fixed list."
+                                 ]
+                   },
+                   {
+                       "Index":  47,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Modern age: United Nations member states"
+                                 ]
+                   },
+                   {
+                       "Index":  48,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "193 UN members are a contemporary coverage target, not 193 distinct cultures. Regional groupings here are practical rather than political statements; some countries are transcontinental."
+                                 ]
+                   },
+                   {
+                       "Index":  49,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Africa (54)"
+                                 ]
+                   },
+                   {
+                       "Index":  50,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Algeria • Angola • Benin • Botswana • Burkina Faso • Burundi • Cabo Verde • Cameroon • Central African Republic • Chad • Comoros • Republic of the Congo • Democratic Republic of the Congo • Côte d’Ivoire • Djibouti • Egypt • Equatorial Guinea • Eritrea • Eswatini • Ethiopia • Gabon • Gambia • Ghana • Guinea • Guinea-Bissau • Kenya • Lesotho • Liberia • Libya • Madagascar • Malawi • Mali • Mauritania • Mauritius • Morocco • Mozambique • Namibia • Niger • Nigeria • Rwanda • São Tomé and Príncipe • Senegal • Seychelles • Sierra Leone • Somalia • South Africa • South Sudan • Sudan • Tanzania • Togo • Tunisia • Uganda • Zambia • Zimbabwe"
+                                 ]
+                   },
+                   {
+                       "Index":  51,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Asia (47)"
+                                 ]
+                   },
+                   {
+                       "Index":  52,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Afghanistan • Armenia • Azerbaijan • Bahrain • Bangladesh • Bhutan • Brunei • Cambodia • China • Cyprus • Georgia • India • Indonesia • Iran • Iraq • Israel • Japan • Jordan • Kazakhstan • Kuwait • Kyrgyzstan • Laos • Lebanon • Malaysia • Maldives • Mongolia • Myanmar • Nepal • North Korea • Oman • Pakistan • Philippines • Qatar • Saudi Arabia • Singapore • South Korea • Sri Lanka • Syria • Tajikistan • Thailand • Timor-Leste • Türkiye • Turkmenistan • United Arab Emirates • Uzbekistan • Vietnam • Yemen"
+                                 ]
+                   },
+                   {
+                       "Index":  53,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Europe (43)"
+                                 ]
+                   },
+                   {
+                       "Index":  54,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Albania • Andorra • Austria • Belarus • Belgium • Bosnia and Herzegovina • Bulgaria • Croatia • Czechia • Denmark • Estonia • Finland • France • Germany • Greece • Hungary • Iceland • Ireland • Italy • Latvia • Liechtenstein • Lithuania • Luxembourg • Malta • Moldova • Monaco • Montenegro • Netherlands • North Macedonia • Norway • Poland • Portugal • Romania • Russia • San Marino • Serbia • Slovakia • Slovenia • Spain • Sweden • Switzerland • Ukraine • United Kingdom"
+                                 ]
+                   },
+                   {
+                       "Index":  55,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "North/Central America and Caribbean (23)"
+                                 ]
+                   },
+                   {
+                       "Index":  56,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Antigua and Barbuda • Bahamas • Barbados • Belize • Canada • Costa Rica • Cuba • Dominica • Dominican Republic • El Salvador • Grenada • Guatemala • Haiti • Honduras • Jamaica • Mexico • Nicaragua • Panama • Saint Kitts and Nevis • Saint Lucia • Saint Vincent and the Grenadines • Trinidad and Tobago • United States"
+                                 ]
+                   },
+                   {
+                       "Index":  57,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "South America (12)"
+                                 ]
+                   },
+                   {
+                       "Index":  58,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Argentina • Bolivia • Brazil • Chile • Colombia • Ecuador • Guyana • Paraguay • Peru • Suriname • Uruguay • Venezuela"
+                                 ]
+                   },
+                   {
+                       "Index":  59,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Oceania (14)"
+                                 ]
+                   },
+                   {
+                       "Index":  60,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Australia • Fiji • Kiribati • Marshall Islands • Micronesia • Nauru • New Zealand • Palau • Papua New Guinea • Samoa • Solomon Islands • Tonga • Tuvalu • Vanuatu"
+                                 ]
+                   },
+                   {
+                       "Index":  61,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Also represent the Holy See and Palestine as UN non-member observer states, using appropriate diplomatic-status fields."
+                                 ]
+                   },
+                   {
+                       "Index":  62,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     ""
+                                 ]
+                   },
+                   {
+                       "Index":  63,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "PART II — THE FICTIONAL FUTURE, 2027–4000"
+                                 ]
+                   },
+                   {
+                       "Index":  64,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Everything in Part II is invented worldbuilding, NOT a prediction. Political continuity is only one possible simulated branch. A game should permit countries to persist, reform, fragment, merge or fail rather than force these transitions."
+                                 ]
+                   },
+                   {
+                       "Index":  65,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Future eras and escalating technology"
+                                 ]
+                   },
+                   {
+                       "Index":  66,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "Years",
+                                     "Era",
+                                     "Distinctive features"
+                                 ]
+                   },
+                   {
+                       "Index":  67,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2027–2099",
+                                     "The Fracture Century",
+                                     "AI logistics, autonomous aircraft, drone fleets, hypersonics, early orbital stations, climate adaptation; regional blocs compete but present states endure."
+                                 ]
+                   },
+                   {
+                       "Index":  68,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2100–2199",
+                                     "The Sky-Lane Age",
+                                     "Electric vertical-lift skycars, airborne cargo corridors, near-space carriers, defended orbital depots and energy-grid warfare; early off-world settlements."
+                                 ]
+                   },
+                   {
+                       "Index":  69,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2200–2349",
+                                     "The Orbital Sovereignties",
+                                     "Lunar cities, asteroid manufacturing, orbital fleets, directed-energy point defense, kinetic interceptors and planetary shield infrastructure; Earth–orbit secession wars."
+                                 ]
+                   },
+                   {
+                       "Index":  70,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2350–2549",
+                                     "The Cislunar Wars",
+                                     "Large space navies, fusion drives as speculative technology, solar power arrays, beam-defense cruisers, autonomous interceptor swarms and contested lunar gateways."
+                                 ]
+                   },
+                   {
+                       "Index":  71,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2550–2799",
+                                     "The Planetary Diasporas",
+                                     "Independent Mars polities, deep-space habitats, asteroid confederacies, skyborne arcologies, slower interplanetary campaigns and expensive supply wars."
+                                 ]
+                   },
+                   {
+                       "Index":  72,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2800–3099",
+                                     "The Stellar Frontier",
+                                     "Generation ships, high-endurance robotic armadas, light-limited starflight, exotic speculative propulsion research and sprawling federated worlds."
+                                 ]
+                   },
+                   {
+                       "Index":  73,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3100–3499",
+                                     "The Sovereign Constellations",
+                                     "Massive dispersed confederacies, self-governing AI cities, solar-system defense architectures, cultural hybridization and unstable imperial alliances."
+                                 ]
+                   },
+                   {
+                       "Index":  74,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3500–3799",
+                                     "The Mythic Machine Age",
+                                     "Artificial habitats, star-energy infrastructure, heavily fictional gravity manipulation, autonomous fortress worlds and civilization-scale siege campaigns."
+                                 ]
+                   },
+                   {
+                       "Index":  75,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3800–4000",
+                                     "The Fourth Millennium Empires",
+                                     "Extremely strange successor-state names, interplanetary and interstellar rivalry, colossal defense systems and dynasties whose identities span millennia."
+                                 ]
+                   },
+                   {
+                       "Index":  76,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Proposed successor polities — 2027–4000"
+                                 ]
+                   },
+                   {
+                       "Index":  77,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Each row is a playable fictional nation/polity with a plausible geographic or institutional thread from an existing country or bloc; emblems are art-direction choices rather than official historical symbols. The spelling deliberately grows more unfamiliar in later centuries."
+                                 ]
+                   },
+                   {
+                       "Index":  78,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "Founding year",
+                                     "Future civilization",
+                                     "Root / symbol",
+                                     "Identity"
+                                 ]
+                   },
+                   {
+                       "Index":  79,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2048",
+                                     "Atlantic Compact",
+                                     "United States / Canada / Atlantic partners • Eagle",
+                                     "Atlantic aerospace treaty, transoceanic drone patrols"
+                                 ]
+                   },
+                   {
+                       "Index":  80,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2059",
+                                     "Pan-European Shield Community",
+                                     "European Union / UK defense cooperation • Lion",
+                                     "Joint air-defense and cyber institutions"
+                                 ]
+                   },
+                   {
+                       "Index":  81,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2071",
+                                     "Pacific Meridian Partnership",
+                                     "Japan / South Korea / Australia / Pacific states • Crane",
+                                     "Oceanic skyport corridors"
+                                 ]
+                   },
+                   {
+                       "Index":  82,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2082",
+                                     "Indus Innovation League",
+                                     "India / South Asian technology regions • Elephant",
+                                     "Distributed megacity networks"
+                                 ]
+                   },
+                   {
+                       "Index":  83,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2091",
+                                     "Pearl River Technate",
+                                     "Chinese coastal megaregions • Dragon",
+                                     "Heavy robotics and advanced manufacturing"
+                                 ]
+                   },
+                   {
+                       "Index":  84,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2098",
+                                     "Sahel Greenbelt Union",
+                                     "West African and Sahel collaborations • Gazelle",
+                                     "Solar infrastructure and desert restoration"
+                                 ]
+                   },
+                   {
+                       "Index":  85,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2114",
+                                     "The Americ Arc Union",
+                                     "North American successor alliance • Eagle",
+                                     "Flying transit grids and high-altitude patrols"
+                                 ]
+                   },
+                   {
+                       "Index":  86,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2127",
+                                     "Albion Aerocrown",
+                                     "UK constitutional successor • Lion",
+                                     "Sky-lane monarchy and airborne shipyards"
+                                 ]
+                   },
+                   {
+                       "Index":  87,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2142",
+                                     "The Han–Aurora Federation",
+                                     "East Asian successor bloc • Azure Dragon",
+                                     "Fusion-era logistics and urban arcologies"
+                                 ]
+                   },
+                   {
+                       "Index":  88,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2161",
+                                     "Bharat Sky Mandala",
+                                     "South Asian successor polity • Peacock",
+                                     "High-altitude research cities"
+                                 ]
+                   },
+                   {
+                       "Index":  89,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2178",
+                                     "Federated Sunbelt of Africa",
+                                     "African multinational bloc • Golden Lion",
+                                     "Desert cities and equatorial energy hubs"
+                                 ]
+                   },
+                   {
+                       "Index":  90,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2193",
+                                     "Pacifica Stratos Dominion",
+                                     "Pacific multi-state federation • Albatross",
+                                     "Ocean-island air cities"
+                                 ]
+                   },
+                   {
+                       "Index":  91,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2212",
+                                     "Luna Freeholds",
+                                     "Lunar settlers from multiple countries • Silver Hare",
+                                     "Lunar habitat autonomy"
+                                 ]
+                   },
+                   {
+                       "Index":  92,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2236",
+                                     "Sol-Orbit Assembly",
+                                     "Earth orbital habitats • Falcon",
+                                     "Trade federation in near-Earth orbit"
+                                 ]
+                   },
+                   {
+                       "Index":  93,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2257",
+                                     "Néo-Atlantique Republics",
+                                     "Atlantic communities • White Stag",
+                                     "Equatorial launch ports"
+                                 ]
+                   },
+                   {
+                       "Index":  94,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2278",
+                                     "Heliarchate of Albion",
+                                     "British-derived orbital aristocracies • Crowned Lion",
+                                     "Orbital defense fleets"
+                                 ]
+                   },
+                   {
+                       "Index":  95,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2304",
+                                     "Neo-Aquila Imperium",
+                                     "North American successor empire • Bald Eagle",
+                                     "Planetary fleet projection"
+                                 ]
+                   },
+                   {
+                       "Index":  96,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2320",
+                                     "Qin’thara Continuum",
+                                     "Chinese and orbital-descended populations • Jade Dragon",
+                                     "Long-range beam shields"
+                                 ]
+                   },
+                   {
+                       "Index":  97,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2341",
+                                     "Veda-Suryan Confederacy",
+                                     "South Asian / orbital descendants • Solar Peacock",
+                                     "Sun-powered logistics"
+                                 ]
+                   },
+                   {
+                       "Index":  98,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2370",
+                                     "Saharax Celestial League",
+                                     "North African and Sahel descendants • Fennec",
+                                     "Interplanetary energy routes"
+                                 ]
+                   },
+                   {
+                       "Index":  99,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2396",
+                                     "The Yamatō-Senki Houses",
+                                     "Japanese-descended planetary settlements • Koi",
+                                     "Mobile fortress flotillas"
+                                 ]
+                   },
+                   {
+                       "Index":  100,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2424",
+                                     "New Carthage Ringstate",
+                                     "Mediterranean / African orbital cities • Horse",
+                                     "Trade empire of ring habitats"
+                                 ]
+                   },
+                   {
+                       "Index":  101,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2451",
+                                     "Rusalka Void Tsardoms",
+                                     "Eurasian and orbital successors • Double Eagle",
+                                     "Fortified asteroid lanes"
+                                 ]
+                   },
+                   {
+                       "Index":  102,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2480",
+                                     "Andean Condor Ascendancy",
+                                     "Andean states and off-world migrants • Condor",
+                                     "High-gravity colonies"
+                                 ]
+                   },
+                   {
+                       "Index":  103,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2513",
+                                     "Marsa Nova Republic",
+                                     "Mars settlers with international origins • Red Falcon",
+                                     "First Martian constitutional federation"
+                                 ]
+                   },
+                   {
+                       "Index":  104,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2559",
+                                     "The Auric Selenate",
+                                     "Lunar alliance • Moon Hare",
+                                     "Lunar industrial monopoly"
+                                 ]
+                   },
+                   {
+                       "Index":  105,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2590",
+                                     "Sao-Xyren Oceanic Houses",
+                                     "Lusophone Atlantic / Pacific diasporas • Sea Turtle",
+                                     "Ocean-world fabrication colonies"
+                                 ]
+                   },
+                   {
+                       "Index":  106,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2626",
+                                     "Anglo-Veyr Stellar Crown",
+                                     "Albion and off-world successors • Prismatic Lion",
+                                     "Royal expeditionary fleets"
+                                 ]
+                   },
+                   {
+                       "Index":  107,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2654",
+                                     "Aquilion-X Republic",
+                                     "Aquila-descended off-world republics • Eagle",
+                                     "Fast orbital fighters"
+                                 ]
+                   },
+                   {
+                       "Index":  108,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2692",
+                                     "Zhong-Xi Celadon Matrix",
+                                     "East Asian diaspora • Dragon",
+                                     "Automation-centered state networks"
+                                 ]
+                   },
+                   {
+                       "Index":  109,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2730",
+                                     "The Khepra-Nil Sun Court",
+                                     "Egyptian and Nile successors • Scarab",
+                                     "Solar-harvesting habitats"
+                                 ]
+                   },
+                   {
+                       "Index":  110,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2768",
+                                     "Nordhrafn Void Jarldoms",
+                                     "Nordic and North Atlantic spacefaring clans • Raven",
+                                     "Raiding fleets and convoy alliances"
+                                 ]
+                   },
+                   {
+                       "Index":  111,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2811",
+                                     "Völkrahn Storm Synod",
+                                     "North European and habitat descendants • Raven",
+                                     "Decentralized warrior councils"
+                                 ]
+                   },
+                   {
+                       "Index":  112,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2850",
+                                     "Marathys Veil Commonwealth",
+                                     "South Asian interplanetary diaspora • Peacock",
+                                     "Trade corridors spanning planets"
+                                 ]
+                   },
+                   {
+                       "Index":  113,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2899",
+                                     "Tzintzara Star League",
+                                     "Mesoamerican and Latin American diasporas • Quetzal",
+                                     "Hybrid cultural star colonies"
+                                 ]
+                   },
+                   {
+                       "Index":  114,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2933",
+                                     "Xiao’neth Jade Spiral",
+                                     "East Asian long-range settlements • Dragon",
+                                     "Rotating fortress habitats"
+                                 ]
+                   },
+                   {
+                       "Index":  115,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2991",
+                                     "Eidolon Safir Dominion",
+                                     "MENA and North African diasporas • Falcon",
+                                     "Solar-sail megaconvoys"
+                                 ]
+                   },
+                   {
+                       "Index":  116,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3040",
+                                     "The United Aeryx Systems",
+                                     "Multiple Earth successor polities • Eagle",
+                                     "Compact of several inhabited systems"
+                                 ]
+                   },
+                   {
+                       "Index":  117,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3097",
+                                     "Kronn-Albior Thearchy",
+                                     "British-descended dynastic worlds • Lion",
+                                     "Ceremonial Crown Fleet"
+                                 ]
+                   },
+                   {
+                       "Index":  118,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3145",
+                                     "Jadevex Harmonic Directorate",
+                                     "East Asian machine cities • Dragon",
+                                     "Fleet coordination intelligence"
+                                 ]
+                   },
+                   {
+                       "Index":  119,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3202",
+                                     "Vyræth Sunforged Mandala",
+                                     "South Asian stellar descendants • Peacock",
+                                     "Heliostat megastructures"
+                                 ]
+                   },
+                   {
+                       "Index":  120,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3271",
+                                     "Zarq-Void Caliphates",
+                                     "Multi-origin Islamic cultural successor states • Falcon",
+                                     "Independent stellar principalities"
+                                 ]
+                   },
+                   {
+                       "Index":  121,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3328",
+                                     "Nov-Aztlã Quetzarchy",
+                                     "Mesoamerican diaspora • Quetzal",
+                                     "Orbiting garden citadels"
+                                 ]
+                   },
+                   {
+                       "Index":  122,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3393",
+                                     "Aquil’Xora Ascendancy",
+                                     "North American and stellar descendants • Spectral Eagle",
+                                     "Deep-space dreadnought leagues"
+                                 ]
+                   },
+                   {
+                       "Index":  123,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3437",
+                                     "The Knyazh Xorov Continuum",
+                                     "Eurasian frontier dynasties • Two-Headed Eagle",
+                                     "Bastion worlds"
+                                 ]
+                   },
+                   {
+                       "Index":  124,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3499",
+                                     "Selen-Veyr Crownmesh",
+                                     "Lunar and Albion royal coalitions • Silver Lion",
+                                     "Networked ring-fortresses"
+                                 ]
+                   },
+                   {
+                       "Index":  125,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3556",
+                                     "Xhâra’Sol Zenithocracy",
+                                     "African, Asian and stellar hybrids • Golden Crane",
+                                     "Artificial suns and speculative drives"
+                                 ]
+                   },
+                   {
+                       "Index":  126,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3620",
+                                     "Qyrrh-Aquila Hyperstate",
+                                     "Old American eagle mythos • Chromatic Eagle",
+                                     "Grand fleet wars"
+                                 ]
+                   },
+                   {
+                       "Index":  127,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3688",
+                                     "Øn’Valkryx Rift Holds",
+                                     "Nordic-derived frontier enclaves • Black Raven",
+                                     "Fortress asteroid chains"
+                                 ]
+                   },
+                   {
+                       "Index":  128,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3741",
+                                     "Tzé-Vaara Resonant Thrones",
+                                     "Pan-American star cultures • Emerald Quetzal",
+                                     "Autonomous citadel worlds"
+                                 ]
+                   },
+                   {
+                       "Index":  129,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3819",
+                                     "Ael’Zhynx Imperial Weave",
+                                     "East Asian and multisystem hybrid • Crystal Dragon",
+                                     "Massive AI fleet coordination"
+                                 ]
+                   },
+                   {
+                       "Index":  130,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3876",
+                                     "Nýx-Albionar Crown of Suns",
+                                     "British-derived dynastic successor • White Lion",
+                                     "System-wide shield empires"
+                                 ]
+                   },
+                   {
+                       "Index":  131,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3922",
+                                     "Vha’Qor Aquil’Meridian",
+                                     "American successor mythos plus many diasporas • Void Eagle",
+                                     "Planetary spearhead fleets"
+                                 ]
+                   },
+                   {
+                       "Index":  132,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3957",
+                                     "Threx-Ømar Mnemosynates",
+                                     "Global machine-human successor union • Phoenix",
+                                     "Archive-world defense"
+                                 ]
+                   },
+                   {
+                       "Index":  133,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "4000",
+                                     "The Veyr’Xhae Grand Concord",
+                                     "Plural interstellar federation • Many-winged Starbird",
+                                     "Tenuous peace after fourth-millennium wars"
+                                 ]
+                   },
+                   {
+                       "Index":  134,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Major fictional wars and turning points"
+                                 ]
+                   },
+                   {
+                       "Index":  135,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "2088–2094 — The First Drone-Treaty Crisis"
+                                 ]
+                   },
+                   {
+                       "Index":  136,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Autonomous air fleets challenge old command systems; the crisis ends in uneven international limits and encourages regional defense blocs."
+                                 ]
+                   },
+                   {
+                       "Index":  137,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "2138–2146 — The Sky-Lane Wars"
+                                 ]
+                   },
+                   {
+                       "Index":  138,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Skycars, cargo lifters and airborne defenses are militarized in conflicts over congested megacity air corridors."
+                                 ]
+                   },
+                   {
+                       "Index":  139,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "2222–2231 — The Battle for the Lunar Gates"
+                                 ]
+                   },
+                   {
+                       "Index":  140,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Lunar freighthubs resist Earth-centered control. The first long orbital sieges create autonomous Luna Freeholds."
+                                 ]
+                   },
+                   {
+                       "Index":  141,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "2314–2330 — The Aquila–Celadon Orbital Wars"
+                                 ]
+                   },
+                   {
+                       "Index":  142,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Aquila and East-Asian-descended fleets clash over geostationary infrastructure. Shield grids, kinetic interceptors and beam defense dominate."
+                                 ]
+                   },
+                   {
+                       "Index":  143,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "2410–2447 — The Three-Planet Crisis"
+                                 ]
+                   },
+                   {
+                       "Index":  144,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Earth, Lunar and Martian populations dispute shipping rights. Distant colonies survive by rationing propellant and protecting supply depots."
+                                 ]
+                   },
+                   {
+                       "Index":  145,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "2562–2580 — The Red Dawn Campaigns"
+                                 ]
+                   },
+                   {
+                       "Index":  146,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Martian republics break with old terrestrial institutions. Fusion-powered fleets are powerful but logistics remain decisive."
+                                 ]
+                   },
+                   {
+                       "Index":  147,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "2749–2767 — The Jarldom Convoy Raids"
+                                 ]
+                   },
+                   {
+                       "Index":  148,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Nordic-inspired void jarls use fast boarding craft against asteroid trade routes; convoy coalitions eventually contain them."
+                                 ]
+                   },
+                   {
+                       "Index":  149,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "2940–2972 — The Spiral Wars"
+                                 ]
+                   },
+                   {
+                       "Index":  150,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Star diaspora factions fight for navigational infrastructure. Conflicts are slow across light-year distances and local commanders become semi-independent."
+                                 ]
+                   },
+                   {
+                       "Index":  151,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "3181–3210 — The Hundred Citadels War"
+                                 ]
+                   },
+                   {
+                       "Index":  152,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Fortress habitats and partially autonomous machine fleets contest solar engineering megastructures."
+                                 ]
+                   },
+                   {
+                       "Index":  153,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "3410–3444 — War of the Broken Constellations"
+                                 ]
+                   },
+                   {
+                       "Index":  154,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Long-standing confederations fracture. Citizens on different worlds experience vastly different chronologies due to communications delay."
+                                 ]
+                   },
+                   {
+                       "Index":  155,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "3611–3646 — The Night of Nine Shields"
+                                 ]
+                   },
+                   {
+                       "Index":  156,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Speculative world shields and enormous siege platforms appear in the mythology of a brutal interstellar conflict."
+                                 ]
+                   },
+                   {
+                       "Index":  157,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "3822–3868 — The Crystal Armada Cataclysm"
+                                 ]
+                   },
+                   {
+                       "Index":  158,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Machine-linked fleets overwhelm several stellar crowns before splintering into rival sovereign intelligences."
+                                 ]
+                   },
+                   {
+                       "Index":  159,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "3933–3987 — The Last Meridian War"
+                                 ]
+                   },
+                   {
+                       "Index":  160,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Aquil’Meridian, the Lion Crown and other ancient successors fight over a chain of strategic star systems; exhaustion paves the way for the Grand Concord."
+                                 ]
+                   },
+                   {
+                       "Index":  161,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Technology progression for playable eras"
+                                 ]
+                   },
+                   {
+                       "Index":  162,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "Period",
+                                     "Vehicles / infrastructure",
+                                     "Weapons / defenses",
+                                     "Gameplay rule"
+                                 ]
+                   },
+                   {
+                       "Index":  163,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2027–2100",
+                                     "Drones, ground autonomous vehicles, early eVTOL fleets",
+                                     "Electronic warfare, interceptors, conventional missiles",
+                                     "Military advantage depends on logistics and command"
+                                 ]
+                   },
+                   {
+                       "Index":  164,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2100–2250",
+                                     "Flying cars, skyports, upper-atmosphere carriers, lunar transport",
+                                     "Beam point defense (speculative scaling), kinetic interceptors",
+                                     "Airspace is a strategic layer; terrain still matters"
+                                 ]
+                   },
+                   {
+                       "Index":  165,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2250–2550",
+                                     "Orbital cruisers, lunar convoys, high-endurance rockets",
+                                     "Spaceborne interceptors, orbital fortress grids",
+                                     "Space fleets require fuel and resupply"
+                                 ]
+                   },
+                   {
+                       "Index":  166,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "2550–3000",
+                                     "Mars fleets, asteroid cities, fusion-drive prototypes (speculative)",
+                                     "Heavy directed-energy systems and automated sentries",
+                                     "Interplanetary travel takes meaningful time"
+                                 ]
+                   },
+                   {
+                       "Index":  167,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3000–3500",
+                                     "Generation ships, city-habitats, deep-space infrastructure",
+                                     "Autonomous starship fleets, fortress habitats",
+                                     "No instantaneous travel by default"
+                                 ]
+                   },
+                   {
+                       "Index":  168,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "3500–4000",
+                                     "Invented gravity craft, artificial star-engine habitats",
+                                     "Fictional gravity lances, radiant sieges, planetary screens",
+                                     "Clearly label impossible/unverified science as fictional"
+                                 ]
+                   },
+                   {
+                       "Index":  169,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Historical-to-future successor examples"
+                                 ]
+                   },
+                   {
+                       "Index":  170,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "Historical thread",
+                                     "Later plausible game branch",
+                                     "Ultra-futuristic branch"
+                                 ]
+                   },
+                   {
+                       "Index":  171,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "British / English / Anglo-Saxon states",
+                                     "Albion Aerocrown → Heliarchate of Albion",
+                                     "Nýx-Albionar Crown of Suns"
+                                 ]
+                   },
+                   {
+                       "Index":  172,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "United States / North American states",
+                                     "Atlantic Compact → Neo-Aquila Imperium",
+                                     "Vha’Qor Aquil’Meridian"
+                                 ]
+                   },
+                   {
+                       "Index":  173,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "Chinese dynasties / modern China",
+                                     "Pearl River Technate → Celadon Matrix",
+                                     "Ael’Zhynx Imperial Weave"
+                                 ]
+                   },
+                   {
+                       "Index":  174,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "Indian and South Asian states",
+                                     "Indus Innovation League → Bharat Sky Mandala",
+                                     "Vyræth Sunforged Mandala"
+                                 ]
+                   },
+                   {
+                       "Index":  175,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "Egypt / Nile states",
+                                     "Nile-descended future solar settlements",
+                                     "Khepra-Nil Sun Court"
+                                 ]
+                   },
+                   {
+                       "Index":  176,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "Nordic / Viking-era cultural threads",
+                                     "Nordhrafn Void Jarldoms",
+                                     "Øn’Valkryx Rift Holds"
+                                 ]
+                   },
+                   {
+                       "Index":  177,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "Pan-American civilizations",
+                                     "Tzintzara Star League",
+                                     "Tzé-Vaara Resonant Thrones"
+                                 ]
+                   },
+                   {
+                       "Index":  178,
+                       "Kind":  "row",
+                       "Cells":  [
+                                     "African states and federations",
+                                     "Sahel Greenbelt → Federated Sunbelt",
+                                     "Xhâra’Sol Zenithocracy"
+                                 ]
+                   },
+                   {
+                       "Index":  179,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "PART III — IMPLEMENTATION BLUEPRINT FOR NEXA"
+                                 ]
+                   },
+                   {
+                       "Index":  180,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "1. Civilization catalog"
+                                 ]
+                   },
+                   {
+                       "Index":  181,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Define distinct Culture, State, Dynasty, Era, RulerTitle, Emblem and SuccessorRelationship records. A single culture may give rise to many states. A modern country must not spawn in the Bronze Age unless playing an explicitly alternate-history scenario."
+                                 ]
+                   },
+                   {
+                       "Index":  182,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "2. Historical timeline versus alternate simulation"
+                                 ]
+                   },
+                   {
+                       "Index":  183,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Use authentic date and source ranges for historical reference. The Living Worlds simulation then branches freely: a Roman-inspired ant empire may endure, split or fall. Never rewrite the factual historical atlas to match the game’s fictional history."
+                                 ]
+                   },
+                   {
+                       "Index":  184,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "3. Animals and bugs"
+                                 ]
+                   },
+                   {
+                       "Index":  185,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Allow multiple species across eras and use symbolic mappings that can change with government and culture; the bald eagle is the intended American avatar and lion the British avatar. Some entities may use fantastic emblems rather than literal animals."
+                                 ]
+                   },
+                   {
+                       "Index":  186,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "4. Technological eras"
+                                 ]
+                   },
+                   {
+                       "Index":  187,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Each polity has development constraints; futuristic names, flying cars, space fleets and weapons unlock only through era progression. Rare outliers and alternate-history paths may exist as explicit scenario rules."
+                                 ]
+                   },
+                   {
+                       "Index":  188,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "5. War and grand strategy"
+                                 ]
+                   },
+                   {
+                       "Index":  189,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Each faction needs production, supply, travel time, diplomacy, succession, morale, strategic goals and genuine victory conditions. Advanced weapons should be balanced with defensive counters. Battlefield effects are visual gameplay abstractions, not actionable weapon construction instructions."
+                                 ]
+                   },
+                   {
+                       "Index":  190,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "6. Living History Book"
+                                 ]
+                   },
+                   {
+                       "Index":  191,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Keep structured immutable simulation event records and build narrative chapters from them. Track royal deaths, empire rise/fall, conquests, scientific milestones and legendary figures. Store history durably, page it when reading and avoid arbitrary entry/year limits."
+                                 ]
+                   },
+                   {
+                       "Index":  192,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "7. Scale and saves"
+                                 ]
+                   },
+                   {
+                       "Index":  193,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Support ten separate worlds, each with independent calendar, politics, tech, geography, history, visual avatars and seed. Keep level-of-detail caches bounded and respect CPU/GPU performance."
+                                 ]
+                   },
+                   {
+                       "Index":  194,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "8. Source flags"
+                                 ]
+                   },
+                   {
+                       "Index":  195,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "For every pre-2027 record, store historical confidence/status: attested, culturally broad, debated, traditional/biblical, or mythic/legendary. For later records store fictional/speculative, with optional technology plausibility."
+                                 ]
+                   },
+                   {
+                       "Index":  196,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Editorial notes and scope"
+                                 ]
+                   },
+                   {
+                       "Index":  197,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Historical catalog: broad game design inventory, not an academic encyclopedia or a verified complete chronology. Future civilizations, conflicts and technologies: original speculative fiction, not forecasts. Ancient cultures and current countries are not all the same category of entity. Some names recur because a state can change government or persist through multiple eras."
+                                 ]
+                   },
+                   {
+                       "Index":  198,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Design sources for later verification: United Nations member-state roster; archaeological chronologies and regional atlases; historical reference works on states, kingdoms, dynasties and indigenous societies. Prior to production, verify each proper noun, dates, symbol, territorial range and claimed lineage against reputable scholarship."
+                                 ]
+                   },
+                   {
+                       "Index":  199,
+                       "Kind":  "paragraph",
+                       "Cells":  [
+                                     "Version planning: keep the existing v0.1.24 Alpha fixes separate. This document is a future Grand Historical Update worldbuilding reference, not a claim that any of these eras or factions have been coded."
+                                 ]
+                   }
+               ]
+}

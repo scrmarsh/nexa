@@ -8,6 +8,7 @@ namespace SessionDashboard;
 
 public sealed class ScripturePin
 {
+    public bool Permanent { get; set; }
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Book { get; set; } = "Genesis";
     public int Chapter { get; set; } = 1;

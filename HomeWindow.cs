@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -17,9 +17,10 @@ internal sealed partial class HomeWindow : NexaDialog
     private bool recentExpanded;
     internal readonly Button ContinueButton;
     private readonly TextBlock feedback = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 20, 0, 0) };
-    internal HomeWindow(StateStore store)
+    internal HomeWindow(StateStore store,AppState? loadedState=null)
     {
-        this.store = store; Saved = store.Load();
+        this.store = store; Saved = loadedState ?? store.Load();
+        Theme.SetSeasonalEnabled(NexaSeason.Active(Saved.Workspace?.Settings ?? new NexaOptions(), DateTimeOffset.UtcNow));
         Closing += (_, e) => { if (settingsWindow?.FlushPendingChanges() == false) e.Cancel = true; };
         Theme.Apply(Application.Current.Resources, store.LoadThemeMode(), store.LoadAppTheme());
         if (Saved.Workspace == null && File.Exists(store.FilePath)) Saved.Workspace = Continuity.Migrate(Saved, store.UserId);
@@ -76,25 +77,28 @@ internal sealed partial class HomeWindow : NexaDialog
         recentChevron.Click += (_, _) => { recentExpanded = !recentExpanded; RefreshRecentSpaces(); };
         panel.Children.Add(new ScrollViewer { Content = Recent, HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled, PanningMode = PanningMode.HorizontalOnly }); RefreshRecentSpaces();
         if (!string.IsNullOrWhiteSpace(store.Warning)) { feedback.Text = store.Warning; panel.Children.Add(feedback); var hide = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(6) }; hide.Tick += (_, _) => { hide.Stop(); feedback.Visibility = Visibility.Collapsed; }; Loaded += (_, _) => hide.Start(); Closed += (_, _) => hide.Stop(); }
-        var footer = new Grid { Margin = new Thickness(0, 10, 0, 38) }; footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto }); footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
+        var footer = new Grid { Margin = new Thickness(0, 10, 0, 30) }; footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto }); footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
         var left = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
         var gearGraphic = (FrameworkElement)NexaIcons.Create("Settings"); gearGraphic.RenderTransformOrigin = new Point(.5, .5); gearGraphic.RenderTransform = new RotateTransform();
         var gear = new Button { Content = gearGraphic, Width = 42, Height = 42, Padding = new Thickness(0), ToolTip = "Settings", HorizontalContentAlignment=HorizontalAlignment.Center, VerticalContentAlignment=VerticalAlignment.Center };
         System.Windows.Automation.AutomationProperties.SetName(gear, "Settings"); gear.Click += (_, _) => OpenSettings();
         void TurnGear(double angle) => ((RotateTransform)gearGraphic.RenderTransform).BeginAnimation(RotateTransform.AngleProperty,new DoubleAnimation(angle,TimeSpan.FromMilliseconds(260)) { EasingFunction=new QuadraticEase { EasingMode=EasingMode.EaseInOut } });
         gear.MouseEnter += (_, _) => TurnGear(90); gear.MouseLeave += (_, _) => TurnGear(0);
-        left.Children.Add(gear); footer.Children.Add(left);
+        left.Children.Add(gear);
+        footer.Children.Add(left);
         var utilities = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Right };
         Button Utility(string text, Action action) { var button = new Button { Content = text == "View History" ? NexaIcons.Label("History") : text, Padding = new Thickness(14, 9, 14, 9), Margin = new Thickness(8, 0, 0, 0) }; button.Click += (_, _) => action(); utilities.Children.Add(button); return button; }
         Utility("View History", OpenHistory); Utility("Changelog", OpenChangelog); Utility("About Nexa", OpenAbout); var developer = Utility("DEV", OpenDeveloperDashboard); developer.Opacity = .7;
         Grid.SetColumn(utilities, 2); footer.Children.Add(utilities);
-        var homeLayout = new Grid { Margin = new Thickness(60, 0, 60, 0), MaxWidth = 960 };
+        var homeLayout = new Grid { Margin = new Thickness(60, 0, 60, 20), MaxWidth = 960 };
         homeLayout.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        homeLayout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         homeLayout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         homeLayout.Children.Add(new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled });
         Grid.SetRow(footer, 1); homeLayout.Children.Add(footer);
         Content = homeLayout;
     }
+
     private void OpenSettingsOld()
     {
         var dialog = new NexaDialog { Owner = this, Title = "Nexa", Width = 760, Height = 560, MinWidth = 620, MinHeight = 460, WindowStartupLocation = WindowStartupLocation.CenterOwner };

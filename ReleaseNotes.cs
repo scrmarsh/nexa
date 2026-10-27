@@ -1,4 +1,4 @@
-namespace SessionDashboard;
+﻿namespace SessionDashboard;
 
 internal sealed record ReleaseNote(string Version, string Date, string Title, string Summary, string[] Updates);
 
@@ -8,7 +8,95 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
-        new(App.AppVersion, "October 3, 2026", "Dashboard & Widget UX Update", "Improves dashboard placement, simplifies the Pixel Timer, adds responsive widgets and optional calendars while preserving local Spaces.",
+        new("0.1.24", "October 27, 2026", "NEXAWEEN", "A space for whatever haunts you next. Synchronized session progress, reliable saving, a consolidated interface and a seasonal bug ecosystem.",
+        [
+            "The Dashboard Has Been Haunted — Seasonal branding uses the checked-task accent. The animated Home tagline is retained; only haunts is orange. Candy backgrounds, contextual widget corners and curved vines stay clear of controls.",
+            "Time Is Under a Spell — Session pixels fill from the top-left, clear in reverse between classes, and share timestamp-based progress with linked bars. Weekday/date/duration editing, time zones, three-decimal precision and controlled time-picker scrolling.",
+            "Creepy Crawlies — Classic, Cozy, Creepy and Combative modes determine appearance together. Species and density update the maintained population. Widget-edge paths, visible flight and progressive spider-owned webs share one persistent ecosystem.",
+            "Productivity Witchcraft — Prominent lightning score and centered multiplier. Direct squashes start two-minute streaks with 0.5 steps and a configurable cap. Saved positive actions get green edge feedback; configured negative categories get red feedback.",
+            "The Archives Awaken — Central readable history, continuous/event-driven saving, configurable checkpoints, revision protection, saved recovery state and save-before-reset safeguards remain in place.",
+            "Spells of Convenience — One Session entry for history, saving and tips; summary interval in Timeline; unified Appearance and separate Sounds. Pumpkin settings and on/off switch, real startup stages, left autosave notices, right tips, and extended dashboard scrolling."
+        ]),
+        new("0.1.23", "October 19, 2026", "Living Worlds", "A new seeded terrain Arcade mode alongside Colony Wars.",
+        [
+            "Choose COLONY WARS or LIVING WORLDS from Arcade. Create named worlds with random or entered seeds, and load them without replacing existing worlds.",
+            "Deterministic continents, islands, coastlines, rivers, lakes and colored biomes stream through cached 64x64 terrain chunks and a coarse overview.",
+            "The widget-friendly dashboard and pan/zoom battlefield share one simulation. Ground units stay out of ocean water; flies can cross it.",
+            "Separate local saves preserve world identity, generator version, camera and simulation. Colony Wars saves and combat rules remain unchanged."
+        ]),
+        new("0.1.22", "October 19, 2026", "GPU Performance Fix", "Timer-paced rendering preserves hardware acceleration and avoids a compositor-driven update loop.",
+        [
+            "Dashboard bug updates use the existing paced timer instead of advancing and invalidating inside every composition callback.",
+            "Hardware diagnostics now default to application-like timer pacing and retain the legacy render loop for controlled comparisons.",
+            "GPU rendering, high-quality sprites, software fallback, existing world saves and gameplay rules are retained."
+        ]),
+        new("0.1.21", "October 19, 2026", "Infinite Warfare", "One persistent insect world, shared by your dashboard and a widget-free battlefield.",
+        [
+            "Infinite Warfare is the default. Surviving civilizations continue after victories; safe migration creates new identities. Classic Rounds remains a separate temporary dashboard mode.",
+            "Local snapshots preserve armies, resources, leaders, strategy, territory, damaged webs, recent history and random state. Atomic saves, backups and explicit recovery protect existing progress.",
+            "The tiny home link, I just wanna play with bugs, resumes the same world on a blank battlefield. Add Bugs also opens it, with pause, recovery, reset, pan, zoom and follow controls.",
+            "Home guards, patrols, scouts, reserves and expeditionary forces support faction campaigns and withdrawals. Sustained occupation captures territory and settlements; survivors can reclaim their homeland.",
+            "Subtle territory colors, borders and labels follow ownership. Irregular shared webs build strand by strand, trap temporarily, connect and repair. Dashboard scrolling preserves world coordinates."
+        ]),
+        new("0.1.20", "October 19, 2026", "Armies and Shared Webs", "Larger armies, active retaliation and survivor recovery in Arcade Colony Wars.",
+        [
+            "Nearby threats take priority over distant leaders. All six species retain distinct attacks, cooldowns and defensive abilities.",
+            "Spiders cooperate on bounded radial webs, repair cut strands and ambush enemies slowed by contact. Web control expires and grants immunity.",
+            "Default colonies support 24-28 visible individuals with configurable 150/180 soft/hard budgets. Reinforcements consume colony reserves.",
+            "Leader loss preserves survivors. Eligible reproductive adults can rebuild once, spending reserves after regrouping safely at home; ants require their queen.",
+            "Named armies, confirmed individual kills and earned warrior titles feed a bounded simulation event history. History remains local to the running simulation."
+        ]),
+        new("0.1.19", "October 15, 2026", "Colony Wars Overhaul", "Six autonomous armies battle for their royal leaders in continuously restarting matches.",
+        [
+            "Stationary habitats are removed. Six leaders enter from invisible edge territories immediately, followed by protective waves of soldiers.",
+            "A shared targeting and damage system gives every species attacks, retaliation, defense, retreats and formations. Ant coordination, roach armor, ladybug healing, centipede dashes and fast aerial fly squads have distinct limits.",
+            "Spider combat webs are visible, temporary projectiles with cooldowns and anti-stun protection. Sparse decorative webs do not collide, cannot overlap nearby webs, and fade automatically.",
+            "Leader deaths eliminate colonies, queue credited conquest banners and end in victory or a draw. The battlefield clears and automatically starts another match.",
+            "A compact live scoreboard tracks units, leader health, kills, match number and wins for the running simulation. Configurable balance, 80/120 soft/hard population caps and a 60 FPS target keep activity bounded."
+        ]),
+        new("0.1.18", "October 15, 2026", "Bug Fixes", "Sharper displays, smooth scrolling and a calmer interactive arcade.",
+        [
+            "Dashboard widgets render first; bugs wait three seconds, spawn more gradually and run below input priority at a 30 FPS target.",
+            "Per-monitor DPI scaling, vector bug rendering and immediate scroll offsets preserve sharpness and widget attachment.",
+            "Add Bugs offers Ants, Roaches, Flies, Spiders, Ladybugs, Centipedes and one All Bugs choice containing all six types.",
+            "Arcade supports up to 240 bugs, spawning once every five seconds. Six large labeled habitat widgets occupy free slots and retain their positions. Centipedes arrive early and make up about 15% of subsequent mixed spawns. Spiders build up to 18 larger organic webs with widget anchors; drag exposed strands to cut them.",
+            "Names have a 2% chance from fifty names. Combat, homes, webs and names are exclusive to Arcade. Ants stay tiny; other species have distinct larger silhouettes.",
+            "Water uses an unbranded ridged plastic bottle. Alcoholic Beverage replaces Beer Counter and offers Wine Glass, Shot Glass and a plain slim Beer Bottle, with progress-driven fills and saved vessel choice."
+        ]),
+        new("0.1.17", "October 14, 2026", "Drink Counters, Laps & Bug Arcade", "Larger drink visuals, stopwatch laps, new species and escalating Arcade bugs.",
+        [
+            "Water and Beer remain separate widgets with larger glass and yellow bottle artwork, compact controls and distinct catalog icons.",
+            "Beer goals start at one; goals above four show a gentle warning and every two beers logged prompt a sip of water.",
+            "Stopwatch laps appear after the first lap and persist with the Space. Pixel Swarm retains the dashboard pixel color.",
+            "Squashing has a one-in-four chance to burst into 4–16 bugs. Spider webs hold captured bugs until a spider approaches, feeds and spins another web.",
+            "Ladybugs take two taps with a cracked-shell first-hit cue. Centipedes are rare, larger segmented crawlers.",
+            "Infestation supports 600 bugs. Arcade starts normally and escalates automatically; rapid hits accelerate progression. Shared sprite frames keep animation lightweight."
+        ]),
+        new("0.1.16", "October 5, 2026", "Stable Layout, Bugs and Counters", "Keeps widget placement predictable and expands the Add Bugs and counter features.",
+        [
+            "Widget drops preserve unaffected cards and reject occupied positions; removing a card leaves its space open.",
+            "Bugs use dashboard content coordinates while scrolling, with stronger ant and roach behavior and a larger infestation.",
+            "Water gains a deeper liquid visual; the new Beer Counter has its own goal, golden liquid, foam and carbonation.",
+            "Appearance choices are directly selectable and Home footer spacing is improved."
+        ]),
+        new("0.1.15", "October 4, 2026", "Add Bugs Settings Fix", "Makes bug type and intensity selectable directly in Settings.",
+        [
+            "Bug type now offers Ants, Roaches, Flies and All Three as visible choices.",
+            "Intensity now offers Low, Normal and Infestation as visible choices.",
+            "Choices can be set before enabling bugs, apply immediately and persist when Settings is reopened."
+        ]),
+        new("0.1.14", "October 4, 2026", "Add Bugs", "Adds optional animated insects to Spaces.",
+        [
+            "Add ants, roaches, flies or all three inside a Space at Low, Normal or Infestation density.",
+            "Bugs follow widget edges, move across the dashboard and can be squashed with a click.",
+            "The feature is off by default, stores preferences per Windows user and pauses when the Space is hidden."
+        ]),
+        new("0.1.13", "October 4, 2026", "Pixel Swarm & Appearance", "Adds a staged Pixel Swarm game and live appearance updates.",
+        [
+            "Pixel Swarm has a start menu, escalating stages, upgrades and local best-score tracking.",
+            "Appearance choices update live and persist across restarts."
+        ]),
+        new("0.1.12", "October 3, 2026", "Dashboard & Widget UX Update", "Improves dashboard placement, simplifies the Pixel Timer, adds responsive widgets and optional calendars while preserving local Spaces.",
         [
             "Task List, Notes and Counter absorb compatible older widget types without discarding saved content or layouts.",
             "Cards compact after edits, support edge scrolling and show a blue landing preview. The anchored Pixel Timer resizes horizontally and leaves room for a neighbor.",

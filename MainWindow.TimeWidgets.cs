@@ -14,14 +14,34 @@ public partial class MainWindow
         panel.Children.Add(display);
         AnalogClock? analog = null;
         if (stopwatch) analog = new AnalogClock { Height = 144, MinHeight = 120, Margin = new Thickness(0, 8, 0, 8), Visibility = widget.DisplayMode == "Compact" ? Visibility.Collapsed : Visibility.Visible };
-        Panel controls = stopwatch ? new StackPanel { Orientation = Orientation.Horizontal } : new WrapPanel();
+        Panel controls = new WrapPanel();
+        var laps = new StackPanel();
+        var lapList = new ScrollViewer { Content = laps, MaxHeight = 96, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Visibility = Visibility.Collapsed, Margin = new Thickness(0,4,0,8) };
+        System.Windows.Automation.AutomationProperties.SetName(lapList,"Stopwatch laps");
+        static string LapText(double seconds)
+        {
+            var total = (long)Math.Max(0,seconds);
+            return $"{total/3600:00}:{total/60%60:00}:{total%60:00}.{(long)(seconds*1000)%1000:000}";
+        }
+        void RefreshLaps()
+        {
+            laps.Children.Clear();
+            for(var i=0;i<widget.StopwatchLaps.Count;i++)
+            {
+                var elapsed = widget.StopwatchLaps[i];
+                var split = elapsed - (i == 0 ? 0 : widget.StopwatchLaps[i-1]);
+                laps.Children.Add(new TextBlock { Text = $"Lap {i+1}   {LapText(split)}   ·   {LapText(elapsed)}", FontFamily = new FontFamily("Consolas"), FontSize = 11, Margin = new Thickness(0,2,0,2) });
+            }
+            lapList.Visibility = stopwatch && widget.StopwatchLaps.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            lapList.ScrollToEnd();
+        }
         Button Control(string name, Action action)
         {
             var button = new Button { Content = name, MinWidth = 64, Padding = new Thickness(8, 6, 8, 6), Margin = new Thickness(0, 0, 6, 6) };
             button.Click += (_, _) => { action(); Changed(); SaveNow(); Update(DateTimeOffset.Now); };
             controls.Children.Add(button); return button;
         }
-        Button? start = null, pause = null, resume = null;
+        Button? start = null, pause = null, resume = null, lap = null;
         start = Control("Start", () =>
         {
             if (stopwatch) widget.StopwatchStartedAt = DateTimeOffset.Now;
@@ -39,9 +59,15 @@ public partial class MainWindow
             if (stopwatch) widget.StopwatchStartedAt = DateTimeOffset.Now;
             else if (widget.TimerStopped is { } stopped) { var paused = DateTimeOffset.Now - stopped; widget.TimerStart += paused; widget.TimerEnd += paused; widget.TimerStopped = null; }
         });
-        Control("Reset", () => { if (stopwatch) { widget.StopwatchElapsedSeconds = 0; widget.StopwatchStartedAt = null; } else widget.TimerStart = widget.TimerEnd = widget.TimerStopped = null; });
+        if (stopwatch) lap = Control("Lap", () =>
+        {
+            if(widget.StopwatchStartedAt is not { } at || widget.StopwatchLaps.Count >= 10000) return;
+            widget.StopwatchLaps.Add(widget.StopwatchElapsedSeconds + Math.Max(0,(DateTimeOffset.Now-at).TotalSeconds));
+            RefreshLaps(); ArrangeWidgetFrames();
+        });
+        Control("Reset", () => { if (stopwatch) { widget.StopwatchElapsedSeconds = 0; widget.StopwatchStartedAt = null; widget.StopwatchLaps.Clear(); RefreshLaps(); ArrangeWidgetFrames(); } else widget.TimerStart = widget.TimerEnd = widget.TimerStopped = null; });
         panel.Children.Add(controls);
-        if (stopwatch) { panel.Children.Add(analog!); AddDisplayModeControls(panel, widget); }
+        if (stopwatch) { panel.Children.Add(lapList); RefreshLaps(); panel.Children.Add(analog!); AddDisplayModeControls(panel, widget); }
         else AddDisplayModeControls(panel, widget);
         if (!stopwatch)
         {
@@ -89,7 +115,7 @@ public partial class MainWindow
             if (stopwatch) { display.Text += "." + ((long)(value * 1000) % 1000).ToString("000"); analog!.SetElapsed(value); }
             if (!stopwatch && !widget.ShowSeconds) display.Text = $"{total / 3600:00}:{total / 60 % 60:00}";
             start!.IsEnabled = !begun; pause!.IsEnabled = stopwatch ? begun : running;
-            if (stopwatch) pause.Content = paused ? "Resume" : "Pause";
+            if (stopwatch) { pause.Content = paused ? "Resume" : "Pause"; lap!.IsEnabled = running && widget.StopwatchLaps.Count < 10000; }
             else resume!.IsEnabled = paused && (value > 0 || widget.ShowElapsed);
         }
         widgetTicks.Add(Update);

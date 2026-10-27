@@ -1,0 +1,15 @@
+* text=auto
+*.cs text eol=crlf
+*.xaml text eol=crlf
+*.csproj text eol=crlf
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.md text eol=lf whitespace=-blank-at-eol
+*.json text eol=lf
+*.svg text eol=lf
+*.pdf binary
+*.png binary
+*.ico binary
+*.gz binary
+*.docx binary
+LEGACY/** whitespace=-blank-at-eol,-blank-at-eof

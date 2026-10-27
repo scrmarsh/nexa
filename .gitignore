@@ -22,3 +22,15 @@ token*.json
 # Local audio captures (never source-controlled)
 Recordings/
 *_wpftmp.csproj
+
+# Local verification snapshots, captures, and private recovery backups
+/verification/
+
+# Portable builds and operating-system metadata are generated, not source
+/Nexa.exe
+*.pdb
+*.zip
+desktop.ini
+
+/LEGACY/builds/
+!LEGACY/assets/desktop.ini

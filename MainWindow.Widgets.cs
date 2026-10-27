@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -119,7 +119,7 @@ public partial class MainWindow
         ClearWidgetFocus(); stopwatchRefresh.Stop(); stopwatchTicks.Clear();
         if (WidgetLibrary.PrepareLayout(state)) Changed();
         foreach (var panel in legacyPanels.Values) { Detach(panel); parkedPanels.Children.Add(panel); }
-        WidgetCanvas.Children.Clear(); widgetFrames.Clear(); widgetResizeHandles.Clear(); widgetTicks.Clear(); expandedMicroWidgets.Clear(); collapseMicroWidgets.Clear();
+        WidgetCanvas.Children.Clear(); scoreAreas.Clear(); widgetFrames.Clear(); widgetResizeHandles.Clear(); widgetTicks.Clear(); expandedMicroWidgets.Clear(); collapseMicroWidgets.Clear();
         EditToolbar.Visibility = editingDashboard ? Visibility.Visible : Visibility.Collapsed;
         PixelBannerHost.Content = null;
         var primaryPixel = state.Widgets.FirstOrDefault(w => w.Kind == "Pixel timer");
@@ -147,6 +147,7 @@ public partial class MainWindow
                 var b = new Button { Content = glyph, ToolTip = title, Padding = new Thickness(6, 3, 6, 3), Margin = new Thickness(3, 0, 0, 0) };
                 System.Windows.Automation.AutomationProperties.SetName(b, title + " " + widget.Title); b.Click += (_, _) => action(); buttons.Children.Add(b); b.Content = NexaIcons.Create(title);
             }
+            if (WidgetActivity.HasHistory(widget)) Action("◷", "Notes / History", () => NotesHistoryClick(this, new RoutedEventArgs()));
             Action("⧉", "Duplicate", () => DuplicateWidget(widget));
             Action("×", "Remove widget", () => RemoveWidget(widget));
             buttons.Opacity = editingDashboard ? 1 : 0;
@@ -175,6 +176,9 @@ public partial class MainWindow
                 distraction.Click += (_, _) => { widget.CounterMode = distraction.IsChecked ? "Distraction" : "Standard"; Changed(); SaveNow(); RenderWidgets(); };
                 options.Items.Add(distraction);
             }
+            var permanent = new MenuItem { Header = "Preserve content between sessions", IsCheckable = true, IsChecked = !widget.SessionScoped };
+            permanent.Click += (_, _) => { widget.SessionScoped = !permanent.IsChecked; Changed(); };
+            options.Items.Add(permanent);
             titleEditor.ContextMenu=options;
             header.Children.Add(titleEditor);
             UIElement content;
@@ -185,7 +189,7 @@ public partial class MainWindow
                 Detach(legacy); legacy.Margin = new Thickness(0); legacy.Padding = new Thickness(14); legacy.BorderThickness = new Thickness(0); legacy.Background = DashboardBrush("PanelBrush"); content = legacy;
             }
             else content = BuildWidgetContent(widget);
-            var body = new ScrollViewer { Content = content, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Tag = "WidgetBody" };
+            var body = new ScrollViewer { Content = content, VerticalScrollBarVisibility = widget.Kind is "Water Bottle Counter" or "Alcoholic Beverage" or "Stopwatch" ? ScrollBarVisibility.Hidden : ScrollBarVisibility.Disabled, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Tag = "WidgetBody" };
             layout.Children.Add(body);
             if (widget.IsMicro)
             {
@@ -423,26 +427,19 @@ public partial class MainWindow
                     !occupied.Skip(1).Any(r => PlacementOverlaps(r, new Rect(right, rect.Y, rect.Width, rect.Height))))
                     rect.X = right;
             }
-            var neighbor = occupied.Where(r => r.Right + WidgetGap <= rect.Left + .5 &&
-                    rect.Left <= r.Right + WidgetGap + GridUnit + .5 &&
-                    Math.Min(r.Bottom, rect.Bottom) - Math.Max(r.Top, rect.Top) >= .6 * Math.Min(r.Height, rect.Height))
-                .OrderByDescending(r => r.Right).FirstOrDefault();
-            if (neighbor.Width > 0)
-            {
-                var snug = neighbor.Right + WidgetGap;
-                var candidate = new Rect(snug, rect.Y, rect.Width, rect.Height);
-                if (candidate.Right <= WidgetCanvas.ActualWidth + .5 && !occupied.Any(r => PlacementOverlaps(r, candidate))) rect.X = snug;
-            }
+            // Keep intentional empty space; moving one card must not pull its neighbors along.
             while(occupied.FirstOrDefault(r=>PlacementOverlaps(r,rect)) is var hit && hit.Width>0) rect.Y=Math.Ceiling((hit.Bottom+WidgetGap)/RowUnit)*RowUnit;
             Canvas.SetLeft(frame,rect.X); Canvas.SetTop(frame,rect.Y); occupied.Add(rect);
         }
         WidgetCanvas.Height = Math.Max(WidgetCanvas.Height, widgetFrames.Values.Select(f => Canvas.GetTop(f) + f.Height).DefaultIfEmpty(0).Max());
+        WidgetCanvas.Height = Math.Max(WidgetCanvas.Height, Math.Max(PixelObstacle?.Bottom ?? 0, widgetFrames.Values.Select(f => Canvas.GetTop(f) + f.Height).DefaultIfEmpty(0).Max()) + Math.Max(200, WidgetScroller.ViewportHeight));
         foreach (var id in widgetResizeHandles.Keys) PositionResizeHandles(id);
+        RefreshSeasonalWorkspace();
         if(IsPreview && state.Workspace is {} workspace && compactedPreviewId!=workspace.ActiveDashboardId)
         {
             compactedPreviewId=workspace.ActiveDashboardId;
             var ordered=state.Widgets.Where(w=>widgetFrames.ContainsKey(w.Id)).OrderBy(w=>Canvas.GetTop(widgetFrames[w.Id])).ThenBy(w=>Canvas.GetLeft(widgetFrames[w.Id]));
-            StoreWidgetPositions(PackWidgetFrames(ordered,[])); Changed(); ArrangeWidgetFrames(); SaveNow();
+            // Preview retains its authored positions as well.
         }
     }
     private void PositionResizeHandles(Guid id)
@@ -488,6 +485,7 @@ public partial class MainWindow
         };
         thumb.DragStarted += (_, _) =>
         {
+            PinCurrentWidgetPositions();
             ClearWidgetFocus();
             var frame = widgetFrames[widget.Id];
             var visualPosition = frame.TranslatePoint(new Point(), WidgetCanvas);
@@ -553,7 +551,15 @@ public partial class MainWindow
             }
             var width = resize ? Math.Max(1, span*unit-WidgetGap) : origin.Width;
             var candidate = new Rect(left,top,width,height);
-            ResizeWidgetVisual(widget,candidate,resizeOrigin);
+            if (state.Widgets.Where(w => w.Id != widget.Id && resizeOrigin.ContainsKey(w.Id))
+                .Any(w => PlacementOverlaps(resizeOrigin[w.Id], candidate)) ||
+                PixelObstacle is { } timer && PlacementOverlaps(timer, candidate))
+            {
+                candidate = origin;
+                left = origin.X; top = origin.Y; width = origin.Width; height = (int)origin.Height;
+                span = (int)Math.Round((origin.Width + WidgetGap) / unit);
+            }
+            ResizeWidgetVisual(widget,candidate,resizeOrigin);RefreshSeasonalWorkspace();
             Canvas.SetLeft(placementPreview!,candidate.X); Canvas.SetTop(placementPreview!,candidate.Y); placementPreview!.Width=width; placementPreview.Height=height;
         }
         thumb.DragCompleted += (_, e) =>
@@ -592,7 +598,7 @@ public partial class MainWindow
                 else CommitWidgetDrop(widget, origin.X + dx, origin.Y + dy);
             }
             if (widgetRenderDeferred) { widgetRenderDeferred = false; RenderWidgets(); } else ArrangeWidgetFrames();
-            if (!e.Canceled && resize && height < origin.Height - 3) CompactWidgetLayout();
+            // A smaller card leaves its freed space available for a later placement.
             WidgetCanvas.UpdateLayout();
             AnimateWidgetSettle(before);
         };
@@ -613,6 +619,11 @@ public partial class MainWindow
         if (editor == "clock") { panel.VerticalAlignment = VerticalAlignment.Center; panel.Margin = new Thickness(8, 2, 8, 2); }
         switch (editor)
         {
+            case "squashes":
+                var squashes = new TextBlock { FontSize = 20, TextWrapping = TextWrapping.Wrap };
+                panel.Children.Add(squashes); widgetTicks.Add(_ => squashes.Text = $"This session: {state.Productivity.BugsSquashed:N0}\nAll time: {state.Workspace?.AllTimeSquashes ?? 0:N0}"); break;
+            case "productivity": BuildProductivityWidget(panel, widget, false); break;
+            case "score": BuildProductivityWidget(panel, widget, true); break;
             case "calculator": BuildCalculator(panel, widget); break;
             case "recorder": BuildRecorderWidget(panel); break;
             case "externalTasks": case "calendar": panel.Children.Add(BuildIntegrationWidget(widget)); break;
@@ -661,11 +672,13 @@ public partial class MainWindow
                     down.Click += (_, _) => MoveItem(1); DockPanel.SetDock(down, Dock.Right); row.Children.Add(down);
                     var up = new Button { Content = "↑", Padding = new Thickness(5, 2, 5, 2), ToolTip = "Move item up" };
                     up.Click += (_, _) => MoveItem(-1); DockPanel.SetDock(up, Dock.Right); row.Children.Add(up);
-                    var check = new CheckBox { Content = new TextBlock { Text = item.Text, TextWrapping = TextWrapping.Wrap }, IsChecked = item.Done }; check.Click += (_, _) => { item.Done = check.IsChecked == true; if (item.Done) PlayInterfaceSound(); Changed(); }; row.Children.Add(check); panel.Children.Add(row);
+                    var check = new CheckBox { Content = new TextBlock { Text = item.Text, TextWrapping = TextWrapping.Wrap }, IsChecked = item.Done }; AttachTaskPermanence(check, item); check.Click += (_, _) => { item.Done = check.IsChecked == true; if (item.Done) PlayInterfaceSound(); Changed(); }; row.Children.Add(check); panel.Children.Add(row);
                 }
                 break;
             case "waterBottles":
                 BuildWaterBottleCounter(panel, widget); break;
+            case "beer":
+                BuildBeerCounter(panel, widget); break;
             case "counter":
                 var number = new TextBlock { Text = widget.Value.ToString(CultureInfo.CurrentCulture), FontSize = 44, Margin = new Thickness(0, 8, 0, 16) }; panel.Children.Add(number);
                 var counts = new UniformGrid { Columns = 2 };
@@ -703,12 +716,14 @@ public partial class MainWindow
                 panel.Children.Add(progress);
                 widgetTicks.Add(now =>
                 {
-                    if (editor == "clock") { label.Cursor = Cursors.Hand; label.ToolTip = "Click to configure clock"; label.Text = now.LocalDateTime.ToString(widget.ShowSeconds ? "h:mm:ss tt" : "h:mm tt"); analog?.SetTime(now.LocalDateTime); progress.Visibility = Visibility.Collapsed; return; }
-                    var value = state.Session?.Progress(now) ?? 0; label.Text = value.ToString("P0"); progress.Value = value;
+                    if (editor == "clock") { label.Cursor = Cursors.Hand; label.ToolTip = "Click to configure clock"; label.Text = NexaTime.Local(now, Options.TimeZoneId).ToString(Options.Use24HourClock ? widget.ShowSeconds ? "HH:mm:ss" : "HH:mm" : widget.ShowSeconds ? "h:mm:ss tt" : "h:mm tt"); analog?.SetTime(NexaTime.Local(now, Options.TimeZoneId).DateTime); progress.Visibility = Visibility.Collapsed; return; }
+                    var reading=PixelTiming.ForWidget(widget,state.Session,now); var value=reading.VisualFraction; label.Text=NexaTime.Percentage(value); label.ToolTip=reading.Caption; progress.Value=value;
                 });
                 break;
             case "tracker":
                 BuildTracker(panel, widget); break;
+            case "distribution":
+                BuildDistributionTracker(panel, widget); break;
             case "flashcards":
                 BuildFlashcards(panel, widget); break;
             case "statistics":
@@ -724,53 +739,95 @@ public partial class MainWindow
     }
     private void BuildWaterBottleCounter(StackPanel panel, WidgetInstance widget)
     {
-        var goal = Math.Clamp(widget.WaterBottleGoal, 1, 100);
-        var glass = new Grid { Width = 76, Height = 102, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 2, 0, 8) };
-        var glassShape = Geometry.Parse("M8,7 L68,7 L61,94 L15,94 Z");
-        var water = new System.Windows.Shapes.Path { Data = glassShape, Fill = DashboardBrush("AccentBrush"), Opacity = .75 };
-        glass.Children.Add(water);
-        glass.Children.Add(new System.Windows.Shapes.Path { Data = glassShape, Stroke = DashboardBrush("AccentBrush"), StrokeThickness = 3, Fill = Brushes.Transparent });
-        panel.Children.Add(glass);
-        var count = new TextBlock { FontSize = 30, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 3), HorizontalAlignment = HorizontalAlignment.Center };
-        var caption = new TextBlock { Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 0, 0, 10) };
-        var progress = new ProgressBar { Height = 6, Minimum = 0, Maximum = goal, Foreground = DashboardBrush("AccentBrush"), Background = DashboardBrush("LineBrush"), BorderThickness = new Thickness(0) };
+        BuildDrinkCounter(panel, widget, false);
+    }
+    private void BuildBeerCounter(StackPanel panel, WidgetInstance widget) => BuildDrinkCounter(panel, widget, true);
+    private void BuildDrinkCounter(StackPanel panel, WidgetInstance widget, bool beer)
+    {
+        var goal = Math.Clamp(beer ? widget.BeerGoal : widget.WaterBottleGoal, beer ? 1 : 4, 100);
+        var visualHeight = widget.DisplayMode == "Compact" ? 150 : widget.DisplayMode == "Expanded" ? 260 : 210;
+        var art = new DrinkArtwork(beer) { Vessel = widget.BeverageVessel, Height = visualHeight, HorizontalAlignment = HorizontalAlignment.Stretch };
+        var visual = new Grid(); visual.Children.Add(art); panel.Children.Add(visual);
+        var count = new TextBlock { FontSize = 21, FontWeight = FontWeights.SemiBold, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 2, 0, 6) };
+        panel.Children.Add(count);
+        var warning = new TextBlock { Text = "Slow down—consider drinking less.", FontSize = 11, Foreground = Brush("MutedBrush"), TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 4, 0, 4) };
+        panel.Children.Add(warning);
+        var reminderText = new TextBlock { Text = "Take a sip of water.", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Center, FontSize = 12 };
+        var reminderContent = new DockPanel();
+        var dismiss = new Button { Content = "×", Width = 28, Height = 28, Padding = new Thickness(2), Margin = new Thickness(6,0,0,0), ToolTip = "Dismiss water reminder" };
+        System.Windows.Automation.AutomationProperties.SetName(dismiss,"Dismiss water reminder");
+        DockPanel.SetDock(dismiss,Dock.Right); reminderContent.Children.Add(dismiss); reminderContent.Children.Add(reminderText);
+        var reminder = new Border { Child = reminderContent, Background = DashboardBrush("PanelBrush"), BorderBrush = DashboardBrush("LineBrush"), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(7), Padding = new Thickness(8), VerticalAlignment = VerticalAlignment.Bottom, Visibility = Visibility.Collapsed };
+        visual.Children.Add(reminder);
+        DateTimeOffset? reminderUntil = null;
+        dismiss.Click += (_,_) => { reminderUntil = null; reminder.Visibility = Visibility.Collapsed; };
+        widgetTicks.Add(now => { if(reminderUntil is { } until && now >= until) { reminderUntil = null; reminder.Visibility = Visibility.Collapsed; } });
         void Refresh()
         {
-            count.Text = $"{widget.Value:0.##} / {goal}";
-            caption.Text = widget.Value == 1 ? "bottle" : "bottles";
-            var fill = 86 * Math.Clamp((double)widget.Value / goal, 0, 1);
-            water.Clip = new RectangleGeometry(new Rect(0, 94 - fill, 76, fill));
-            progress.Maximum = goal;
-            progress.Value = Math.Clamp((double)widget.Value, 0, goal);
+            count.Text = $"{widget.Value:0.##} / {goal} {(beer ? "drinks" : "bottles")}";
+            art.SetFill(Math.Clamp((double)widget.Value / goal, 0, 1));
+            warning.Visibility = beer && goal > 4 ? Visibility.Visible : Visibility.Collapsed;
         }
-        panel.Children.Add(count); panel.Children.Add(caption); panel.Children.Add(progress);
-        var actions = new UniformGrid { Columns = 2, Margin = new Thickness(0, 14, 0, 0) };
-        var remove = new Button { Content = "− 1 bottle", Margin = new Thickness(0, 0, 4, 0) };
-        var add = new Button { Content = "+ 1 bottle", Margin = new Thickness(4, 0, 0, 0), Style = (Style)FindResource("PrimaryButton") };
+        var actions = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
+        Button Small(string text, string tooltip)
+        {
+            var button = new Button { Content = text, ToolTip = tooltip, MinWidth = 30, MinHeight = 28, FontSize = 11, Padding = new Thickness(7,3,7,3), Margin = new Thickness(3,0,3,0) };
+            System.Windows.Automation.AutomationProperties.SetName(button,tooltip); return button;
+        }
+        var remove = Small(beer ? "− 1 beer" : "− 1 bottle",beer ? "Remove one beer" : "Remove one bottle");
+        var add = Small(beer ? "+ 1 drink" : "+ 1 bottle",beer ? "Log one drink" : "Log one bottle");
         void Change(int delta)
         {
-            try { widget.Value = Math.Clamp(Math.Floor(widget.Value) + delta, 0, 1000000); }
-            catch (OverflowException) { Error("Bottle count limit reached."); return; }
+            var previous = widget.Value;
+            widget.Value = Math.Clamp(Math.Floor(widget.Value) + delta, 0, 1000000);
+            if (beer && delta > 0 && widget.Value > previous)
+            {
+                widget.BeerLoggedSinceReminder++;
+                if(widget.BeerLoggedSinceReminder >= 2)
+                {
+                    widget.BeerLoggedSinceReminder = 0; reminderUntil = DateTimeOffset.Now.AddSeconds(8);
+                    reminder.Visibility = Visibility.Visible;
+                }
+            }
             Refresh(); Changed();
         }
         remove.Click += (_, _) => Change(-1); add.Click += (_, _) => Change(1);
         actions.Children.Add(remove); actions.Children.Add(add); panel.Children.Add(actions);
-        var options = new DockPanel { Margin = new Thickness(0, 10, 0, 0) };
-        var reset = new Button { Content = "Reset count", Padding = new Thickness(8, 4, 8, 4), Margin = new Thickness(0, 0, 12, 0) };
-        reset.Click += (_, _) => { widget.Value = 0; Refresh(); Changed(); };
-        DockPanel.SetDock(reset, Dock.Left); options.Children.Add(reset);
-        var goalChoices = new List<int> { 4, 6, 8, 10, 12, 16 };
-        if (!goalChoices.Contains(goal)) { goalChoices.Add(goal); goalChoices.Sort(); }
-        var goals = new ComboBox { Width = 65, ItemsSource = goalChoices, SelectedItem = goal, ToolTip = "Bottle goal" };
-        goals.SelectionChanged += (_, _) =>
+        if(beer)
         {
-            if (goals.SelectedItem is not int selected || selected == goal) return;
-            goal = selected; widget.WaterBottleGoal = goal; Refresh(); Changed();
+            remove.Content="− 1 drink"; remove.ToolTip="Remove one drink";
+            System.Windows.Automation.AutomationProperties.SetName(remove,"Remove one drink");
+            var vessels=new ComboBox { ItemsSource=new[] { "Wine Glass", "Shot Glass", "Beer Bottle" }, SelectedItem=widget.BeverageVessel,
+                FontSize=11, Margin=new Thickness(12,6,12,0), ToolTip="Beverage vessel", MinHeight=28 };
+            System.Windows.Automation.AutomationProperties.SetName(vessels,"Beverage vessel");
+            vessels.SelectionChanged+=(_,_)=> { if(vessels.SelectedItem is string selected) { widget.BeverageVessel=selected; art.Vessel=selected; art.InvalidateVisual(); Changed(); } };
+            panel.Children.Add(vessels);
+        }
+        var options = new WrapPanel { Margin = new Thickness(0,6,0,0) };
+        options.Children.Add(new TextBlock { Text = "Goal", FontSize = 11, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0,0,6,0) });
+        var goalValue = new TextBlock { Text = goal.ToString(), MinWidth = 22, TextAlignment = TextAlignment.Center, VerticalAlignment = VerticalAlignment.Center, FontSize = 11 };
+        void ChangeGoal(int delta)
+        {
+            goal = Math.Clamp(goal + delta, beer ? 1 : 4, 100);
+            if (beer) widget.BeerGoal = goal; else widget.WaterBottleGoal = goal;
+            goalValue.Text = goal.ToString(); Refresh(); Changed(); ArrangeWidgetFrames();
+        }
+        var less = Small("−", "Decrease goal"); var more = Small("+", "Increase goal");
+        less.Click += (_, _) => ChangeGoal(-1); more.Click += (_, _) => ChangeGoal(1);
+        options.Children.Add(less); options.Children.Add(goalValue); options.Children.Add(more);
+        var reset = Small("Reset count", "Reset count");
+        reset.Click += (_, _) => { widget.Value = 0; widget.BeerLoggedSinceReminder = 0; reminderUntil = null; reminder.Visibility = Visibility.Collapsed; Refresh(); Changed(); };
+        options.Children.Add(reset);
+        var size = Small(widget.DisplayMode == "Compact" ? "Expand" : "Compact", "Change counter size");
+        size.Click += (_, _) =>
+        {
+            widget.DisplayMode = widget.DisplayMode == "Compact" ? "Expanded" : "Compact";
+            widget.CustomSize = false; Changed(); RenderWidgets(); SaveNow();
         };
-        DockPanel.SetDock(goals, Dock.Right); options.Children.Add(goals);
-        var goalLabel = new TextBlock { Text = "Goal", VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 0, 8, 0) };
-        options.Children.Add(goalLabel); panel.Children.Add(options);
-        Refresh();
+        options.Children.Add(size);
+        var settings = new Expander { Header = "Options", Content = options, FontSize = 11, Foreground = Brush("MutedBrush"), Margin = new Thickness(0,6,0,0) };
+        settings.Expanded += (_,_) => ArrangeWidgetFrames(); settings.Collapsed += (_,_) => ArrangeWidgetFrames();
+        panel.Children.Add(settings); Refresh();
     }
     private void BuildTracker(StackPanel panel, WidgetInstance widget)
     {
@@ -801,7 +858,7 @@ public partial class MainWindow
             row.Children.Add(new TextBlock { Text = record.Name + " · " + record.CreatedAt.LocalDateTime.ToString("g") + "\n" + string.Join(", ", record.Categories) + "\n" + string.Join(" · ", record.Values.Select(p => p.Key + ": " + p.Value)), TextWrapping = TextWrapping.Wrap }); panel.Children.Add(row);
         }
     }
-    private void UpdateWidgetClocks(DateTimeOffset now) { foreach (var tick in widgetTicks) tick(now); if (state.Widgets.Any(w => w.StopwatchStartedAt != null)) stopwatchRefresh.Start(); else stopwatchRefresh.Stop(); }
+    private void UpdateWidgetClocks(DateTimeOffset now) { foreach (var tick in widgetTicks) tick(displayedClockInstant==default?now:displayedClockInstant); if (state.Widgets.Any(w => w.StopwatchStartedAt != null)) stopwatchRefresh.Start(); else stopwatchRefresh.Stop(); }
     private void OpenWeb(string text)
     {
         if (!Uri.TryCreate(text, UriKind.Absolute, out var uri) || (uri.Scheme != "https" && uri.Scheme != "http")) { Error("Enter a valid https:// website address."); return; }
@@ -820,7 +877,7 @@ public partial class MainWindow
         void Refresh()
         {
             list.Children.Clear();
-            var matches = WidgetLibrary.Definitions.Where(d => d.Name != "Session controls" && (d.Name + " " + d.Group + " " + d.Description).Contains(search.Text, StringComparison.CurrentCultureIgnoreCase)).ToList();
+            var matches = WidgetLibrary.Definitions.Where(d => d.Name != "Session controls" && d.Name != "Bugs Squashed" && (d.Name + " " + d.Group + " " + d.Description).Contains(search.Text, StringComparison.CurrentCultureIgnoreCase)).ToList();
             var recommended = new[] { "Session timeline", "Clock", "Notes" }.Select(name => matches.FirstOrDefault(d => d.Name == name)).OfType<WidgetDefinition>().ToArray();
             var groups = new[] { new { Name = "Recommended", Items = recommended } }.Concat(matches.GroupBy(d => d.Group).Select(g => new { Name = g.Key, Items = g.ToArray() }));
             foreach (var group in groups.Where(g => g.Items.Length > 0))
@@ -830,7 +887,9 @@ public partial class MainWindow
                 {
                     var content = new StackPanel(); content.Children.Add(new TextBlock { Text = definition.Name == "Session timeline" ? "Session Timeline" : definition.Name, FontWeight = FontWeights.SemiBold }); content.Children.Add(new TextBlock { Text = definition.Description, TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 5, 0, 0) });
                     var row = new Grid(); row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(42) }); row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                    var icon = new TextBlock { Text = WidgetIcon(definition.Editor), FontFamily = new FontFamily("Segoe MDL2 Assets"), FontSize = 22, Foreground = Brush("AccentBrush"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left };
+                    FrameworkElement icon = definition.Editor is "waterBottles" or "beer"
+                        ? new DrinkArtwork(definition.Editor == "beer", false) { Width = 26, Height = 34, FillFraction = .65, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left }
+                        : new TextBlock { Text = WidgetIcon(definition.Editor), FontFamily = new FontFamily("Segoe MDL2 Assets"), FontSize = 22, Foreground = Brush("AccentBrush"), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Left };
                     row.Children.Add(icon); Grid.SetColumn(content, 1); row.Children.Add(content);
                     var button = new Button { Content = "Add", Tag = definition.Name, Padding = new Thickness(14, 8, 14, 8), Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center }; System.Windows.Automation.AutomationProperties.SetName(button, "Add " + definition.Name); Grid.SetColumn(button, 2); row.Children.Add(button);
                     button.Click += (_, _) => { AddWidget(definition.Name, location); NexaChrome.FadeOutAndClose(dialog); }; list.Children.Add(new Border { Child = row, Padding = new Thickness(14, 12, 14, 12), Margin = new Thickness(0, 0, 0, 8) });
@@ -842,33 +901,55 @@ public partial class MainWindow
     private static string WidgetIcon(string editor) => editor switch
     {
         "timer" or "stopwatch" => "\uE916", "clock" => "\uE823", "bible" or "scripture" => "\uE736",
-        "counter" => "\uE8EF", "checklist" or "list" => "\uE9D5", "tracker" => "\uE80A",
+        "counter" => "\uE8EF", "checklist" or "list" => "\uE9D5", "tracker" or "distribution" => "\uE80A",
         "links" => "\uE71B", "timeline" => "\uE81C", "progress" => "\uE9D9",
         _ => "\uE70B"
     };
     internal WidgetInstance AddWidget(string kind, Point? location = null)
     {
         if (state.Widgets.Count >= 200) throw new InvalidOperationException("A Space supports up to 200 widgets.");
+        PinCurrentWidgetPositions();
         var panelKey = kind switch { "Pixel timer" => "pixels", "Session controls" => "setup", "Session timeline" => "timeline", "Hedy" => "hedy", _ => "" };
         if (state.Widgets.Any(w => w.PanelKey == panelKey)) panelKey = "";
         var widget = WidgetLibrary.Create(kind, panelKey); WidgetLibrary.Add(state, widget); PlayInterfaceSound();
-        if (location is Point point)
+        var span = DisplaySpan(widget);
+        var width = Math.Max(1, span * GridUnit - WidgetGap);
+        var height = Math.Max(widget.Height, WidgetLibrary.MinimumHeight(widget));
+        var occupied = widgetFrames.Values.Select(FrameRect).ToArray();
+        bool Free(Rect candidate) => !(PixelObstacle is { } timer && PlacementOverlaps(timer, candidate)) &&
+            !occupied.Any(rect => PlacementOverlaps(rect, candidate));
+        var preferred = location is Point point ? new Rect(Math.Clamp(Math.Round(point.X / GridUnit), 0, 20 - span) * GridUnit,
+            Math.Max(0, Math.Round(point.Y / RowUnit) * RowUnit), width, height) : Rect.Empty;
+        var target = location != null && Free(preferred) ? preferred : Rect.Empty;
+        if (target.IsEmpty)
         {
-            var minimum=MinimumWidthSteps(widget);
-            var column=Math.Clamp((int)Math.Round(point.X/GridUnit),0,20-minimum);
-            widget.Span=Math.Clamp(widget.Span,minimum,20-column);
-            widget.PlacementX=column*GridUnit/Math.Max(1,WidgetCanvas.ActualWidth); widget.PlacementY=Math.Max(0,Math.Round(point.Y/RowUnit)*RowUnit);
+            var last = Math.Max(WidgetCanvas.ActualHeight, occupied.Select(r => r.Bottom).DefaultIfEmpty(0).Max());
+            for (var row = 0; row <= Math.Ceiling((last + height + WidgetGap) / RowUnit) && target.IsEmpty; row++)
+                for (var column = 0; column <= 20 - span; column++)
+                {
+                    var candidate = new Rect(column * GridUnit, row * RowUnit, width, height);
+                    if (Free(candidate)) { target = candidate; break; }
+                }
         }
+        widget.PlacementX = target.X / Math.Max(1, WidgetCanvas.ActualWidth);
+        widget.PlacementY = target.Y;
+        widget.Column = Math.Clamp((int)Math.Round(target.X / GridUnit), 0, 20 - span);
+        widget.Row = Math.Clamp((int)Math.Round(target.Y / RowUnit), 0, 30000);
         Changed(); RenderWidgets(); WidgetCanvas.UpdateLayout();
-        if(location is Point target && widgetFrames.ContainsKey(widget.Id)) { CommitWidgetDrop(widget,target.X,Math.Max(0,Math.Round(target.Y/RowUnit)*RowUnit),preserveAnchor:true); ArrangeWidgetFrames(); }
-        else SaveNow(); return widget;
+        SaveNow(); return widget;
     }
     internal WidgetInstance DuplicateWidget(WidgetInstance source)
     {
+        PinCurrentWidgetPositions();
         var clone = Continuity.Clone(source); clone.Id = Guid.NewGuid(); clone.PanelKey = ""; clone.Title += " copy";
         if (source.PanelKey == "notes") clone.Text = state.Notes;
         if (source.PanelKey == "tasks") clone.Items = Continuity.Clone(state.Tasks);
-        WidgetLibrary.Add(state, clone); Changed(); RenderWidgets(); SaveNow(); return clone;
+        WidgetLibrary.Add(state, clone);
+        clone.PlacementX = 0;
+        clone.PlacementY = Math.Ceiling((Math.Max(PixelObstacle?.Bottom ?? 0,
+            widgetFrames.Values.Select(frame => FrameRect(frame).Bottom).DefaultIfEmpty(0).Max()) + WidgetGap) / RowUnit) * RowUnit;
+        clone.Column = 0; clone.Row = (int)Math.Round(clone.PlacementY / RowUnit);
+        Changed(); RenderWidgets(); SaveNow(); return clone;
     }
     private void RemoveWidget(WidgetInstance widget)
     {
@@ -876,6 +957,7 @@ public partial class MainWindow
     }
     internal void RemoveWidgetConfirmed(WidgetInstance widget)
     {
+        PinCurrentWidgetPositions();
         if (!SaveNow()) return;
         var removed=new RemovedWidget(Continuity.Clone(widget),state.Widgets.IndexOf(widget),state.Workspace!.ActiveDashboardId);
         var candidate = CopyWorkspaceState().Workspace!; var d = Continuity.Current(candidate, store.UserId);
@@ -886,6 +968,7 @@ public partial class MainWindow
     }
     private void ConfigureWidget(WidgetInstance widget)
     {
+        if (widget.Kind == "Distribution Tracker") { ManageDistribution(widget); RenderWidgets(); return; }
         var dialog = Dialog("Nexa · Configure " + widget.Title, 560, 760); var panel = new StackPanel { Margin = new Thickness(24) };
         TextBox Field(string label, string value) { panel.Children.Add(new TextBlock { Text = label, Margin = new Thickness(0, 12, 0, 6) }); var box = new TextBox { Text = value }; panel.Children.Add(box); return box; }
         var title = Field("Widget title", widget.Title); var placeholder = Field("Placeholder / hint", widget.Placeholder);
@@ -910,6 +993,16 @@ public partial class MainWindow
         TextBox? increment = null, starting = null, minutes = null, categories = null, fields = null;
         var seconds = new CheckBox { Content = "Show seconds", IsChecked = widget.ShowSeconds, Margin = new Thickness(0, 12, 0, 0) };
         var elapsed = new CheckBox { Content = "Show elapsed time", IsChecked = widget.ShowElapsed, Margin = new Thickness(0, 10, 0, 0) };
+        CheckBox? linked=null;DatePicker? progressStartDate=null,progressEndDate=null;ClockPicker? progressStartTime=null,progressEndTime=null;
+        if(type=="progress" && widget.PanelKey!="pixels")
+        {
+            linked=new CheckBox{Content="Use current session timing",IsChecked=widget.ProgressLinkedToSession,Margin=new Thickness(0,14,0,8)};panel.Children.Add(linked);
+            var custom=new StackPanel{IsEnabled=!widget.ProgressLinkedToSession};panel.Children.Add(custom);
+            var from=NexaTime.Local(widget.TimerStart??DateTimeOffset.UtcNow,Options.TimeZoneId);var to=NexaTime.Local(widget.TimerEnd??DateTimeOffset.UtcNow.AddHours(1),Options.TimeZoneId);
+            progressStartDate=new DatePicker{SelectedDate=from.Date};progressEndDate=new DatePicker{SelectedDate=to.Date};progressStartTime=new ClockPicker{Value=from.TimeOfDay};progressEndTime=new ClockPicker{Value=to.TimeOfDay};
+            custom.Children.Add(new TextBlock{Text="Independent start"});custom.Children.Add(progressStartDate);custom.Children.Add(progressStartTime);custom.Children.Add(new TextBlock{Text="Independent end"});custom.Children.Add(progressEndDate);custom.Children.Add(progressEndTime);
+            linked.Checked+=(_,_)=>custom.IsEnabled=false;linked.Unchecked+=(_,_)=>custom.IsEnabled=true;
+        }
         if (type == "counter") { increment = Field("Increment", widget.Increment.ToString()); starting = Field("Starting value (used on reset)", widget.StartingValue.ToString()); }
         if (type == "timer") { panel.Children.Add(new TextBlock { Text = "Set hours, minutes and seconds directly on the Timer widget.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 0) }); panel.Children.Add(seconds); panel.Children.Add(elapsed); }
         if (type == "tracker") { categories = Field("Categories (one per line)", string.Join("\n", widget.Categories)); categories.AcceptsReturn = true; categories.Height = 100; fields = Field("Custom fields (one per line)", string.Join("\n", widget.Fields)); fields.AcceptsReturn = true; fields.Height = 100; }
@@ -923,6 +1016,13 @@ public partial class MainWindow
             if (increment != null && (!decimal.TryParse(increment.Text, out var step) || step == 0)) { error.Text = "Increment must be a nonzero number."; return; }
             if (starting != null && !decimal.TryParse(starting.Text, out _)) { error.Text = "Starting value must be a number."; return; }
             if (minutes != null && !InputRules.ValidMinutes(minutes.Text, out _)) { error.Text = "Duration must be between 1 and 10,080 minutes."; return; }
+            if(linked!=null)
+            {
+                var from=NexaTime.Instant((progressStartDate!.SelectedDate??DateTime.Today)+progressStartTime!.Value,Options.TimeZoneId);var to=NexaTime.Instant((progressEndDate!.SelectedDate??DateTime.Today)+progressEndTime!.Value,Options.TimeZoneId);
+                if(linked.IsChecked!=true && to<=from){error.Text="Independent end must follow start.";return;}
+                widget.ProgressLinkedToSession=linked.IsChecked==true;
+                if(!widget.ProgressLinkedToSession){widget.TimerStart=from;widget.TimerEnd=to;widget.TimerStopped=null;}
+            }
             widget.Title = title.Text.Trim(); widget.Placeholder = placeholder.Text;
             if (increment != null) { widget.Increment = decimal.Parse(increment.Text); widget.StartingValue = decimal.Parse(starting!.Text); }
             if (type == "timer") { widget.ShowSeconds = seconds.IsChecked == true; widget.ShowElapsed = elapsed.IsChecked == true; }

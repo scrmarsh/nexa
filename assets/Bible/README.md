@@ -11,7 +11,7 @@ Rebuild the indexes on a development machine:
 ```powershell
 uv run --with pymupdf python tools/extract_bibles.py
 uv run --with pymupdf python tools/inspect_bibles.py
-dotnet run --project tests/SessionDashboard.Checks.csproj -c Release -- --bible
+dotnet run --project SessionDashboard.csproj -c Release -- --verify-startup verification/bible-startup
 ```
 
 The extraction script checks chapter coverage and duplicate addresses, and writes a cross-edition numbering audit to `test-output/bible-source/audit.json`. The inspection script renders sample source pages and exports passage text for visual comparison. PyMuPDF is a development-only extraction dependency; the Windows app reads the embedded indexes using .NET and works offline.

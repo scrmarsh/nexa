@@ -15,20 +15,21 @@ public partial class MainWindow
     {
         var selected = days.ToHashSet(); foreach (var pair in sessionDayChecks) pair.Value.IsChecked = selected.Contains(pair.Key);
     }
-    private void SessionTimeEditClick(object sender, RoutedEventArgs e)
+    private void SessionTimeEditClick(object sender, RoutedEventArgs e) => OpenClassSchedule();
+    private void EditOneTimeTarget(object sender, RoutedEventArgs e)
     {
         if (sessionEditor != null) { sessionEditor.Activate(); return; }
         var dialog = Dialog("Nexa · Pixel Timer", 390, 300);
         sessionEditor = dialog;
         var content = new StackPanel { Margin = new Thickness(24) };
         content.Children.Add(new TextBlock { Text = "When should this session end?", FontSize = 19, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 16) });
-        var initial = state.Session?.End.LocalDateTime ?? state.Draft.EndDate.AddMinutes(state.Draft.EndMinutes);
+        var initial = (state.Session is { } initialSession ? NexaTime.Local(initialSession.End, Options.TimeZoneId).DateTime : (DateTime?)null) ?? state.Draft.EndDate.AddMinutes(state.Draft.EndMinutes);
         var date = new DatePicker { SelectedDate = initial.Date, Margin = new Thickness(0, 0, 0, 10) };
         var time = new TextBox { Text = initial.ToString("h:mm tt", CultureInfo.CurrentCulture), Margin = new Thickness(0, 0, 0, 12) };
         content.Children.Add(new TextBlock { Text = "Date" }); content.Children.Add(date);
         content.Children.Add(new TextBlock { Text = "Time" }); content.Children.Add(time);
         var today = new Button { Content = "Use Today's Date", Style = (Style)FindResource("PrimaryButton"), HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 14) };
-        today.Click += (_, _) => { var target = SuggestedPixelTarget(DateTime.Now); date.SelectedDate = target.Date; time.Text = target.ToString("h:mm tt", CultureInfo.CurrentCulture); };
+        today.Click += (_, _) => { var target = SuggestedPixelTarget(NexaTime.Local(DateTimeOffset.UtcNow, Options.TimeZoneId).DateTime); date.SelectedDate = target.Date; time.Text = target.ToString("h:mm tt", CultureInfo.CurrentCulture); };
         content.Children.Add(today);
         var status = new TextBlock { Foreground = Brush("MutedBrush"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) }; content.Children.Add(status);
         var apply = new Button { Content = "Set target", HorizontalAlignment = HorizontalAlignment.Left };
@@ -36,11 +37,12 @@ public partial class MainWindow
         {
             if (date.SelectedDate == null || !DateTime.TryParse(time.Text, CultureInfo.CurrentCulture, DateTimeStyles.NoCurrentDateDefault, out var parsed)) { status.Text = "Choose a valid date and time."; return; }
             var target = date.SelectedDate.Value.Date + parsed.TimeOfDay;
-            if (TimeZoneInfo.Local.IsInvalidTime(target) || target <= DateTime.Now) { status.Text = "Choose a future local time."; return; }
+            if (NexaTime.Zone(Options.TimeZoneId).IsInvalidTime(target) || NexaTime.Instant(target, Options.TimeZoneId) <= DateTimeOffset.UtcNow) { status.Text = "Choose a future local time."; return; }
             if (state.Session is { } session)
             {
-                if (target <= session.Start.LocalDateTime || target > session.Start.LocalDateTime.AddDays(7)) { status.Text = "Target must be after session start and within seven days."; return; }
-                session.End = new DateTimeOffset(target);
+                if (NexaTime.Instant(target, Options.TimeZoneId) <= session.Start || NexaTime.Instant(target, Options.TimeZoneId) > session.Start.AddDays(7)) { status.Text = "Target must be after session start and within seven days."; return; }
+                WeeklySchedule.ChangeTimeZone(session, session.ScheduleTimeZoneId ?? session.TimeZoneId);
+                session.End = NexaTime.Instant(target, Options.TimeZoneId);
                 session.ConfiguredDurationMinutes = (session.End - session.Start).TotalMinutes;
                 session.ReachedMilestones.Clear(); Milestones.Collect(session, DateTimeOffset.Now);
                 BuildTimeline(); UpdateClock();
@@ -115,17 +117,20 @@ public partial class MainWindow
         { Error("Enter both dates and valid start and end times."); return false; }
         var start = StartDate.SelectedDate.Value.Date + startTime.TimeOfDay;
         var end = EndDate.SelectedDate.Value.Date + endTime.TimeOfDay;
-        if (TimeZoneInfo.Local.IsInvalidTime(start) || TimeZoneInfo.Local.IsInvalidTime(end))
+        if (NexaTime.Zone(Options.TimeZoneId).IsInvalidTime(start) || NexaTime.Zone(Options.TimeZoneId).IsInvalidTime(end))
         { Error("Choose a time outside the daylight-saving clock change."); return false; }
         var selectedDays = SelectedSessionDays();
         if (selectedDays.Count == 0) { Error("Choose at least one day for this session."); return false; }
-        var proposed = new Session { Title = TitleInput.Text.Trim(), Start = new DateTimeOffset(start), End = new DateTimeOffset(end), IntervalMinutes = interval, ScheduledDays = selectedDays, ConfiguredDurationMinutes = (end - start).TotalMinutes };
+        var proposed = new Session { Title = TitleInput.Text.Trim(), Start = NexaTime.Instant(start, Options.TimeZoneId), End = NexaTime.Instant(end, Options.TimeZoneId), TimeZoneId = Options.TimeZoneId, IntervalMinutes = interval, ScheduledDays = selectedDays, ConfiguredDurationMinutes = (end - start).TotalMinutes };
         if (!InputRules.ValidSession(proposed) || proposed.End <= DateTimeOffset.Now)
         { Error("End must be in the future, after start, and within 7 days of start."); return false; }
         if (state.Session == null) { BeginSession(proposed); return state.Session != null; }
         // Change timestamps in place: identity, transcripts and interval notes survive.
         state.Session.Title = proposed.Title; state.Session.Start = proposed.Start; state.Session.End = proposed.End;
         state.Session.IntervalMinutes = interval; state.Session.StoppedAt = null; state.Session.ScheduledDays = selectedDays; state.Session.ConfiguredDurationMinutes = proposed.ConfiguredDurationMinutes;
+        state.Session.TimeZoneId = NexaTime.Zone(Options.TimeZoneId).Id; state.Session.ScheduleTimeZoneId = Options.TimeZoneId;
+        state.Session.RecurringStartMinutes = (int)start.TimeOfDay.TotalMinutes; state.Session.RecurringEndMinutes = (int)end.TimeOfDay.TotalMinutes;
+        state.Session.RecurringEndDayOffset = (end.Date - start.Date).Days;
         state.Session.ReachedMilestones.Clear(); Milestones.Collect(state.Session, DateTimeOffset.Now);
         completionDismissed = false; flashUntil = DateTimeOffset.MinValue;
         if (hedy != null && !string.IsNullOrWhiteSpace(state.Session.HedySessionId)) hedyTimer.Start();

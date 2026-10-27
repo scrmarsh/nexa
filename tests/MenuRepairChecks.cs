@@ -30,8 +30,10 @@ internal static partial class Program
         var parent = new SettingsDialog(home, store, home.Saved, null, "Appearance"); parent.ShowDismissible(); Pump(TimeSpan.FromMilliseconds(100));
         var child = new NexaPanel { Owner = parent, Title = "Nested menu", Width = 400, Height = 280, Content = new TextBlock { Text = "Nested" } };
         child.ShowDismissible(); Pump(TimeSpan.FromMilliseconds(100));
+        Console.WriteLine($"Nested menu before outside click: parent visible={parent.IsVisible}, child visible={child.IsVisible}");
         var nestedClick = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) { RoutedEvent = UIElement.PreviewMouseLeftButtonDownEvent };
         home.RaiseEvent(nestedClick); Pump(TimeSpan.FromMilliseconds(230));
+        Console.WriteLine($"Nested menu after outside click: handled={nestedClick.Handled}, parent visible={parent.IsVisible}, child visible={child.IsVisible}, parent closing={parent.DismissalInProgress}, child closing={child.DismissalInProgress}");
         Assert(nestedClick.Handled && !child.IsVisible && parent.IsVisible, "Outside click closes only the topmost nested menu");
         home.RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) { RoutedEvent = UIElement.PreviewMouseLeftButtonDownEvent });
         Pump(TimeSpan.FromMilliseconds(230)); Assert(!parent.IsVisible, "Next outside click closes the remaining menu");

@@ -1,0 +1,82 @@
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Threading;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
+
+namespace SessionDashboard;
+
+internal sealed class NexaNotifications : IDisposable
+{
+    private sealed record Entry(Border Card, TextBlock Glyph, string Message, DateTimeOffset? Until, int Priority);
+    private readonly StackPanel stack = new() { VerticalAlignment = VerticalAlignment.Bottom, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(18, 18, 18, 84), Width = 330 };
+    private readonly StackPanel leftStack=new(){VerticalAlignment=VerticalAlignment.Bottom,HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(18,18,18,84),Width=330};
+    private readonly ScrollViewer leftViewport=new(){HorizontalAlignment=HorizontalAlignment.Left,VerticalAlignment=VerticalAlignment.Bottom,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};
+    private static bool LeftSide(string key)=>key is "autosave" or "manual-save";
+    private readonly Dictionary<string, Entry> entries = [];
+    private readonly DispatcherTimer expiry = new() { Interval = TimeSpan.FromMilliseconds(250) };
+    private readonly Grid owner;
+    private readonly Func<bool> motionAllowed;
+    private readonly ScrollViewer viewport = new() { HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Bottom, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Margin = new Thickness(0) };
+    internal NexaNotifications(Grid owner, Func<bool>? motionAllowed = null)
+    {
+        this.motionAllowed=motionAllowed ?? (()=>SystemParameters.ClientAreaAnimation);
+        this.owner = owner; viewport.Content = stack; Panel.SetZIndex(viewport, 90); owner.Children.Add(viewport);leftViewport.Content=leftStack;Panel.SetZIndex(leftViewport,90);owner.Children.Add(leftViewport);
+        owner.SizeChanged += Resize; Resize(null, null);
+        expiry.Tick += Tick; expiry.Start();
+    }
+    private void Resize(object? sender, SizeChangedEventArgs? e)
+    { stack.Width = leftStack.Width = Math.Max(120, Math.Min(350, (owner.ActualWidth - 54)/2)); viewport.MaxHeight = leftViewport.MaxHeight = Math.Max(100, owner.ActualHeight - 146); }
+    internal void Dismiss(string key)
+    { if (entries.Remove(key, out var entry)) { entry.Glyph.RenderTransform.BeginAnimation(RotateTransform.AngleProperty, null); entry.Glyph.BeginAnimation(UIElement.OpacityProperty,null); stack.Children.Remove(entry.Card);leftStack.Children.Remove(entry.Card); } }
+    internal void Show(string key, string message, string icon = "ℹ", int priority = 0, double? seconds = 5, Action? action = null, string? actionLabel = null)
+    {
+        Dismiss(key);
+        var body = new DockPanel();
+        var dismiss = new Button { Content = "×", Focusable = false, Padding = new Thickness(5, 1, 5, 1), VerticalAlignment = VerticalAlignment.Top, ToolTip = "Dismiss notification" };
+        dismiss.Click += (_, _) => Dismiss(key); DockPanel.SetDock(dismiss, Dock.Right); body.Children.Add(dismiss);
+        var glyph = new TextBlock { Text = icon, Foreground = key == "tip" ? new SolidColorBrush(Color.FromRgb(250, 204, 21)) : priority >= 2 ? Brushes.Orange : Brushes.LightGreen, FontSize = 20, Margin = new Thickness(0, 0, 10, 0) };
+        glyph.RenderTransformOrigin = new Point(.5, .5); glyph.RenderTransform = new RotateTransform();
+        ConfigureGlyph(key,glyph,message);
+        DockPanel.SetDock(glyph, Dock.Left); body.Children.Add(glyph);
+        var content = new StackPanel();
+        var text = new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap };
+        text.SetResourceReference(TextBlock.ForegroundProperty, "TextBrush");
+        System.Windows.Automation.AutomationProperties.SetLiveSetting(text, System.Windows.Automation.AutomationLiveSetting.Polite);
+        content.Children.Add(text);
+        if (action != null)
+        {
+            var button = new Button { Content = actionLabel ?? "Review", Focusable = false, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 0) };
+            button.Click += (_, _) => action(); content.Children.Add(button);
+        }
+        body.Children.Add(content);
+        var card = new Border { Child = body, Padding = new Thickness(13), Margin = new Thickness(0, 6, 0, 0), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10) };
+        card.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); card.SetResourceReference(Border.BorderBrushProperty, "LineBrush");
+        if(key=="tip" && action!=null)card.MouseLeftButtonUp+=(_,e)=>{if(e.OriginalSource is not Button){action();e.Handled=true;}};
+        entries[key] = new(card, glyph, message, seconds is { } duration ? DateTimeOffset.UtcNow.AddSeconds(duration) : null, priority);
+        while (entries.Count > 5)
+        {
+            var drop = entries.Where(p => p.Key != key && p.Value.Priority < 2).OrderBy(p => p.Value.Priority).FirstOrDefault();
+            if (drop.Key == null) break; Dismiss(drop.Key);
+        }
+        stack.Children.Clear();leftStack.Children.Clear();
+        foreach(var pair in entries.OrderBy(p=>p.Value.Priority))(LeftSide(pair.Key)?leftStack:stack).Children.Add(pair.Value.Card);
+    }
+    private void ConfigureGlyph(string key,TextBlock glyph,string message)
+    {
+        glyph.RenderTransform.BeginAnimation(RotateTransform.AngleProperty,null);glyph.BeginAnimation(UIElement.OpacityProperty,null);glyph.Opacity=1;glyph.Effect=null;
+        if(!motionAllowed())return;
+        if(key=="autosave" && message=="Autosaving...")glyph.RenderTransform.BeginAnimation(RotateTransform.AngleProperty,new DoubleAnimation(0,360,TimeSpan.FromSeconds(1)){RepeatBehavior=RepeatBehavior.Forever});
+        if(key=="tip")
+        {
+            glyph.Effect=new DropShadowEffect{Color=Color.FromRgb(250,204,21),BlurRadius=8,ShadowDepth=0,Opacity=.4};
+            glyph.BeginAnimation(UIElement.OpacityProperty,new DoubleAnimation(.65,1,TimeSpan.FromSeconds(1.6)){AutoReverse=true,RepeatBehavior=RepeatBehavior.Forever});
+        }
+    }
+    internal void ReconcileMotion(){foreach(var pair in entries)ConfigureGlyph(pair.Key,pair.Value.Glyph,pair.Value.Message);}
+    private void Tick(object? sender, EventArgs e)
+    { foreach (var key in entries.Where(p => p.Value.Until <= DateTimeOffset.UtcNow).Select(p => p.Key).ToArray()) Dismiss(key); }
+    public void Dispose()
+    { expiry.Stop(); expiry.Tick -= Tick; owner.SizeChanged -= Resize; owner.Children.Remove(viewport);owner.Children.Remove(leftViewport); foreach (var key in entries.Keys.ToArray()) Dismiss(key); }
+}

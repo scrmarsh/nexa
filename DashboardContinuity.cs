@@ -21,6 +21,9 @@ public sealed class DashboardDraft
 
 public sealed class WorkspaceDocument
 {
+    public NexaOptions Settings { get; set; } = new();
+    public long AllTimeSquashes { get; set; }
+    public long AllTimeProductivityScore { get; set; }
     public int FormatVersion { get; set; } = 2;
     public string UserId { get; set; } = "";
     public Guid ActiveDashboardId { get; set; }
@@ -42,6 +45,15 @@ public sealed class DashboardRecord
 
 public sealed class DashboardSession
 {
+    public Guid? PresetId { get; set; }
+    public string PresetName { get; set; } = "";
+    public string TimeZoneId { get; set; } = "Automatic";
+    public DateTimeOffset? ScheduledStart { get; set; }
+    public DateTimeOffset? ScheduledEnd { get; set; }
+    public DateTimeOffset? CompletedCheckpointAt { get; set; }
+    public DateTimeOffset? ResetForStart { get; set; }
+    public DateTimeOffset? ResetPostponedFor { get; set; }
+    public bool ResetDeferred { get; set; }
     public Guid SessionId { get; set; } = Guid.NewGuid();
     public Guid DashboardId { get; set; }
     public string UserId { get; set; } = "";
@@ -121,7 +133,17 @@ public static class Continuity
     {
         state.Workspace ??= Migrate(state, userId);
         var session = Current(state.Workspace, userId).Current;
-        session.Data = Capture(state); session.UpdatedAt = now;
+        var priorAwards=session.Data.Productivity.Events.Select(e=>e.Id).ToHashSet();
+        ProductivityScoring.Observe(session.Data, state, now,state.Workspace.Settings);
+        state.Workspace.AllTimeProductivityScore += state.Productivity.Events.Where(e=>!priorAwards.Contains(e.Id)).Sum(e=>e.BasePoints+e.BonusPoints);
+        if (session.ScheduledStart == null && session.PresetName.Length == 0)
+        {
+            session.PresetId = state.Draft.SelectedPresetId;
+            session.PresetName = state.Presets.FirstOrDefault(p => p.Id == session.PresetId)?.Name ?? state.Session?.Title ?? "";
+        }
+        session.TimeZoneId = state.Session?.TimeZoneId ?? state.Workspace.Settings.TimeZoneId;
+        session.ScheduledStart = state.Session?.Start; session.ScheduledEnd = state.Session?.End;
+        session.Data = Capture(state); session.UpdatedAt = now.ToUniversalTime();
         session.Title = state.Session?.Title ?? state.Draft.Title;
         // Only current sessions retain crash-recovery generations; history is a single immutable state.
         session.Snapshots.Add(new() { SavedAt = now, Data = Clone(session.Data) });
@@ -143,7 +165,7 @@ public static class Continuity
     public static DashboardData ConfigurationOnly(DashboardData source)
     {
         var data = Clone(source);
-        data.Session = null; data.Notes = ""; data.Tasks.Clear();
+        data.Session = null; data.Notes = ""; data.Tasks.Clear(); data.Productivity = new();
         data.StoryNode = "arrival"; data.StoryHistory.Clear(); data.StoryEndings.Clear();
         foreach (var widget in data.Widgets) WidgetLibrary.ClearContent(widget);
         // Draft titles and dates can contain private meeting information, so exports use defaults.
@@ -157,7 +179,7 @@ public static class Continuity
     }
     public static void Reset(DashboardRecord dashboard)
     {
-        var blank = ConfigurationOnly(dashboard.Current.Data);
+        var blank = WeeklySchedule.ResetSessionData(dashboard.Current.Data);
         blank.Draft.Title = dashboard.Name;
         Archive(dashboard, true);
         dashboard.Current = NewSession(dashboard, blank);
@@ -273,8 +295,16 @@ public static class Continuity
             throw new InvalidDataException("Dashboard data contains missing or invalid values.");
         if (data.Session is { } s && (!InputRules.ValidSession(s) || s.IntervalNotes == null || s.HedyIntervalNotes == null || s.IntervalSummaries == null || s.ReachedMilestones == null || s.HedyTranscript == null || s.HedyBaseline == null))
             throw new InvalidDataException("Dashboard timer or interval notes are invalid.");
+        if (data.Session is { } recurrence && (recurrence.RecurringStartMinutes is < 0 or > 1439 || recurrence.RecurringEndMinutes is < 0 or > 1439 || recurrence.RecurringEndDayOffset is < 0 or > 7)) throw new InvalidDataException("Invalid recurrence clock values.");
         if (data.Session is { } session && (session.TimelineEntries == null || session.TimelineEntries.Count > 10000 || session.TimelineEntries.Any(e => e == null || e.Id == Guid.Empty || e.Text == null || e.Source == null || e.AudioPath == null || e.Text.Length > 1000000 || e.Source.Length > 100 || e.AudioPath.Length > 32768)))
             throw new InvalidDataException("Session timeline entries are invalid.");
+        if (data.Productivity == null || data.Productivity.Events == null || data.Productivity.CounterHighWater == null ||
+            !double.IsFinite(data.Productivity.FrenzyMultiplier) || data.Productivity.FrenzyMultiplier is < 1 or > 10 || data.Productivity.Events.Count > 10000 || data.Productivity.Events.Any(e => e == null || e.Key == null || e.Category == null || e.Description == null || e.BasePoints is < -1000 or > 1000 || e.BonusPoints is < 0 or > 9000 || e.BasePoints<0 && (e.Category is not ("Distraction" or "Alcohol") || e.BonusPoints!=0)) ||
+            data.Productivity.Events.Select(e => e.Id).Distinct().Count() != data.Productivity.Events.Count)
+            throw new InvalidDataException("Invalid productivity activity.");
+        if (data.Widgets == null || data.Widgets.Any(w => w == null || w.IntegrationSnapshots == null || w.HiddenProductivityCategories == null || w.HiddenProductivityCategories.Count > 100 ||
+            w.IntegrationSnapshots.Count > 12 || w.IntegrationSnapshots.Any(s => s == null || s.Service == null || s.ListName == null || s.Fingerprint == null || s.Items == null || s.Items.Count > 200 || s.TotalItems < 0 || s.Items.Any(i => i == null || i.Id == null || i.Title == null || i.Status == null))))
+            throw new InvalidDataException("Invalid widget activity snapshots.");
         WidgetLibrary.Validate(data);
     }
     internal static bool RecoverSnapshots(WorkspaceDocument workspace, string userId)
@@ -309,6 +339,7 @@ public static class Continuity
     }
     internal static void ValidateWorkspace(WorkspaceDocument workspace, string userId)
     {
+        if (workspace.Settings == null || workspace.AllTimeSquashes < 0) throw new InvalidDataException("Invalid workspace settings.");
         if (workspace.FormatVersion != 2) throw new NotSupportedException("This workspace was saved by an unsupported version of Nexa. Use that version to open it.");
         if (workspace.UserId != userId) throw new UnauthorizedAccessException("This workspace belongs to another Windows user.");
         if (workspace.Dashboards == null || workspace.Dashboards.Count == 0 || workspace.Dashboards.Any(d => d == null) || workspace.Dashboards.Select(d => d.DashboardId).Distinct().Count() != workspace.Dashboards.Count)

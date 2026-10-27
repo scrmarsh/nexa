@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -30,18 +30,24 @@ internal sealed partial class SettingsDialog : NexaPanel
         var root = new Grid(); root.ColumnDefinitions.Add(new() { Width = new GridLength(190) }); root.ColumnDefinitions.Add(new());
         var nav = new StackPanel { Margin = new Thickness(18) };
         nav.Children.Add(new TextBlock { Text = "\uE713", FontFamily = new FontFamily("Segoe MDL2 Assets"), FontSize = 30, Margin = new Thickness(10, 4, 0, 22), ToolTip = "Settings" });
-        var sidebar = new Border { Child = nav, BorderThickness = new Thickness(0, 0, 1, 0) };
+        var sidebar = new Border { Child = new ScrollViewer { Content = nav, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled }, BorderThickness = new Thickness(0, 0, 1, 0) };
         sidebar.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); sidebar.SetResourceReference(Border.BorderBrushProperty, "LineBrush"); root.Children.Add(sidebar);
         host.Margin = new Thickness(30, 24, 30, 28); Grid.SetColumn(host, 1); root.Children.Add(host);
         sessionWasActive = HasCurrentSession;
-        AddPage(nav, "Appearance", BuildAppearance());
-        if (this.space != null) AddPage(nav, "Session", BuildSession());
-        AddPage(nav, "Widgets", BuildWidgetPreferences()); AddPage(nav, "Profile", BuildProfile());
-        nav.Children.Add(new Border { Height = 1, Margin = new Thickness(8, 15, 8, 18), Background = Brush("LineBrush") });
-        nav.Children.Add(new TextBlock { Text = "Experimental Features", Foreground = Brush("MutedBrush"), FontSize = 12, FontWeight = FontWeights.SemiBold, Margin = new Thickness(12, 0, 0, 12) });
-        AddPage(nav, "Account & Data", ComingSoon("Account & Data", "Optional account and data tools are in development. Import and export commands remain available from a Space."));
-        AddPage(nav, "Integrations", BuildIntegrations());
-        AddPage(nav, "Updates", BuildUpdates());
+        SessionInterface=initialSection is "Session" or "Tips";
+        if(SessionInterface)
+        {
+            AddPage(nav,"Session",BuildSession());
+            AddPage(nav,"Time Zone & Clock",BuildTimeZoneClock());
+        }
+        else
+        {
+            AddPage(nav,"Appearance",NexaSeason.Active(ReliabilityOptions,DateTimeOffset.UtcNow)?AppearanceExplanation():BuildAppearance());
+            AddPage(nav,"Sounds",BuildSounds());AddPage(nav,"Time Zone & Clock",BuildTimeZoneClock());
+            AddPage(nav,"Widgets",BuildWidgetPreferences());AddPage(nav,"Profile",BuildProfile());
+            AddPage(nav,"Integrations",BuildIntegrations());AddPage(nav,"Updates",BuildUpdates());AddPage(nav,"Add Bugs",BuildBugs());
+            AddPage(nav,"Account & Data",ComingSoon("Account & Data","Optional account tools are in development. Local import/export remains available."));
+        }
         Content = root; SelectSection(initialSection);
         InitializeAutosave();
         sessionStatusTimer.Tick += (_, _) =>
@@ -65,17 +71,19 @@ internal sealed partial class SettingsDialog : NexaPanel
     private void AddPage(Panel nav, string name, UIElement page)
     {
         pages[name] = page; var tab = new Button { Content = name, HorizontalContentAlignment = HorizontalAlignment.Left, Padding = new Thickness(12, 10, 12, 10), Margin = new Thickness(0, 0, 0, 8), BorderThickness = new Thickness(0) };
-        tab.Click += (_, _) => SelectSection(name); tabs[name] = tab; nav.Children.Add(tab);
+        tab.Click += (_, _) => {if(name=="Appearance" && NexaSeason.Active(ReliabilityOptions,DateTimeOffset.UtcNow)){ExplainLockedAppearance();return;}SelectSection(name);}; if(name=="Appearance" && NexaSeason.Active(ReliabilityOptions,DateTimeOffset.UtcNow))tab.Opacity=.42; tabs[name] = tab; nav.Children.Add(tab);
     }
     internal void SelectSection(string name)
     {
         if (!FlushPendingChanges()) return;
+        var tips=name=="Tips";if(tips)name="Session";
         var hedy=name=="Hedy"; if(hedy) name="Integrations";
-        if(!pages.ContainsKey(name)) name="Appearance";
+        if(!pages.ContainsKey(name)) name=SessionInterface?"Session":"Appearance";
         if (!pages.TryGetValue(name, out var page)) return;
         host.Content = page;
         if (name == "Session") sessionStatusPage = page;
         foreach (var pair in tabs) { pair.Value.SetResourceReference(Control.BackgroundProperty, pair.Key == name ? "AccentBrush" : "PanelBrush"); pair.Value.SetResourceReference(Control.ForegroundProperty, pair.Key == name ? "BackgroundBrush" : "TextBrush"); }
+        if(tips)FocusTips();
         if(hedy) Dispatcher.BeginInvoke(new Action(()=> { hedySettingsSection?.BringIntoView(); hedySettingsSection?.Focus(); }));
     }
     private StackPanel Page(string title, string hint)
@@ -93,25 +101,27 @@ internal sealed partial class SettingsDialog : NexaPanel
     {
         var page = Page("Appearance", "Choose Nexa’s global light mode and app palette. Space colors and backgrounds remain independent.");
         store.LoadInteractionPreferences(state);
-        {
-            var sounds = new CheckBox { Content = "Interface sounds", IsChecked = state.InterfaceSoundsEnabled, Margin = new Thickness(0,6,0,8) };
-            var nudges = new CheckBox { Content = "Playful focus nudges after 3 minutes away (Class / Study / Focus)", IsChecked = state.FocusNudgesEnabled, Margin = new Thickness(0,6,0,8) };
-            var volume = new Slider { Minimum = 0, Maximum = 1, Value = state.InterfaceSoundVolume, Width = 220, HorizontalAlignment = HorizontalAlignment.Left };
-            sounds.Click += (_, _) => QueueSave("sounds", () => { state.InterfaceSoundsEnabled = sounds.IsChecked == true; SaveInteractionOptions(); });
-            nudges.Click += (_, _) => QueueSave("nudges", () => { state.FocusNudgesEnabled = nudges.IsChecked == true; SaveInteractionOptions(); });
-            volume.ValueChanged += (_, _) => QueueSave("volume", () => { state.InterfaceSoundVolume = volume.Value; SaveInteractionOptions(); });
-            page.Children.Add(sounds); Field(page, "Sound volume", volume); page.Children.Add(nudges);
-        }
-        var mode = new ComboBox { ItemsSource = Enum.GetValues<ThemeMode>(), SelectedItem = store.LoadThemeMode(), MinHeight = 40 }; Field(page, "Light mode", mode);
-        var theme = new ComboBox { ItemsSource = Enum.GetValues<AppTheme>(), SelectedItem = store.LoadAppTheme(), MinHeight = 40 }; Field(page, "App theme", theme);
+        var selectedMode = store.LoadThemeMode(); var selectedTheme = store.LoadAppTheme();
+        var modes = new WrapPanel(); var themes = new WrapPanel();
+        Field(page, "Light mode", modes); Field(page, "App theme", themes);
         var note = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 12, 0, 0) }; page.Children.Add(note);
         void SaveAppearance()
         {
-            if (mode.SelectedItem is not ThemeMode m || theme.SelectedItem is not AppTheme t) return;
-            Theme.Apply(Application.Current.Resources, m, t); space?.RefreshThemeViews();
-            QueueSave("appearance", () => { store.SavePreferences(m, t); note.Text = "Appearance saved."; });
+            Theme.Apply(Application.Current.Resources, selectedMode, selectedTheme); space?.RefreshThemeViews();
+            var modeToSave = selectedMode; var themeToSave = selectedTheme;
+            QueueSave("appearance", () => { store.SavePreferences(modeToSave, themeToSave); note.Text = "Appearance saved."; });
         }
-        mode.SelectionChanged += (_, _) => SaveAppearance(); theme.SelectionChanged += (_, _) => SaveAppearance();
+        void Choice(Panel group, string label, bool selected, Action choose)
+        {
+            var option = new RadioButton { Content = label, IsChecked = selected, Margin = new Thickness(0, 0, 18, 8),
+                Padding = new Thickness(4, 8, 4, 8), VerticalContentAlignment = VerticalAlignment.Center };
+            option.SetResourceReference(Control.ForegroundProperty, "TextBrush");
+            option.Checked += (_, _) => { choose(); SaveAppearance(); };
+            group.Children.Add(option);
+        }
+        foreach (var value in Enum.GetValues<ThemeMode>()) Choice(modes, value.ToString(), value == selectedMode, () => selectedMode = value);
+        foreach (var value in Enum.GetValues<AppTheme>()) Choice(themes, value.ToString(), value == selectedTheme, () => selectedTheme = value);
+        var effects=(StackPanel)BuildEffects();foreach(var child in effects.Children.Cast<UIElement>().ToArray()){effects.Children.Remove(child);page.Children.Add(child);}
         return page;
     }
     private UIElement BuildHedy()

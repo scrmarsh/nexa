@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -83,6 +83,7 @@ public partial class MainWindow
             Canvas.SetLeft(placementPreview, active.X); Canvas.SetTop(placementPreview, active.Y);
             placementPreview.Width = active.Width; placementPreview.Height = active.Height;
         }
+        RefreshSeasonalWorkspace();
     }
     private void CommitSharedResize(SharedEdge edge, int steps)
     {
@@ -122,7 +123,9 @@ public partial class MainWindow
         if (rows == null) return false;
         var top = Canvas.GetTop(widgetFrames[rows[0].Id]);
         var rowHeight = rows.Max(w => widgetFrames[w.Id].Height);
-        if (Math.Abs(center - (top + rowHeight / 2)) > Math.Max(75, rowHeight / 3)) return false;
+        // Insertion requires a deliberate drop on the row boundary, not merely
+        // passing over the middle of another card.
+        if (Math.Abs(center - (top + rowHeight / 2)) > 32) return false;
         var ordered = rows.ToList();
         // Use the pointer's requested left edge for insertion. A resized, wide card
         // must still be able to land in the first column when dropped at x = 0.
@@ -156,6 +159,7 @@ public partial class MainWindow
 
     private void UpdateWidgetDropPreview(WidgetInstance moved, double x, double y)
     {
+        RefreshSeasonalWorkspace();
         if (placementPreview == null) return;
         Rect landing; Dictionary<Guid, Rect> plan;
         if (TryPlanRowInsertion(moved, x, y, out plan, out _)) landing = plan[moved.Id];
@@ -165,6 +169,7 @@ public partial class MainWindow
             landing = new Rect(Math.Clamp(Math.Round(x / GridUnit), 0, 20 - span) * GridUnit,
                 Math.Max(0, Math.Round(y / RowUnit) * RowUnit), frame.Width, frame.Height);
             plan = StableDropPlan(moved, landing);
+            if (plan.Count == 0) landing = FrameRect(frame);
         }
         var neighbors = plan.Where(pair => pair.Key != moved.Id &&
             (pair.Value.Location - FrameRect(widgetFrames[pair.Key]).Location).Length > 1 ||
@@ -193,10 +198,9 @@ public partial class MainWindow
             // intersection moves it below the anchored banner.
             destination.Y = Math.Ceiling((pixel.Bottom + WidgetGap) / RowUnit) * RowUnit;
         }
-        var packed = new Dictionary<Guid, Rect> { [moved.Id] = destination };
-        var others = state.Widgets.Where(w => w.Id != moved.Id && widgetFrames.ContainsKey(w.Id))
-            .OrderBy(w => Canvas.GetTop(widgetFrames[w.Id])).ThenBy(w => Canvas.GetLeft(widgetFrames[w.Id]));
-        return PackWidgetFrames(others, packed);
+        if (state.Widgets.Where(w => w.Id != moved.Id && widgetFrames.ContainsKey(w.Id))
+            .Any(w => PlacementOverlaps(FrameRect(widgetFrames[w.Id]), destination))) return [];
+        return new Dictionary<Guid, Rect> { [moved.Id] = destination };
     }
 
     private void ClearWidgetDropPreview()
@@ -223,6 +227,7 @@ public partial class MainWindow
         var column = Math.Clamp((int)Math.Round(x / GridUnit), 0, 20 - span);
         var destination = new Rect(column * GridUnit, Math.Clamp(preserveAnchor ? y : Math.Round(y / RowUnit) * RowUnit, 0, 720000), frame.Width, frame.Height);
         var packed = StableDropPlan(moved, destination);
+        if (packed.Count == 0) return; // Invalid drop restores the saved position.
         StoreWidgetPositions(packed);
         Changed(); SaveNow();
     }
@@ -232,8 +237,7 @@ public partial class MainWindow
         if (widgetGestureActive || widgetFrames.Count == 0) return;
         var ordered = state.Widgets.Where(w => widgetFrames.ContainsKey(w.Id))
             .OrderBy(w => Canvas.GetTop(widgetFrames[w.Id])).ThenBy(w => Canvas.GetLeft(widgetFrames[w.Id]));
-        StoreWidgetPositions(PackWidgetFrames(ordered, []));
-        Changed(); ArrangeWidgetFrames(); SaveNow();
+        // Explicit arrangement actions may repack; ordinary edits preserve gaps.
     }
 
     private Dictionary<Guid,Rect> PackWidgetFrames(IEnumerable<WidgetInstance> widgets,Dictionary<Guid,Rect> positions)
@@ -272,18 +276,23 @@ public partial class MainWindow
         }
     }
 
+    private void PinCurrentWidgetPositions()
+    {
+        if (!state.Widgets.Any(w => w.PlacementX == null && widgetFrames.ContainsKey(w.Id))) return;
+        StoreWidgetPositions(widgetFrames.ToDictionary(pair => pair.Key, pair => FrameRect(pair.Value)));
+        Changed();
+    }
+
     private void ResizeWidgetVisual(WidgetInstance active, Rect anchor, Dictionary<Guid, Rect> original)
     {
         var occupied=new List<Rect> { anchor }; if (PixelObstacle is { } pixel) occupied.Add(pixel);
         var frame=widgetFrames[active.Id]; Canvas.SetLeft(frame,anchor.X); Canvas.SetTop(frame,anchor.Y); frame.Width=anchor.Width; frame.Height=anchor.Height;
         FitWidgetBody(frame,active);
-        foreach(var pair in original.Where(p=>p.Key!=active.Id).OrderBy(p=>p.Value.Y).ThenBy(p=>p.Value.X))
+        foreach(var pair in original.Where(p=>p.Key!=active.Id))
         {
-            var rect=pair.Value;
-            while(occupied.FirstOrDefault(r=>PlacementOverlaps(r,rect)) is var hit && hit.Width>0) rect.Y=Math.Ceiling((hit.Bottom+WidgetGap)/RowUnit)*RowUnit;
-            var other=widgetFrames[pair.Key]; Canvas.SetLeft(other,rect.X); Canvas.SetTop(other,rect.Y); occupied.Add(rect);
+            var other=widgetFrames[pair.Key]; Canvas.SetLeft(other,pair.Value.X); Canvas.SetTop(other,pair.Value.Y); occupied.Add(pair.Value);
         }
-        WidgetCanvas.Height=Math.Max(WidgetScroller.ViewportHeight,occupied.Max(r=>r.Bottom)+WidgetGap);
+        WidgetCanvas.Height=Math.Max(WidgetScroller.ViewportHeight,occupied.Max(r=>r.Bottom)+Math.Max(WidgetGap,WidgetScroller.ViewportHeight));
     }
 
     private void FitWidgetBody(Border frame,WidgetInstance widget)
@@ -291,6 +300,15 @@ public partial class MainWindow
         if(frame.Child is not StackPanel stack || stack.Children.OfType<ScrollViewer>().FirstOrDefault() is not {} body) return;
         if(body.Content is FrameworkElement content) content.MaxWidth=Math.Max(1,frame.Width-2-content.Margin.Left-content.Margin.Right);
         body.Height=Math.Max(0,frame.Height-stack.Children.OfType<FrameworkElement>().Where(c=>c!=body).Sum(c=>c.DesiredSize.Height)-2);
+        if (widget.Kind is "Water Bottle Counter" or "Alcoholic Beverage" && body.Content is StackPanel drinkPanel &&
+            drinkPanel.Children.OfType<Grid>().FirstOrDefault() is { } drinkVisual && drinkVisual.Children.OfType<DrinkArtwork>().FirstOrDefault() is { } art)
+        {
+            var preferred = widget.DisplayMode == "Compact" ? 150 : widget.DisplayMode == "Expanded" ? 260 : 210;
+            var otherHeight = drinkPanel.Children.OfType<FrameworkElement>().Where(c => c != drinkVisual).Sum(c => c.DesiredSize.Height);
+            art.Height = widget.CustomSize ? Math.Min(preferred, Math.Max(84, body.Height - drinkPanel.Margin.Top - drinkPanel.Margin.Bottom - otherHeight)) : preferred;
+        }
+        if (widget.Kind == "Distribution Tracker" && body.Content is StackPanel trackerPanel && trackerPanel.Children.OfType<ScrollViewer>().FirstOrDefault() is { } trackerScroll)
+            trackerScroll.Height = Math.Max(1, body.Height - trackerPanel.Margin.Top - trackerPanel.Margin.Bottom);
         if (widget.Kind == "Notes" && body.Content is StackPanel notesPanel && notesPanel.Children.OfType<TextBox>().FirstOrDefault() is { } notes)
             notes.Height = Math.Max(110, body.Height - notesPanel.Margin.Top - notesPanel.Margin.Bottom - 2);
         if(widget.Kind=="Bible" && body.Content is StackPanel biblePanel && biblePanel.Children.OfType<BibleReader>().FirstOrDefault() is {} reader)
@@ -310,7 +328,7 @@ public partial class MainWindow
             var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
             transform.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(0, duration) { EasingFunction = easing });
             var vertical = new DoubleAnimation(0, duration) { EasingFunction = easing };
-            vertical.Completed += (_, _) => { if (ReferenceEquals(frame.RenderTransform, transform)) frame.RenderTransform = Transform.Identity; };
+            vertical.Completed += (_, _) => { if (ReferenceEquals(frame.RenderTransform, transform)) frame.RenderTransform = Transform.Identity; RefreshSeasonalWorkspace(); };
             transform.BeginAnimation(TranslateTransform.YProperty, vertical);
         }
     }

@@ -1,0 +1,491 @@
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using SessionDashboard;
+
+internal static partial class Program
+{
+    private static int passed;
+    private static string output = "";
+    [STAThread]
+    private static int Main(string[] args)
+    {
+        output = Path.GetFullPath(Path.Combine("test-output", DateTime.Now.ToString("yyyyMMdd-HHmmss")));
+        Directory.CreateDirectory(output);
+        try
+        {
+            if(args.Contains("--nexaween-core"))
+            { var coreApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true }; coreApp.InitializeComponent(); CheckNexaweenCore(); Console.WriteLine($"PASS: {passed} Nexaween core checks. Artifacts: {output}"); coreApp.Shutdown(); return 0; }
+            if(args.Contains("--aevoria-d-perf-live"))
+            {var appD=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};appD.InitializeComponent();Theme.Apply(appD.Resources,SessionDashboard.ThemeMode.Dark,AppTheme.Nexa);SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(appD.Dispatcher));CheckDPerformanceLive();appD.Shutdown();return 0;}
+            if(args.Contains("--aevoria-d-scheduler"))
+            {var appD=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};appD.InitializeComponent();SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(appD.Dispatcher));CheckDScheduler();appD.Shutdown();return 0;}
+            if(args.Contains("--aevoria-d-matrix"))
+            {var appD=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};appD.InitializeComponent();SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(appD.Dispatcher));CheckDMatrix(args.Contains("--native"),args.Contains("--focused"));appD.Shutdown();return 0;}
+            if(args.Contains("--aevoria-d-perf"))
+            {var appD=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};appD.InitializeComponent();SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(appD.Dispatcher));CheckDPerformance();Console.WriteLine($"PASS: {passed} Aevoria D performance checks. Artifacts: {output}");appD.Shutdown();return 0;}
+            if(args.Contains("--aevoria-d-camera"))
+            {var appD=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};appD.InitializeComponent();SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(appD.Dispatcher));CheckDCameraLag();appD.Shutdown();return 0;}
+            if(args.Contains("--aevoria-d-live") || args.Contains("--aevoria-d-live-baseline"))
+            {var appD=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};appD.InitializeComponent();SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(appD.Dispatcher));CheckDLive(args.Contains("--aevoria-d-live-baseline"));Console.WriteLine($"PASS: {passed} D foreground checks. Artifacts: {output}");appD.Shutdown();return 0;}
+            if(args.Contains("--aevoria-d"))
+            {var appD=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};appD.InitializeComponent();SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(appD.Dispatcher));CheckAevoriaD();Console.WriteLine($"PASS: {passed} Aevoria D checks. Artifacts: {output}");appD.Shutdown();return 0;}
+            if(args.Contains("--aevoria-d-baseline"))
+            {var appD=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};appD.InitializeComponent();SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(appD.Dispatcher));CheckAevoriaDBaseline();appD.Shutdown();return 0;}
+            if(args.Length==2 && args[0]=="--aevoria-c-ui")
+            {var appC=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};appC.InitializeComponent();SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(appC.Dispatcher));CheckCUi(args[1]);Console.WriteLine($"PASS: {passed} Aevoria C live UI checks. Artifacts: {output}");appC.Shutdown();return 0;}
+            if(args.Contains("--aevoria-c"))
+            {var appC=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};appC.InitializeComponent();SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(appC.Dispatcher));CheckAevoriaC();Console.WriteLine($"PASS: {passed} Aevoria C checks. Artifacts: {output}");appC.Shutdown();return 0;}
+            if(args.Contains("--aevoria-c-baseline"))
+            {var appC=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};appC.InitializeComponent();SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(appC.Dispatcher));CheckExpansionBaseline();appC.Shutdown();return 0;}
+            if(args.Contains("--aevoria-b"))
+            {var appB=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};appB.InitializeComponent();SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(appB.Dispatcher));CheckAevoriaB();Console.WriteLine($"PASS: {passed} Aevoria B checks. Artifacts: {output}");appB.Shutdown();return 0;}
+            if(args.Contains("--aevoria-a"))
+            {var gameApp=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};gameApp.InitializeComponent();CheckAevoriaA();Console.WriteLine($"PASS: {passed} Aevoria foundation checks. Artifacts: {output}");gameApp.Shutdown();return 0;}
+            if(args.Contains("--civilizations024"))
+            {var civilizationApp=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};civilizationApp.InitializeComponent();CheckCivilizations024();Console.WriteLine($"PASS: {passed} functional civilization checks. Artifacts: {output}");civilizationApp.Shutdown();return 0;}
+            if(args.Contains("--cultures024"))
+            {var cultureApp=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};cultureApp.InitializeComponent();CheckCultures024();Console.WriteLine($"PASS: {passed} isolated culture/government checks. Artifacts: {output}");cultureApp.Shutdown();return 0;}
+            if(args.Contains("--political-render-audit"))
+            {var audit=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};audit.InitializeComponent();AuditPoliticalRendering();audit.Shutdown();return 0;}
+            if(args.Contains("--nations024"))
+            {
+                var nationApp=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};nationApp.InitializeComponent();CheckNations024();Console.WriteLine($"PASS: {passed} nation/territory checks. Artifacts: {output}");nationApp.Shutdown();return 0;
+            }
+            if(args.Contains("--historical-atlas"))
+            {
+                var atlasApp=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};atlasApp.InitializeComponent();CheckHistoricalAtlas();Console.WriteLine($"PASS: {passed} historical atlas checks. Artifacts: {output}");atlasApp.Shutdown();return 0;
+            }
+            if(args.Contains("--living024"))
+            {
+                var app024=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};app024.InitializeComponent();CheckLiving024();Console.WriteLine($"PASS: {passed} geography/rendering phase checks. Artifacts: {output}");app024.Shutdown();return 0;
+            }
+            if(args.Contains("--living023"))
+            {
+                var livingApp=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};livingApp.InitializeComponent();CheckLiving023();CheckBattlefield021();Console.WriteLine($"PASS: {passed} Living Worlds and shared-view checks. Artifacts: {output}");livingApp.Shutdown();return 0;
+            }
+            if(args.Contains("--hardware-audit"))
+            {
+                var auditApp=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};auditApp.InitializeComponent();CheckHardwareAudit(args.Contains("--software-only"),args.Contains("--no-webs"),args.Contains("--no-territory"),args.Contains("--foreground"),args.Contains("--linear-scaling"),!args.Contains("--legacy-render-loop"),args.Contains("--dashboard"),args.Contains("--classic"));Console.WriteLine($"Hardware audit complete. Artifacts: {output}");auditApp.Shutdown();return 0;
+            }
+            if(args.Contains("--battlefield021"))
+            {
+                var uiApp=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};uiApp.InitializeComponent();CheckBattlefield021();Console.WriteLine($"PASS: {passed} battlefield checks. Artifacts: {output}");uiApp.Shutdown();return 0;
+            }
+            if(args.Contains("--render021"))
+            {
+                var renderApp=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};renderApp.InitializeComponent();CheckRendering021();Console.WriteLine($"PASS: {passed} render checks. Artifacts: {output}");renderApp.Shutdown();return 0;
+            }
+            if(args.Contains("--war021"))
+            {
+                var app021=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};app021.InitializeComponent();
+                CheckInfinite021();Console.WriteLine($"PASS: {passed} Infinite Warfare 0.1.21 checks. Artifacts: {output}");app021.Shutdown();return 0;
+            }
+            if(args.Contains("--arcade020"))
+            {
+                var app020=new App {ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};app020.InitializeComponent();
+                CheckArcade020();Console.WriteLine($"PASS: {passed} Arcade 0.1.20 checks. Artifacts: {output}");app020.Shutdown();return 0;
+            }
+            if(args.Contains("--colony019"))
+            {
+                var warApp=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true };warApp.InitializeComponent();CheckColonyWars019();Console.WriteLine($"PASS: {passed} Colony Wars checks. Artifacts: {output}");warApp.Shutdown();return 0;
+            }
+            if(args.Contains("--calm018"))
+            {
+                var calmApp=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true };calmApp.InitializeComponent();CheckCalm018();Console.WriteLine($"PASS: {passed} calm arcade checks. Artifacts: {output}");calmApp.Shutdown();return 0;
+            }
+            if(args.Contains("--live018"))
+            {
+                var liveApp=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown, SuppressNormalStartup=true };
+                liveApp.InitializeComponent();CheckLiveCadence018();
+                Console.WriteLine($"PASS: {passed} live 0.1.18 performance checks. Artifacts: {output}");liveApp.Shutdown();return 0;
+            }
+            if(args.Contains("--release018"))
+            {
+                var releaseApp=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown, SuppressNormalStartup=true };
+                releaseApp.InitializeComponent(); CheckRelease018();
+                Console.WriteLine($"PASS: {passed} Nexa 0.1.18 checks. Artifacts: {output}"); releaseApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--arcade017"))
+            {
+                var arcadeApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                arcadeApp.InitializeComponent(); CheckArcade017();
+                Console.WriteLine($"PASS: {passed} Arcade and performance checks. Artifacts: {output}"); arcadeApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--release017"))
+            {
+                var releaseApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                releaseApp.InitializeComponent(); CheckRelease017();
+                Console.WriteLine($"PASS: {passed} Nexa 0.1.17 checks. Artifacts: {output}"); releaseApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--distribution"))
+            {
+                var distributionApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                distributionApp.InitializeComponent(); CheckDistribution();
+                Console.WriteLine($"PASS: {passed} Distribution Tracker checks. Artifacts: {output}"); distributionApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--release016"))
+            {
+                var releaseApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                releaseApp.InitializeComponent(); CheckRelease016();
+                Console.WriteLine($"PASS: {passed} Nexa 0.1.16 checks. Artifacts: {output}"); releaseApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--appearance015"))
+            {
+                var appearanceApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                appearanceApp.InitializeComponent(); CheckAppearance015();
+                Console.WriteLine($"PASS: {passed} Group 1 appearance checks. Artifacts: {output}"); appearanceApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--bugs014"))
+            {
+                var bugsApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                bugsApp.InitializeComponent(); CheckBugs014();
+                Console.WriteLine($"PASS: {passed} Add Bugs checks. Artifacts: {output}"); bugsApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--swarm013") || args.Contains("--swarm"))
+            {
+                var gameApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                gameApp.InitializeComponent(); CheckSwarm013();
+                Console.WriteLine($"PASS: {passed} Pixel Swarm 0.1.13 and appearance checks. Artifacts: {output}"); gameApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--shared012"))
+            {
+                var sharedApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                sharedApp.InitializeComponent(); CheckShared012();
+                Console.WriteLine($"PASS: {passed} shared-edge and appearance checks. Artifacts: {output}"); sharedApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--menurepair"))
+            {
+                var repairApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                repairApp.InitializeComponent(); CheckMenuRepair();
+                Console.WriteLine($"PASS: {passed} outside-dismissal / DEV checks. Artifacts: {output}"); repairApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--alpha012"))
+            {
+                var app012 = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                app012.InitializeComponent(); CheckAlpha012();
+                Console.WriteLine($"PASS: {passed} Alpha 0.1.12 widget/update checks. Artifacts: {output}"); app012.Shutdown(); return 0;
+            }
+            if(args.Contains("--dashboard012"))
+            {
+                var app012 = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                app012.InitializeComponent(); CheckDashboard012();
+                Console.WriteLine($"PASS: {passed} Alpha 0.1.12 dashboard/calendar checks. Artifacts: {output}"); app012.Shutdown(); return 0;
+            }
+            if(args.Contains("--alpha011"))
+            {
+                var stabilizationApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                stabilizationApp.InitializeComponent(); CheckAlpha011();
+                Console.WriteLine($"PASS: {passed} Alpha 0.1.11 stabilization checks. Artifacts: {output}"); stabilizationApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--alpha010"))
+            {
+                var navigationApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                navigationApp.InitializeComponent(); CheckAlpha010();
+                Console.WriteLine($"PASS: {passed} interface / navigation checks. Artifacts: {output}"); navigationApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--alpha019"))
+            {
+                var alphaApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                alphaApp.InitializeComponent(); CheckAlpha019();
+                Console.WriteLine($"PASS: {passed} Alpha versioning / session settings checks. Artifacts: {output}"); alphaApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--stability108"))
+            {
+                var stabilityApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                stabilityApp.InitializeComponent(); CheckStability108();
+                Console.WriteLine($"PASS: {passed} Nexa 1.0.8 checks. Artifacts: {output}"); stabilityApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--polish107"))
+            {
+                var polishApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                polishApp.InitializeComponent(); CheckPolish107();
+                Console.WriteLine($"PASS: {passed} Nexa 1.0.7 checks. Artifacts: {output}"); polishApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--continuityaudit"))
+            {
+                CheckContinuityModels();
+                var continuityApp=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true }; continuityApp.InitializeComponent(); CheckContinuityUi();
+                Console.WriteLine($"PASS: {passed} continuity audit checks. Artifacts: {output}"); continuityApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--directaudit"))
+            {
+                var directApp=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true }; directApp.InitializeComponent(); CheckDirectAudit();
+                Console.WriteLine($"PASS: {passed} direct-editing audit checks. Artifacts: {output}"); directApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--audit106"))
+            {
+                var auditApp=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true }; auditApp.InitializeComponent(); CheckAudit106();
+                Console.WriteLine($"PASS: {passed} targeted verification checks. Artifacts: {output}"); auditApp.Shutdown(); return 0;
+            }
+            if(args.Contains("--onboarding106"))
+            {
+                var app106=new App { ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true }; app106.InitializeComponent(); CheckOnboarding106();
+                Console.WriteLine($"PASS: {passed} onboarding / integration checks. Artifacts: {output}"); app106.Shutdown(); return 0;
+            }
+            if (args.Contains("--focus105"))
+            {
+                var focusApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                focusApp.InitializeComponent(); CheckFocus105();
+                Console.WriteLine($"PASS: {passed} Focus First checks. Artifacts: {output}"); focusApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--polish104"))
+            {
+                var polishApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                polishApp.InitializeComponent(); CheckPolish104();
+                Console.WriteLine($"PASS: {passed} focused polish checks. Artifacts: {output}");
+                polishApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--purpose"))
+            {
+                var purposeApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                purposeApp.InitializeComponent(); CheckPurposeWidgets();
+                Console.WriteLine($"PASS: {passed} purpose and inline editing checks. Artifacts: {output}");
+                purposeApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--tiling"))
+            {
+                var tileApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                tileApp.InitializeComponent(); CheckWidgetTiling();
+                Console.WriteLine($"PASS: {passed} widget tiling checks. Artifacts: {output}");
+                tileApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--sizing"))
+            {
+                var sizingApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                sizingApp.InitializeComponent(); CheckWidgetSizing();
+                Console.WriteLine($"PASS: {passed} widget sizing checks. Artifacts: {output}");
+                sizingApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--bible"))
+            {
+                var bibleApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                bibleApp.InitializeComponent(); CheckBible();
+                Console.WriteLine($"PASS: {passed} Bible checks. Artifacts: {output}");
+                bibleApp.Shutdown(); return 0;
+            }
+            if (args.Contains("--preview"))
+            {
+                var previewApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                previewApp.InitializeComponent();
+                CheckPreview();
+                Console.WriteLine($"PASS: {passed} preview checks. Artifacts: {output}");
+                previewApp.Shutdown();
+                return 0;
+            }
+            if (args.Contains("--swarmlegacy"))
+            {
+                CheckSwarmModels();
+                var swarmApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                swarmApp.InitializeComponent();
+                CheckSwarmStandalone();
+                Console.WriteLine($"PASS: {passed} Swarm checks. Artifacts: {output}");
+                swarmApp.Shutdown();
+                return 0;
+            }
+            if (args.Contains("--push104"))
+            {
+                CheckPush104Models();
+                var pushApp = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+                pushApp.InitializeComponent(); CheckPush104Ui();
+                Console.WriteLine($"PASS: {passed} Nexa 1.0.4 PUSH checks. Artifacts: {output}");
+                pushApp.Shutdown(); return 0;
+            }
+            CheckModels();
+            CheckSwarmModels();
+            CheckStoryGraph();
+            CheckRevisionModels();
+            CheckContinuityModels();
+            var app = new App { ShutdownMode = ShutdownMode.OnExplicitShutdown, SuppressNormalStartup = true };
+            app.InitializeComponent();
+            CheckDashboard();
+            CheckRevisionUi();
+            CheckContinuityUi();
+            CheckPush104Models();
+            CheckPush104Ui();
+            Console.WriteLine($"PASS: {passed} checks. Artifacts: {output}");
+            app.Shutdown();
+            return 0;
+        }
+        catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
+    }
+    private static void Assert(bool condition, string description)
+    {
+        if (!condition) throw new InvalidOperationException("FAIL: " + description);
+        passed++; Console.WriteLine("PASS: " + description);
+    }
+    private static void CheckModels()
+    {
+        var start = new DateTimeOffset(2026, 9, 30, 23, 30, 0, TimeSpan.FromHours(-5));
+        var session = new Session { Title = "Overnight", Start = start, End = start.AddHours(2), IntervalMinutes = 10 };
+        Assert(InputRules.ValidSession(session), "Overnight session is valid");
+        Assert(session.Progress(start.AddMinutes(-10)) == 0, "Future session has no elapsed progress");
+        Assert(session.Remaining(start.AddMinutes(-10)) == TimeSpan.FromMinutes(10), "Scheduled timer counts down to start");
+        Assert(session.Progress(start.AddHours(1)) == 0.5, "Progress is based on timestamps");
+        Assert(session.Elapsed(start.AddHours(1)) == TimeSpan.FromHours(1), "Elapsed time is correct");
+        Assert(session.Remaining(start.AddHours(1)) == TimeSpan.FromHours(1), "Remaining time is correct");
+        Assert(session.Progress(start.AddDays(1)) == 1 && session.Remaining(start.AddDays(1)) == TimeSpan.Zero, "Sleep or late restart clamps to completion");
+        session.StoppedAt = start.AddMinutes(30);
+        Assert(session.Progress(start.AddHours(1)) == 0.25 && !session.IsRunning(start.AddHours(1)), "Early stop freezes progress");
+        Assert(!InputRules.ValidMinutes("0", out _) && !InputRules.ValidMinutes("-5", out _) && !InputRules.ValidMinutes("1.5", out _) && !InputRules.ValidMinutes("10081", out _), "Invalid durations rejected");
+        Assert(InputRules.ValidMinutes("10080", out _) && InputRules.IsColor("#2786FF") && !InputRules.IsColor("red"), "Duration and color boundaries");
+        Assert(MainWindow.ClockText(TimeSpan.FromMilliseconds(1)) == "00:00:01" && MainWindow.ClockText(TimeSpan.FromHours(26)) == "26:00:00", "Countdown rounds up and supports over 24 hours");
+        var path = Path.Combine(output, "roundtrip.json");
+        var store = new StateStore(path);
+        var state = new AppState { Session = session, Notes = "Unicode notes: café ✓", Compact = true, Tasks = [new() { Text = "Read", Done = true }] };
+        state.Presets[0].Name = "Edited lecture";
+        store.Save(state);
+        var loaded = store.Load();
+        Assert(loaded.Presets[0].Name == "Edited lecture" && loaded.Tasks[0].Done && loaded.Notes == state.Notes && loaded.Compact, "Presets, notes, checklist and settings round-trip");
+        Assert(loaded.Session!.Start == session.Start && loaded.Session.StoppedAt == session.StoppedAt, "Session timestamps round-trip");
+        store.Save(state);
+        File.WriteAllText(path, "broken json");
+        var recovered = store.Load();
+        Assert(recovered.Notes == state.Notes && store.Warning != null, "Corrupt primary file recovers backup");
+        store.Save(recovered);
+        Assert(Directory.GetFiles(output, "roundtrip.json.recovered-*").Length == 1, "Corrupt source preserved on save");
+        var badPath = Path.Combine(output, "bad.json");
+        File.WriteAllText(badPath, "null");
+        var badStore = new StateStore(badPath);
+        Assert(badStore.Load().Presets.Count == 4 && badStore.Warning != null, "Unreadable settings safely load defaults");
+    }
+    private static IEnumerable<DependencyObject> Descendants(DependencyObject root)
+    {
+        foreach (var child in LogicalTreeHelper.GetChildren(root).OfType<DependencyObject>())
+        {
+            yield return child;
+            foreach (var nested in Descendants(child)) yield return nested;
+        }
+    }
+    private static void Click(MainWindow window, string content) => Descendants(window).OfType<Button>().First(b => Equals(b.Content, content)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+    private static void CheckDashboard()
+    {
+        var store = new StateStore(Path.Combine(output, "ui-state.json"));
+        var window = new MainWindow(store);
+        Assert(window.PixelGrid.Children.Count == 540 && window.PresetPicker.Items.Count == 4, "WPF loads 540 pixels and four presets");
+        window.TitleInput.Text = "Research session"; window.DurationInput.Text = "50"; window.IntervalInput.Text = "10";
+        Click(window, "Save as new");
+        Assert(store.Load().Presets.Any(p => p.Name == "Research session"), "Save preset button persists new preset");
+        window.DurationInput.Text = "45"; Click(window, "Update preset");
+        Assert(store.Load().Presets.Last().Minutes == 45, "Update preset button persists edits");
+        Click(window, "Start now");
+        Assert(window.state.Session!.Title == "Research session" && window.state.Session.IsRunning(DateTimeOffset.Now), "Start now creates active session");
+        Assert(window.PixelGrid.Children.OfType<Border>().Any(p => p.HasAnimatedProperties), "Active pixel head has a running WPF animation");
+        Assert(window.Timeline.Children.Count == 5, "Timeline includes final partial interval");
+        var session = window.state.Session;
+        window.DurationInput.Text = "0"; Click(window, "Start now");
+        Assert(ReferenceEquals(session, window.state.Session), "Invalid input leaves active session intact");
+        window.NotesBox.Text = "Review the next chapter, then write a short summary.";
+        window.TaskInput.Text = "Outline the main ideas"; Click(window, "Add");
+        var check = Descendants(window.TaskList).OfType<CheckBox>().Single();
+        check.IsChecked = true; check.RaiseEvent(new RoutedEventArgs(CheckBox.ClickEvent));
+        window.SaveNow();
+        Assert(store.Load().Notes == window.NotesBox.Text && store.Load().Tasks.Single().Done, "Notes and checklist UI persist");
+        window.AccentInput.Text = "bad"; Click(window, "Apply colors");
+        Assert(window.state.AccentColor == "#5B7CFF", "Invalid color rejected without changing settings");
+        window.AccentInput.Text = "#6C7AEF"; Click(window, "Apply colors");
+        Assert(window.state.AccentColor == "#6C7AEF", "Custom color applied");
+        window.NotesToggle.IsChecked = false; window.NotesToggle.RaiseEvent(new RoutedEventArgs(CheckBox.ClickEvent));
+        Assert(window.NotesPanel.Visibility == Visibility.Collapsed, "Optional notes panel hides");
+        window.NotesToggle.IsChecked = true; window.NotesToggle.RaiseEvent(new RoutedEventArgs(CheckBox.ClickEvent));
+        window.PinToggle.IsChecked = true; window.PinToggle.RaiseEvent(new RoutedEventArgs(CheckBox.ClickEvent));
+        Assert(window.Topmost, "Always-on-top setting reaches window");
+        window.PinToggle.IsChecked = false; window.PinToggle.RaiseEvent(new RoutedEventArgs(CheckBox.ClickEvent));
+        window.StartDate.SelectedDate = DateTime.Today.AddDays(1); window.EndDate.SelectedDate = DateTime.Today.AddDays(2);
+        window.StartTime.Text = "23:30"; window.EndTime.Text = "01:30"; Click(window, "Use these times");
+        Assert(window.state.Session!.End - window.state.Session.Start == TimeSpan.FromHours(2) && window.StatusLabel.Text == "SCHEDULED", "UI schedules overnight dates and counts down to start");
+        Assert(!window.PixelGrid.Children.OfType<Border>().Any(p => p.HasAnimatedProperties), "Scheduled session stops the active pixel animation");
+        var scheduled = window.state.Session;
+        window.EndDate.SelectedDate = DateTime.Today; Click(window, "Use these times");
+        Assert(ReferenceEquals(scheduled, window.state.Session), "Invalid schedule preserves current timer");
+        window.DurationInput.Text = "45"; Click(window, "Start now");
+        session = window.state.Session!;
+        // Use the scheduling controls to produce a representative partly complete session.
+        window.StartDate.SelectedDate = DateTime.Now.AddMinutes(-20).Date; window.EndDate.SelectedDate = DateTime.Now.AddMinutes(25).Date;
+        window.StartTime.Text = DateTime.Now.AddMinutes(-20).ToString("HH:mm"); window.EndTime.Text = DateTime.Now.AddMinutes(25).ToString("HH:mm"); Click(window, "Use these times");
+        session = window.state.Session!;
+        window.UpdateClock();
+        window.SaveNow();
+        Snapshot(window, "dashboard", 1204, 840);
+        Snapshot(window, "dashboard-small", 944, 620);
+        Click(window, "I'm bored");
+        Assert(window.StoryArea.Visibility == Visibility.Visible && window.Countdown.Visibility == Visibility.Visible, "Swarm opens inside dashboard with countdown visible");
+        var before = window.Countdown.Text;
+        Pump(TimeSpan.FromMilliseconds(1300));
+        Assert(before != window.Countdown.Text && window.state.Session!.IsRunning(DateTimeOffset.Now), "Dispatcher countdown continues while Swarm is open");
+        CheckSwarmUi(window, store);
+        Click(window, "Back to timer");
+        Click(window, "Compact mode");
+        Assert(window.FullContent.Visibility == Visibility.Collapsed && window.ExpandButton.Visibility == Visibility.Visible, "Compact mode keeps timer and expansion control");
+        Snapshot(window, "compact", 614, 270);
+        window.SaveNow();
+        var compactRestored = new MainWindow(store);
+        Assert(compactRestored.FullContent.Visibility == Visibility.Collapsed && compactRestored.Width == 630, "Compact mode is restored after reopening");
+        compactRestored.Close();
+        Click(window, "Expand Space");
+        Assert(window.FullContent.Visibility == Visibility.Visible, "Compact mode restores dashboard");
+        window.SaveNow();
+        window.Close();
+        var restored = new MainWindow(store);
+        Assert(restored.state.Session!.Start == session.Start && restored.SessionTitle.Text == "Research session", "WPF restart restores unfinished session");
+        Click(restored, "I'm bored");
+        Assert(restored.swarmGame != null && restored.swarmGame.Score == 0, "Restart opens a fresh temporary Swarm run");
+        Click(restored, "Back to timer");
+        Click(restored, "End session");
+        Assert(store.Load().Session!.StoppedAt != null && restored.Countdown.Text == "00:00:00", "End button saves stopped session");
+        restored.state.Session!.StoppedAt = null;
+        restored.state.Session.Start = DateTimeOffset.Now.AddMinutes(-10);
+        restored.state.Session.End = DateTimeOffset.Now.AddMinutes(-1);
+        restored.UpdateClock();
+        Assert(restored.PercentLabel.Text.StartsWith("100") && restored.Countdown.Text == "00:00:00" && !restored.EndButton.IsEnabled, "Completed session UI reaches 100 percent and stops");
+        Assert(!restored.PixelGrid.Children.OfType<Border>().Any(p => p.HasAnimatedProperties), "Completed session clears pixel animation");
+        restored.PresetPicker.SelectedIndex = restored.PresetPicker.Items.Count - 1;
+        Click(restored, "Delete selected preset");
+        Assert(store.Load().Presets.Count == 4, "Delete preset persists");
+        restored.Close();
+    }
+    private static void Pump(TimeSpan duration)
+    {
+        var frame = new DispatcherFrame();
+        var timer = new DispatcherTimer { Interval = duration };
+        timer.Tick += (_, _) => { timer.Stop(); frame.Continue = false; };
+        timer.Start(); Dispatcher.PushFrame(frame);
+    }
+    private static void CheckStoryGraph()
+    {
+        var reached = new HashSet<string>();
+        void Visit(string id, HashSet<string> path)
+        {
+            if (!path.Add(id)) throw new InvalidOperationException("Story contains a loop: " + id);
+            if (!Story.Scenes.TryGetValue(id, out var node)) throw new InvalidOperationException("Missing scene: " + id);
+            reached.Add(id);
+            foreach (var choice in node.Choices) Visit(choice.Next, new HashSet<string>(path));
+        }
+        Visit("arrival", []);
+        Assert(reached.Count == Story.Scenes.Count, "Every story scene is reachable with no dead links or loops");
+        Assert(reached.Count(id => Story.Scenes[id].IsEnding) == 6, "All six distinct story endings are reachable");
+        var state = new AppState();
+        Story.Choose(state, 0); Story.Choose(state, 0); Story.Choose(state, 0);
+        Assert(state.StoryNode == "beacon" && state.StoryHistory.Count == 3 && state.StoryEndings.Count == 1, "Choices determine the story outcome");
+        var store = new StateStore(Path.Combine(output, "story.json")); store.Save(state);
+        Assert(store.Load().StoryNode == "beacon" && store.Load().StoryHistory.Count == 3, "Story outcome and decision journal persist");
+        Story.Restart(state);
+        Assert(state.StoryNode == "arrival" && state.StoryHistory.Count == 0 && state.StoryEndings.Count == 1, "Restart preserves ending collection");
+        Story.Choose(state, 2); Story.Choose(state, 1); Story.Choose(state, 1);
+        Assert(state.StoryNode == "quiet" && state.StoryEndings.Count == 2, "Different choices lead to a different ending");
+    }
+    private static void Snapshot(MainWindow window, string name, double width, double height)
+    {
+        var content = (FrameworkElement)window.Content;
+        content.Measure(new Size(width, height));
+        content.Arrange(new Rect(0, 0, width, height));
+        content.UpdateLayout();
+        var bitmap = new RenderTargetBitmap((int)width, (int)height, 96, 96, PixelFormats.Pbgra32);
+        bitmap.Render(content);
+        var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
+        using var stream = File.Create(Path.Combine(output, name + ".png")); encoder.Save(stream);
+    }
+}

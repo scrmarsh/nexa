@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
@@ -77,7 +77,7 @@ internal static partial class Program
         var store = new StateStore(Path.Combine(output, "continuity-ui.json"));
         var window = new MainWindow(store) { WindowStartupLocation=WindowStartupLocation.Manual, Left=-10000, Top=-10000, ShowActivated=false, ShowInTaskbar=false };
         window.Show(); Pump(TimeSpan.FromMilliseconds(150));
-        Assert(window.AutosaveInterval == TimeSpan.FromSeconds(30), "WPF safety-net autosave interval is 30 seconds");
+        Assert(window.AutosaveInterval == TimeSpan.FromMinutes(5), "WPF default checkpoint interval is five minutes");
         window.NotesBox.Text = "Notes on dashboard A"; window.TaskInput.Text = "Unsubmitted task draft";
         window.TitleInput.Text = "Unstarted meeting title"; window.IntervalInput.Text = "7";
         Assert(window.SaveNow() && window.SaveStatus.Text.Contains("Auto-saved · Saved at"), "Successful save displays the local save time");
@@ -128,7 +128,9 @@ internal static partial class Program
             history.Close();
         };
         historyCapture.Start(); Descendants(historyHome).OfType<Button>().Single(b => Descendants(b).OfType<TextBlock>().Any(t=>t.Text=="History")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); historyHome.Close();
-        // Keep the text debounce busy so only the 30-second timer can save during typing.
+        // Explicitly select the supported 30-second interval, then keep the edit debounce busy.
+        window.state.Workspace!.Settings.AutosaveSeconds = 30; window.ApplyReliabilityOptions();
+        // Only the periodic checkpoint can save during continuous typing.
         var initial = store.Load().Notes; var count = 0;
         var typing = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
         typing.Tick += (_, _) => window.NotesBox.Text = "Continuous edit " + ++count;
@@ -138,8 +140,11 @@ internal static partial class Program
         window.NotesBox.Text = "Captured before background write";
         var inFlight = window.SaveInBackground();
         window.NotesBox.Text = "Typed while save was running";
-        Pump(TimeSpan.FromMilliseconds(100));
-        Assert(inFlight.IsCompletedSuccessfully && window.HasUnsavedChanges, "Edits made during a background write stay dirty after the older capture completes");
+        // Isolate this capture from the independent edit-debounce save.
+        ((DispatcherTimer)typeof(MainWindow).GetField("saveDelay", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(window)!).Stop();
+        var saveWait = System.Diagnostics.Stopwatch.StartNew();
+        while (!inFlight.IsCompleted && saveWait.Elapsed < TimeSpan.FromSeconds(5)) Pump(TimeSpan.FromMilliseconds(10));
+        Assert(inFlight.IsCompletedSuccessfully && window.HasUnsavedChanges && store.Load().Notes == "Captured before background write", "Edits made during a background write stay dirty after the older capture completes");
         window.NotesBox.Text = "Last change before close";
         window.Close();
         var savedSessionId = Continuity.Current(store.Load().Workspace!, store.UserId).Current.SessionId;

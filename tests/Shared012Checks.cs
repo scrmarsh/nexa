@@ -7,14 +7,17 @@ using SessionDashboard;
 
 internal static partial class Program
 {
-    private static void CheckShared012()
+    private static void CheckShared012(bool withBugs = false)
     {
         var store = new StateStore(Path.Combine(output, "shared012.json"));
+        if (withBugs) store.SaveBugPreferences(new(true, BugSpecies.AllThree, BugDensity.Infestation));
         var pixel = WidgetLibrary.Create("Pixel timer", "pixels"); pixel.BannerSpan = 12;
         var clock = WidgetLibrary.Create("Clock"); clock.Span = 8; clock.PlacementX = .6; clock.PlacementY = 0;
         var notes = WidgetLibrary.Create("Notes", "notes"); notes.Span = 10; notes.PlacementX = 0; notes.PlacementY = 480;
         var tasks = WidgetLibrary.Create("Tasks", "tasks"); tasks.Span = 10; tasks.PlacementX = .5; tasks.PlacementY = 480;
         store.Save(new AppState { WidgetLayoutInitialized = true, Widgets = [pixel, clock, notes, tasks] });
+        var normalAppearance = store.Load(); normalAppearance.Workspace!.Settings.SeasonalMode = "Off"; store.Save(normalAppearance);
+        Theme.SetSeasonalEnabled(false);
         Theme.Apply(Application.Current.Resources, store.LoadThemeMode(), store.LoadAppTheme());
         var window = new MainWindow(store) { Width = 1450, Height = 950 }; window.Show(); Pump(TimeSpan.FromMilliseconds(220));
         Border Frame(WidgetInstance widget) => window.WidgetCanvas.Children.OfType<Border>().Single(f => Equals(f.Tag, widget.Id));
@@ -52,8 +55,9 @@ internal static partial class Program
             Math.Abs(Bounds(tasks).Width - committedRight.Width) < 1 && Bounds(tasks).Top == committedRight.Top,
             "Canceling a shared resize restores both cards without moving them");
         var settings = new SettingsDialog(window, store, window.state, window, "Appearance"); settings.Show(); Pump(TimeSpan.FromMilliseconds(80));
-        var palette = Descendants(settings).OfType<ComboBox>().Single(c => c.Items.Contains(AppTheme.Ember));
-        palette.SelectedItem = AppTheme.Ember; Pump(TimeSpan.FromMilliseconds(50));
+        var palette = Descendants(settings).OfType<RadioButton>().Single(c => Equals(c.Content, "Ember"));
+        ((System.Windows.Automation.Provider.ISelectionItemProvider)new System.Windows.Automation.Peers.RadioButtonAutomationPeer(palette)
+            .GetPattern(System.Windows.Automation.Peers.PatternInterface.SelectionItem)).Select(); Pump(TimeSpan.FromMilliseconds(50));
         Assert(((SolidColorBrush)Application.Current.Resources["AccentBrush"]).Color ==
             (Color)ColorConverter.ConvertFromString(Theme.AppPalette(AppTheme.Ember).Accent),
             "Changing the global theme applies the chosen palette immediately in a Space");

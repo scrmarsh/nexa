@@ -344,13 +344,13 @@ internal sealed class SwarmArena : FrameworkElement
 {
     internal PixelSwarmGame Game { get; }
     private readonly Brush background, foreground, player, playerFlash, hostile, neutral, tank, elite, white, health, grenade;
-    internal SwarmArena(PixelSwarmGame game, Color accent, Color? dashboardBackground = null, Color? dashboardText = null)
+    internal SwarmArena(PixelSwarmGame game, Color accent, Color? dashboardBackground = null, Color? dashboardText = null, Color? timerPixelColor = null)
     {
         Game = game;
         static Brush Solid(Color color) { var brush = new SolidColorBrush(color); brush.Freeze(); return brush; }
         background = Solid(dashboardBackground ?? Color.FromRgb(8, 11, 22)); foreground = Solid(dashboardText ?? Colors.White);
         player = Solid(accent); playerFlash = Solid(Colors.White); hostile = Solid(Color.FromRgb(245, 65, 83));
-        neutral = Solid(Color.FromRgb(131, 177, 221)); tank = Solid(Color.FromRgb(219, 113, 70)); elite = Solid(Colors.Gold);
+        neutral = Solid(timerPixelColor ?? Color.FromRgb(131, 177, 221)); tank = Solid(Color.FromRgb(219, 113, 70)); elite = Solid(Colors.Gold);
         white = Solid(Colors.White); health = Solid(Color.FromRgb(88, 220, 147)); grenade = Solid(Color.FromRgb(255, 176, 60));
         ClipToBounds = true; SizeChanged += (_, _) => { Game.Resize(RenderSize); InvalidateVisual(); };
     }

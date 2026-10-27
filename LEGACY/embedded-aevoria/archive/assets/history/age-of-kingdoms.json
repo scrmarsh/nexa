@@ -1,0 +1,555 @@
+{
+  "SchemaVersion": 1,
+  "Scenario": "FictionalMixedEra",
+  "Provenance": "User Phase 3 design specification, 2026-10-20. Artistic mixed-era scenario; not verified chronology, historical biographies or active simulation rules.",
+  "Governments": [
+    {
+      "Id": "aok:roman-imperial",
+      "AtlasGovernmentId": "empire",
+      "Offices": [
+        {
+          "Id": "head",
+          "Title": "Emperor",
+          "Succession": "Hereditary"
+        },
+        {
+          "Id": "consort",
+          "Title": "Empress",
+          "Succession": "Appointment"
+        }
+      ]
+    },
+    {
+      "Id": "aok:roman-republic",
+      "AtlasGovernmentId": "republic",
+      "Offices": [
+        {
+          "Id": "consul",
+          "Title": "Consul",
+          "Succession": "Election"
+        }
+      ]
+    },
+    {
+      "Id": "aok:greek-court",
+      "AtlasGovernmentId": "monarchy",
+      "Offices": [
+        {
+          "Id": "head",
+          "Title": "King",
+          "Succession": "Hereditary"
+        },
+        {
+          "Id": "consort",
+          "Title": "Queen",
+          "Succession": "Appointment"
+        }
+      ]
+    },
+    {
+      "Id": "aok:french-court",
+      "AtlasGovernmentId": "monarchy",
+      "Offices": [
+        {
+          "Id": "head",
+          "Title": "King",
+          "Succession": "Hereditary"
+        },
+        {
+          "Id": "consort",
+          "Title": "Queen",
+          "Succession": "Appointment"
+        }
+      ]
+    },
+    {
+      "Id": "aok:mongol-khanate",
+      "AtlasGovernmentId": "empire",
+      "Offices": [
+        {
+          "Id": "head",
+          "Title": "Khan",
+          "Succession": "Election"
+        }
+      ]
+    },
+    {
+      "Id": "aok:japanese-command",
+      "AtlasGovernmentId": "monarchy",
+      "Offices": [
+        {
+          "Id": "head",
+          "Title": "Shogun",
+          "Succession": "Appointment"
+        }
+      ]
+    },
+    {
+      "Id": "aok:egyptian-court",
+      "AtlasGovernmentId": "monarchy",
+      "Offices": [
+        {
+          "Id": "head",
+          "Title": "Pharaoh",
+          "Succession": "Hereditary"
+        }
+      ]
+    }
+  ],
+  "Profiles": [
+    {
+      "Id": "theme:roman",
+      "Species": "Ants",
+      "Name": "Roman-inspired ants",
+      "CivilizationId": "historical:roman-empire",
+      "CultureId": "culture:roman",
+      "GovernmentId": "aok:roman-imperial",
+      "AlternativeGovernments": [
+        "aok:roman-republic"
+      ],
+      "StartingEra": "Classical inspiration",
+      "Layout": "Road grid around a civic forum",
+      "DefensePreference": "Fortified camps, walls and watchtowers",
+      "MilitaryMetadata": "Future Phase 4: organized formations; no combat modifier",
+      "Architecture": [
+        "Stone road",
+        "Villa",
+        "Forum",
+        "Fortified camp",
+        "Wall",
+        "Aqueduct-inspired infrastructure"
+      ],
+      "PersonalNames": [
+        "Augustus",
+        "Marcus",
+        "Scipio",
+        "Aurelia",
+        "Livia"
+      ],
+      "SettlementNames": [
+        "Nova Aurelia",
+        "Forum Marci",
+        "Porta Nova"
+      ],
+      "Construction": [
+        {
+          "Purpose": "Housing",
+          "Archetype": "Villa",
+          "Materials": 8,
+          "MinimumStage": 0
+        },
+        {
+          "Purpose": "Food",
+          "Archetype": "Aqueduct-inspired infrastructure",
+          "Materials": 7,
+          "MinimumStage": 0
+        },
+        {
+          "Purpose": "Workshop",
+          "Archetype": "Forum",
+          "Materials": 14,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Defense",
+          "Archetype": "Fortified camp",
+          "Materials": 14,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Infrastructure",
+          "Archetype": "Stone road",
+          "Materials": 12,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Government",
+          "Archetype": "Forum",
+          "Materials": 20,
+          "MinimumStage": 2
+        },
+        {
+          "Purpose": "Monument",
+          "Archetype": "Aqueduct-inspired infrastructure",
+          "Materials": 45,
+          "MinimumStage": 3
+        }
+      ]
+    },
+    {
+      "Id": "theme:greek",
+      "Species": "Spiders",
+      "Name": "Greek-inspired spiders",
+      "CivilizationId": "historical:athens",
+      "CultureId": "culture:greek",
+      "GovernmentId": "aok:greek-court",
+      "AlternativeGovernments": [],
+      "StartingEra": "Classical inspiration",
+      "Layout": "Terraced civic center and hilltop stronghold",
+      "DefensePreference": "Elevated strongholds and stone fortifications",
+      "MilitaryMetadata": "Future Phase 4: defended civic centers; no combat modifier",
+      "Architecture": [
+        "Columned temple",
+        "Acropolis-inspired stronghold",
+        "Stone civic building",
+        "Hilltop fortification",
+        "Courtyard home"
+      ],
+      "PersonalNames": [
+        "Leonidas",
+        "Alexander",
+        "Helena",
+        "Theodora"
+      ],
+      "SettlementNames": [
+        "New Helikon",
+        "Asterion",
+        "Petra"
+      ],
+      "Construction": [
+        {
+          "Purpose": "Housing",
+          "Archetype": "Courtyard home",
+          "Materials": 8,
+          "MinimumStage": 0
+        },
+        {
+          "Purpose": "Food",
+          "Archetype": "Courtyard home",
+          "Materials": 7,
+          "MinimumStage": 0
+        },
+        {
+          "Purpose": "Workshop",
+          "Archetype": "Stone civic building",
+          "Materials": 14,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Defense",
+          "Archetype": "Hilltop fortification",
+          "Materials": 14,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Infrastructure",
+          "Archetype": "Stone civic building",
+          "Materials": 12,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Government",
+          "Archetype": "Columned temple",
+          "Materials": 20,
+          "MinimumStage": 2
+        },
+        {
+          "Purpose": "Monument",
+          "Archetype": "Acropolis-inspired stronghold",
+          "Materials": 45,
+          "MinimumStage": 3
+        }
+      ]
+    },
+    {
+      "Id": "theme:french",
+      "Species": "Ladybugs",
+      "Name": "French-inspired ladybugs",
+      "CivilizationId": "historical:france",
+      "CultureId": "culture:french",
+      "GovernmentId": "aok:french-court",
+      "AlternativeGovernments": [],
+      "StartingEra": "Medieval inspiration",
+      "Layout": "Stone village, farmland and central keep",
+      "DefensePreference": "Walled towns, towers and stone castles",
+      "MilitaryMetadata": "Future Phase 4: fortified regional seats; no combat modifier",
+      "Architecture": [
+        "Stone house",
+        "Castle",
+        "Farmhouse",
+        "Tower",
+        "Town wall",
+        "Gothic-inspired civic building"
+      ],
+      "PersonalNames": [
+        "Louis",
+        "Charles",
+        "Eleanor",
+        "Isabelle"
+      ],
+      "SettlementNames": [
+        "Valclair",
+        "Montfleur",
+        "Bellepierre"
+      ],
+      "Construction": [
+        {
+          "Purpose": "Housing",
+          "Archetype": "Stone house",
+          "Materials": 8,
+          "MinimumStage": 0
+        },
+        {
+          "Purpose": "Food",
+          "Archetype": "Farmhouse",
+          "Materials": 7,
+          "MinimumStage": 0
+        },
+        {
+          "Purpose": "Workshop",
+          "Archetype": "Farmhouse",
+          "Materials": 14,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Defense",
+          "Archetype": "Tower",
+          "Materials": 14,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Infrastructure",
+          "Archetype": "Town wall",
+          "Materials": 12,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Government",
+          "Archetype": "Castle",
+          "Materials": 20,
+          "MinimumStage": 2
+        },
+        {
+          "Purpose": "Monument",
+          "Archetype": "Gothic-inspired civic building",
+          "Materials": 45,
+          "MinimumStage": 3
+        }
+      ]
+    },
+    {
+      "Id": "theme:mongol",
+      "Species": "Roaches",
+      "Name": "Mongol-inspired cockroaches",
+      "CivilizationId": "historical:mongol-empire",
+      "CultureId": "culture:mongol",
+      "GovernmentId": "aok:mongol-khanate",
+      "AlternativeGovernments": [],
+      "StartingEra": "Medieval inspiration",
+      "Layout": "Organized encampment with open circulation",
+      "DefensePreference": "Wooden palisades and semi-permanent camps",
+      "MilitaryMetadata": "Future Phase 4: mobile command camps; no combat modifier",
+      "Architecture": [
+        "Yurt",
+        "Command camp",
+        "Wooden palisade",
+        "Portable workshop",
+        "Camp standard"
+      ],
+      "PersonalNames": [
+        "Temujin",
+        "Batu",
+        "Khutulun"
+      ],
+      "SettlementNames": [
+        "New Ordu",
+        "Steppe Camp",
+        "River Ordu"
+      ],
+      "Construction": [
+        {
+          "Purpose": "Housing",
+          "Archetype": "Yurt",
+          "Materials": 8,
+          "MinimumStage": 0
+        },
+        {
+          "Purpose": "Food",
+          "Archetype": "Yurt",
+          "Materials": 7,
+          "MinimumStage": 0
+        },
+        {
+          "Purpose": "Workshop",
+          "Archetype": "Portable workshop",
+          "Materials": 14,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Defense",
+          "Archetype": "Wooden palisade",
+          "Materials": 14,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Infrastructure",
+          "Archetype": "Camp standard",
+          "Materials": 12,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Government",
+          "Archetype": "Command camp",
+          "Materials": 20,
+          "MinimumStage": 2
+        },
+        {
+          "Purpose": "Monument",
+          "Archetype": "Camp standard",
+          "Materials": 45,
+          "MinimumStage": 3
+        }
+      ]
+    },
+    {
+      "Id": "theme:japanese",
+      "Species": "Centipedes",
+      "Name": "Japanese-inspired centipedes",
+      "CivilizationId": "historical:kamakura",
+      "CultureId": "culture:japanese",
+      "GovernmentId": "aok:japanese-command",
+      "AlternativeGovernments": [],
+      "StartingEra": "Feudal inspiration",
+      "Layout": "Gated compounds, gardens and wooden dwellings",
+      "DefensePreference": "Fortified gates and castle compounds",
+      "MilitaryMetadata": "Future Phase 4: regional command compounds; no combat modifier",
+      "Architecture": [
+        "Wooden dwelling",
+        "Fortified compound",
+        "Gate",
+        "Pagoda-inspired building",
+        "Castle-inspired keep",
+        "Garden"
+      ],
+      "PersonalNames": [
+        "Nobunaga",
+        "Masako",
+        "Tomoe"
+      ],
+      "SettlementNames": [
+        "Matsu-no-sato",
+        "New Aoba",
+        "Sakura Gate"
+      ],
+      "Construction": [
+        {
+          "Purpose": "Housing",
+          "Archetype": "Wooden dwelling",
+          "Materials": 8,
+          "MinimumStage": 0
+        },
+        {
+          "Purpose": "Food",
+          "Archetype": "Garden",
+          "Materials": 7,
+          "MinimumStage": 0
+        },
+        {
+          "Purpose": "Workshop",
+          "Archetype": "Wooden dwelling",
+          "Materials": 14,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Defense",
+          "Archetype": "Gate",
+          "Materials": 14,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Infrastructure",
+          "Archetype": "Fortified compound",
+          "Materials": 12,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Government",
+          "Archetype": "Castle-inspired keep",
+          "Materials": 20,
+          "MinimumStage": 2
+        },
+        {
+          "Purpose": "Monument",
+          "Archetype": "Pagoda-inspired building",
+          "Materials": 45,
+          "MinimumStage": 3
+        }
+      ]
+    },
+    {
+      "Id": "theme:egyptian",
+      "Species": "Flies",
+      "Name": "Egyptian-inspired flies",
+      "CivilizationId": "historical:new-kingdom-egypt",
+      "CultureId": "culture:egyptian",
+      "GovernmentId": "aok:egyptian-court",
+      "AlternativeGovernments": [],
+      "StartingEra": "Ancient inspiration",
+      "Layout": "River-axis sandstone settlement and civic precinct",
+      "DefensePreference": "Enclosed palace compounds and durable civic walls",
+      "MilitaryMetadata": "Future Phase 4: protected administrative centers; no combat modifier",
+      "Architecture": [
+        "Sandstone house",
+        "Temple",
+        "Obelisk",
+        "Palace compound",
+        "Monumental civic building",
+        "Pyramid-inspired monument"
+      ],
+      "PersonalNames": [
+        "Ramses",
+        "Nefertiti",
+        "Hatshepsut"
+      ],
+      "SettlementNames": [
+        "New Iset",
+        "Sun Court",
+        "River Gate"
+      ],
+      "Construction": [
+        {
+          "Purpose": "Housing",
+          "Archetype": "Sandstone house",
+          "Materials": 8,
+          "MinimumStage": 0
+        },
+        {
+          "Purpose": "Food",
+          "Archetype": "Sandstone house",
+          "Materials": 7,
+          "MinimumStage": 0
+        },
+        {
+          "Purpose": "Workshop",
+          "Archetype": "Monumental civic building",
+          "Materials": 14,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Defense",
+          "Archetype": "Palace compound",
+          "Materials": 14,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Infrastructure",
+          "Archetype": "Obelisk",
+          "Materials": 12,
+          "MinimumStage": 1
+        },
+        {
+          "Purpose": "Government",
+          "Archetype": "Palace compound",
+          "Materials": 20,
+          "MinimumStage": 2
+        },
+        {
+          "Purpose": "Monument",
+          "Archetype": "Pyramid-inspired monument",
+          "Materials": 45,
+          "MinimumStage": 3
+        }
+      ]
+    }
+  ]
+}

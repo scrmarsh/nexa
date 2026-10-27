@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -8,6 +8,8 @@ namespace SessionDashboard;
 
 internal sealed partial class HomeWindow
 {
+    private Action? refreshBranding;
+    internal void RefreshBranding()=>refreshBranding?.Invoke();
     private void BuildHomeHeader(StackPanel panel)
     {
         var header = new Grid(); header.ColumnDefinitions.Add(new() { Width = new GridLength(300) }); header.ColumnDefinitions.Add(new() { Width = new GridLength(32) }); header.ColumnDefinitions.Add(new());
@@ -16,17 +18,20 @@ internal sealed partial class HomeWindow
         brand.Children.Add(new TextBlock { Text = App.VersionLabel, Foreground = (Brush)FindResource("MutedBrush"), FontSize = 13, Margin = new Thickness(0, 8, 0, 12) });
         var tagline = new TextBlock { Text = "", FontSize = 24, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("TextBrush"), VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 25, 0, 0), MinHeight = 64 };
         System.Windows.Automation.AutomationProperties.SetName(tagline, "Home tagline"); Grid.SetColumn(tagline, 2); header.Children.Add(tagline); panel.Children.Add(header);
-        const string phrase = "a space for whatever comes next.";
+
         var position = 0; var hold = 0; var restartDelay = 0; var fading = false; var typing = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(55) };
+        refreshBranding=()=>{var phrase=NexaBranding.Tagline;position=Math.Min(position,phrase.Length);NexaBranding.ApplyTagline(tagline,phrase[..position]);};
         typing.Tick += (_, _) =>
         {
+            var phrase=NexaBranding.Tagline;
+            if(position>phrase.Length)position=phrase.Length;
             if (fading) return;
             if (restartDelay > 0)
             {
                 if (--restartDelay > 0) return;
                 tagline.BeginAnimation(OpacityProperty, null); tagline.Opacity = 1; tagline.Text = ""; position = hold = 0;
             }
-            if (position < phrase.Length) { tagline.Text = phrase[..++position]; return; }
+            if (position < phrase.Length) { NexaBranding.ApplyTagline(tagline,phrase[..++position]); return; }
             if (++hold < 28) return;
             fading = true;
             var fade = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(650));
@@ -75,7 +80,18 @@ internal sealed partial class HomeWindow
                 row.Children.Add(new System.Windows.Shapes.Ellipse { Width = 5, Height = 5, Fill = (Brush)FindResource("AccentBrush"), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(2, 8, 0, 0) });
                 var text = Copy(update); text.Margin = new Thickness(0); Grid.SetColumn(text, 1); row.Children.Add(text); section.Children.Add(row);
             }
-            body.Children.Add(new Border { Child = section, Background = (Brush)FindResource("PanelBrush"), BorderBrush = (Brush)FindResource("LineBrush"), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12), Padding = new Thickness(22), Margin = new Thickness(0, 8, 0, 16) });
+            var seasonalEntry = release.Version == "0.1.24";
+            if (seasonalEntry)
+            {
+                void Tint(DependencyObject element)
+                {
+                    if (element is TextBlock text) text.Foreground = (Brush)new BrushConverter().ConvertFromString("#84CC16")!;
+                    for (var i=0; i<VisualTreeHelper.GetChildrenCount(element); i++) Tint(VisualTreeHelper.GetChild(element,i));
+                }
+                Tint(section);
+                section.Children.Insert(0, new TextBlock { Text = "🎃  NEXAWEEN  👻", FontSize = 15, FontWeight = FontWeights.Bold, Foreground = (Brush)new BrushConverter().ConvertFromString("#D9F99D")!, Margin = new Thickness(0,0,0,12) });
+            }
+            body.Children.Add(new Border { Child = section, Background = seasonalEntry ? (Brush)new BrushConverter().ConvertFromString("#1C102A")! : (Brush)FindResource("PanelBrush"), BorderBrush = seasonalEntry ? (Brush)new BrushConverter().ConvertFromString("#F97316")! : (Brush)FindResource("LineBrush"), BorderThickness = new Thickness(seasonalEntry ? 2 : 1), CornerRadius = new CornerRadius(12), Padding = new Thickness(22), Margin = new Thickness(0, 8, 0, 16) });
         }
         dialog.Content = new ScrollViewer { Content = body, VerticalScrollBarVisibility = ScrollBarVisibility.Auto }; dialog.ShowDismissible();
     }

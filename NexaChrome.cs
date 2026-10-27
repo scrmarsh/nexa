@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -15,11 +15,12 @@ namespace SessionDashboard;
 internal static class NexaChrome
 {
     private static readonly HashSet<Window> FadingWindows = [];
-    internal static ImageSource Icon => new BitmapImage(new Uri("pack://application:,,,/Nexa;component/assets/nexa-icon-256.png"));
+    internal static ImageSource Icon => new BitmapImage(new Uri("pack://application:,,,/Nexa;component/assets/"+(Theme.SeasonalEnabled?"nexa-icon-seasonal-256.png":"nexa-icon-256.png")));
     internal static void Apply(Window window)
     {
         window.UseLayoutRounding = true; window.SnapsToDevicePixels = true; window.Icon = Icon; window.WindowStyle = WindowStyle.None; window.ResizeMode = ResizeMode.CanResize;
         WindowChrome.SetWindowChrome(window, new WindowChrome { CaptionHeight = 44, ResizeBorderThickness = new Thickness(10), GlassFrameThickness = new Thickness(0), CornerRadius = new CornerRadius(8), UseAeroCaptionButtons = false });
+        NexaWindowBounds.Attach(window);
         FadeIn(window);
         window.SourceInitialized += (_, _) =>
         {
@@ -42,7 +43,12 @@ internal static class NexaChrome
         if (!FadingWindows.Add(window)) return;
         if (!window.IsVisible) { FadingWindows.Remove(window); afterFade(); return; }
         var fade = new DoubleAnimation(window.Opacity, 0, TimeSpan.FromMilliseconds(160)) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn } };
-        fade.Completed += (_, _) => { window.BeginAnimation(Window.OpacityProperty, null); FadingWindows.Remove(window); afterFade(); };
+        // Occluded/throttled windows can delay composition completion. Closing is a
+        // dispatcher operation and must not wait indefinitely for another GPU frame.
+        var deadline=new System.Windows.Threading.DispatcherTimer(System.Windows.Threading.DispatcherPriority.Normal,window.Dispatcher){Interval=TimeSpan.FromMilliseconds(180)};
+        void Closed(object? sender,EventArgs e){deadline.Stop();FadingWindows.Remove(window);window.Closed-=Closed;}
+        void Finish(){if(!FadingWindows.Remove(window))return;deadline.Stop();window.Closed-=Closed;window.BeginAnimation(Window.OpacityProperty,null);afterFade();}
+        fade.Completed += (_, _) => Finish();deadline.Tick+=(_,_)=>Finish();window.Closed+=Closed;deadline.Start();
         window.BeginAnimation(Window.OpacityProperty, fade);
     }
     internal static void ToggleMaximize(Window window) => window.WindowState = window.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
@@ -83,11 +89,20 @@ internal class NexaDialog : Window
 {
     private bool wrapping;
     private bool closingWithFade;
+    private readonly bool gameplay;
+    internal bool DismissalInProgress => closingWithFade;
     internal UIElement? Body { get; private set; }
     internal bool IsPanel { get; }
-    internal NexaDialog(bool panel = false)
+    internal NexaDialog(bool panel = false,bool gameplay = false)
     {
         IsPanel = panel;
+        this.gameplay=gameplay;
+        if(gameplay)
+        {
+            WindowStyle=WindowStyle.None;ResizeMode=ResizeMode.CanResize;UseLayoutRounding=true;SnapsToDevicePixels=true;
+            WindowChrome.SetWindowChrome(this,new WindowChrome{CaptionHeight=0,ResizeBorderThickness=new Thickness(6),GlassFrameThickness=new Thickness(0),CornerRadius=new CornerRadius(0),UseAeroCaptionButtons=false});
+            SetResourceReference(BackgroundProperty,"BackgroundBrush");SetResourceReference(ForegroundProperty,"TextBrush");return;
+        }
         NexaChrome.Apply(this);
         if (panel)
         {
@@ -111,7 +126,7 @@ internal class NexaDialog : Window
         for (var node = source; node != null && !ReferenceEquals(node, panel);
             node = node is Visual ? VisualTreeHelper.GetParent(node) : LogicalTreeHelper.GetParent(node))
         {
-            if (node is ButtonBase or TextBoxBase or PasswordBox or Selector or RangeBase or MenuItem or Hyperlink)
+            if (node is ComboBoxItem or ListBoxItem or ScrollViewer or ButtonBase or TextBoxBase or PasswordBox or Selector or RangeBase or MenuItem or Hyperlink)
                 return false;
         }
         return source != null;
@@ -143,6 +158,7 @@ internal class NexaDialog : Window
     protected override void OnContentChanged(object oldContent, object newContent)
     {
         base.OnContentChanged(oldContent, newContent);
+        if(gameplay){Body=newContent as UIElement;return;}
         if (wrapping || newContent is not UIElement body) return;
         Body = body;
         wrapping = true;

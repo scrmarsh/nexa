@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -32,7 +32,7 @@ internal sealed record AvailableUpdate(Version Version, string Channel, string N
 
 internal sealed class ExperimentalUpdater(HttpClient client)
 {
-    internal static readonly Uri ReleasesUri = new("https://api.github.com/repos/scrmarsh/SessionDashboard/releases?per_page=30");
+    internal static readonly Uri ReleasesUri = new("https://api.github.com/repos/scrmarsh/nexa/releases?per_page=30");
     private static readonly Regex Tag = new(@"^(?:v|Nexa[- ])?(?<version>\d+\.\d+\.\d+)(?:[-. ](?<channel>alpha|beta|stable))?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     private static readonly Regex Digest = new(@"^sha256:([a-fA-F0-9]{64})$", RegexOptions.CultureInvariant);
     internal static int ChannelRank(string channel) => channel.ToLowerInvariant() switch { "alpha" => 0, "beta" => 1, "stable" => 2, _ => -1 };
@@ -65,7 +65,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
                 if (asset.GetProperty("name").GetString() != exactName) continue;
                 var digest = Digest.Match(asset.TryGetProperty("digest", out var hash) ? hash.GetString() ?? "" : "");
                 if (!digest.Success || !asset.TryGetProperty("size", out var length) || !length.TryGetInt64(out var size) || size is < 1 or > 500_000_000) continue;
-                if (!Uri.TryCreate(asset.GetProperty("browser_download_url").GetString(), UriKind.Absolute, out var url) || url.Scheme != "https" || url.Host != "github.com" || !url.AbsolutePath.StartsWith("/scrmarsh/SessionDashboard/releases/download/", StringComparison.OrdinalIgnoreCase) || !url.AbsolutePath.EndsWith("/" + exactName, StringComparison.Ordinal)) continue;
+                if (!Uri.TryCreate(asset.GetProperty("browser_download_url").GetString(), UriKind.Absolute, out var url) || url.Scheme != "https" || url.Host != "github.com" || !url.AbsolutePath.StartsWith("/scrmarsh/nexa/releases/download/", StringComparison.OrdinalIgnoreCase) || !url.AbsolutePath.EndsWith("/" + exactName, StringComparison.Ordinal)) continue;
                 DateTimeOffset? published = release.TryGetProperty("published_at", out var date) && DateTimeOffset.TryParse(date.GetString(), out var parsed) ? parsed : null;
                 latest = new(version, channel, release.GetProperty("name").GetString() ?? $"Nexa {version} {channel}", release.TryGetProperty("body", out var body) ? body.GetString() ?? "" : "", published, url, size, digest.Groups[1].Value.ToUpperInvariant());
             }
@@ -85,7 +85,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
             request.Headers.UserAgent.ParseAdd("Nexa-Desktop/0.1");
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
-            if (response.RequestMessage?.RequestUri is not { Scheme: "https" } actual || actual.Host is not ("github.com" or "release-assets.githubusercontent.com" or "objects.githubusercontent.com") || actual.Host == "github.com" && !actual.AbsolutePath.StartsWith("/scrmarsh/SessionDashboard/releases/download/", StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Installer redirect is not an official release URL.");
+            if (response.RequestMessage?.RequestUri is not { Scheme: "https" } actual || actual.Host is not ("github.com" or "release-assets.githubusercontent.com" or "objects.githubusercontent.com") || actual.Host == "github.com" && !actual.AbsolutePath.StartsWith("/scrmarsh/nexa/releases/download/", StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Installer redirect is not an official release URL.");
             if (response.Content.Headers.ContentLength is long declared && declared != release.Size) throw new InvalidDataException("Installer size changed.");
             await using var source = await response.Content.ReadAsStreamAsync(cancellationToken);
             await using var target = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None, 81920, FileOptions.Asynchronous);

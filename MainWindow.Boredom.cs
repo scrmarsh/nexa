@@ -10,6 +10,7 @@ public partial class MainWindow
 {
     private Grid? timerAreaParent;
     private TimerPixelSeed[] swarmSeeds = [];
+    internal Color SwarmPixelColor { get; private set; }
     private SwarmStats? swarmStats;
     private bool swarmRecorded, swarmControlsPage, swarmStatsPage;
     private int swarmLastStage;
@@ -22,6 +23,7 @@ public partial class MainWindow
     {
         if (!storyOpen)
         {
+            SwarmPixelColor = ((SolidColorBrush)DashboardBrush("PixelBrush")).Color;
             UpdateClock(); UpdateLayout();
             var root = (FrameworkElement)Content;
             var now = DateTimeOffset.Now;
@@ -161,7 +163,7 @@ public partial class MainWindow
         StoryArea.Children.Clear();
         var root = new Grid { ClipToBounds = true };
         swarmArena = new SwarmArena(swarmGame, ((SolidColorBrush)DashboardBrush("AccentBrush")).Color,
-            ((SolidColorBrush)DashboardBrush("BackgroundBrush")).Color, ((SolidColorBrush)DashboardBrush("TextBrush")).Color);
+            ((SolidColorBrush)DashboardBrush("BackgroundBrush")).Color, ((SolidColorBrush)DashboardBrush("TextBrush")).Color, SwarmPixelColor);
         root.Children.Add(swarmArena);
         swarmArena.MouseLeftButtonDown += (_, e) => { swarmGame?.Fire(Mouse.GetPosition(swarmArena)); swarmArena.Focus(); e.Handled = true; };
         var hud = DashboardBrush("PanelBrush").Clone(); hud.Opacity = .9;

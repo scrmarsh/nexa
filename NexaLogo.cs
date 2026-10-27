@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
 using System.Xml.Linq;
@@ -8,10 +8,14 @@ namespace SessionDashboard;
 // Render the supplied full SVG as vectors. The original file remains the source of truth.
 internal sealed class NexaLogo : FrameworkElement
 {
-    private readonly DrawingImage logo;
+    private readonly DrawingImage normalLogo,seasonalLogo;
     internal NexaLogo()
     {
-        using var stream = Application.GetResourceStream(new Uri("pack://application:,,,/Nexa;component/assets/nexa-logo-full-dark.svg")).Stream;
+        normalLogo=Load("nexa-logo-full-dark.svg");seasonalLogo=Load("nexa-logo-full-dark-seasonal.svg");System.Windows.Automation.AutomationProperties.SetName(this,"Nexa full logo");
+    }
+    private static DrawingImage Load(string asset)
+    {
+        using var stream=Application.GetResourceStream(new Uri("pack://application:,,,/Nexa;component/assets/"+asset)).Stream;
         var svg = XDocument.Load(stream); var drawing = new DrawingGroup();
         using (var dc = drawing.Open())
         {
@@ -38,11 +42,12 @@ internal sealed class NexaLogo : FrameworkElement
                 if (icon) { dc.Pop(); dc.Pop(); dc.Pop(); }
             }
         }
-        drawing.Freeze(); logo = new DrawingImage(drawing);
-        System.Windows.Automation.AutomationProperties.SetName(this, "Nexa full logo");
+        drawing.Freeze();return new DrawingImage(drawing);
+
     }
     protected override void OnRender(DrawingContext dc)
     {
+        var logo=Theme.SeasonalEnabled?seasonalLogo:normalLogo;
         var scale = Math.Min(ActualWidth / 1140, ActualHeight / 360);
         dc.PushTransform(new TranslateTransform((ActualWidth - 1140 * scale) / 2, (ActualHeight - 360 * scale) / 2)); dc.PushTransform(new ScaleTransform(scale, scale));
         var text = TryFindResource("TextBrush") as SolidColorBrush;

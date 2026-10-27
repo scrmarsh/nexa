@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -35,9 +35,11 @@ public partial class MainWindow
     private Border? swarmResult;
     private readonly System.Diagnostics.Stopwatch swarmFrameClock = new();
     private int previousHead = -1;
-    private bool headAnimating;
+
     private double fullWidth = 1220, fullHeight = 880;
     private bool fullscreen;
+    private bool restoreFullscreenTopmost;
+    internal bool IsFullscreen => fullscreen;
     private Rect restoreBounds;
     private WindowState restoreWindowState;
     private DateTimeOffset flashUntil;
@@ -51,6 +53,8 @@ public partial class MainWindow
         this.previewHomeStore = previewHomeStore;
         state = store.Load(); store.LoadInteractionPreferences(state);
         InitializeComponent();
+        DashboardHeader.SizeChanged += (_, _) => UpdateDashboardHeaderGeometry();
+        TopNavigation.SizeChanged += (_, _) => UpdateDashboardHeaderGeometry();
         PreviewBanner.Visibility = IsPreview ? Visibility.Visible : Visibility.Collapsed;
         if (IsPreview) Title = App.BrandWordmark + " · Preview";
         NexaChrome.Apply(this);
@@ -68,6 +72,7 @@ public partial class MainWindow
         NotesToggle.IsChecked = state.ShowNotes;
         ChecklistToggle.IsChecked = state.ShowChecklist;
         PinToggle.IsChecked = state.AlwaysOnTop;
+        HeaderBrandIcon.Source=NexaChrome.Icon;
         InitializeColorPickers();
         AccentInput.Text = state.AccentColor;
         PixelInput.Text = state.PixelColor;
@@ -86,12 +91,14 @@ public partial class MainWindow
         ready = true;
         UpdateClock();
         Feedback.Text = store.Warning ?? "Saved on this PC • Your workspace is ready";
-        clock.Tick += (_, _) => UpdateClock();
+        clock.Interval=PixelTiming.UntilNextSecond(DateTimeOffset.UtcNow);
+        clock.Tick += (_, _) => { UpdateClock(); clock.Interval=PixelTiming.UntilNextSecond(DateTimeOffset.UtcNow); };
         saveDelay.Tick += async (_, _) => { saveDelay.Stop(); await SaveInBackground(); };
         boredomTicker.Tick += (_, _) => UpdateBoredomGame();
         InitializeContinuity();
         UpdateDeveloperToolsVisibility();
         InitializeWidgets();
+        InitializeBugs();
         InitializeDashboardTips();
         Countdown.Cursor = System.Windows.Input.Cursors.Hand; Countdown.ToolTip = "Click to edit session duration";
         Countdown.MouseLeftButtonUp += SessionTimeEditClick;
@@ -125,7 +132,7 @@ public partial class MainWindow
         pixelColumns = columns; pixelRows = rows; pixelSize = size; pixelGap = gap; pixelShape = state.PixelShape;
         var count = columns * rows;
         if (previousHead >= 0 && previousHead < pixels.Count) pixels[previousHead].BeginAnimation(OpacityProperty, null);
-        previousHead = -1; headAnimating = false; litPixels = -1;
+        previousHead = -1;  litPixels = -1;
         while (pixels.Count > count)
         {
             var pixel = pixels[^1]; pixels.RemoveAt(pixels.Count - 1); PixelGrid.Children.Remove(pixel);
@@ -170,14 +177,11 @@ public partial class MainWindow
 
     private void DeveloperSoundClick(object sender, RoutedEventArgs e) => PlayInterfaceSound();
 
-    private void DeveloperSplashClick(object sender, RoutedEventArgs e)
+    private async void DeveloperSplashClick(object sender,RoutedEventArgs e)
     {
-        var preview = new SplashWindow { Owner = this };
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(SplashWindow.DisplayMilliseconds) };
-        timer.Tick += (_, _) => { timer.Stop(); preview.Close(); };
-        preview.ContentRendered += (_, _) => timer.Start();
-        preview.Closed += (_, _) => timer.Stop();
-        preview.ShowDialog();
+        var preview=new SplashWindow{Owner=this};var previous=Application.Current.MainWindow;preview.Show();
+        try{var home=await preview.EnterHome(store,true);Application.Current.MainWindow=previous;home.Close();}
+        catch(Exception ex){Application.Current.MainWindow=previous;preview.Close();Error("Startup preview failed: "+ex.Message);}
     }
 
     private void DeveloperResetClick(object sender, RoutedEventArgs e)
@@ -317,6 +321,7 @@ public partial class MainWindow
         preset.EndClockMinutes = (int)EndTime.Value.TotalMinutes;
         preset.EndDayOffset = Math.Clamp((int)((EndDate.SelectedDate ?? DateTime.Today) - (StartDate.SelectedDate ?? DateTime.Today)).TotalDays, 0, 7);
         preset.ScheduledDays = SelectedSessionDays();
+        preset.AutomaticScheduling = state.Session?.AutomaticScheduling == true || (PresetPicker.SelectedItem as Preset)?.AutomaticScheduling == true;
         return true;
     }
 
@@ -337,9 +342,9 @@ public partial class MainWindow
         { Error("Enter both dates and valid times, such as 09:00 or 2:30 PM."); return; }
         var start = StartDate.SelectedDate.Value.Date + startTime.TimeOfDay;
         var end = EndDate.SelectedDate.Value.Date + endTime.TimeOfDay;
-        if (TimeZoneInfo.Local.IsInvalidTime(start) || TimeZoneInfo.Local.IsInvalidTime(end))
+        if (NexaTime.Zone(Options.TimeZoneId).IsInvalidTime(start) || NexaTime.Zone(Options.TimeZoneId).IsInvalidTime(end))
         { Error("That time falls in a daylight-saving clock change. Choose a different time."); return; }
-        var session = new Session { Title = TitleInput.Text.Trim(), Start = new DateTimeOffset(start), End = new DateTimeOffset(end), IntervalMinutes = interval, ConfiguredDurationMinutes = (end - start).TotalMinutes, ScheduledDays = SelectedSessionDays() };
+        var session = new Session { Title = TitleInput.Text.Trim(), Start = NexaTime.Instant(start, Options.TimeZoneId), End = NexaTime.Instant(end, Options.TimeZoneId), IntervalMinutes = interval, ConfiguredDurationMinutes = (end - start).TotalMinutes, ScheduledDays = SelectedSessionDays() };
         if (!InputRules.ValidSession(session) || session.End <= DateTimeOffset.Now)
         { Error("End must be in the future, after start, and within 7 days of start. For overnight sessions, use tomorrow's end date."); return; }
         BeginSession(session);
@@ -347,6 +352,10 @@ public partial class MainWindow
 
     private void BeginSession(Session session)
     {
+        session.IntervalMinutes=state.Widgets.FirstOrDefault(w=>WidgetLibrary.Definition(w.Kind).Editor=="timeline")?.SummaryIntervalMinutes??session.IntervalMinutes;
+        if (session.Start > DateTimeOffset.UtcNow && session.BeforeSessionCountdownFrom == null) session.BeforeSessionCountdownFrom = DateTimeOffset.UtcNow;
+        session.TimeZoneId = Options.TimeZoneId == "Automatic" ? TimeZoneInfo.Local.Id : Options.TimeZoneId;
+        session.AutomaticScheduling = (PresetPicker.SelectedItem as Preset)?.AutomaticScheduling == true;
         if (session.ConfiguredDurationMinutes <= 0) session.ConfiguredDurationMinutes = (session.End - session.Start).TotalMinutes;
         if (!SaveNow()) return;
         CloseNoteEditors();
@@ -355,6 +364,7 @@ public partial class MainWindow
         Continuity.Archive(dashboard);
         dashboard.Current = new DashboardSession { UserId = store.UserId, DashboardId = dashboard.DashboardId, Data = Continuity.Capture(candidate), Title = session.Title };
         dashboard.Current.Data.Session = session;
+        dashboard.Current.Data.Productivity = new();
         CommitWorkspace(candidate.Workspace!);
     }
 
@@ -379,7 +389,7 @@ public partial class MainWindow
         if (p.StartClockMinutes.HasValue && p.EndClockMinutes.HasValue)
         {
             StartTime.Value = TimeSpan.FromMinutes(p.StartClockMinutes.Value); EndTime.Value = TimeSpan.FromMinutes(p.EndClockMinutes.Value);
-            StartDate.SelectedDate = DateTime.Today; EndDate.SelectedDate = DateTime.Today.AddDays(p.EndDayOffset);
+            StartDate.SelectedDate = NexaTime.Local(DateTimeOffset.UtcNow,Options.TimeZoneId).Date; EndDate.SelectedDate = StartDate.SelectedDate.Value.AddDays(p.EndDayOffset);
         }
         if (p.ScheduledDays.Count > 0) foreach (var pair in sessionDayChecks) pair.Value.IsChecked = p.ScheduledDays.Contains(pair.Key);
         if (ready)
@@ -392,6 +402,7 @@ public partial class MainWindow
             SetColorPickerSelection(PixelColorPicker, state.PixelColor);
             ThemePicker.SelectedIndex = -1;
             ApplyColors(); Changed();
+            if(PresetPicker.IsKeyboardFocusWithin && !applyingTimingPreset)ApplyTimingPreset(p);
         }
     }
 
@@ -408,7 +419,7 @@ public partial class MainWindow
         selected.Name = preset.Name; selected.Minutes = preset.Minutes; selected.IntervalMinutes = preset.IntervalMinutes;
         selected.AccentColor = preset.AccentColor; selected.PixelColor = preset.PixelColor;
         selected.StartClockMinutes = preset.StartClockMinutes; selected.EndClockMinutes = preset.EndClockMinutes; selected.EndDayOffset = preset.EndDayOffset;
-        selected.ScheduledDays = preset.ScheduledDays;
+        selected.ScheduledDays = preset.ScheduledDays; selected.AutomaticScheduling = preset.AutomaticScheduling;
         RefreshPresets(selected.Id); Changed(); SaveNow();
     }
 
@@ -454,7 +465,7 @@ public partial class MainWindow
             remove.Click += (_, _) => { state.Tasks.Remove(item); RenderTasks(); Changed(); };
             row.Children.Add(remove);
             var check = new CheckBox { Content = new TextBlock { Text = item.Text, TextWrapping = TextWrapping.Wrap }, IsChecked = item.Done, Margin = new Thickness(0, 4, 8, 4) };
-            check.Click += (_, _) => { item.Done = check.IsChecked == true; if (item.Done) PlayInterfaceSound(); Changed(); };
+            AttachTaskPermanence(check, item); check.Click += (_, _) => { item.Done = check.IsChecked == true; if (item.Done) PlayInterfaceSound(); Changed(); };
             row.Children.Add(check); TaskList.Children.Add(row);
         }
     }
@@ -487,7 +498,7 @@ public partial class MainWindow
         Theme.ApplyDashboard(FullContent.Resources, state.AccentColor, state.PixelColor);
         PercentLabel.Foreground = DashboardBrush("PixelBrush");
         previousHead = -1;
-        headAnimating = false;
+
         litPixels = -1;
         if (storyOpen) RenderStory();
     }
@@ -514,6 +525,7 @@ public partial class MainWindow
         var needsTopInset = fullscreen || WindowState == WindowState.Maximized;
         DashboardHeader.Height = needsTopInset ? 60 : 52;
         DashboardHeader.Padding = new Thickness(12, needsTopInset ? 16 : 8, 12, 6);
+        SessionNameHost.MaxWidth = Math.Clamp((DashboardHeader.ActualWidth - TopNavigation.ActualWidth) / 2 - 52, 60, 290);
     }
     internal void ToggleFullscreen()
     {
@@ -522,7 +534,9 @@ public partial class MainWindow
             if (state.Compact) { SetCompact(false); Changed(); }
             restoreWindowState = WindowState;
             restoreBounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
+            restoreFullscreenTopmost = Topmost;
             fullscreen = true;
+            WindowState = WindowState.Normal; Topmost = true;
             ResizeMode = ResizeMode.NoResize;
             WindowState = WindowState.Maximized;
         }
@@ -531,7 +545,8 @@ public partial class MainWindow
             WindowState = WindowState.Normal; ResizeMode = ResizeMode.CanResize;
             if (restoreWindowState == WindowState.Normal)
             { Left = restoreBounds.Left; Top = restoreBounds.Top; Width = restoreBounds.Width; Height = restoreBounds.Height; }
-            WindowState = restoreWindowState; fullscreen = false;
+            fullscreen = false; Topmost = restoreFullscreenTopmost;
+            WindowState = restoreWindowState;
         }
         UpdateDashboardHeaderGeometry();
         var duration = TimeSpan.FromMilliseconds(260);
@@ -573,8 +588,8 @@ public partial class MainWindow
         TitleInput.FontSize = 16;
         Detach(CountdownHost); CompactTimerHost.Visibility = compact ? Visibility.Visible : Visibility.Collapsed;
         if (compact) CompactTimerHost.Children.Add(CountdownHost); else PixelInfo.Children.Insert(0, CountdownHost);
-        FooterStatus.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
-        DashboardTip.Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
+        FooterStatus.Visibility = Visibility.Collapsed;
+        DashboardTip.Visibility = Visibility.Collapsed;
         SessionRange.Visibility = Visibility.Collapsed;
         Countdown.FontSize = compact ? 32 : 40;
     }
@@ -585,17 +600,20 @@ public partial class MainWindow
         return $"{seconds / 3600:00}:{seconds / 60 % 60:00}:{seconds % 60:00}";
     }
 
+    private DateTimeOffset displayedClockInstant;
     internal void UpdateClock(DateTimeOffset? at = null)
     {
-        UpdateWidgetClocks(at ?? DateTimeOffset.Now);
+        var now = at ?? DateTimeOffset.UtcNow;displayedClockInstant=now;
+        ReconcileSchedule(now);
         var session = state.Session;
-        var now = at ?? DateTimeOffset.Now;
-        var progress = session?.Progress(now) ?? 0;
+        var reading = PixelTiming.Read(session, now);
+        var progress = reading.VisualFraction;
+        UpdateWidgetClocks(now);
         UpdateFocusExperience(now); var complete = session != null && session.StoppedAt == null && now >= session.End;
         if (session != null)
         {
             var milestones = Milestones.Collect(session, now);
-            if (milestones.Count > 0) { flashUntil = now.AddSeconds(6); MilestoneLabel.Text = string.Join(" · ", milestones); Changed(); }
+            if (milestones.Count > 0) { if(FeedbackBounds(state.Widgets.FirstOrDefault(w=>w.PanelKey=="pixels")?.Id) is {} milestoneBounds) feedbackOverlay?.Show("milestone",milestoneBounds,milestones.Last()); flashUntil = now.AddSeconds(6); MilestoneLabel.Text = string.Join(" · ", milestones); Changed(); }
         }
         var flashing = now < flashUntil && !complete && session?.IsRunning(now) == true;
         MilestoneLabel.Visibility = flashing ? Visibility.Visible : Visibility.Collapsed;
@@ -604,7 +622,7 @@ public partial class MainWindow
         if (session != null)
         {
             SessionTitle.Text = session.Title;
-            SessionRange.Text = $"{session.Start.LocalDateTime:MMM d, h:mm tt} → {session.End.LocalDateTime:MMM d, h:mm tt}";
+            SessionRange.Text = $"{NexaTime.Clock(session.Start, Options, true)} → {NexaTime.Clock(session.End, Options, true)}";
             StatusLabel.Text = session.StoppedAt != null ? "SESSION ENDED" : now < session.Start ? "SCHEDULED" : now >= session.End ? "SESSION OVER" : "IN SESSION";
             Countdown.Text = ClockText(session.Remaining(now));
             CountdownCaption.Text = session.StoppedAt != null ? "SESSION ENDED" : now < session.Start ? "UNTIL START" : "TIME REMAINING";
@@ -622,27 +640,19 @@ public partial class MainWindow
             StatusLabel.Text = "READY WHEN YOU ARE"; Countdown.Text = ElapsedLabel.Text = "00:00:00";
             CountdownCaption.Text = "TIME REMAINING"; DurationLabel.Text = IntervalLabel.Text = "—"; EndButton.IsEnabled = false;
         }
-        PercentLabel.Text = $"{progress * 100:0.0}%";
+        PercentLabel.Text = NexaTime.Percentage(progress);
         SessionProgressBar.Value=progress*100;
-        var head = Math.Clamp((int)Math.Floor(progress * pixels.Count), 0, pixels.Count);
-        if (previousHead >= 0 && previousHead < pixels.Count && (previousHead != head || session?.IsRunning(now) != true))
-        { pixels[previousHead].BeginAnimation(OpacityProperty, null); pixels[previousHead].Opacity = 1; headAnimating = false; }
-        if (litPixels < 0)
-            for (var i = 0; i < pixels.Count; i++) pixels[i].Background = DashboardBrush(i < head ? "PixelBrush" : "PixelOffBrush");
-        else if (head != litPixels)
-            for (var i = Math.Min(head, litPixels); i < Math.Max(head, litPixels); i++) pixels[i].Background = DashboardBrush(i < head ? "PixelBrush" : "PixelOffBrush");
-        litPixels = head;
-        if (head < pixels.Count && session?.IsRunning(now) == true)
-        {
-            pixels[head].Background = DashboardBrush("PixelBrush");
-            if (head != previousHead || !headAnimating)
-            {
-                pixels[head].BeginAnimation(OpacityProperty, new DoubleAnimation(0.35, 1, TimeSpan.FromSeconds(0.75)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever });
-                headAnimating = true;
-            }
-        }
-        else if (previousHead >= 0 && previousHead < pixels.Count) { pixels[previousHead].BeginAnimation(OpacityProperty, null); headAnimating = false; }
-        previousHead = head;
+        Countdown.Text = ClockText(reading.Time, !reading.CountUp);
+        CountdownCaption.Text = reading.Caption; StatusLabel.Text = reading.Status;
+        var remainingFraction = reading.VisualFraction;
+        UpdateFrenzyFeedback();
+        var head = PixelTiming.CompletedPixels(reading, pixels.Count);
+        if (previousHead >= 0 && previousHead < pixels.Count)
+        { pixels[previousHead].BeginAnimation(OpacityProperty, null); pixels[previousHead].Opacity = 1; }
+        if (head != litPixels)
+            for (var i = 0; i < pixels.Count; i++)
+            { pixels[i].BeginAnimation(OpacityProperty, null); pixels[i].Opacity = 1; pixels[i].Background = DashboardBrush(i < head ? "PixelBrush" : "PixelOffBrush"); }
+        litPixels = head; previousHead = -1;
         if (session == null) return;
         var effectiveNow = session.StoppedAt ?? now;
         foreach (var card in intervals)

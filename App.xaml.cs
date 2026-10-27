@@ -1,14 +1,19 @@
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 
 namespace SessionDashboard;
 
 public partial class App : Application
 {
+    static App()
+    {
+        FrameworkElement.UseLayoutRoundingProperty.OverrideMetadata(typeof(Window),new FrameworkPropertyMetadata(true));
+        UIElement.SnapsToDevicePixelsProperty.OverrideMetadata(typeof(Window),new FrameworkPropertyMetadata(true));
+    }
     internal const string BrandWordmark = "nexa";
     internal static string AppVersion => typeof(App).Assembly.GetName().Version?.ToString(3) ?? "Unknown";
     internal static string VersionLabel => ReleaseLabel(AppVersion);
-    internal static string ReleaseLabel(string version) => $"Nexa {version} Alpha";
+    internal static string ReleaseLabel(string version) => $"nexa v{version} alpha";
     private Mutex? workspaceMutex;
     internal bool SuppressNormalStartup { get; init; }
     protected override void OnStartup(StartupEventArgs e)
@@ -37,9 +42,8 @@ public partial class App : Application
             {
                 try
                 {
-                    var profile=store.LoadProfile();
+                    var profile=await Task.Run(()=>store.LoadProfile());splash.Report(.2,"Profile settings loaded");
                     if(profile.OnboardingCompleted) { var home = await splash.EnterHome(store); _ = CheckStartupUpdatesAsync(store, home); return; }
-                    await Task.Delay(600);
                     var welcome=new OnboardingWindow(store) { Owner=splash };
                     splash.Hide();
                     var accepted=welcome.ShowDialog();
@@ -62,7 +66,7 @@ public partial class App : Application
             Shutdown(1);
         }
     }
-    protected override void OnExit(ExitEventArgs e) { workspaceMutex?.Dispose(); base.OnExit(e); }
+    protected override void OnExit(ExitEventArgs e) { NexaEcosystem.FlushAll(); workspaceMutex?.Dispose(); base.OnExit(e); }
     private static async Task CheckStartupUpdatesAsync(StateStore store, Window home)
     {
         if (!store.LoadUpdatePreferences().CheckOnStartup) return;

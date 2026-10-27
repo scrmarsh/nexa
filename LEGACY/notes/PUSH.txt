@@ -1,0 +1,1074 @@
+You are working on the existing Nexa desktop application.
+
+This is a substantial polish/refactor pass that should become version 1.0.4.
+
+Before editing:
+1. Inspect the current project structure and existing implementation.
+2. Identify the components, styles, state, persistence, and layout systems involved.
+3. Preserve existing working functionality.
+4. Make targeted changes instead of rewriting unrelated systems.
+5. Reuse existing components and theme/state infrastructure where practical.
+6. Run/build the application after changes and fix any errors you introduce.
+7. Do not claim a feature works unless you actually verified it.
+
+IMPORTANT TERMINOLOGY
+
+The application is called:
+Nexa
+
+Going forward, refer to individual dashboards as:
+Spaces
+
+Use this terminology consistently where it makes sense:
+- Create Space
+- Open Space
+- Recent Spaces
+- Space settings
+- Import Space
+- Export Space
+
+This ties into the Nexa slogan:
+“A space for whatever comes next”
+
+Do not blindly rename internal identifiers if doing so could break persistence or compatibility. User-facing terminology is the priority.
+
+==================================================
+1. HOME SCREEN LAYOUT
+==================================================
+
+Fix the home screen layout at all window sizes, especially maximized/fullscreen.
+
+Current problem:
+At some sizes, controls near the bottom become inaccessible or awkwardly positioned.
+
+Requirements:
+- The page should scroll naturally when needed.
+- Bottom controls must NOT remain fixed/floating over content.
+- The footer should appear naturally when the user reaches the bottom.
+- Avoid excessive empty space.
+- Ensure the full home screen works properly when maximized.
+
+Reorganize the footer.
+
+Bottom-left:
+- Autosave status indicator
+
+Bottom-right:
+- View History
+- Changelog
+- About Nexa
+- DEV
+- Settings cogwheel icon
+
+Settings should be represented by an animated cogwheel icon rather than the word “Settings.”
+
+Do not show a redundant Nexa icon beside the Settings label.
+
+Use the same Settings cogwheel consistently throughout the app.
+
+==================================================
+2. HOME SCREEN MAIN ACTIONS
+==================================================
+
+The primary home actions should no longer rely on hover tooltips to explain themselves.
+
+For actions such as:
+- Create Space
+- Continue / Resume
+- Import Space
+
+Display a permanent text label directly beneath each icon.
+
+Remove the visible boxed outlines currently surrounding these action icons.
+
+Make the icons slightly larger.
+
+Hover behavior:
+- icon turns white or otherwise gains strong theme-appropriate contrast
+- icon grows slightly
+- smooth subtle transition
+- no popup label is required
+
+Do not make the controls feel like generic boxed website buttons.
+
+==================================================
+3. HOME SCREEN SPACING
+==================================================
+
+Tighten vertical spacing where appropriate.
+
+Recent Space entries currently use more height than necessary.
+
+Make them slightly more compact while preserving readability.
+
+Avoid excessive empty areas between sections.
+
+==================================================
+4. AUTOSAVE INDICATOR
+==================================================
+
+Replace the long persistent message such as:
+
+“Nexa restored your last autosaved session…”
+
+with a compact autosave indicator in the bottom-left footer area.
+
+Behavior:
+
+While actively saving:
+- animated spinner/loading icon
+- text: “Autosaving…”
+
+After successful save:
+- transition to “Autosaved”
+- subtle success state/checkmark
+
+Requirements:
+- Reflect actual autosave state.
+- Do not continuously animate when nothing is saving.
+- Do not hardcode green.
+- Use the active theme/accent system.
+- Keep it visually subtle.
+
+A restored-session notification, if still needed, should be temporary rather than permanently taking up page space.
+
+==================================================
+5. SETTINGS ARCHITECTURE
+==================================================
+
+Redesign Settings into a two-pane interface.
+
+Left pane:
+Settings categories
+
+Right pane:
+Content for selected category
+
+Initial categories:
+
+- Appearance
+- Session
+- Hedy
+- Account
+- Data
+
+Keep this architecture extensible for future settings.
+
+Clicking outside of Settings should dismiss it where appropriate.
+
+If Settings is already open and another control requests a specific settings section, switch tabs rather than opening another Settings instance.
+
+==================================================
+6. APPEARANCE SETTINGS
+==================================================
+
+Appearance should contain global application appearance options.
+
+Add an App Theme system capable of changing the overall Nexa color palette.
+
+Theme changes should apply consistently to:
+- headers
+- cards
+- menus
+- modals
+- timers
+- clocks
+- banners
+- buttons
+- checkboxes
+- highlights
+- active states
+- widget accents
+- secondary views
+- story mode
+- About
+- History
+- Changelog
+- DEV-related views
+
+Avoid scattered hardcoded accent colors.
+
+==================================================
+7. LIGHT MODE CONTRAST
+==================================================
+
+Light mode currently has multiple contrast problems.
+
+Fix the Nexa logo.
+
+The wordmark is currently nearly unreadable on the light background.
+
+Use:
+- a dark light-mode logo variant
+OR
+- theme-aware SVG/CSS coloring
+
+Do NOT solve this with a heavy box behind the logo unless absolutely necessary.
+
+The version text directly under the logo, such as:
+“Desktop · v1.0.3”
+
+must be dark in light mode.
+
+Prefer:
+- black
+OR
+- the theme’s primary dark text token
+
+Also inspect and improve:
+- slogan text
+- Recent Space metadata
+- secondary labels
+- card borders
+- buttons
+- menu surfaces
+
+Light mode currently has too many surfaces with nearly identical brightness.
+
+Increase visual separation using:
+- slightly stronger borders
+- subtle tinted surfaces
+- clearer primary vs secondary background levels
+
+Keep it clean and modern, not heavy.
+
+The same light-mode branding rules must apply to the logo inside About Nexa.
+
+==================================================
+8. GLOBAL MODALS / MENUS
+==================================================
+
+Clicking outside an open modal/menu should close it where appropriate.
+
+This includes:
+- Settings
+- About Nexa
+- Changelog
+- DEV-related dialogs
+- similar popup/menu surfaces
+
+The X/close button should still work.
+
+Do not require the user to precisely click the X every time.
+
+Add subtle borders around dark modal/window surfaces so they do not disappear into the black background.
+
+==================================================
+9. RESET DEV DIALOG
+==================================================
+
+The Reset DEV confirmation/menu currently does not visually match the rest of Nexa.
+
+Restyle it to match the common modal system:
+- spacing
+- borders
+- typography
+- button hierarchy
+- theme support
+- light/dark behavior
+- outside-click dismissal where appropriate
+
+==================================================
+10. ABOUT NEXA COPY
+==================================================
+
+Update language in About Nexa that refers to:
+- pantry shifts
+- pantry/service shifts
+
+Replace that wording with the more general:
+“work shifts”
+
+The app should make sense to users who have no connection to the original pantry use case.
+
+==================================================
+11. SESSION SETTINGS
+==================================================
+
+Create a dedicated Session category in the main Settings interface.
+
+This section contains settings that apply ONLY to the currently active Space/session.
+
+The existing Session button inside the active dashboard should open:
+Main Settings → Session
+
+If Settings is already open:
+switch directly to Session.
+
+Examples of session-specific settings may include:
+- session name
+- session duration
+- start/end time
+- selected days
+- current Space background
+- timer/session behavior
+- other settings that only affect the active session
+
+Do not put global application settings here.
+
+HOME PAGE / NO ACTIVE SESSION STATE:
+
+The Session tab should still exist when there is no active session.
+
+Show a clear state such as:
+
+“No active session”
+
+Supporting text:
+“Start or resume a session to manage session-specific settings.”
+
+Disable or hide session-only controls until a session becomes active.
+
+The UI should update immediately when entering or leaving a session.
+
+==================================================
+12. SPACE BACKGROUND CUSTOMIZATION
+==================================================
+
+Add per-Space background customization.
+
+This is separate from the global Nexa App Theme.
+
+Background modes:
+- Default
+- Solid color
+- Custom image
+
+For custom image:
+- allow user to choose a local image
+- use it as the background for only that Space
+
+Image options:
+- Blur background toggle
+- Blur strength slider
+- Overlay/dimming control for readability
+
+Requirements:
+- Persist background configuration per Space
+- Restore it when that Space is reopened
+- Do not blur widget contents
+- Maintain widget/text readability over both light and dark images
+
+==================================================
+13. CHECKBOX DESIGN
+==================================================
+
+Replace generic/default white checkboxes throughout Nexa.
+
+Use one shared themed checkbox component.
+
+Appearance:
+- simple rounded square
+- slightly larger than current checkbox
+- softly rounded corners
+- subtle themed border/background when unchecked
+- checked state uses the active theme color
+- clean checkmark inside using an appropriate matching/contrasting theme color
+
+Do not make the checkbox resemble the Nexa logo.
+
+Provide consistent:
+- hover state
+- focus state
+- checked state
+- disabled state
+
+Maintain keyboard accessibility and sufficient contrast.
+
+==================================================
+14. DASHBOARD / SPACE RESPONSIVE GRID
+==================================================
+
+There is currently too much empty space between widgets.
+
+Improve the grid/layout system so widgets automatically reflow and make better use of available space.
+
+Requirements:
+- minimized widgets collapse properly
+- minimized widgets should not reserve large empty grid areas
+- remaining widgets should reflow into available space
+- reduce unnecessary scrolling
+- reduce large empty gaps
+- respect minimum useful widget sizes
+- allow reasonable maximum sizes
+- do not aggressively constrain every widget to the same width
+
+The layout should feel responsive and compact rather than like fixed blocks with holes between them.
+
+==================================================
+15. WIDGET INTERNAL SCROLLING
+==================================================
+
+General rule:
+Remove unnecessary internal scrollbars from widgets.
+
+Users should generally resize a widget when they need more room.
+
+EXCEPTIONS:
+
+Keep internal scrolling where content genuinely requires it.
+
+Specifically:
+- Bible widget MUST keep internal scrolling
+- Session Notes/Hedy transcript or long interval-summary feeds may scroll internally when needed
+
+Do not remove useful scrolling from content-heavy widgets.
+
+==================================================
+16. WIDGET MAXIMUM SIZES
+==================================================
+
+Increase resizing freedom.
+
+The Pixel Timer should be able to span at least three widget columns and potentially much more of the Space.
+
+Remove artificial width caps that stop a widget before it reaches a useful size.
+
+Different widget types may have different sensible maximums.
+
+==================================================
+17. REMOVE HARDCODED GREEN
+==================================================
+
+Search Nexa for hardcoded green accent styling and migrate appropriate instances to the theme system.
+
+Known examples:
+- Session Over banner
+- session intervals
+- Hedy/session interval elements
+- clocks
+- status/accent elements
+
+These should use the active theme instead of permanent green.
+
+Do not blindly replace colors where green has actual semantic meaning; use judgment.
+
+==================================================
+18. PIXEL TIMER EDIT MENU
+==================================================
+
+Clean up the Pixel Timer edit/settings menu.
+
+Fix:
+- alignment
+- spacing
+- labels
+- input alignment
+- control sizing
+- visual consistency
+- awkward positioning
+
+Make it feel consistent with modern Nexa styling.
+
+==================================================
+19. PIXEL TIMER MULTI-DAY SCHEDULING
+==================================================
+
+Allow a Pixel Timer/session schedule to apply to multiple days.
+
+Example:
+Monday + Wednesday
+
+Support selection of:
+- Monday
+- Tuesday
+- Wednesday
+- Thursday
+- Friday
+- Saturday
+- Sunday
+
+Allow multiple selections simultaneously.
+
+Persist selected days with the Space/session configuration.
+
+==================================================
+20. PIXEL TIMER PRESET REMOVAL
+==================================================
+
+Remove the Preset option from the Pixel Timer session-edit area.
+
+It is not useful in the current design.
+
+Do not remove unrelated saved Space/session functionality.
+
+==================================================
+21. PIXEL TIMER RESET BUTTON
+==================================================
+
+Add a Reset button beside Edit.
+
+Example:
+
+[ Edit ] [ Reset ]
+
+When clicked:
+show a confirmation dialog.
+
+Suggested copy:
+
+“Reset timer?”
+
+“Are you sure you want to reset this timer to the configured session length?”
+
+Buttons:
+Cancel
+Reset
+
+Reset should:
+- restore the countdown to the configured session duration
+
+Reset should NOT:
+- delete widgets
+- delete notes
+- delete the Space
+- reset the app
+- erase unrelated session information
+
+==================================================
+22. STORY MODE / “I’M BORED”
+==================================================
+
+The “I’m bored” story-mode game currently opens in dark mode even when Nexa is using light mode.
+
+Fix it so story mode inherits the active Nexa theme.
+
+Support:
+- light
+- dark
+- custom app themes where practical
+
+Theme changes should propagate without requiring a full restart where possible.
+
+Audit other secondary screens for the same hardcoded-theme problem.
+
+==================================================
+23. CLOCK WIDGET
+==================================================
+
+Keep the existing digital time visible at all sizes.
+
+When the Clock widget becomes sufficiently large, automatically reveal a polished analog clock underneath the digital readout.
+
+The user should not need to manually enable this.
+
+Analog clock requirements:
+- responsive sizing
+- centered beneath digital time
+- smooth hour hand
+- smooth minute hand
+- smooth second hand
+- active theme colors
+- no internal scrollbar
+- subtle animation
+- clean modern design
+
+At medium sizes:
+use a simplified face if needed.
+
+At large sizes:
+show a fuller/fancier analog face.
+
+When the widget becomes too small:
+automatically hide the analog portion while keeping digital time.
+
+==================================================
+24. HEDY / SESSION NOTES REDESIGN
+==================================================
+
+Rename the current Hedy-related widget to something broader such as:
+
+“Session Notes”
+
+Hedy should be treated as one available input source, not something every Nexa user must have.
+
+Keep the useful interval-summary concept, but remove the current large interval card grid.
+
+Instead use a chronological summary timeline.
+
+Example:
+
+4:00–4:10 PM
+Discussion focused on urban growth and zoning changes.
+
+4:10–4:20 PM
+Conversation shifted toward remote work patterns.
+
+4:20–4:30 PM
+Compared effects across different age groups.
+
+==================================================
+25. CONFIGURABLE INTERVAL LENGTH
+==================================================
+
+Allow the user to choose the Session Notes summary interval.
+
+Initially support:
+- 5 minutes
+- 10 minutes
+- 15 minutes
+
+The architecture can support custom durations later if appropriate.
+
+During an active session:
+- incoming note/transcript content belongs to the current interval
+- when the interval completes, create/finalize a concise summary
+- retain previous summaries in chronological order
+
+The current interval should have a subtle in-progress state such as:
+- animated dot
+- “Summarizing…”
+- similar understated indicator
+
+Persist completed interval summaries with session/history data.
+
+==================================================
+26. SESSION NOTES CONTROL LAYOUT
+==================================================
+
+Move Session Notes controls into a dedicated footer at the bottom of the widget.
+
+Keep content above.
+
+Footer may contain:
+- source selector
+- Hedy settings
+- refresh
+- link/connect
+- disconnect
+- recording controls when local recording is selected
+- interval-length control where appropriate
+
+Make the primary action visually clear.
+
+Keep secondary actions understated.
+
+Do not scatter controls throughout the content area.
+
+==================================================
+27. HEDY SETTINGS DEEP LINK
+==================================================
+
+The Hedy Settings button inside Session Notes should NOT open a separate widget-specific settings panel.
+
+Instead:
+open Main Settings → Hedy
+
+If Settings is already open:
+switch to the Hedy tab.
+
+==================================================
+28. HEDY SETTINGS
+==================================================
+
+Add a Hedy category to Settings.
+
+Allow the user to enter/save a Hedy API key.
+
+Use the safest existing local configuration/persistence method available.
+
+Requirements:
+- never print API keys to logs
+- never expose them unnecessarily in UI/state dumps
+- mask them where appropriate
+
+==================================================
+29. HEDY OPTIONAL / LOCAL RECORDING FALLBACK
+==================================================
+
+THIS IS IMPORTANT:
+
+Nexa must remain useful for users who do NOT use Hedy.
+
+Session Notes should support at least two input sources:
+
+1. Hedy
+2. Local Recording
+
+When Local Recording is selected:
+
+Use the computer microphone, with explicit permission.
+
+Provide:
+- Record
+- Pause
+- Resume
+- Stop
+
+Clearly show:
+- microphone active state
+- recording status
+- elapsed recording time
+
+Never begin recording automatically.
+
+The user must explicitly start it.
+
+==================================================
+30. LOCAL TRANSCRIPTION
+==================================================
+
+For Local Recording mode, generate a transcript when supported by the current technical stack.
+
+The transcript should feed into the SAME interval-summary system used by Hedy.
+
+Example:
+If interval length = 10 minutes,
+use each 10-minute transcript block to create a short summary.
+
+Persist:
+- transcript
+- interval summaries
+- relevant session metadata
+
+Allow the user to delete their local recording/transcript.
+
+If reliable transcription is not currently available in the existing stack:
+- implement recording and storage cleanly
+- prepare the architecture for transcription
+- clearly mark transcription as unavailable/pending
+- DO NOT fake transcript output
+
+Prefer an offline/local transcription approach if practical for Nexa’s offline-first design.
+
+Do not silently upload recordings to an external service.
+
+==================================================
+31. SESSION NOTES CONTENT PRIORITY
+==================================================
+
+The actual notes, transcript, and interval summaries should have more visual priority than connection controls.
+
+The overall layout should roughly be:
+
+Session Notes
+↓
+Interval summaries / live summary timeline
+↓
+Transcript or note content
+↓
+Controls footer
+
+Use subtle dividers/borders where necessary.
+
+==================================================
+32. ACCOUNT SETTINGS
+==================================================
+
+Add an Account category.
+
+Nexa remains an offline-first application.
+
+Future concept:
+Users may optionally sign in later to sync their Nexa data.
+
+Possible providers:
+- Microsoft
+- Google
+- Apple
+
+For version 1.0.4:
+build the UI/state structure only unless authentication already exists.
+
+Clearly label sync/sign-in functionality:
+“Coming Soon”
+
+Do not fake authentication.
+
+==================================================
+33. DATA SETTINGS
+==================================================
+
+Add a Data category.
+
+Future goal:
+Allow users to browse Spaces, export them, and potentially email exports.
+
+For now:
+show the Data section and clearly label unfinished functionality:
+“Coming Soon”
+
+Do not implement fake email sending.
+
+Preserve any import/export functionality that already legitimately works elsewhere.
+
+==================================================
+34. FLASHCARDS WIDGET
+==================================================
+
+Add a native offline Flashcards widget.
+
+Do NOT implement unofficial Quizlet authentication, scraping, or undocumented APIs.
+
+Core functionality:
+- create flashcard decks locally
+- add cards
+- edit cards
+- delete cards
+- front/back layout
+- flip card
+- Previous
+- Next
+- Shuffle
+- progress indicator such as “7 / 24”
+- mark cards as “Know it”
+- mark cards as “Review”
+
+Save:
+- decks
+- card content
+- study/review state
+
+locally.
+
+==================================================
+35. FLASHCARDS IMPORT / EXPORT
+==================================================
+
+Support basic deck import.
+
+Preferred formats:
+- CSV
+- JSON
+
+Structure the data cleanly enough that future integrations can be added later.
+
+Allow future exporting through the Nexa Data section.
+
+==================================================
+36. FLASHCARDS RESPONSIVE LAYOUT
+==================================================
+
+Small widget:
+- one card
+- minimal essential controls
+
+Medium widget:
+- card
+- progress
+- Know it / Review controls
+
+Large widget:
+- optionally show deck sidebar/card list
+- additional study controls where useful
+
+Match:
+- active theme
+- current Space styling
+- background readability rules
+
+Avoid unnecessary scrolling at small sizes.
+
+==================================================
+37. BIBLE WIDGET
+==================================================
+
+Bible widget is an explicit exception to the “no internal scrolling” preference.
+
+KEEP its internal scroll behavior.
+
+It contains long-form content where scrolling is appropriate.
+
+==================================================
+38. SLOGAN
+==================================================
+
+Use the animated Nexa slogan where appropriate:
+
+“A space for whatever comes next”
+
+Match the existing home-page animation/style.
+
+Do not use the previous alternate wording:
+“Your workspace, your way”
+
+==================================================
+39. VISUAL DIRECTION
+==================================================
+
+Preserve Nexa’s existing visual identity:
+
+- dark/modern by default
+- clean
+- slightly futuristic
+- subtle animation
+- rounded surfaces
+- restrained borders
+- theme-aware
+- not overly glossy
+- not a generic website
+- not an old Windows utility
+
+Use consistent sentence/title casing.
+
+Avoid unnecessary ALL CAPS.
+
+==================================================
+40. PRESERVE EXISTING FUNCTIONALITY
+==================================================
+
+Do not break existing working systems such as:
+
+- Space/dashboard persistence
+- autosave
+- session history
+- current account-related placeholders
+- customization
+- widget add/remove
+- widget minimizing
+- timer persistence
+- Pixel Swarm
+- Bible widgets
+- import/export
+- splash/home navigation
+- Windows packaging/build behavior
+
+Where terminology changes from Dashboard → Space, preserve underlying compatibility.
+
+==================================================
+41. TESTING
+==================================================
+
+After implementation, test at minimum:
+
+HOME
+1. Home screen normal window.
+2. Home screen maximized.
+3. Scroll to bottom and verify footer appears naturally.
+4. Verify footer does not float over content.
+5. Check permanent labels beneath main action icons.
+6. Confirm autosave indicator behavior.
+
+SETTINGS
+7. Open Settings with cogwheel.
+8. Test two-pane navigation.
+9. Appearance tab.
+10. Session tab with active session.
+11. Session tab with no active session.
+12. Hedy tab.
+13. Account Coming Soon state.
+14. Data Coming Soon state.
+15. Outside-click dismissal.
+
+THEMES
+16. Dark mode.
+17. Light mode.
+18. Nexa logo contrast.
+19. Version text contrast.
+20. About Nexa logo contrast.
+21. Recent Space metadata contrast.
+22. Story mode theme inheritance.
+23. Custom theme propagation.
+24. Checkbox appearance across themes.
+
+SPACE BACKGROUNDS
+25. Solid color background.
+26. Custom image background.
+27. Blur toggle.
+28. Blur strength.
+29. Overlay/dimming.
+30. Save/reopen Space and confirm background persists.
+
+GRID
+31. Add several widgets.
+32. Minimize widgets.
+33. Confirm reflow removes large gaps.
+34. Resize widgets widely.
+35. Pixel Timer spans at least three columns.
+
+PIXEL TIMER
+36. Multi-day schedule such as Monday + Wednesday.
+37. Save/reopen and verify selected days persist.
+38. Preset control removed.
+39. Reset confirmation appears.
+40. Reset restores configured duration only.
+
+CLOCK
+41. Small Clock shows digital only.
+42. Enlarge Clock and confirm analog appears.
+43. Shrink it and confirm analog disappears.
+44. Confirm theme colors update.
+
+SESSION NOTES / HEDY
+45. Hedy settings button deep-links to Main Settings → Hedy.
+46. Interval selector supports 5/10/15 minutes.
+47. Completed intervals create chronological summaries.
+48. Current interval shows in-progress state.
+49. Controls stay in widget footer.
+50. Long summary/transcript area scrolls appropriately.
+
+LOCAL RECORDING
+51. Select Local Recording without Hedy configured.
+52. Explicit microphone permission.
+53. Record.
+54. Pause.
+55. Resume.
+56. Stop.
+57. Confirm microphone active indicator.
+58. Confirm timer/elapsed recording status.
+59. Verify transcript if transcription is actually implemented.
+60. Verify transcript feeds interval summaries if implemented.
+61. Confirm no recording begins automatically.
+62. Confirm delete recording/transcript works.
+63. Confirm recordings are not silently uploaded.
+
+FLASHCARDS
+64. Create deck.
+65. Add/edit/delete card.
+66. Flip card.
+67. Next/Previous.
+68. Shuffle.
+69. Know it / Review.
+70. Save/reopen and confirm persistence.
+71. Import CSV.
+72. Import JSON.
+73. Resize widget and test small/medium/large states.
+
+OTHER
+74. Bible widget still scrolls internally.
+75. Reset DEV dialog matches common modal styling.
+76. About text says “work shifts,” not pantry-specific language.
+77. Hardcoded green accents have been replaced by theme values where appropriate.
+
+==================================================
+42. VERSION UPDATE
+==================================================
+
+After the above changes are completed and the application builds successfully:
+
+Update Nexa’s application version from the current version to:
+
+1.0.4
+
+Update all appropriate version references consistently, including where applicable:
+- package metadata
+- app metadata
+- displayed home-page version
+- About Nexa
+- build configuration
+- changelog/version history
+
+Do not create conflicting version values in different files.
+
+Add an appropriate v1.0.4 changelog entry summarizing the major changes.
+
+other changes: add animation for fullscreen toggle, move settings button to left corner of home page and make the button itsef the animated gear cog icon. the settings icon inside of the
+settings menu should be static.
+
+==================================================
+43. FINAL REPORT
+==================================================
+
+When finished, give me a concise implementation report containing:
+
+1. Files modified.
+2. Major architectural changes.
+3. Features completed.
+4. Features partially completed.
+5. Anything intentionally left as Coming Soon.
+6. Anything that could not be implemented reliably.
+7. Tests actually performed.
+8. Build result.
+9. Confirmation that the displayed/app/package version is now 1.0.4.
+
+Do not claim a feature works unless it was actually implemented and verified.

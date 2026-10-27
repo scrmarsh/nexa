@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -51,9 +51,7 @@ internal static class NexaPanels
         UIElement content = close;
         if (panel is SettingsDialog settings)
         {
-            var row = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-            row.Children.Add(close); settings.AutoSaveStatus.Margin = new Thickness(0, 0, 18, 0);
-            settings.AutoSaveStatus.VerticalAlignment = VerticalAlignment.Center; row.Children.Add(settings.AutoSaveStatus); content = row;
+            content=settings.BuildSettingsFooter(close);
         }
         else if (panel is NexaConfirmation confirmation)
         {
@@ -111,7 +109,9 @@ internal static class NexaPanels
         {
             // Windows can use the first outside click only to activate the owner;
             // in that case no routed mouse event reaches its content.
-            if (panel.IsVisible && Topmost(owner) is { } top) top.CloseWithFade();
+            // Closing a child activates its owner before Closed removes this handler.
+            // That activation must not cascade into dismissing the parent menu.
+            if (panel.IsVisible && !open.Any(p => p.DismissalInProgress && ReferenceEquals(Root(p), Root(owner))) && Topmost(owner) is { } top) top.CloseWithFade();
         };
         owner.AddHandler(UIElement.PreviewMouseDownEvent, outside, true);
         owner.AddHandler(UIElement.PreviewMouseLeftButtonDownEvent, outside, true);

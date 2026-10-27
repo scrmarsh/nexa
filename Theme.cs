@@ -1,4 +1,4 @@
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Controls;
@@ -22,6 +22,13 @@ public enum AppTheme
 
 public static class Theme
 {
+    internal static bool SeasonalEnabled { get; private set; }
+    internal static void SetSeasonalEnabled(bool enabled)
+    {
+        if (SeasonalEnabled == enabled) return;
+        SeasonalEnabled = enabled;
+        if (Application.Current != null) Apply(Application.Current.Resources, currentMode, currentTheme);
+    }
     private static ThemeMode currentMode = ThemeMode.System;
     private static string currentAccent = "#5B7CFF";
     private static string currentPixel = "#8B5CF6";
@@ -58,6 +65,7 @@ public static class Theme
             var replacements = Replacements(old, resources);
             foreach (Window window in Application.Current.Windows)
             {
+                window.Icon=NexaChrome.Icon;if(window is HomeWindow home)home.RefreshBranding();
                 Retarget(window, replacements);
                 if (window is SettingsDialog settings) settings.RefreshAppearance(replacements);
                 if (window is MainWindow space) space.RefreshThemeViews();
@@ -75,8 +83,8 @@ public static class Theme
     {
         var old = PaletteBrushes(resources, "Dashboard");
         var palette = new ResourceDictionary(); ApplyPalette(palette, currentMode, currentAccent, currentPixel);
-        palette["AccentBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(accent));
-        palette["PixelBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(pixel));
+        palette["AccentBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(SeasonalEnabled ? "#A855F7" : accent));
+        palette["PixelBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(SeasonalEnabled ? "#84CC16" : pixel));
         foreach (string key in palette.Keys)
         {
             var name = "Dashboard" + key;
@@ -121,6 +129,14 @@ public static class Theme
         {
             if (resources[key] is SolidColorBrush existing && !existing.IsFrozen) existing.Color = color;
             else resources[key] = new SolidColorBrush(color);
+        }
+        if (SeasonalEnabled)
+        {
+            foreach (var pair in new Dictionary<string, string> {
+                ["BackgroundBrush"]="#100D19", ["PanelBrush"]="#1C102A", ["SurfaceBrush"]="#291938", ["InputBrush"]="#180F24",
+                ["LineBrush"]="#794D34", ["TextBrush"]="#E9D5FF", ["MutedBrush"]="#CFBADE", ["AccentBrush"]="#A855F7", ["PixelBrush"]="#84CC16", ["PixelOffBrush"]="#2B2034" })
+                Set(pair.Key, (Color)ColorConverter.ConvertFromString(pair.Value));
+            return;
         }
         var accent = (Color)ColorConverter.ConvertFromString(accentHex);
         var pixel = (Color)ColorConverter.ConvertFromString(pixelHex);

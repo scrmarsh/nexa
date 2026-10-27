@@ -52,6 +52,8 @@ public partial class MainWindow
             remove.Click += (_, _) => { widget.ScripturePins.Remove(pin); Changed(); RenderWidgets(); };
             var open = new Button { Content = pin.Reference, HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(6, 3, 6, 3), ToolTip = "Open in Bible reader" };
             open.Click += (_, _) => OpenScripture(pin); heading.Children.Add(open); card.Children.Add(heading);
+            var permanent = new CheckBox { Content = "Permanent bookmark", IsChecked = pin.Permanent, Margin = new Thickness(0, 8, 0, 0) };
+            permanent.Click += (_, _) => { pin.Permanent = permanent.IsChecked == true; Changed(); SaveNow(); }; card.Children.Add(permanent);
             var version = new TextBlock { Text = pin.Translation, FontSize = 11, Margin = new Thickness(0, 7, 0, 5), FontWeight = FontWeights.SemiBold };
             version.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush"); card.Children.Add(version);
             card.Children.Add(new TextBox { Text = pin.Text, IsReadOnly = true, TextWrapping = TextWrapping.Wrap, AcceptsReturn = true, BorderThickness = new Thickness(0), Background = Brushes.Transparent, Padding = new Thickness(0), VerticalScrollBarVisibility = ScrollBarVisibility.Disabled });

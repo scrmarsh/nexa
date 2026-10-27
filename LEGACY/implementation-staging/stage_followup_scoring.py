@@ -1,0 +1,16 @@
+from pathlib import Path
+r=Path('M:/Nexa')
+def edit(n,f):
+ p=r/n;p.write_text(f(p.read_text(encoding='utf-8-sig')),encoding='utf-8-sig')
+edit('DashboardBugs.cs',lambda t:t.replace('else if(modeChanged) foreach','if(EcosystemActive && modeChanged) foreach'))
+edit('NexaReliability.cs',lambda t:t.replace('public int AutosaveSeconds','public double StreakMultiplierCap {get;set;} = 3;\n    public int DistractionPenalty {get;set;}\n    public int AlcoholPenalty {get;set;}\n    public int AutosaveSeconds',1).replace('public DateTimeOffset? FrenzyUntil { get; set; }','public DateTimeOffset? FrenzyUntil { get; set; }\n    public double FrenzyMultiplier {get;set;} = 1;\n    public double Multiplier(DateTimeOffset now)=>FrenzyUntil>now?Math.Clamp(double.IsFinite(FrenzyMultiplier)?FrenzyMultiplier:1.5,1.5,10):1;').replace('var bonus = category != "Bug squash" && ledger.FrenzyUntil > now ? points : 0;','var bonus = category != "Bug squash" && points>0 ? (int)Math.Round(points*(ledger.Multiplier(now)-1),MidpointRounding.AwayFromZero) : 0;').replace('DirectSquash(ProductivityLedger ledger, string identity, DateTimeOffset now)','DirectSquash(ProductivityLedger ledger, string identity, DateTimeOffset now, double maximum=3)').replace('ledger.BugsSquashed++; ledger.FrenzyActivations++; ledger.FrenzyUntil = now.AddSeconds(20).ToUniversalTime();','''maximum=double.IsFinite(maximum)?Math.Clamp(Math.Floor(maximum*2)/2,1.5,10):3;
+        ledger.FrenzyMultiplier=Math.Min(maximum,ledger.FrenzyUntil>now?ledger.Multiplier(now)+.5:1.5);
+        ledger.BugsSquashed++; ledger.FrenzyActivations++; ledger.FrenzyUntil = now.AddMinutes(2).ToUniversalTime();''').replace('Observe(DashboardData before, DashboardData after, DateTimeOffset now)','Observe(DashboardData before, DashboardData after, DateTimeOffset now, NexaOptions? options=null)').replace('''                    water ? "Water" : "Counter", w.Title + ": " + old.Value + " → " + w.Value,
+                    gained > 0 ? water ? (int)Math.Min(1000, gained * 10) : 5 : 0, now, widgetId: w.Id);''','''                    w.CounterMode=="Distraction"?"Distraction":editor=="beer"?"Alcohol":water?"Water":"Counter",w.Title+": "+old.Value+" → "+w.Value,
+                    gained>0?w.CounterMode=="Distraction"?-Math.Clamp(options?.DistractionPenalty ?? 0,0,1000):editor=="beer"?-Math.Clamp(options?.AlcoholPenalty ?? 0,0,1000):water?(int)Math.Min(1000,gained*10):5:0,now,widgetId:w.Id);'''))
+edit('DashboardContinuity.cs',lambda t:t.replace('ProductivityScoring.Observe(session.Data, state, now);','ProductivityScoring.Observe(session.Data, state, now,state.Workspace.Settings);'))
+edit('MainWindow.Bugs.cs',lambda t:t.replace('at ?? DateTimeOffset.UtcNow))','at ?? DateTimeOffset.UtcNow,Options.StreakMultiplierCap))'))
+edit('MainWindow.Productivity.cs',lambda t:t.replace('DateTimeOffset.UtcNow))','DateTimeOffset.UtcNow,Options.StreakMultiplierCap))'))
+edit('NexaEcosystem.Store.cs',lambda t:t.replace('squash.BugId.ToString(),squash.At))','squash.BugId.ToString(),squash.At,state.Workspace.Settings.StreakMultiplierCap))'))
+edit('MainWindow.Reliability.cs',lambda t:t.replace('Bug Frenzy · 2× ·','Streak · {ledger.Multiplier(now):0.0}× ·'))
+print('Implemented timestamp-based two-minute streaks, half-step multipliers with a cap, and opt-in event-category penalties.')

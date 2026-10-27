@@ -1,5 +1,114 @@
 # Changelog
 
+## Nexa v0.1.24 Alpha — NEXAWEEN
+
+A space for whatever haunts you next.
+
+- **The Dashboard Has Been Haunted:** resource-matched seasonal branding and tagline, candy-only backgrounds, contextual widget corners and curved vines.
+- **Time Is Under a Spell:** authoritative elapsed session progress, reverse intersession clearing, linked/independent bars, recurring/date/duration editing, clock alignment and controlled selectors.
+- **Creepy Crawlies:** Classic/Cozy/Creepy/Combative, automatic appearance, effective species/density controls, widget avoidance, flight and persistent spider-owned web construction.
+- **Productivity Witchcraft:** central signed scoring, prominent score/multiplier, timestamp-based two-minute streaks, bounded half-step multipliers and saved-event perimeter feedback.
+- **The Archives Awaken:** retained searchable history, continuous saving, recovery and protected session resets.
+- **Spells of Convenience:** consolidated Session/history/tips, unified Appearance, Sounds, pumpkin settings/toggle, genuine splash stages and split floating notifications.
+
+See NEXAWEEN024_IMPLEMENTATION.md for verification evidence and outstanding manual acceptance. Older entries below are retained historical project notes; archived Aevoria game systems are not current Nexa dependencies.
+
+## Aevoria 0.0.1-alpha development — Milestone A, standalone foundation
+
+- Repackage both apps as self-contained Windows x64 executables with a portable Nexa/Aevoria folder layout; preserve the old root Nexa.exe. Add Publish-Aevoria.ps1 and exclude generated game obj source from alternate publish builds. Packaged startup/create/save/continue checks pass.
+- Add a separate Aevoria executable/menu, independent world/settings storage, ten-world library, copy-import and complete-history backup/restore.
+- Add the animated, accessible Try Aevoria Home launcher. Keep traditional Nexa controls Low / Medium / High / Arcade and resume classic Colony Wars from the tiny bug-play entry.
+- Preserve old worlds/selections for explicit import, existing generators/gameplay and Nexa release metadata/root executable.
+- Fix nested-menu dismissal cascading into its parent, exposed during launcher regression testing. See AEVORIA_MILESTONE_A.md for measurements, tests, known baseline failures and the transitional shared-runtime boundary. Milestones B–I remain pending.
+
+## Unreleased v0.1.24 development — Age of Kingdoms — Historical Civilizations, Royals & Settlements
+
+- Add six atlas-linked culture profiles and fictional mixed-era cultural governments for newly enabled Living Worlds.
+- Persist named leaders, mortal biographies, vacant offices, legitimate biological recovery/succession and separate dynastic records.
+- Add land-owned settlements, population/workforce, resources, functional construction, development stages, capital relocation and durable factual event segments.
+- Render cached cultural buildings/city markers and support settlement selection, summaries and camera focus.
+- Preserve legacy worlds, Colony Wars, both terrain generators, release metadata and root executable. See CIVILIZATIONS024.md for verified tests, measurements and remaining limitations; the existing war021 timing failure remains intermittent.
+
+## Unreleased development — Age of Kingdoms — Nations, Territories & Interactive Map Milestone
+
+- Add persistent nations, land-clipped ownership, conquest events, cached political borders and native map labels.
+- Add selection, connected-region focus, live summaries and optional versioned political saves with legacy migration.
+- Preserve both terrain generators, Colony Wars and the root executable. Release metadata stays 0.1.23; phases 3–5 remain pending.
+- Build and five suites pass; final war021 software-render timing gate remains unresolved. See NATIONS024.md for evidence and limitations.
+
+## Nexa 0.1.23 alpha - Living Worlds (2026-10-19)
+
+- Add an Arcade chooser with preserved Colony Wars and new Living Worlds creation/loading.
+- Generate deterministic seeded terrain with eleven colored biomes, cached chunks, prefetch and a coarse overview.
+- Share one simulation across the widget-friendly dashboard and pan/zoom battlefield; constrain ground units to valid terrain.
+- Keep per-world metadata/simulation saves separate from Colony Wars; retain camera and future terrain-edit records.
+- Preserve timer-paced rendering, existing population limits and combat rules. See RELEASE023.md for tests, performance and limits.
+
+## Nexa 0.1.22 alpha - GPU Performance Fix (2026-10-19)
+
+- Use the existing paced dashboard timer for bug updates; remove the composition-callback update/invalidation loop.
+- Correct the hardware diagnostic default to timer pacing; retain legacy-loop and foreground dashboard comparisons.
+- Measure sprite rasterization misses without changing artwork quality, GPU support, software fallback, saves or gameplay rules.
+- See RELEASE022.md for measured before/after results and remaining limitations.
+
+## Nexa 0.1.21 alpha - Infinite Warfare (2026-10-19)
+
+- Add the tiny main-menu ?I just wanna play with bugs? entry and a widget-free battlefield sharing the dashboard?s saved world.
+- Keep Infinite Warfare running without match resets; retain Classic Rounds as an isolated transient option.
+- Save and validate units, identities, combat state, strategies, territories, settlements, webs, random state and recent history locally; add atomic replacement, backups, recovery and confirmed reset.
+- Add faction roles, preparation, coordinated raids/invasions, occupation detachments, withdrawal, recovery and rivalries.
+- Add sustained territory/nest capture, surviving defenders, homeland recovery and subtle cached ownership overlays.
+- Replace uniform radial webs with seeded irregular shared construction, physical strand trapping, hunting, cutting and repair.
+- Correct dashboard scrolling and pointer coordinates; add battlefield camera pan, zoom, follow and maximize controls.
+- Add save/recovery, lifecycle, strategy, territory, web, view-transition and endurance checks. See RELEASE021.md for partial features, performance findings and packaging steps.
+
+## Nexa 0.1.20 alpha - Armies and Shared Webs (2026-10-19)
+
+- Prioritize nearby threats, bound retreat/re-engagement and target surviving armies after leader loss.
+- Add collaborative radial webs with growth, cutting, timed repair, temporary control and immunity.
+- Expand visible faction defaults to 24-28 with configurable global rendered budgets and resource-funded reinforcements.
+- Preserve survivors and reserves after leader death; eligible reproductive adults can rebuild once after a safe regroup.
+- Add stable faction IDs, ancient army and warrior names, confirmed kills, earned titles and bounded event history.
+- Add focused combat, recovery, population and web checks; retain WPF responsiveness and startup verification. See RELEASE020.md for deferred mechanics and balance limitations.
+
+
+## Nexa 0.1.19 alpha - Colony Wars Overhaul (2026-10-15)
+
+- Replaced fixed colony widgets with randomized invisible edge territories and six protected royal leaders. Armies enter quickly in small waves with soft/hard population limits.
+- Added a common state, targeting, damage and retaliation system with leader defense, retreats, regrouping, loose formations and collision separation.
+- Centralized species balance: ant support bonuses, armored roaches, defensive ladybug healing, limited centipede dashes and fast fly squads. Spiders hunt actively with lower damage and temporary web projectiles instead of permanent traps.
+- Added dynamic credited conquest announcements for all thirty pairings, queued banners, victory/draw handling and automatic match cleanup/restarts.
+- Added a compact live scoreboard and configurable pacing, frame rate and per-species statistics under Add Bugs. Wins are counted within the running simulation.
+- Shared simulation and native-DPI artwork caches keep objects and rendering work bounded. Legacy habitat records migrate without removing unrelated widgets.
+
+
+## Nexa 0.1.18 alpha — Bug Fixes (2026-10-15)
+
+- Nexa uses per-monitor DPI scaling and native vector bug artwork without adaptive downsampling. Scroll offsets update immediately; bugs retain widget attachments, and ordinary scrolling preserves web strands. Arcade is a bounded habitat of up to 240 bugs with slower movement and one spawn every five seconds, six large labeled habitat widgets placed in free space, and up to 18 spider-built organic webs roughly 480 pixels across, fly carrying, ladybug attacks, resistant roaches, ant scavenging and feeding-based centipede growth. Mixed spawns include an early centipede and about 15% centipedes thereafter. About 2% receive one of fifty names. Homes, combat, webs and names are exclusive to Arcade. Drag across exposed strands to cut; widget controls retain priority and dragging a widget breaks its anchors. Ants stay tiny while other species have distinct larger silhouettes. Existing startup delay and beverage improvements are retained.
+- Full release checks: dotnet run --no-restore --project tests/SessionDashboard.Checks.csproj -- --release018. Physical mixed-monitor validation is still required.
+
+## Nexa 0.1.17 alpha — Drink Counters, Laps & Bug Arcade (2026-10-14)
+
+- Water and Beer retain separate widgets with larger glass/bottle artwork and distinct catalog icons. Buttons are smaller; goals and reset live under Options. Saved compact counters adapt the artwork to keep count buttons reachable.
+- Beer goals remain selectable from one. Goals above four display “Slow down—consider drinking less.” Every two beers logged show a dismissible eight-second “Take a sip of water.” reminder.
+- Pixel Swarm keeps the dashboard pixel color captured when **I'm bored** is clicked.
+- Stopwatch adds persisted lap durations and cumulative times, with the list hidden until the first lap. Stopwatch reset clears laps.
+- Each squash has a 25% chance of a radial burst of 4–16 bugs. Ladybugs require two taps, show a cracked shell after the first and roll infestation only on the actual squash. Rare, larger centipedes have segmented crawl animation. Spider webs hold captured bugs while a spider approaches and visibly feeds, then the spider can spin another web.
+- Infestation increases to 600 bugs. Arcade starts with normal activity and escalates automatically; frequent hits and squashes accelerate it. Mixed centipedes spawn much less often than other species.
+- Shared pre-rendered sprite/crawl frames, cached surface choices, allocation-free web checks, offscreen culling and a frame-time guard reduce animation work. Total infestation plus bursts is bounded at 768, with up to 24 webs and 60 splats; disabling clears all runtime state.
+
+## Nexa 0.1.16 alpha — Stable Layout, Bugs and Counters (2026-10-05)
+
+Widget drops now preserve unrelated card positions and reject occupied destinations; ordinary remove and resize actions leave open space. Add Bugs tracks dashboard content while scrolling, improves species movement, and raises the Infestation cap. Appearance settings use direct choices. Water gains a gradient and moving fill, while the new Beer Counter has a separate goal (minimum one), amber liquid, foam, and rising bubbles. Home shows the lowercase alpha label and adds safe spacing below its footer controls.
+
+## Nexa 0.1.15 Alpha — Add Bugs Settings Fix (2026-10-04)
+
+Bug type and intensity are now visible choices in Settings → Experimental Features → Add Bugs. Ants, Roaches, Flies and All Three, along with Low, Normal and Infestation, can be selected before enabling bugs. Changes apply immediately and persist when Settings is reopened.
+
+## Nexa 0.1.14 Alpha — Add Bugs (2026-10-04)
+
+Settings → Experimental Features → Add Bugs optionally adds tiny animated ants, roaches, flies or all three to Spaces. Bugs follow widget geometry, react to movement and can be clicked to squash them, leaving a small splat that fades away. Low, Normal and Infestation densities share bounded populations. The feature defaults off, saves per user in existing preferences, passes clicks through empty overlay space, and pauses while the dashboard is hidden or minimized. No Space or widget data migration is required.
+
 ## Nexa 0.1.13 Alpha — Pixel Swarm & Appearance (2026-10-04)
 
 Pixel Swarm now opens a start menu before a run. Move with WASD or arrow keys, aim with the mouse and click to fire the Pixel Blaster. Survive three escalating stages: drifting timer pixels, pursuing enemies and white relief orbs, then mixed enemies, limited weapon pickups, bosses and experience upgrades. Health, score and a results screen make runs replayable; pause, restart and return remain available. Best score and run statistics save locally per Nexa user, separate from Space data. The existing session timer and autosave continue while the game is open.

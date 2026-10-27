@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -11,6 +11,10 @@ public partial class MainWindow
     private void BuildSessionTimeline(StackPanel panel, WidgetInstance widget)
     {
         panel.Children.Add(new TextBlock { Text = state.Session?.Title ?? "Your session notes", FontWeight = FontWeights.SemiBold });
+        var summaryInterval=widget.SummaryIntervalMinutes??state.Session?.IntervalMinutes??10;
+        var interval=new ComboBox{ItemsSource=new[]{5,10,15,20,30,summaryInterval}.Distinct().Order().ToArray(),SelectedItem=summaryInterval,ToolTip="Summary interval in minutes"};
+        panel.Children.Add(new TextBlock{Text="Summary interval (minutes)",Margin=new Thickness(0,8,0,4)});panel.Children.Add(interval);
+        interval.SelectionChanged+=(_,_)=>{if(interval.SelectedItem is int minutes){foreach(var timeline in state.Widgets.Where(w=>WidgetLibrary.Definition(w.Kind).Editor=="timeline"))timeline.SummaryIntervalMinutes=minutes;if(state.Session is {} session)session.IntervalMinutes=minutes;IntervalInput.Text=minutes.ToString();BuildTimeline();Changed();SaveNow();}};
         var shortcuts = new WrapPanel { Margin = new Thickness(0, 8, 0, 10) };
         var recorder = new Button { Content = "Open Audio Recorder", Margin = new Thickness(0, 0, 8, 5) };
         var hedyNotes = new Button { Content = "Open Hedy Notes", Margin = new Thickness(0, 0, 8, 5) };
@@ -42,15 +46,24 @@ public partial class MainWindow
             {
                 rows.AddRange(session.IntervalNotes.OrderBy(p => p.Key).Select(p => $"Interval {p.Key + 1} · Manual\n{p.Value}"));
                 rows.AddRange(session.HedyIntervalNotes.OrderBy(p => p.Key).Select(p => $"Interval {p.Key + 1} · Hedy\n{p.Value}"));
-                rows.AddRange(session.TimelineEntries.OrderBy(e => e.CreatedAt).Select(e => $"{e.CreatedAt.LocalDateTime:t} · {e.Source}\n{e.Text}"));
+                rows.AddRange(session.IntervalSummaries.OrderBy(p => p.Key).Select(p => $"Interval {p.Key + 1} · Summary\n{p.Value}"));
+                rows.AddRange(session.TimelineEntries.OrderBy(e => e.CreatedAt).Select(e => $"{NexaTime.Local(e.CreatedAt, Options.TimeZoneId):t} · {e.Source}\n{e.Text}"));
             }
+            if (rows.Count == 0 && session != null) rows.Add(string.IsNullOrEmpty(session.HedySessionId) ? "Session notes\nAdd a timestamped note or open the recorder or Hedy Notes." : "Hedy notes\nWaiting for notes and interval summaries…");
             var content = string.Join("\n\n", rows); if (content == lastContent) return; lastContent = content; entries.Children.Clear();
             if (session != null)
             {
                 var intervals = new Button { Content = "Open session intervals", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 10) };
                 intervals.Click += (_, _) => { BuildTimeline(); OpenLegacyPanel(TimelinePanel, "Session Timeline"); }; entries.Children.Add(intervals);
             }
-            foreach (var row in rows) entries.Children.Add(new TextBlock { Text = row, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10) });
+            foreach (var row in rows)
+            {
+                var split = row.IndexOf('\n');
+                var heading = split < 0 ? "Session note" : row[..split];
+                var body = split < 0 ? row : row[(split + 1)..];
+                entries.Children.Add(new Expander { Header = heading, IsExpanded = rows.Count <= 3,
+                    Content = new TextBox { Text = body, IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, BorderThickness = new Thickness(0), Margin = new Thickness(0,8,0,12), VerticalScrollBarVisibility = ScrollBarVisibility.Auto, MaxHeight = 400 } });
+            }
         }
         add.Click += (_, _) =>
         {

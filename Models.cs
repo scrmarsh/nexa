@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -6,6 +6,7 @@ namespace SessionDashboard;
 
 public sealed class Preset
 {
+    public bool AutomaticScheduling { get; set; }
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Name { get; set; } = "Focused work";
     public int Minutes { get; set; } = 50;
@@ -21,6 +22,13 @@ public sealed class Preset
 public sealed class Session
 {
     public string Title { get; set; } = "";
+    public string TimeZoneId { get; set; } = "Automatic";
+    public bool AutomaticScheduling { get; set; }
+    public DateTimeOffset? BeforeSessionCountdownFrom { get; set; }
+    public string? ScheduleTimeZoneId { get; set; }
+    public int? RecurringStartMinutes { get; set; }
+    public int? RecurringEndMinutes { get; set; }
+    public int? RecurringEndDayOffset { get; set; }
     public DateTimeOffset Start { get; set; }
     public DateTimeOffset End { get; set; }
     public int IntervalMinutes { get; set; } = 10;
@@ -47,6 +55,8 @@ public sealed class Session
 
 public sealed class TaskItem
 {
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public bool Permanent { get; set; }
     public string Text { get; set; } = "";
     public bool Done { get; set; }
 }
@@ -54,6 +64,7 @@ public sealed class TaskItem
 // This allowlisted payload contains dashboard data only, never account credentials.
 public class DashboardData
 {
+    public ProductivityLedger Productivity { get; set; } = new();
     public List<Preset> Presets { get; set; } =
     [
         new() { Name = "Lecture", Minutes = 75, IntervalMinutes = 5, AccentColor = "#5B7CFF", PixelColor = "#3B82F6" },
@@ -118,15 +129,19 @@ public sealed partial class StateStore
 {
     private static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
     private readonly object writeLock = new();
+    private long nextWriteSequence, committedWriteSequence;
     private bool preserveUnreadable;
     private bool blocked;
     public string FilePath { get; }
     public string UserId { get; }
+    // Explicit host capability, never inferred from saved bug preferences or selection.json.
+    internal bool GameContext { get; }
     public string? Warning { get; private set; }
     private string PreferencesPath => ScopedPreferencePath("preferences.json");
-    public StateStore(string path, string? userId = null)
+    public StateStore(string path, string? userId = null, bool gameContext = false)
     {
         FilePath = path;
+        GameContext = gameContext;
         UserId = userId ?? System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value;
     }
 
@@ -194,11 +209,35 @@ public sealed partial class StateStore
     public void SavePreferences(ThemeMode mode, AppTheme theme)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(PreferencesPath)!);
-        AtomicWrite(PreferencesPath, JsonSerializer.Serialize(new Dictionary<string, string>
+        var preferences = ReadPreferenceValues();
+        preferences["ThemeMode"] = mode.ToString(); preferences["AppTheme"] = theme.ToString();
+        AtomicWrite(PreferencesPath, JsonSerializer.Serialize(preferences, Options), false);
+    }
+
+    private Dictionary<string, string> ReadPreferenceValues()
+    {
+        try { return File.Exists(PreferencesPath) ? JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(PreferencesPath), Options) ?? new() : new(); }
+        catch (JsonException ex) { throw new IOException("Saved preferences could not be read; the original file was preserved.", ex); }
+    }
+    internal BugPreferences LoadBugPreferences()
+    {
+        try
         {
-            ["ThemeMode"] = mode.ToString(),
-            ["AppTheme"] = theme.ToString()
-        }, Options), false);
+            var values = ReadPreferenceValues();
+            return new(values.GetValueOrDefault("AddBugs") == "True",
+                Enum.TryParse<BugSpecies>(values.GetValueOrDefault("BugSpecies"), out var species) && Enum.IsDefined(species) ? species==BugSpecies.AllThree ? BugSpecies.AllBugs : species : BugSpecies.Ants,
+                Enum.TryParse<BugDensity>(values.GetValueOrDefault("BugDensity"), out var density) && Enum.IsDefined(density) ? density : BugDensity.Normal,
+                values.TryGetValue("EcosystemSettings",out var eco) ? EcosystemOptions.Existing(JsonSerializer.Deserialize<EcosystemOptions>(eco,Options) ?? new()).Safe() : new());
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException) { return new(); }
+    }
+    internal void SaveBugPreferences(BugPreferences bugs)
+    {
+        var values = ReadPreferenceValues();
+        values["EcosystemSettings"] = JsonSerializer.Serialize((bugs.Ecosystem ?? new()).Safe(),Options);
+        values["AddBugs"] = bugs.Enabled.ToString(); values["BugSpecies"] = bugs.Species.ToString(); values["BugDensity"] = bugs.Density.ToString();
+        Directory.CreateDirectory(Path.GetDirectoryName(PreferencesPath)!);
+        AtomicWrite(PreferencesPath, JsonSerializer.Serialize(values, Options), false);
     }
 
     public AppState Load()
@@ -276,12 +315,13 @@ public sealed partial class StateStore
         if (blocked) throw new UnauthorizedAccessException("Saving this workspace is blocked because its owner could not be verified.");
         Continuity.CaptureCurrent(state, UserId, DateTimeOffset.Now);
         Continuity.ValidateWorkspace(state.Workspace!, UserId);
-        return new(Continuity.Clone(state.Workspace!), state.HedyRegion, state.HedyProtectedKey);
+        return new(Continuity.Clone(state.Workspace!), state.HedyRegion, state.HedyProtectedKey, Interlocked.Increment(ref nextWriteSequence));
     }
     internal void Write(SavePayload payload)
     {
         lock (writeLock)
         {
+            if (payload.Sequence > 0 && payload.Sequence < committedWriteSequence) throw new InvalidOperationException("A newer save has already completed.");
             Continuity.ValidateWorkspace(payload.Workspace, UserId);
             Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(FilePath))!);
             if (preserveUnreadable && File.Exists(FilePath))
@@ -291,6 +331,7 @@ public sealed partial class StateStore
             var credentialPath = FilePath + ".credentials";
             if (!File.Exists(credentialPath) || File.ReadAllText(credentialPath) != credentials) AtomicWrite(credentialPath, credentials, false);
             AtomicWrite(FilePath, JsonSerializer.Serialize(payload.Workspace, Options), !preserveUnreadable);
+            committedWriteSequence = Math.Max(committedWriteSequence, payload.Sequence);
             preserveUnreadable = false; Warning = null;
         }
     }
@@ -304,7 +345,15 @@ public sealed partial class StateStore
                 using var writer = new StreamWriter(stream, System.Text.Encoding.UTF8, 4096, true);
                 writer.Write(text); writer.Flush(); stream.Flush(true);
             }
-            if (File.Exists(path)) File.Replace(temp, path, backup ? path + ".bak" : null);
+            if (File.Exists(path))
+            {
+                for(var attempt=0;;attempt++)
+                {
+                    try{File.Replace(temp,path,backup ? path+".bak":null);break;}
+                    catch(IOException ex) when(attempt<4 && (ex.HResult&65535) is 32 or 33 or 1175)
+                    {System.Threading.Thread.Sleep(10<<attempt);}
+                }
+            }
             else File.Move(temp, path);
         }
         finally { if (File.Exists(temp)) File.Delete(temp); }
@@ -322,7 +371,7 @@ public sealed partial class StateStore
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
         { Warning = "Your Space was restored. Reconnect Hedy because its saved credential could not be read."; }
     }
-    internal sealed record SavePayload(WorkspaceDocument Workspace, string Region, string ProtectedKey);
+    internal sealed record SavePayload(WorkspaceDocument Workspace, string Region, string ProtectedKey, long Sequence = 0);
     private sealed class Credentials
     {
         public string UserId { get; set; } = "";
