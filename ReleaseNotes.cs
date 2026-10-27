@@ -1,4 +1,4 @@
-﻿namespace SessionDashboard;
+namespace SessionDashboard;
 
 internal sealed record ReleaseNote(string Version, string Date, string Title, string Summary, string[] Updates);
 
@@ -12,17 +12,14 @@ internal static class ReleaseNotes
         [
             "The Dashboard Has Been Haunted — Seasonal branding uses the checked-task accent. The animated Home tagline is retained; only haunts is orange. Candy backgrounds, contextual widget corners and curved vines stay clear of controls.",
             "Time Is Under a Spell — Session pixels fill from the top-left, clear in reverse between classes, and share timestamp-based progress with linked bars. Weekday/date/duration editing, time zones, three-decimal precision and controlled time-picker scrolling.",
-            "Creepy Crawlies — Classic, Cozy, Creepy and Combative modes determine appearance together. Species and density update the maintained population. Widget-edge paths, visible flight and progressive spider-owned webs share one persistent ecosystem.",
+            "Creepy Crawlies — Classic, Cozy and Combative behaviors have independent Classic, Creepy and Halloween appearance controls. Species and density update the maintained population. Widget-edge paths, visible flight and progressive spider-owned webs share one persistent ecosystem.",
             "Productivity Witchcraft — Prominent lightning score and centered multiplier. Direct squashes start two-minute streaks with 0.5 steps and a configurable cap. Saved positive actions get green edge feedback; configured negative categories get red feedback.",
             "The Archives Awaken — Central readable history, continuous/event-driven saving, configurable checkpoints, revision protection, saved recovery state and save-before-reset safeguards remain in place.",
             "Spells of Convenience — One Session entry for history, saving and tips; summary interval in Timeline; unified Appearance and separate Sounds. Pumpkin settings and on/off switch, real startup stages, left autosave notices, right tips, and extended dashboard scrolling."
         ]),
-        new("0.1.23", "October 19, 2026", "Living Worlds", "A new seeded terrain Arcade mode alongside Colony Wars.",
+        new("0.1.23", "October 19, 2026", "Decorating for Halloween", "The Halloween preparation release.",
         [
-            "Choose COLONY WARS or LIVING WORLDS from Arcade. Create named worlds with random or entered seeds, and load them without replacing existing worlds.",
-            "Deterministic continents, islands, coastlines, rivers, lakes and colored biomes stream through cached 64x64 terrain chunks and a coarse overview.",
-            "The widget-friendly dashboard and pan/zoom battlefield share one simulation. Ground units stay out of ocean water; flies can cross it.",
-            "Separate local saves preserve world identity, generator version, camera and simulation. Colony Wars saves and combat rules remain unchanged."
+            "Retained as Decorating for Halloween. Superseded Living Worlds and game-development material is preserved separately in LEGACY."
         ]),
         new("0.1.22", "October 19, 2026", "GPU Performance Fix", "Timer-paced rendering preserves hardware acceleration and avoids a compositor-driven update loop.",
         [

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -12,10 +12,8 @@ internal sealed partial class HomeWindow : NexaDialog
 {
     private readonly StateStore store;
     internal AppState Saved { get; private set; }
-    internal readonly StackPanel Recent = new() { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left };
+    internal readonly StackPanel Recent = new() { Orientation = Orientation.Vertical, HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly Button recentChevron = new() { Content = ">", Width = 27, Height = 54, VerticalAlignment = VerticalAlignment.Center, Padding = new Thickness(0), Margin = new Thickness(0, 0, 7, 0), Opacity = .55, ToolTip = "Show older spaces" };
-    private bool recentExpanded;
-    internal readonly Button ContinueButton;
     private readonly TextBlock feedback = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 20, 0, 0) };
     internal HomeWindow(StateStore store,AppState? loadedState=null)
     {
@@ -27,55 +25,13 @@ internal sealed partial class HomeWindow : NexaDialog
         Title = App.BrandWordmark; Width = Saved.WindowWidth; Height = Saved.WindowHeight; MinWidth = 740; MinHeight = 550; WindowStartupLocation = WindowStartupLocation.CenterScreen;
         var panel = new StackPanel { Margin = new Thickness(0, 36, 0, 20) };
         BuildHomeHeader(panel);
-        var actions = new System.Windows.Controls.Primitives.UniformGrid { Columns = 3, Margin = new Thickness(0, 32, 0, 0) };
-        Button IconAction(string label, string asset, Color hoverColor)
-        {
-            var icon = new System.Windows.Shapes.Rectangle
-            {
-                Width = 76, Height = 76,
-                Fill = (Brush)FindResource("AccentBrush"),
-                OpacityMask = new ImageBrush(new BitmapImage(new Uri($"pack://application:,,,/Nexa;component/assets/{asset}"))) { Stretch = Stretch.Uniform },
-                RenderTransformOrigin = new Point(.5, .5), RenderTransform = new ScaleTransform(1, 1)
-            };
-            var button = new Button
-            {
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                Height = 156,
-                Margin = new Thickness(0, 0, 12, 0),
-                Padding = new Thickness(18),
-                Background = Brushes.Transparent,
-                BorderThickness = new Thickness(0),
-                Content = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center, Children = { icon, new TextBlock { Text = label, FontSize = 15, FontWeight = FontWeights.SemiBold, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 12, 0, 0) } } }
-            };
-            System.Windows.Automation.AutomationProperties.SetName(button, label);
-            button.MouseEnter += (_, _) =>
-            {
-                icon.Fill = Brushes.White; var scale = (ScaleTransform)icon.RenderTransform;
-                scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(1, 1.1, TimeSpan.FromMilliseconds(140)));
-                scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(1, 1.1, TimeSpan.FromMilliseconds(140)));
-            };
-            button.MouseLeave += (_, _) =>
-            {
-                icon.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "AccentBrush"); var scale = (ScaleTransform)icon.RenderTransform;
-                scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(1.1, 1, TimeSpan.FromMilliseconds(140)));
-                scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(1.1, 1, TimeSpan.FromMilliseconds(140)));
-            };
-            return button;
-        }
-        var start = IconAction("Create Space", "add.png", Color.FromRgb(73, 151, 255));
-        start.Click += (_, _) => NewDashboard();
-        actions.Children.Add(start);
-        ContinueButton = IconAction("Resume", "continue.png", Color.FromRgb(80, 205, 150));
-        ContinueButton.IsEnabled = Saved.Workspace?.Dashboards.Count > 0;
-        ContinueButton.Click += (_, _) => { if (Saved.Workspace != null) OpenDashboard(Saved.Workspace.Dashboards.OrderByDescending(d => d.Current.LastAccessedAt).First().DashboardId); };
-        actions.Children.Add(ContinueButton);
-        var import = IconAction("Import Space", "import.png", Color.FromRgb(255, 176, 75));
-        import.Click += (_, _) => ImportDashboard(); actions.Children.Add(import); panel.Children.Add(actions);
+        var create = new Button { Content = "+ Create New Space", HorizontalAlignment = HorizontalAlignment.Center, MinWidth = 260, Margin = new Thickness(0, 28, 0, 20) };
+        create.Click += (_, _) => NewDashboard(); panel.Children.Add(create);
         panel.Children.Add(new TextBlock { Text = "Recent Spaces", FontSize = 20, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 22, 0, 12) });
         recentChevron.MouseEnter += (_, _) => recentChevron.Opacity = 1;
         recentChevron.MouseLeave += (_, _) => recentChevron.Opacity = .55;
-        recentChevron.Click += (_, _) => { recentExpanded = !recentExpanded; RefreshRecentSpaces(); };
-        panel.Children.Add(new ScrollViewer { Content = Recent, HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled, PanningMode = PanningMode.HorizontalOnly }); RefreshRecentSpaces();
+        recentChevron.Click += (_, _) => { recentRows += 3; RefreshRecentSpaces(); };
+        panel.Children.Add(new ScrollViewer { Content = Recent, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled }); RefreshRecentSpaces();
         if (!string.IsNullOrWhiteSpace(store.Warning)) { feedback.Text = store.Warning; panel.Children.Add(feedback); var hide = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(6) }; hide.Tick += (_, _) => { hide.Stop(); feedback.Visibility = Visibility.Collapsed; }; Loaded += (_, _) => hide.Start(); Closed += (_, _) => hide.Stop(); }
         var footer = new Grid { Margin = new Thickness(0, 10, 0, 30) }; footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto }); footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
         var left = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
@@ -88,7 +44,7 @@ internal sealed partial class HomeWindow : NexaDialog
         footer.Children.Add(left);
         var utilities = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Right };
         Button Utility(string text, Action action) { var button = new Button { Content = text == "View History" ? NexaIcons.Label("History") : text, Padding = new Thickness(14, 9, 14, 9), Margin = new Thickness(8, 0, 0, 0) }; button.Click += (_, _) => action(); utilities.Children.Add(button); return button; }
-        Utility("View History", OpenHistory); Utility("Changelog", OpenChangelog); Utility("About Nexa", OpenAbout); var developer = Utility("DEV", OpenDeveloperDashboard); developer.Opacity = .7;
+        Utility("View History", OpenHistory); Utility("Import Space", ImportDashboard); Utility("About Nexa", OpenAbout); var developer = Utility("DEV", OpenDeveloperDashboard); developer.Opacity = .7;
         Grid.SetColumn(utilities, 2); footer.Children.Add(utilities);
         var homeLayout = new Grid { Margin = new Thickness(60, 0, 60, 20), MaxWidth = 960 };
         homeLayout.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });

@@ -1192,5 +1192,23 @@
     "Source": "INTEGRATIONS.md",
     "Destination": "LEGACY/notes/INTEGRATIONS-0.1.6.md",
     "Reason": "2026-10-27 root audit: retired or superseded material"
+  },
+  {
+    "Action": "Move",
+    "Source": "NexaEcosystem.Window.cs",
+    "Destination": "LEGACY/source/NexaEcosystem.Window.cs",
+    "Reason": "Final prompt retires separate ecosystem navigation; overlay simulation and saved totals retained."
+  },
+  {
+    "Action": "Copy",
+    "Source": "tests/Nexa024EcosystemChecks.cs",
+    "Destination": "LEGACY/tests/Nexa024EcosystemChecks-before-final.cs",
+    "Reason": "Preserve superseded standalone-view assertions before the final overlay-only contract."
+  },
+  {
+    "Action": "Copy",
+    "Source": "docs/IMPLEMENTATION-0.1.24.md",
+    "Destination": "LEGACY/notes/IMPLEMENTATION-0.1.24-published-4562d69.md",
+    "Reason": "Preserve the previously published build report before candidate repairs."
   }
 ]

@@ -1,11 +1,11 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.Json;
 using System.Windows;
 
 namespace SessionDashboard;
 
 internal enum BugBehavior { Cozy = 0, Creepy = 1, Combative = 2, Classic = 3 }
-internal enum BugAppearance { Normal, Cozy, Creepy }
+internal enum BugAppearance { Normal = 0, Cozy = 1, Creepy = 2, Halloween = 3 }
 internal enum BugAnimationQuality { Performance, Balanced, High }
 internal enum BugActivity { Exploring, Gathering, Carrying, Nesting, Socializing, Grooming, Sleeping, Hiding, Hunting, Defending, Raiding }
 internal enum BugPersonality { Curious, Shy, Social, Bold }
@@ -23,9 +23,10 @@ internal sealed record EcosystemOptions
     public double Size { get; init; } = 2;
     public BugAnimationQuality Quality { get; init; } = BugAnimationQuality.Balanced;
     public bool Costumes { get; init; } = true;
-    [System.Text.Json.Serialization.JsonIgnore] public BugAppearance EffectiveAppearance => Behavior switch { BugBehavior.Cozy => BugAppearance.Cozy, BugBehavior.Creepy => BugAppearance.Creepy, _ => BugAppearance.Normal };
+    [System.Text.Json.Serialization.JsonIgnore] public BugAppearance EffectiveAppearance => !MatchAppearance ? Appearance : Behavior switch { BugBehavior.Cozy => BugAppearance.Cozy, BugBehavior.Creepy => BugAppearance.Creepy, _ => BugAppearance.Normal };
     internal EcosystemOptions ForSeason(bool active)
     {
+        if (!MatchAppearance) return this with { LastSeasonalActive = active };
         if(LastSeasonalActive==active)return this;
         var normal=NonSeasonalBehavior;var seasonal=SeasonalBehavior;
         if(LastSeasonalActive==true)seasonal=Behavior;else if(LastSeasonalActive==false)normal=Behavior;
@@ -36,8 +37,11 @@ internal sealed record EcosystemOptions
     internal static EcosystemOptions Existing(EcosystemOptions value)=>value.LastSeasonalActive==null && value.NonSeasonalBehavior==null && value.SeasonalBehavior==null?value with {NonSeasonalBehavior=value.Behavior,SeasonalBehavior=value.Behavior}:value;
     internal EcosystemOptions Safe() => this with
     {
-        Behavior = Enum.IsDefined(Behavior) ? Behavior : BugBehavior.Classic,
-        Appearance = Enum.IsDefined(Appearance) ? Appearance : BugAppearance.Normal,
+        Behavior = Behavior == BugBehavior.Creepy ? BugBehavior.Classic : Enum.IsDefined(Behavior) ? Behavior : BugBehavior.Classic,
+        NonSeasonalBehavior = NonSeasonalBehavior == BugBehavior.Creepy ? BugBehavior.Classic : NonSeasonalBehavior,
+        SeasonalBehavior = SeasonalBehavior == BugBehavior.Creepy ? BugBehavior.Classic : SeasonalBehavior,
+        MatchAppearance = Behavior == BugBehavior.Creepy ? false : MatchAppearance,
+        Appearance = Behavior == BugBehavior.Creepy && MatchAppearance ? BugAppearance.Creepy : Enum.IsDefined(Appearance) ? Appearance : BugAppearance.Normal,
         Quality = Enum.IsDefined(Quality) ? Quality : BugAnimationQuality.Balanced,
         Size = double.IsFinite(Size) ? Math.Clamp(Size, .75, 4) : 2
     };

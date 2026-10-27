@@ -40,6 +40,7 @@ public sealed class DashboardRecord
     public string PresetOrigin { get; set; } = "Custom";
     public DashboardSession Current { get; set; } = new();
     public List<DashboardSession> History { get; set; } = [];
+    public List<JsonElement> PreservedHistory { get; set; } = [];
     public override string ToString() => Name;
 }
 

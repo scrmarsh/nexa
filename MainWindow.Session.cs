@@ -139,6 +139,7 @@ public partial class MainWindow
 
     private void ResetSessionTimerClick(object sender, RoutedEventArgs e)
     {
+        if (state.Session?.AutomaticScheduling == true) return;
         if (state.Session is not { } session) { Error("Start or schedule a session before resetting its timer."); return; }
         var dialog = Dialog("Nexa · Reset timer", 460, 250);
         var panel = new StackPanel { Margin = new Thickness(24) };

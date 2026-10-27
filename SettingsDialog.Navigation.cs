@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
@@ -10,17 +10,23 @@ internal sealed partial class SettingsDialog
 {
     internal bool SessionInterface {get;private set;}
     private Border? tipsTarget;
-    private CheckBox? seasonalSwitch;
     private readonly List<CheckBox> seasonalSwitches=[];
     internal UIElement BuildSettingsFooter(Button close)
     {
-        var row=new DockPanel {LastChildFill=true};
-        var season=new StackPanel{Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(0,3,15,3)};
-        seasonalSwitch=MakeSeasonSwitch();season.Children.Add(seasonalSwitch);
-        var pumpkin=new Button{Content=new NexaSeasonArt(false){Width=96,Height=62},Padding=new Thickness(0),BorderThickness=new Thickness(0),Background=Brushes.Transparent,ToolTip="Open Nexaween settings"};
-        System.Windows.Automation.AutomationProperties.SetName(pumpkin,"Nexaween settings");pumpkin.Click+=(_,_)=>SelectSeasonalPanel();season.Children.Add(pumpkin);
-        DockPanel.SetDock(season,Dock.Right);row.Children.Add(season);
-        var saved=new StackPanel{Orientation=Orientation.Horizontal,VerticalAlignment=VerticalAlignment.Center};saved.Children.Add(close);AutoSaveStatus.Margin=new Thickness(0,0,12,0);saved.Children.Add(AutoSaveStatus);row.Children.Add(saved);return row;
+        var row = new Grid(); row.ColumnDefinitions.Add(new() { Width = new GridLength(140) }); row.ColumnDefinitions.Add(new()); row.ColumnDefinitions.Add(new() { Width = new GridLength(140) });
+        row.Children.Add(close); AutoSaveStatus.HorizontalAlignment = HorizontalAlignment.Center; AutoSaveStatus.VerticalAlignment = VerticalAlignment.Center;
+        Grid.SetColumn(AutoSaveStatus, 1); row.Children.Add(AutoSaveStatus); return row;
+    }
+    private UIElement BuildAppearancePage()
+    {
+        seasonalSwitches.Clear();
+        var active = NexaSeason.Active(ReliabilityOptions, DateTimeOffset.UtcNow);
+        var page = active ? Page("Appearance", "Nexaween is using the seasonal palette. Your normal appearance is preserved.") : (StackPanel)BuildAppearance();
+        var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 12) };
+        row.Children.Add(new TextBlock { Text = "Nexaween", Foreground = (Brush)new BrushConverter().ConvertFromString("#84CC16")!, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0), FontWeight = FontWeights.SemiBold });
+        row.Children.Add(MakeSeasonSwitch()); page.Children.Insert(1, row);
+        if (active) { var seasonal = BuildSeasonalEvents(); page.Children.Add(seasonal); }
+        return page;
     }
     private CheckBox MakeSeasonSwitch()
     {
@@ -43,26 +49,12 @@ internal sealed partial class SettingsDialog
         ReliabilityOptions.SeasonalMode=active?"On":"Off";
         foreach(var toggle in seasonalSwitches)toggle.IsChecked=active;
         Theme.SetSeasonalEnabled(active);space?.ApplyReliabilityOptions();NexaEcosystem.UpdateSeason(store,ReliabilityOptions);
-        if(tabs.TryGetValue("Appearance",out var tab))tab.Opacity=active?.42:1;
-        if(pages.ContainsKey("Appearance"))pages["Appearance"]=active?AppearanceExplanation():BuildAppearance();
+        if(tabs.TryGetValue("Appearance",out var tab))tab.Opacity=1;
+        if(pages.ContainsKey("Appearance"))pages["Appearance"]=BuildAppearancePage();
         if(wasAppearance)host.Content=pages["Appearance"];
         if(pages.ContainsKey("Add Bugs")){pages["Add Bugs"]=BuildBugs();if(wasBugs)host.Content=pages["Add Bugs"];}
         if(SessionInterface){pages["Session"]=BuildSession();host.Content=pages["Session"];sessionStatusPage=pages["Session"];}
         QueueSave("nexaween",SaveState);
-    }
-    private UIElement? appearanceLockedPage;
-    private UIElement AppearanceExplanation()
-    {
-        var page=Page("Appearance", "Nexaween is using the seasonal palette. Your normal colors are saved.");
-        page.Children.Add(new NexaSeasonArt(true){Width=140,Height=105,HorizontalAlignment=HorizontalAlignment.Left});
-        page.Children.Add(new TextBlock{Text="Turn off Nexaween to customize your normal appearance.",TextWrapping=TextWrapping.Wrap});page.Children.Add(MakeSeasonSwitch());
-        var line=new TextBlock{Margin=new Thickness(0,16,0,0)};var link=new Hyperlink(new Run("switch Nexaween off")){Foreground=Brushes.DodgerBlue,TextDecorations=TextDecorations.Underline};link.Click+=(_,_)=>{SetNexaween(false);host.Content=pages["Appearance"];};line.Inlines.Add(link);page.Children.Add(line);appearanceLockedPage=page;return page;
-    }
-    private void ExplainLockedAppearance()
-    {
-        var popup=new NexaPanel{Owner=this,Title="Nexaween appearance",Width=430,Height=370,WindowStartupLocation=WindowStartupLocation.CenterOwner};
-        var content=new StackPanel{Margin=new Thickness(24)};content.Children.Add(new NexaSeasonArt(true){Height=100});content.Children.Add(new TextBlock{Text="Turn off Nexaween to customize your normal appearance.",TextWrapping=TextWrapping.Wrap});content.Children.Add(MakeSeasonSwitch());
-        var link=new TextBlock();var action=new Hyperlink(new Run("switch Nexaween off")){Foreground=Brushes.DodgerBlue,TextDecorations=TextDecorations.Underline};action.Click+=(_,_)=>{SetNexaween(false);popup.Close();SelectSection("Appearance");};link.Inlines.Add(action);content.Children.Add(link);popup.Content=content;popup.ShowDismissible();
     }
     private void SelectSeasonalPanel()
     {if(!FlushPendingChanges())return;host.Content=BuildSeasonalEvents();}
@@ -81,6 +73,13 @@ internal sealed partial class SettingsDialog
         var page=Page("Sounds","Interface, timer and seasonal sounds. Sounds remain available while Nexaween is enabled.");store.LoadInteractionPreferences(state);
         var enabled=new CheckBox{Content="Enable interface and timer completion sounds",IsChecked=state.InterfaceSoundsEnabled};page.Children.Add(enabled);
         var volume=new Slider{Minimum=0,Maximum=1,Value=state.InterfaceSoundVolume};Field(page,"Sound volume",volume);
+        var preview = new Button { Content = "Test Sound", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 6, 0, 6) };
+        preview.Click += (_, _) => InterfaceAudio.Preview(volume.Value); page.Children.Insert(page.Children.IndexOf(volume), preview);
+        page.Children.Add(new TextBlock { Text = "Pop: selected interface interactions. Angelic chime: saved positive productivity events. Eerie tone: saved negative events when a penalty is configured. Automatic sounds respect the enable switch and volume.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 8) });
+        var previews = new WrapPanel();
+        foreach (var cue in new[] { ("Preview positive chime", "positive"), ("Preview negative tone", "negative") })
+        { var button = new Button { Content = cue.Item1, Margin = new Thickness(0, 0, 8, 6) }; button.Click += (_, _) => InterfaceAudio.PreviewCue(volume.Value, cue.Item2); previews.Children.Add(button); }
+        page.Children.Add(previews);
         var nudges=new CheckBox{Content="Playful focus nudges after 3 minutes away",IsChecked=state.FocusNudgesEnabled,Margin=new Thickness(0,12,0,12)};page.Children.Add(nudges);
         var seasonal=new CheckBox{Content="Seasonal sounds",IsChecked=ReliabilityOptions.SeasonalSounds};page.Children.Add(seasonal);
         void Save(){state.InterfaceSoundsEnabled=enabled.IsChecked==true;state.InterfaceSoundVolume=volume.Value;state.FocusNudgesEnabled=nudges.IsChecked==true;ReliabilityOptions.SeasonalSounds=seasonal.IsChecked==true;NexaEcosystem.UpdateSeason(store,ReliabilityOptions);QueueSave("sounds",()=>{SaveInteractionOptions();SaveState();});}

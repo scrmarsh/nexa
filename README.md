@@ -12,6 +12,9 @@
 
 </div>
 
+> **Final Nexaween candidate:** this branch contains critical repairs and selected interface improvements. It is **not yet the final release**. The published release is unchanged; see the [candidate status and remaining acceptance](docs/FINAL-0.1.24-STATUS.md).
+
+
 Nexa is a local Windows productivity dashboard for classes, study, meetings and everyday work. Arrange movable widgets into a Space, follow your recurring sessions, and keep your notes, tasks and progress together.
 
 ## Get Nexa
@@ -35,7 +38,7 @@ Compare the result with `SHA256SUMS.txt`. User data stays in the existing Window
 | Recurring class schedules and a Pixel Timer that fills during class and counts down between sessions | Movable, resizable widgets with scrolling room below your layout |
 | Notes, tasks, water tracking, counters, Scripture and recording/timeline tools | Configurable appearance, sounds and optional integrations |
 | Session history, automatic checkpoints and save-before-reset protection | Productivity Meter, score breakdowns and squash streaks |
-| Time zone settings and precise linked or independent progress bars | Classic, Cozy, Creepy and Combative bugs with species-specific movement |
+| Time zone settings and precise linked or independent progress bars | Classic, Cozy and Combative behavior, independent Classic/Creepy/Halloween appearance, and species-specific movement |
 
 ## 🎃 NEXAWEEN
 
@@ -69,7 +72,7 @@ The historical project filename and save-data namespace remain for compatibility
 .\tools\Verify.ps1
 ```
 
-The ten-route suite checks timing, layout, scrolling, saving, history, controls, the ecosystem and animations using isolated data stores. Generated logs and captures stay in the ignored `verification/` directory. See [development notes](docs/DEVELOPMENT.md) and the [root audit](docs/ROOT-AUDIT.md).
+The eleven-route suite checks timing, layout, scrolling, saving, history, controls, the ecosystem and animations using isolated data stores. Generated logs and captures stay in the ignored `verification/` directory. See [development notes](docs/DEVELOPMENT.md) and the [root audit](docs/ROOT-AUDIT.md).
 
 | Location | Purpose |
 | --- | --- |

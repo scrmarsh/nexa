@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -58,7 +58,7 @@ public partial class MainWindow
     private void ManualSaveClick(object sender, RoutedEventArgs e)
     {
         if (SaveNow()) { notifications?.Dismiss("autosave"); notifications?.Show("manual-save", "Saved now. Your dashboard is ready to review.", "✓", seconds: 2); }
-        else notifications?.Show("autosave", "Autosave failed — retrying...", "⚠", 3, null);
+        else notifications?.Show("autosave", NexaNotifications.FailureMessage, "⚠", 3, null);
     }
     private void ReconcileSchedule(DateTimeOffset now)
     {

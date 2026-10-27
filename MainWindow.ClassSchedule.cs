@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace SessionDashboard;
@@ -12,7 +12,7 @@ public partial class MainWindow
         var dialog = Dialog("Nexa · Pixel Timer", 580, 620);
         sessionEditor = dialog;
         var page = new StackPanel { Margin = new Thickness(24) };
-        page.Children.Add(new TextBlock { Text = "Weekly class schedule", FontSize = 23, FontWeight = FontWeights.SemiBold });
+        page.Children.Add(new TextBlock { Text = "Pixel Timer", FontSize = 23, FontWeight = FontWeights.SemiBold });
         page.Children.Add(new TextBlock { Text = "Count down until class, count up during class, then count down to the next class. Session pixels fill from the top-left; between classes they clear from the bottom-right.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 18) });
         var name = new TextBox { Text = state.Session?.Title ?? (string.IsNullOrWhiteSpace(state.Draft.Title) ? "Class" : state.Draft.Title), MaxLength = 100 };
         page.Children.Add(new TextBlock { Text = "Class / preset name" }); page.Children.Add(name);
@@ -43,27 +43,30 @@ public partial class MainWindow
         var duration = new TextBlock { Margin = new Thickness(0, 8, 0, 12), TextWrapping = TextWrapping.Wrap };
         void RefreshDuration() { var span = end.Value - start.Value; if (span <= TimeSpan.Zero) span += TimeSpan.FromDays(1); duration.Text = $"Duration: {span.TotalMinutes:0} minutes · {NexaTime.Zone(zone).DisplayName}"; }
         start.TimeChanged += (_, _) => RefreshDuration(); end.TimeChanged += (_, _) => RefreshDuration(); RefreshDuration(); page.Children.Add(duration);
-        var repeat = new CheckBox { Content = "Automatically schedule and reset on these weekdays", IsChecked = state.Session?.AutomaticScheduling ?? true, Margin = new Thickness(0, 8, 0, 8) }; page.Children.Add(repeat);
+        var mode = new ComboBox { ItemsSource = new[] { "Manual Mode", "Schedule Mode" }, SelectedIndex = state.Session?.AutomaticScheduling == true ? 1 : 0, Margin = new Thickness(0, 8, 0, 8) };
+        System.Windows.Automation.AutomationProperties.SetName(mode, "Pixel Timer operating mode");
+        page.Children.Insert(1, mode);
         var startDate=new DatePicker{SelectedDate=state.Session is {} original?NexaTime.Local(original.Start,zone).Date:NexaTime.Local(DateTimeOffset.UtcNow,zone).Date};
         var endDate=new DatePicker{SelectedDate=state.Session is {} ending?NexaTime.Local(ending.End,zone).Date:startDate.SelectedDate};
-        var dates=new StackPanel{Margin=new Thickness(0,8,0,8),IsEnabled=repeat.IsChecked!=true};dates.Children.Add(new TextBlock{Text="One-time start date"});dates.Children.Add(startDate);dates.Children.Add(new TextBlock{Text="One-time end date"});dates.Children.Add(endDate);page.Children.Add(dates);
-        repeat.Checked+=(_,_)=>dates.IsEnabled=false;repeat.Unchecked+=(_,_)=>dates.IsEnabled=true;
+        var dates=new StackPanel{Margin=new Thickness(0,8,0,8),IsEnabled=mode.SelectedIndex!=1};dates.Children.Add(new TextBlock{Text="One-time start date"});dates.Children.Add(startDate);dates.Children.Add(new TextBlock{Text="One-time end date"});dates.Children.Add(endDate);page.Children.Add(dates);
+        void RefreshMode() { dates.IsEnabled = mode.SelectedIndex != 1; days.IsEnabled = shortcuts.IsEnabled = mode.SelectedIndex == 1; }
+        mode.SelectionChanged += (_, _) => RefreshMode(); RefreshMode();
         var durationInput=new TextBox{Text=state.Session?.ConfiguredDurationMinutes.ToString("0")??"75",Width=100,HorizontalAlignment=HorizontalAlignment.Left};page.Children.Add(new TextBlock{Text="Duration (minutes)"});page.Children.Add(durationInput);
         var setDuration=new Button{Content="Use duration",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,4,0,10)};page.Children.Add(setDuration);
-        setDuration.Click+=(_,_)=>{if(int.TryParse(durationInput.Text,out var minutes) && minutes>0 && minutes<=(repeat.IsChecked==true?1439:10080)){var finish=(startDate.SelectedDate??NexaTime.Local(DateTimeOffset.UtcNow,zone).Date)+start.Value+TimeSpan.FromMinutes(minutes);end.Value=finish.TimeOfDay;endDate.SelectedDate=finish.Date;}};
+        setDuration.Click+=(_,_)=>{if(int.TryParse(durationInput.Text,out var minutes) && minutes>0 && minutes<=(mode.SelectedIndex==1?1439:10080)){var finish=(startDate.SelectedDate??NexaTime.Local(DateTimeOffset.UtcNow,zone).Date)+start.Value+TimeSpan.FromMinutes(minutes);end.Value=finish.TimeOfDay;endDate.SelectedDate=finish.Date;}};
         var savePreset = new CheckBox { Content = "Save this schedule as a reusable preset", IsChecked = true }; page.Children.Add(savePreset);
         var status = new TextBlock { Margin = new Thickness(0, 12, 0, 12), TextWrapping = TextWrapping.Wrap }; page.Children.Add(status);
-        var apply = new Button { Content = "Save weekly schedule", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 12) };
+        var apply = new Button { Content = "Apply timer settings", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 12) };
         apply.Click += (_, _) =>
         {
             try
             {
                 var selected=days.Children.OfType<CheckBox>().Where(c=>c.IsChecked==true).Select(c=>(DayOfWeek)c.Tag).ToList();
-                var schedule=repeat.IsChecked==true?PixelTiming.WeeklyClass(name.Text,selected,start.Value,end.Value,zone,DateTimeOffset.UtcNow):new Session{Title=name.Text.Trim(),Start=NexaTime.Instant((startDate.SelectedDate??DateTime.Today)+start.Value,zone),End=NexaTime.Instant((endDate.SelectedDate??DateTime.Today)+end.Value,zone),TimeZoneId=zone,ScheduleTimeZoneId=zone,ScheduledDays=selected,BeforeSessionCountdownFrom=DateTimeOffset.UtcNow};
+                var schedule=mode.SelectedIndex==1?PixelTiming.WeeklyClass(name.Text,selected,start.Value,end.Value,zone,DateTimeOffset.UtcNow):new Session{Title=name.Text.Trim(),Start=NexaTime.Instant((startDate.SelectedDate??DateTime.Today)+start.Value,zone),End=NexaTime.Instant((endDate.SelectedDate??DateTime.Today)+end.Value,zone),TimeZoneId=zone,ScheduleTimeZoneId=zone,ScheduledDays=selected,BeforeSessionCountdownFrom=DateTimeOffset.UtcNow};
                 if(string.IsNullOrWhiteSpace(schedule.Title)||schedule.End<=schedule.Start||schedule.End-schedule.Start>TimeSpan.FromDays(7))throw new ArgumentException("Choose an end after start, within seven days.");
                 schedule.ConfiguredDurationMinutes=(schedule.End-schedule.Start).TotalMinutes;
                 schedule.IntervalMinutes=state.Session?.IntervalMinutes??10;
-                schedule.AutomaticScheduling = repeat.IsChecked == true;
+                schedule.AutomaticScheduling = mode.SelectedIndex == 1;
                 if (ApplyClassSchedule(schedule, savePreset.IsChecked == true)) dialog.CloseWithFade();
                 else status.Text = "The schedule could not be saved. Your current dashboard is unchanged.";
             }
@@ -87,7 +90,7 @@ public partial class MainWindow
         session.RecurringEndMinutes = schedule.RecurringEndMinutes; session.RecurringEndDayOffset = schedule.RecurringEndDayOffset;
         session.TimeZoneId = schedule.TimeZoneId; session.ScheduledDays = schedule.ScheduledDays;
         session.AutomaticScheduling = schedule.AutomaticScheduling; session.BeforeSessionCountdownFrom = schedule.BeforeSessionCountdownFrom;
-        session.ConfiguredDurationMinutes = schedule.ConfiguredDurationMinutes; session.StoppedAt = null;
+        session.ConfiguredDurationMinutes = schedule.ConfiguredDurationMinutes > 0 ? schedule.ConfiguredDurationMinutes : (schedule.End - schedule.Start).TotalMinutes; session.StoppedAt = null;
         current.CompletedCheckpointAt = null; current.ResetDeferred = false; current.ResetPostponedFor = null;
         current.Data.Session = session;
         var from = NexaTime.Local(session.Start, session.TimeZoneId); var to = NexaTime.Local(session.End, session.TimeZoneId);

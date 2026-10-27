@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -56,7 +56,7 @@ internal static partial class Program
         Assert(Descendants(window).OfType<TextBlock>().Any(t => t.Text.Contains("Meaningful actions:")) && Descendants(window).OfType<TextBlock>().Any(t => t.Text.Contains("Next milestone:")), "Both productivity widgets render working statistics in the dashboard");
         window.ShowWeeklySchedule(); Pump(TimeSpan.FromMilliseconds(60));
         var editor = Application.Current.Windows.OfType<Window>().Single(w => w.Title == "Nexa · Pixel Timer");
-        Assert(Descendants(editor).OfType<Button>().Any(b => Equals(b.Content, "M/W")) && Descendants(editor).OfType<Button>().Any(b => Equals(b.Content, "Save weekly schedule")), "The timer's real editor exposes weekday shortcuts and a save action");
+        Assert(Descendants(editor).OfType<Button>().Any(b => Equals(b.Content, "M/W")) && Descendants(editor).OfType<Button>().Any(b => Equals(b.Content, "Apply timer settings")), "The timer's real editor exposes weekday shortcuts and a save action");
         editor.Close();
         Assert(WidgetLibrary.Definitions.Any(d => d.Name == "Productivity Meter") && WidgetLibrary.Definitions.Any(d => d.Name == "Productivity Score"), "Both productivity widgets remain in the normal Add Widget library");
         Snapshot(window, "weekly-productivity-dashboard", 1450, 950);

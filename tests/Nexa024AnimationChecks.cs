@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -50,14 +50,14 @@ internal static partial class Program
         feedback.Dispose(); feedback.Show("timer",new Rect(0,0,200,100));
         Assert(!feedback.IsAnimating,"Disposed feedback cannot restart its animation timer");
         var grid=new Grid(); var motion=true; using var notifications=new NexaNotifications(grid,()=>motion);
-        notifications.Show("autosave","Autosaving...","🔄",seconds:null);
+        notifications.Show("autosave",NexaNotifications.SavingMessage,"🔄",seconds:null);
         var glyph=Descendants(grid).OfType<TextBlock>().Single(x=>x.Text=="🔄");
         Assert(((RotateTransform)glyph.RenderTransform).HasAnimatedProperties,"Autosave rotation starts for the actual saving state");
         notifications.Show("autosave","Autosave complete","✓",seconds:2);
         var success=Descendants(grid).OfType<TextBlock>().Single(x=>x.Text=="✓");
         Assert(!((RotateTransform)success.RenderTransform).HasAnimatedProperties && !((RotateTransform)glyph.RenderTransform).HasAnimatedProperties,"Success replaces the saving notification and stops the old rotation");
-        notifications.Show("autosave","Autosave failed — retrying...","⚠",seconds:null); Pump(TimeSpan.FromMilliseconds(300));
-        Assert(Descendants(grid).OfType<TextBlock>().Any(x=>x.Text=="Autosave failed — retrying..."),"Save failure remains visible until resolved or acknowledged");
+        notifications.Show("autosave",NexaNotifications.FailureMessage,"⚠",seconds:null); Pump(TimeSpan.FromMilliseconds(300));
+        Assert(Descendants(grid).OfType<TextBlock>().Any(x=>x.Text==NexaNotifications.FailureMessage),"Save failure remains visible until resolved or acknowledged");
         notifications.Show("tip","Animation test","💡"); motion=false;notifications.ReconcileMotion();
         Assert(Descendants(grid).OfType<TextBlock>().All(x=>!x.HasAnimatedProperties && !x.RenderTransform.HasAnimatedProperties),"Reduced motion removes running notification clocks");
         using var art=new NexaweenDecorations {IsHitTestVisible=false};

@@ -13,6 +13,24 @@ internal static class NexaWindowBounds
     [DllImport("user32.dll")] private static extern nint MonitorFromWindow(nint window, uint flags);
     [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] private static extern bool GetMonitorInfo(nint monitor, ref MonitorInfo info);
 
+    internal static bool TryWorkArea(FrameworkElement element, out Rect area)
+    {
+        area = Rect.Empty;
+        var window = Window.GetWindow(element);
+        if (window == null) return false;
+        var handle = new WindowInteropHelper(window).Handle;
+        if (handle == nint.Zero) return false;
+        var info = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
+        if (!GetMonitorInfo(MonitorFromWindow(handle, 2), ref info)) return false;
+        try
+        {
+            var first = element.PointFromScreen(new System.Windows.Point(info.Work.Left, info.Work.Top));
+            var last = element.PointFromScreen(new System.Windows.Point(info.Work.Right, info.Work.Bottom));
+            area = Rect.Intersect(new Rect(0, 0, Math.Max(0, element.ActualWidth), Math.Max(0, element.ActualHeight)), new Rect(first, last));
+            return !area.IsEmpty;
+        }
+        catch (InvalidOperationException) { return false; }
+    }
     internal static void Attach(Window window)
     {
         HwndSource? source = null;
@@ -21,7 +39,7 @@ internal static class NexaWindowBounds
             if (message != 0x0024) return nint.Zero; // WM_GETMINMAXINFO uses physical monitor pixels.
             var info = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
             if (!GetMonitorInfo(MonitorFromWindow(hwnd, 2), ref info)) return nint.Zero;
-            var full = window is MainWindow main && main.IsFullscreen || window is EcosystemWindow ecosystem && ecosystem.IsFullscreen;
+            var full = window is MainWindow main && main.IsFullscreen;
             var area = full ? info.Monitor : info.Work;
             var size = Marshal.PtrToStructure<MinMax>(lParam);
             size.MaxPosition = new Point { X = area.Left - info.Monitor.Left, Y = area.Top - info.Monitor.Top };

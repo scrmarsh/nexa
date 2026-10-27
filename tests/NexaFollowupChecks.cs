@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -66,7 +66,7 @@ internal static partial class Program
         foreach(var mode in Enum.GetValues<BugBehavior>())
         {
             var option=new EcosystemOptions{Behavior=mode,Appearance=BugAppearance.Creepy,MatchAppearance=false};
-            Assert(option.EffectiveAppearance==(mode==BugBehavior.Cozy?BugAppearance.Cozy:mode==BugBehavior.Creepy?BugAppearance.Creepy:BugAppearance.Normal),mode+" determines its appearance even with legacy override fields");
+            Assert(option.EffectiveAppearance==BugAppearance.Creepy,mode+" preserves the independently selected Creepy appearance");
         }
         var world=CreateWorld(BugBehavior.Cozy);Step(world,100);var id=world.WorldId;
         world.Configure(new(true,BugSpecies.AllBugs,BugDensity.Low,new EcosystemOptions{Behavior=BugBehavior.Cozy}));
@@ -87,8 +87,8 @@ internal static partial class Program
         var globalButtons=Descendants(global).OfType<Button>().Where(b=>b.Content is string).Select(b=>b.Content.ToString()).ToArray();
         Assert(globalButtons.Contains("Sounds") && !globalButtons.Contains("Session") && !globalButtons.Contains("Seasonal Events") && !globalButtons.Contains("Appearance & Effects"),"Global navigation has one Appearance and Sounds, with no duplicate Session/Seasonal tabs");
         Assert(!Descendants(global).OfType<CheckBox>().Any(c=>Equals(c.Content,"Match Appearance to Behavior")) && !Descendants(global).OfType<TextBlock>().Any(t=>t.Text=="Appearance override"),"Redundant appearance override controls are absent");
-        Assert(Descendants(global).OfType<ComboBox>().Any(c=>c.Items.OfType<BugBehavior>().Count()==4),"All four actual behavior options are available");
-        Assert(Equals(Descendants(global).OfType<ComboBox>().Single(c=>c.Items.OfType<BugBehavior>().Count()==4).SelectedItem,NexaEcosystem.For(store).Manager.EcosystemSettings.Behavior),"The first-open behavior selector reflects the effective seasonal world mode");
+        Assert(Descendants(global).OfType<ComboBox>().Any(c=>c.Items.OfType<BugBehavior>().Count()==3),"Classic, Cozy and Combative are available without retired Creepy behavior");
+        Assert(Equals(Descendants(global).OfType<ComboBox>().Single(c=>c.Items.OfType<BugBehavior>().Count()==3).SelectedItem,NexaEcosystem.For(store).Manager.EcosystemSettings.Behavior),"The first-open behavior selector reflects the effective seasonal world mode");
         global.Close();var session=new SettingsDialog(main,store,main.state,main,"Session");session.Show();Pump(TimeSpan.FromMilliseconds(80));
         Assert(Descendants(session).OfType<Button>().Any(b=>Equals(b.Content,"Notes & History")) && Descendants(session).OfType<CheckBox>().Any(c=>Equals(c.Content,"Enable Tips")),"The Session interface contains history and the Tips setting");
         Assert(!Descendants(session).OfType<TextBlock>().Any(t=>t.Text is "Selected days" or "Summary interval (minutes)"),"Session interface has no duplicate weekday or summary-interval selection");

@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 namespace SessionDashboard;
@@ -54,10 +54,18 @@ internal sealed partial class BugManager
         preferences=preferences with {Ecosystem=(preferences.Ecosystem ?? new()).Safe()};
         if(Preferences==preferences)return;
         var modeChanged=Preferences.Ecosystem?.Behavior!=preferences.Ecosystem?.Behavior;
+        var previousSpecies = Preferences.Species;
         Preferences=preferences; if(!EcosystemActive) Clear();
         if(EcosystemActive)
         {
             if(preferences.Species!=BugSpecies.AllBugs)Bugs.RemoveAll(b=>b.Species!=preferences.Species);
+            else if (previousSpecies != BugSpecies.AllBugs && Bugs.All(b => b.Species == previousSpecies))
+            {
+                // Free slots for newly enabled species without crediting removals as squashes.
+                var retainedPerSpecies = Math.Max(1, EcosystemCap / AllSpecies.Length);
+                foreach (var group in Bugs.GroupBy(b => b.Species).ToArray())
+                    foreach (var excess in group.Skip(retainedPerSpecies).ToArray()) Bugs.Remove(excess);
+            }
             if(Bugs.Count>EcosystemCap)Bugs.RemoveRange(EcosystemCap,Bugs.Count-EcosystemCap);
         }
         if(EcosystemActive && modeChanged) foreach(var bug in Bugs){bug.Decision=0;bug.EnemyId=null;bug.RaidTarget=null;bug.Activity=BugActivity.Exploring;}

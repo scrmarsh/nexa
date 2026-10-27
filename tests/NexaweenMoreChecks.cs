@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -25,7 +25,7 @@ internal static partial class Program
         options.SeasonalDecorations = false; window.ApplyReliabilityOptions();
         Assert(artwork.Visibility == Visibility.Collapsed, "Decoration toggle hides artwork immediately");
         options.SeasonalDecorations = true; options.DecorationDensity = "High"; window.ApplyReliabilityOptions(); window.RefreshSeasonalWorkspace();
-        Assert(window.WidgetCanvas.Children.OfType<Button>().Any(b => Equals(b.Content, "+ Add Widget")), "Contextual Add Widget appears below existing content");
+        Assert(window.WidgetCanvas.Children.OfType<Button>().Any(b => System.Windows.Automation.AutomationProperties.GetName(b) == "Add Widget in empty workspace" && System.Windows.Controls.Canvas.GetTop(b) > 0), "Contextual Add Widget appears below existing content");
         options.SeasonalMode = "Off"; window.ApplyReliabilityOptions();
         Assert(!Theme.SeasonalEnabled && ((SolidColorBrush)window.FullContent.Resources["DashboardPixelBrush"]).Color == (Color)ColorConverter.ConvertFromString(savedPixel), "Disabling Halloween restores the saved dashboard palette");
 
@@ -41,8 +41,9 @@ internal static partial class Program
         Pump(TimeSpan.FromMilliseconds(70));
         var history = Application.Current.Windows.OfType<Window>().Single(w => w.Title == "Nexa · Notes & History");
         var list = Descendants(history).OfType<ListBox>().Single();
+        AwaitFinal(() => list.Items.Count >= 2, "The asynchronous History snapshot did not load");
         Assert(list.Items.Count >= 2 && window.state.Notes == originalNotes && Continuity.Current(window.state.Workspace!, store.UserId).Current.SessionId == originalId, "Opening readable history includes live and archived records without replaying a session");
-        list.SelectedItem = list.Items.OfType<DashboardSession>().First(s => !s.IsActive);
+        list.SelectedItem = list.Items.OfType<HistoryEntry>().First(e => e.Editable);
         Descendants(history).OfType<Button>().Single(b => Equals(b.Content, "Edit archived notes")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         Pump(TimeSpan.FromMilliseconds(60));
         var editor = Application.Current.Windows.OfType<Window>().Single(w => w.Title == "Edit archived session notes");

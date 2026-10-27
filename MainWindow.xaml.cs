@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -478,7 +478,8 @@ public partial class MainWindow
     }
     private void ApplySettings()
     {
-        Topmost = state.AlwaysOnTop;
+        if (fullscreen) restoreFullscreenTopmost = state.AlwaysOnTop;
+        Topmost = fullscreen || state.AlwaysOnTop;
         NotesPanel.Visibility = state.ShowNotes ? Visibility.Visible : Visibility.Collapsed;
         ChecklistPanel.Visibility = state.ShowChecklist ? Visibility.Visible : Visibility.Collapsed;
     }
@@ -603,6 +604,7 @@ public partial class MainWindow
     private DateTimeOffset displayedClockInstant;
     internal void UpdateClock(DateTimeOffset? at = null)
     {
+        SessionResetButton.Visibility = state.Session?.AutomaticScheduling == true ? Visibility.Collapsed : Visibility.Visible;
         var now = at ?? DateTimeOffset.UtcNow;displayedClockInstant=now;
         ReconcileSchedule(now);
         var session = state.Session;

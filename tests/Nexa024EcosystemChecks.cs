@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
@@ -41,7 +41,7 @@ internal static partial class Program
         Throws<InvalidDataException>(() => bad.Validate("synthetic-owner"), "Non-finite creature coordinates are rejected before restoration");
         var creepy = CreateWorld(BugBehavior.Creepy); var creepyActivities = new HashSet<BugActivity>();
         for (var tick = 0; tick < 1200; tick++) { creepy.Advance(.1); foreach (var b in creepy.Bugs) creepyActivities.Add(b.Activity); }
-        Assert(creepyActivities.Contains(BugActivity.Hiding) && !creepyActivities.Contains(BugActivity.Raiding), "Creepy behavior hides and scuttles without organized warfare");
+        Assert(creepy.EcosystemSettings.Behavior == BugBehavior.Classic && creepy.EcosystemSettings.EffectiveAppearance == BugAppearance.Creepy && !creepyActivities.Contains(BugActivity.Raiding), "Retired Creepy behavior migrates to peaceful Classic behavior while preserving Creepy appearance");
         var combat = CreateWorld(BugBehavior.Combative); Step(combat, 10);
         foreach (var b in combat.Bugs) { b.Position = new(800 + (int)b.Species, 500); b.Target = b.Position; b.Health = 12; b.Decision = 0; }
         Step(combat, 12);
@@ -50,7 +50,7 @@ internal static partial class Program
         combat.Configure(combat.Preferences with { Ecosystem = combat.EcosystemSettings with { Behavior = BugBehavior.Cozy } });
         Assert(combat.WorldId == worldId && ids.SequenceEqual(combat.Bugs.Select(b => b.InteractionId)) && combat.Bugs.All(b => b.EnemyId == null), "Changing behavior preserves the world and immediately ends obsolete attack orders");
         var policy = new EcosystemOptions { Behavior = BugBehavior.Cozy, Appearance = BugAppearance.Creepy, MatchAppearance = true };
-        Assert(policy.EffectiveAppearance == BugAppearance.Cozy && (policy with { MatchAppearance = false }).EffectiveAppearance == BugAppearance.Cozy, "Behavior mapping safely ignores retired legacy appearance overrides");
+        Assert(policy.EffectiveAppearance == BugAppearance.Cozy && (policy with { MatchAppearance = false }).EffectiveAppearance == BugAppearance.Creepy, "Legacy matched textures remain readable while explicit appearance is independent");
         Assert(new EcosystemOptions().Size == 2 && new EcosystemOptions().Adorable && (new EcosystemOptions { Size = 20 }).Safe().Size == 4, "Default size is 200 percent with Adorable Mode enabled and bounded size settings");
         var culture = CultureInfo.CurrentCulture; CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("de-DE");
         foreach (var species in BugManager.AllSpecies)
@@ -124,16 +124,17 @@ internal static partial class Program
         var world = NexaEcosystem.For(store);
         Assert(window.bugsOverlay != null && ReferenceEquals(window.bugsOverlay.Manager, world.Manager), "Dashboard bugs use the same authoritative manager as the ecosystem service");
         var settings = new SettingsDialog(window, store, window.state, window, "Add Bugs"); settings.Show(); Pump(TimeSpan.FromMilliseconds(80));
-        Assert(Descendants(settings).OfType<ComboBox>().Any(c => c.Items.OfType<BugBehavior>().Count() == 4) && Descendants(settings).OfType<CheckBox>().Any(c => Equals(c.Content, "Adorable Mode")), "Actual Add Bugs settings expose behavior, appearance and Adorable Mode controls");
+        Assert(Descendants(settings).OfType<ComboBox>().Any(c => c.Items.OfType<BugBehavior>().Count() == 3) && Descendants(settings).OfType<CheckBox>().Any(c => Equals(c.Content, "Adorable Mode")), "Actual Add Bugs settings expose behavior, appearance and Adorable Mode controls");
         var size = Descendants(settings).OfType<Slider>().Single(s => s.Minimum == .75 && s.Maximum == 4); size.Value = 3;
-        var behavior = Descendants(settings).OfType<ComboBox>().Single(c => c.Items.OfType<BugBehavior>().Count() == 4); behavior.SelectedItem = BugBehavior.Creepy;
+        var behavior = Descendants(settings).OfType<ComboBox>().Single(c => c.Items.OfType<BugBehavior>().Count() == 3); behavior.SelectedItem = BugBehavior.Cozy;
         Pump(TimeSpan.FromMilliseconds(800));
-        Assert(store.LoadBugPreferences().Ecosystem?.Size == 3 && world.Manager.EcosystemSettings.Behavior == BugBehavior.Creepy, "Real size and behavior controls apply immediately and persist"); settings.Close();
-        var scene = new EcosystemWindow(window, store) { WindowState = WindowState.Normal, Left = -10000, Top = -10000, ShowActivated = false, ShowInTaskbar = false, WindowStartupLocation = WindowStartupLocation.Manual };
-        scene.Show(); Pump(TimeSpan.FromMilliseconds(120));
-        Assert(ReferenceEquals(scene.World.Manager, window.bugsOverlay!.Manager) && world.ViewCount == 2, "A separate ecosystem view shares the existing population without spawning a second simulation");
-        Assert(Descendants(scene).OfType<Button>().Any(b => Equals(b.Content, "Restore Backup")) && Descendants(scene).OfType<Button>().Any(b => Equals(b.Content, "Reset Ecosystem")), "Ecosystem view includes backup and explicit reset controls");
-        scene.Close(); window.Close(); Pump(TimeSpan.FromMilliseconds(80));
-        Assert(world.ViewCount == 0, "Closing both views releases their simulation subscriptions");
+        Assert(store.LoadBugPreferences().Ecosystem?.Size == 3 && world.Manager.EcosystemSettings.Behavior == BugBehavior.Cozy, "Real size and behavior controls apply immediately and persist"); settings.Close();
+        Assert(world.ViewCount == 1, "Only the dashboard overlay owns a simulation view");
+        var controls = new SettingsDialog(window, store, window.state, window, "Add Bugs"); controls.Show();
+        Assert(!Descendants(controls).OfType<Button>().Any(b => Equals(b.Content, "View Ecosystem") || Equals(b.Content, "Reset Ecosystem")), "The retired map and world-reset controls are absent from bug settings");
+        var appearance = Descendants(controls).OfType<ComboBox>().Single(c => c.Items.OfType<string>().SequenceEqual(new[] { "Classic", "Creepy", "Halloween" })); appearance.SelectedItem = "Creepy"; controls.FlushPendingChanges();
+        Assert(world.Manager.EcosystemSettings.EffectiveAppearance == BugAppearance.Creepy && world.Manager.EcosystemSettings.Behavior == BugBehavior.Cozy, "Appearance selection applies and persists without replacing the chosen behavior");
+        controls.Close(); window.Close(); Pump(TimeSpan.FromMilliseconds(80));
+        Assert(world.ViewCount == 0, "Closing the overlay releases its simulation subscription");
     }
 }

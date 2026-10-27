@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 namespace SessionDashboard;
 public partial class MainWindow
@@ -27,9 +27,17 @@ public partial class MainWindow
         var viewport = new Rect(0, 52, ActualWidth, Math.Max(0, ActualHeight - 52));
         return bounds.IntersectsWith(viewport) ? bounds : null;
     }
+    private Guid soundSessionId;
+    private readonly HashSet<Guid> soundedEvents = [];
     private void SavedFeedback()
     {
         if (feedbackOverlay != null && state.Workspace != null) feedbackOverlay.Observe(Continuity.Current(state.Workspace, store.UserId).Current, state.Productivity.Events);
+        if (state.Workspace == null) return;
+        var current = Continuity.Current(state.Workspace, store.UserId).Current;
+        if (soundSessionId != current.SessionId) { soundSessionId = current.SessionId; soundedEvents.Clear(); foreach (var item in state.Productivity.Events) soundedEvents.Add(item.Id); return; }
+        foreach (var item in state.Productivity.Events)
+            if (soundedEvents.Add(item.Id) && state.InterfaceSoundsEnabled && item.BasePoints + item.BonusPoints != 0 && item.Category != "Bug squash")
+                InterfaceAudio.PreviewCue(state.InterfaceSoundVolume, item.BasePoints + item.BonusPoints > 0 ? "positive" : "negative");
     }
     private void UpdateFrenzyFeedback()
     {

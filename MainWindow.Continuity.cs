@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
@@ -73,9 +73,9 @@ public partial class MainWindow
         var saving=text=="Auto-saving...";
         if (warning) saveFailureVisible = true;
         else if (!saving) saveFailureVisible = false;
-        if (warning) { notifications?.Show("autosave", "Autosave failed — retrying...", "⚠", 3, null); saveRetry.Start(); }
+        if (warning) { notifications?.Show("autosave", NexaNotifications.FailureMessage, "⚠", 3, null); saveRetry.Start(); }
         else if (saving && saveFailureVisible) { } // Keep an unresolved failure visible during a retry.
-        else if (Options.ShowAutosaveNotifications) notifications?.Show("autosave", saving ? "Autosaving..." : "Autosave complete", saving ? "🔄" : "✓", seconds: saving ? null : 2);
+        else if (Options.ShowAutosaveNotifications) notifications?.Show("autosave", saving ? NexaNotifications.SavingMessage : "Autosave complete", saving ? "🔄" : "✓", seconds: saving ? null : 2);
         else notifications?.Dismiss("autosave");
         var rotation=(RotateTransform)SaveSpinner.RenderTransform;
         rotation.BeginAnimation(RotateTransform.AngleProperty,null);
@@ -370,7 +370,8 @@ public partial class MainWindow
         search.TextChanged += (_, _) => Refresh(); date.SelectedDateChanged += (_, _) => Refresh(); sort.SelectionChanged += (_, _) => Refresh();
         Refresh(); dialog.Content = root; dialog.ShowDismissible();
     }
-    internal static string PreviewSession(DashboardSession session)
+    internal static string PreviewSession(DashboardSession session) => HistoryArchive.Report(session);
+    internal static string BuildSessionReport(DashboardSession session)
     {
         var data = session.Data;
         var text = new StringBuilder($"Previous session\n{session.Title}\n{NexaTime.Local(session.OpenedAt, session.TimeZoneId):F}\nLast accessed: {NexaTime.Local(session.LastAccessedAt, session.TimeZoneId):g}\n{session.Summary}\n\nNOTES\n{data.Notes}\n\nTASKS\n");
@@ -378,7 +379,7 @@ public partial class MainWindow
         var ledger = data.Productivity;
         text.AppendLine($"\nPRODUCTIVITY\nScore: {ledger.Score}\nBase points: {ledger.Events.Sum(e => e.BasePoints)}\nBonus points: {ledger.Events.Sum(e => e.BonusPoints)}\nActions: {ledger.Events.Count}\nBugs squashed: {ledger.BugsSquashed}\nFrenzy activations: {ledger.FrenzyActivations}");
         foreach (var category in ledger.Events.GroupBy(e => e.Category)) text.AppendLine($"{category.Key}: {category.Count()} actions, {category.Sum(e => e.BasePoints + e.BonusPoints)} points");
-        foreach (var action in ledger.Events) text.AppendLine($"{NexaTime.Local(action.At, session.TimeZoneId):g} · {action.Category}: {action.Description} (+{action.BasePoints + action.BonusPoints})");
+        foreach (var action in ledger.Events) text.AppendLine($"{NexaTime.Local(action.At, session.TimeZoneId):g} · {action.Category}: {action.Description} ({action.BasePoints + action.BonusPoints:+0;-0;0})");
         text.AppendLine("\nTASKS");
         foreach (var task in data.Tasks) text.AppendLine($"{(task.Done ? "☑" : "☐")} {task.Text}");
         if (data.Session is { } timer)
@@ -391,7 +392,7 @@ public partial class MainWindow
             foreach (var entry in timer.TimelineEntries.OrderBy(e => e.CreatedAt)) text.AppendLine($"{NexaTime.Local(entry.CreatedAt, session.TimeZoneId):g} · {entry.Source}: {entry.Text}\nAudio: {entry.AudioPath}");
             text.AppendLine($"Recording: {timer.LocalRecordingPath} ({timer.LocalRecordingSeconds:0} seconds)");
         }
-        text.AppendLine("\nSTORY\n" + data.StoryNode + "\n" + string.Join("\n", data.StoryHistory));
+        if (data.StoryHistory.Count > 0 || data.StoryEndings.Count > 0) text.AppendLine("\nARCHIVED STORY\n" + data.StoryNode + "\n" + string.Join("\n", data.StoryHistory));
         foreach (var widget in data.Widgets)
         {
             text.AppendLine($"\n{widget.Title}\n{widget.Text}");

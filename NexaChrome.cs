@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -170,8 +170,10 @@ internal class NexaDialog : Window
         }
         else { var caption = NexaChrome.Caption(this); DockPanel.SetDock(caption, Dock.Top); dock.Children.Add(caption); }
         dock.Children.Add(body);
-        var frame = new Border { Child = dock, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), SnapsToDevicePixels = true };
-        frame.SetResourceReference(Border.BorderBrushProperty, "LineBrush");
+        var frame = new Border { Child = dock, Padding = new Thickness(1), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), SnapsToDevicePixels = true };
+        frame.SetResourceReference(Border.BackgroundProperty, "BackgroundBrush");
+        dock.SizeChanged += (_, _) => dock.Clip = new RectangleGeometry(new Rect(0, 0, Math.Max(0, dock.ActualWidth), Math.Max(0, dock.ActualHeight)), 7, 7);
+        frame.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
         Content = frame; wrapping = false;
     }
 }

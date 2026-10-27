@@ -68,10 +68,12 @@ internal static partial class Program
         var grid = (Grid)window.Content;
         using (var notices = new NexaNotifications(grid))
         {
-            notices.Show("probe-save", "Autosaving…", "🔄", seconds: null);
+            var existingText = Descendants(grid).OfType<TextBlock>().ToHashSet();
+            notices.Show("probe-save", NexaNotifications.SavingMessage, "🔄", seconds: null);
+            var probeSaving = Descendants(grid).OfType<TextBlock>().Single(t => !existingText.Contains(t) && t.Text == NexaNotifications.SavingMessage);
             notices.Show("probe-save", "Autosave complete", "✓", seconds: 2);
             var messages = Descendants(grid).OfType<TextBlock>().Count(t => t.Text == "Autosave complete");
-            Assert(messages <= 2 && Descendants(grid).OfType<TextBlock>().All(t => t.Text != "Autosaving…"), "A notification key transitions without retaining the old save state");
+            Assert(messages >= 1 && !Descendants(grid).OfType<TextBlock>().Contains(probeSaving), "A notification key transitions without retaining the old save state");
             notices.Show("probe-error", "Autosave failed — retrying…", "⚠", 3, null);
             Pump(TimeSpan.FromMilliseconds(2100));
             Assert(Descendants(grid).OfType<TextBlock>().Any(t => t.Text == "Autosave failed — retrying…"), "An unresolved save error remains visible after routine success expires");

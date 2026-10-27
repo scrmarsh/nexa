@@ -32,13 +32,15 @@ public partial class MainWindow
         var bottom = Math.Max(PixelObstacle?.Bottom ?? 0, widgetFrames.Values.Select(f => Canvas.GetTop(f) + f.Height).DefaultIfEmpty(0).Max());
         if (workspaceAdd == null)
         {
-            workspaceAdd = new Button { Content = "+ Add Widget", Opacity = .55, Padding = new Thickness(12, 7, 12, 7), ToolTip = "Place a widget in the empty workspace" };
+            var label = new StackPanel(); label.Children.Add(new TextBlock { Text = "Add Widget", TextAlignment = TextAlignment.Center }); label.Children.Add(new TextBlock { Text = "+", FontSize = 40, TextAlignment = TextAlignment.Center });
+            workspaceAdd = new Button { Content = label, Opacity = .4, BorderThickness = new Thickness(0), Background = Brushes.Transparent, Padding = new Thickness(12, 7, 12, 7), ToolTip = "Place a widget in the empty workspace" };
+            System.Windows.Automation.AutomationProperties.SetName(workspaceAdd, "Add Widget in empty workspace");
             workspaceAdd.MouseEnter += (_, _) => workspaceAdd.Opacity = 1;
             workspaceAdd.MouseLeave += (_, _) => workspaceAdd.Opacity = .55;
             workspaceAdd.Click += (_, e) => { addWidgetLocation = new Point(16, Canvas.GetTop(workspaceAdd)); AddWidgetClick(workspaceAdd, e); };
         }
         if (!WidgetCanvas.Children.Contains(workspaceAdd)) WidgetCanvas.Children.Add(workspaceAdd);
-        Canvas.SetTop(workspaceAdd, bottom + 30); Canvas.SetLeft(workspaceAdd, 16);
+        Canvas.SetTop(workspaceAdd, bottom + 30); Canvas.SetLeft(workspaceAdd, Math.Max(16, (WidgetCanvas.ActualWidth - Math.Max(130, workspaceAdd.ActualWidth)) / 2));
         if (seasonalArtwork == null) seasonalArtwork = new NexaweenDecorations { IsHitTestVisible = false };
         if (!WidgetCanvas.Children.Contains(seasonalArtwork)) { Panel.SetZIndex(seasonalArtwork, -1); WidgetCanvas.Children.Add(seasonalArtwork); }
         var widgetTargets=widgetFrames.Values.Select(f=>f.TransformToVisual(WidgetCanvas).TransformBounds(new Rect(0,0,f.Width,f.Height))).ToArray();
@@ -55,7 +57,7 @@ internal sealed partial class SettingsDialog
     private UIElement BuildSeasonalEvents()
     {
         var page = Page("Nexaween", "A space for whatever haunts you next. Control the seasonal palette, candy, costumes and effects.");
-        Field(page,"Nexaween enabled",MakeSeasonSwitch());
+
         var decorations = new CheckBox { Content = "Show seasonal decorations", IsChecked = ReliabilityOptions.SeasonalDecorations, Margin = new Thickness(0, 16, 0, 12) }; page.Children.Add(decorations);
         var density = new ComboBox { ItemsSource = new[] { "Off", "Low", "Medium", "High" }, SelectedItem = ReliabilityOptions.DecorationDensity }; Field(page, "Decoration density", density);
         var animation = new CheckBox { Content = "Seasonal animation", IsChecked = ReliabilityOptions.SeasonalAnimation, Margin = new Thickness(0,12,0,8) };

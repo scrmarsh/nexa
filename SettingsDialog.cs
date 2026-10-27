@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -37,16 +37,20 @@ internal sealed partial class SettingsDialog : NexaPanel
         SessionInterface=initialSection is "Session" or "Tips";
         if(SessionInterface)
         {
-            AddPage(nav,"Session",BuildSession());
-            AddPage(nav,"Time Zone & Clock",BuildTimeZoneClock());
+            sidebar.Visibility = Visibility.Collapsed; root.ColumnDefinitions[0].Width = new GridLength(0);
+            pages["Session"] = BuildSession();
         }
         else
         {
-            AddPage(nav,"Appearance",NexaSeason.Active(ReliabilityOptions,DateTimeOffset.UtcNow)?AppearanceExplanation():BuildAppearance());
+            nav.Children.Add(new TextBlock { Text = "General", FontWeight = FontWeights.Bold, Margin = new Thickness(10, 0, 0, 12) });
+            AddPage(nav,"Appearance",BuildAppearancePage());
             AddPage(nav,"Sounds",BuildSounds());AddPage(nav,"Time Zone & Clock",BuildTimeZoneClock());
-            AddPage(nav,"Widgets",BuildWidgetPreferences());AddPage(nav,"Profile",BuildProfile());
-            AddPage(nav,"Integrations",BuildIntegrations());AddPage(nav,"Updates",BuildUpdates());AddPage(nav,"Add Bugs",BuildBugs());
+            AddPage(nav,"Widgets",BuildWidgetPreferences());
+            nav.Children.Add(new TextBlock { Text = "Experimental Features", FontWeight = FontWeights.Bold, Margin = new Thickness(10, 18, 0, 12), TextWrapping = TextWrapping.Wrap });
+            AddPage(nav,"Profile",BuildProfile());
+            AddPage(nav,"Integrations",BuildIntegrations());AddPage(nav,"Updates",BuildUpdates());
             AddPage(nav,"Account & Data",ComingSoon("Account & Data","Optional account tools are in development. Local import/export remains available."));
+            AddPage(nav,"Add Bugs",BuildBugs());
         }
         Content = root; SelectSection(initialSection);
         InitializeAutosave();
@@ -71,7 +75,7 @@ internal sealed partial class SettingsDialog : NexaPanel
     private void AddPage(Panel nav, string name, UIElement page)
     {
         pages[name] = page; var tab = new Button { Content = name, HorizontalContentAlignment = HorizontalAlignment.Left, Padding = new Thickness(12, 10, 12, 10), Margin = new Thickness(0, 0, 0, 8), BorderThickness = new Thickness(0) };
-        tab.Click += (_, _) => {if(name=="Appearance" && NexaSeason.Active(ReliabilityOptions,DateTimeOffset.UtcNow)){ExplainLockedAppearance();return;}SelectSection(name);}; if(name=="Appearance" && NexaSeason.Active(ReliabilityOptions,DateTimeOffset.UtcNow))tab.Opacity=.42; tabs[name] = tab; nav.Children.Add(tab);
+        tab.Click += (_, _) => SelectSection(name); tabs[name] = tab; nav.Children.Add(tab);
     }
     internal void SelectSection(string name)
     {

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -24,7 +24,9 @@ internal static partial class Program
                 var lifetime=new DispatcherTimer{Interval=TimeSpan.FromSeconds(120)};lifetime.Tick+=(_,_)=>{lifetime.Stop();settings.Close();main.Close();app.Shutdown();};lifetime.Start();
                 settings.Closed+=(_,_)=>{main.Close();lifetime.Stop();app.Shutdown();};main.Closed+=(_,_)=>app.Shutdown();app.Run();return 0;
             }
-            if(args.Contains("--followup-design"))CheckFollowupDesign();
+            if(args.Contains("--existing-data"))CheckExistingData(args[Array.IndexOf(args,"--existing-data")+1]);
+            else if(args.Contains("--final"))CheckFinalRelease();
+            else if(args.Contains("--followup-design"))CheckFollowupDesign();
             else if(args.Contains("--followup"))CheckFollowup();
             else if(args.Contains("--animation"))CheckAnimation();
             else if(args.Contains("--ecosystem"))CheckEcosystem();

@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 namespace SessionDashboard;
@@ -21,17 +21,21 @@ internal sealed class BugOverlay : FrameworkElement
     internal void SetWorldMapping(Point origin, Size size)
     { if(ContentOrigin==origin && Math.Abs(scaleX-size.Width/BugManager.WorldWidth)<.000001 && Math.Abs(scaleY-size.Height/BugManager.WorldHeight)<.000001)return; ContentOrigin = origin; scaleX = size.Width / BugManager.WorldWidth; scaleY = size.Height / BugManager.WorldHeight; RebuildProtectedClip(); RefreshFrame(); }
     internal void SetProtectedWidgets(IEnumerable<Rect> rectangles) {var next=rectangles.ToArray();if(protectedWidgets.SequenceEqual(next))return;protectedWidgets=next;RebuildProtectedClip();}
+    private Rect viewport = Rect.Empty;
+    internal void SetViewport(Rect value) { if (viewport == value) return; viewport = value; RebuildProtectedClip(); RefreshFrame(); }
     private void RebuildProtectedClip()
     {
-        protectedClip=null;if(protectedWidgets.Length==0 || ActualWidth<=0 || ActualHeight<=0)return;
-        var holes=new GeometryGroup();foreach(var original in protectedWidgets){var rect=original;rect.Offset(ContentOrigin.X,ContentOrigin.Y);rect.Inflate(-5,-5);if(rect.Width>0&&rect.Height>0)holes.Children.Add(new RectangleGeometry(rect,6,6));}
-        var clip=new CombinedGeometry(GeometryCombineMode.Exclude,new RectangleGeometry(new Rect(RenderSize)),holes);clip.Freeze();protectedClip=clip;
+        protectedClip = null;
+        if (ActualWidth <= 0 || ActualHeight <= 0) return;
+        var area = new Rect(RenderSize);
+        if (!viewport.IsEmpty) area.Intersect(viewport);
+        protectedClip = new RectangleGeometry(area); protectedClip.Freeze();
     }
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {base.OnRenderSizeChanged(sizeInfo);RebuildProtectedClip();}
     internal Point ScreenToWorld(Point point) => new((point.X - ContentOrigin.X) / Math.Max(.001, scaleX), (point.Y - ContentOrigin.Y) / Math.Max(.001, scaleY));
     internal Point WorldToScreen(Point point) => new(point.X * scaleX + ContentOrigin.X, point.Y * scaleY + ContentOrigin.Y);
     private double ViewScale => DrawWorld ? Math.Min(scaleX, scaleY) : 1;
-    private bool Protected(Point point) => protectedWidgets.Any(r => r.Contains(new Point(point.X - ContentOrigin.X, point.Y - ContentOrigin.Y)));
+    private bool Protected(Point point) => (!viewport.IsEmpty && !viewport.Contains(point)) || protectedWidgets.Any(r => r.Contains(new Point(point.X - ContentOrigin.X, point.Y - ContentOrigin.Y)));
     private IEnumerable<BugEntity> VisibleBugs => Manager.Bugs.Where(b => Manager.Preferences.Species is BugSpecies.AllBugs or BugSpecies.AllThree || b.Species == Manager.Preferences.Species).Take(Manager.EcosystemActive ? Manager.EcosystemCap : 600);
     internal BugEntity? HitAt(Point point)
     {

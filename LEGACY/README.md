@@ -10,3 +10,5 @@ Preserved project history. This directory is excluded from Nexa compilation; it 
 - `implementation-staging/`: historical one-time staging scripts/drafts retained for provenance. Many contain old absolute paths or non-idempotent substitutions; do not run them against current source.
 
 `manifest.json` records this cleanup. Previous source also remains available through Git history. Build outputs, recordings, credentials, personal workspace/recovery data and generated captures are deliberately not uploaded.
+
+The final-candidate pass also archives `source/NexaEcosystem.Window.cs` (the retired separate map), its prior UI checks, and the published `4562d69` implementation report. Reusable overlay simulation/rendering and compatibility data remain active; personal saved world files are not deleted.

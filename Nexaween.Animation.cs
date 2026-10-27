@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -49,7 +49,7 @@ internal sealed partial class NexaweenDecorations : IDisposable
         var surprise = (int)(elapsed.Elapsed.TotalSeconds / 53);
         if (surprise != lastSurprise)
         {
-            if (lastSurprise >= 0 && animationOptions.SeasonalSounds && host?.IsActive == true) InterfaceAudio.PreviewSeasonal();
+            if (lastSurprise >= 0 && animationOptions.SeasonalSounds && host?.IsActive == true) InterfaceAudio.PreviewSeasonal(host is MainWindow main ? main.SettingsState.InterfaceSoundVolume : host is HomeWindow home ? home.Saved.InterfaceSoundVolume : .25);
             lastSurprise = surprise;
         }
         InvalidateVisual();

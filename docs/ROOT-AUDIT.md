@@ -107,7 +107,6 @@ Pre-naming-scheme `1.0.4` prompts, validation notes and checks were already unde
 | `NexaEcosystem.Models.cs` | Active application / shared service; compiled by the current project |
 | `NexaEcosystem.Simulation.cs` | Active application / shared service; compiled by the current project |
 | `NexaEcosystem.Store.cs` | Active application / shared service; compiled by the current project |
-| `NexaEcosystem.Window.cs` | Active application / shared service; compiled by the current project |
 | `NexaFeedback.cs` | Active application / shared service; compiled by the current project |
 | `NexaLogo.cs` | Active application / shared service; compiled by the current project |
 | `NexaMotion.cs` | Active application / shared service; compiled by the current project |
@@ -148,3 +147,7 @@ Pre-naming-scheme `1.0.4` prompts, validation notes and checks were already unde
 | `Widgets.cs` | Active application / shared service; compiled by the current project |
 | `app.manifest` | Current build, launch, desktop shortcut or Windows application configuration |
 | `run.bat` | Current build, launch, desktop shortcut or Windows application configuration |
+
+## Final-candidate follow-up
+
+The separate ecosystem window is now archived in `LEGACY/source/`. `HistoryArchive.cs` and `SessionHistoryWindow.cs` are active shared history reading/recovery and UI code. The overlay manager/store remains required for dashboard bugs, persistence and squash totals. See [current implementation status](FINAL-0.1.24-STATUS.md); the above audit remains a record of the earlier root cleanup.

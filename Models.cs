@@ -132,6 +132,7 @@ public sealed partial class StateStore
     private long nextWriteSequence, committedWriteSequence;
     private bool preserveUnreadable;
     private bool blocked;
+    private string? writeBlockReason;
     public string FilePath { get; }
     public string UserId { get; }
     // Explicit host capability, never inferred from saved bug preferences or selection.json.
@@ -246,9 +247,18 @@ public sealed partial class StateStore
         // replacement as an unreadable workspace and fall back to empty defaults.
         lock (writeLock) return LoadCommitted();
     }
+    internal string ReadHistoryText(string path)
+    {
+        lock (writeLock)
+        {
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }
+    }
     private AppState LoadCommitted()
     {
-        Warning = null; blocked = false;
+        Warning = null; blocked = false; writeBlockReason = null;
         foreach (var candidate in new[] { FilePath, FilePath + ".bak" })
         {
             if (!File.Exists(candidate)) continue;
@@ -258,7 +268,8 @@ public sealed partial class StateStore
                 using var document = JsonDocument.Parse(json);
                 if (document.RootElement.ValueKind == JsonValueKind.Object && document.RootElement.TryGetProperty("FormatVersion", out _))
                 {
-                    var workspace = JsonSerializer.Deserialize<WorkspaceDocument>(json, Options) ?? throw new JsonException();
+                    var workspace = HistoryArchive.LoadWorkspace(json, UserId, out var recoveredHistory);
+                    if (recoveredHistory) { preserveUnreadable = true; Warning = "Damaged archive entries are preserved for recovery; readable Spaces and reports are available."; }
                     var recoveredSnapshot = Continuity.RecoverSnapshots(workspace, UserId);
                     Continuity.ValidateWorkspace(workspace, UserId);
                     if (!workspace.CleanShutdown) Warning = $"Nexa restored your last autosaved session from {workspace.SavedAt.LocalDateTime:g}.";
@@ -305,8 +316,14 @@ public sealed partial class StateStore
             }
             catch (UnauthorizedAccessException)
             { blocked = true; throw; }
-            catch (Exception ex) when (ex is IOException or JsonException or InvalidOperationException)
+            catch (Exception ex) when (HistoryArchive.Recoverable(ex))
             { preserveUnreadable = true; Warning = "Settings could not be read. Defaults loaded; the original file will be preserved on the next save."; }
+        }
+        if (preserveUnreadable)
+        {
+            blocked = true;
+            writeBlockReason = "The existing workspace cannot be read. Its files are preserved; recover a readable copy before saving.";
+            Warning = writeBlockReason;
         }
         return new AppState();
     }
@@ -318,7 +335,7 @@ public sealed partial class StateStore
     // Called on the UI thread. Background writes receive a detached immutable capture.
     internal SavePayload Prepare(AppState state)
     {
-        if (blocked) throw new UnauthorizedAccessException("Saving this workspace is blocked because its owner could not be verified.");
+        if (blocked) throw new UnauthorizedAccessException(writeBlockReason ?? "Saving this workspace is blocked because its owner could not be verified.");
         Continuity.CaptureCurrent(state, UserId, DateTimeOffset.Now);
         Continuity.ValidateWorkspace(state.Workspace!, UserId);
         return new(Continuity.Clone(state.Workspace!), state.HedyRegion, state.HedyProtectedKey, Interlocked.Increment(ref nextWriteSequence));

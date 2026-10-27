@@ -2,7 +2,18 @@
 
 ![NEXAWEEN — Nexa 0.1.24 Alpha](docs/media/nexaween-banner.svg)
 
-## Nexa v0.1.24 Alpha — NEXAWEEN
+## 0.1.24 Alpha — final-prompt repair candidate (not released)
+
+- **The Archives Awaken:** catch historical validation failures, preserve damaged original records, protect unreadable files from fallback writes, and load/filter reports away from the UI thread with explicit dispatcher updates.
+- **Time Is Under a Spell:** explicit Manual/Schedule editing, persisted preset mode and schedule-only Reset protection.
+- **Spells of Convenience:** accessible single-window Appearance, a single top seasonal switch, session-only settings, transient save feedback, revised Home pagination, contextual Add Widget, sound previews, and monitor-aware notifications.
+- **Creepy Crawlies:** overlay-only navigation, visible bugs without widget click interception, independent appearance/behavior, legacy mode migration, and bounded All Bugs rebalancing.
+- **Productivity Witchcraft:** saved-event audio and no full-window green feedback from direct bug squashes.
+- **The Dashboard Has Been Haunted:** the prior seasonal artwork remains; the final mixed backgrounds, large static corner scenes and growing vines are still pending.
+
+This candidate is not the final Nexaween release. See [verification and outstanding acceptance](docs/FINAL-0.1.24-STATUS.md). No production release was overwritten.
+
+## Previously published baseline — Nexa v0.1.24 Alpha — NEXAWEEN
 
 A space for whatever haunts you next.
 

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,12 +27,13 @@ internal static partial class Program
         Descendants(global).OfType<Button>().Single(b=>Equals(b.Content,"Sounds")).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
         Assert(Descendants(global).OfType<Slider>().Any(s=>s.Minimum==0 && s.Maximum==1),"Sounds remain usable while the seasonal appearance is locked");
         Descendants(global).OfType<Button>().Single(b=>Equals(b.Content,"Appearance")).RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));Pump(TimeSpan.FromMilliseconds(60));
-        var ghost=Application.Current.Windows.OfType<Window>().Single(w=>w.Title=="Nexaween appearance");
-        Assert(Descendants(ghost).OfType<CheckBox>().Any(c=>System.Windows.Automation.AutomationProperties.GetName(c)=="Nexaween enabled"),"Clicking locked Appearance opens the ghost explanation with a working switch");
-        Descendants(ghost).OfType<Hyperlink>().Single().RaiseEvent(new RoutedEventArgs(Hyperlink.ClickEvent));global.FlushPendingChanges();
-        Assert(!Theme.SeasonalEnabled && store.Load().Workspace!.Settings.SeasonalMode=="Off","The underlined disable link immediately restores normal appearance");
-        Descendants(global).OfType<Button>().Single(b=>System.Windows.Automation.AutomationProperties.GetName(b)=="Nexaween settings").RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
-        Assert(Descendants(global).OfType<CheckBox>().Any(c=>Equals(c.Content,"Halloween bug costumes")),"The pumpkin opens seasonal settings independently of the on/off switch");
+        Assert(!Application.Current.Windows.OfType<Window>().Any(w => w.Title == "Nexaween appearance"), "Appearance stays accessible in the same Settings window");
+        var disable = Descendants(global).OfType<CheckBox>().Single(c => System.Windows.Automation.AutomationProperties.GetName(c) == "Nexaween enabled");
+        disable.IsChecked=false;disable.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));global.FlushPendingChanges();
+        Assert(!Theme.SeasonalEnabled && store.Load().Workspace!.Settings.SeasonalMode=="Off", "The top Appearance switch restores normal appearance");
+        var enableAgain=Descendants(global).OfType<CheckBox>().Single(c => System.Windows.Automation.AutomationProperties.GetName(c) == "Nexaween enabled");
+        enableAgain.IsChecked=true;enableAgain.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));global.FlushPendingChanges();
+        Assert(Descendants(global).OfType<CheckBox>().Any(c=>Equals(c.Content,"Halloween bug costumes")), "Seasonal controls live directly in Appearance");
         var density=Descendants(global).OfType<ComboBox>().Single(c=>c.Items.OfType<string>().SequenceEqual(new[]{"Off","Low","Medium","High"}));density.SelectedItem="High";global.FlushPendingChanges();
         Assert(store.Load().Workspace!.Settings.DecorationDensity=="High","Direct decoration-density selection persists");
         global.Close();var session=new SettingsDialog(main,store,main.state,main,"Tips");session.Show();session.SelectSection("Tips");Pump(TimeSpan.FromMilliseconds(100));

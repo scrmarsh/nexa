@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 namespace SessionDashboard;
@@ -54,6 +54,7 @@ public partial class MainWindow
         if (!bugGeometryDirty || bugsOverlay == null || !IsLoaded || WidgetCanvas.ActualWidth <= 0 || WidgetCanvas.ActualHeight <= 0) return;
         bugGeometryDirty = false;
         var origin = WidgetCanvas.TransformToVisual(bugsOverlay).Transform(new Point());
+        bugsOverlay.SetViewport(WidgetScroller.TransformToVisual(bugsOverlay).TransformBounds(new Rect(WidgetScroller.RenderSize)));
         bugsOverlay.SetWorldMapping(origin, new Size(WidgetCanvas.ActualWidth, WidgetCanvas.ActualHeight));
         var rectangles = widgetFrames.Select(pair => new Rect(Canvas.GetLeft(pair.Value), Canvas.GetTop(pair.Value), Math.Max(0, pair.Value.ActualWidth), Math.Max(0, pair.Value.ActualHeight))).ToArray();
         if (PixelObstacle is { } pixels) rectangles = rectangles.Append(pixels).ToArray();

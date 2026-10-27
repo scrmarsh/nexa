@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
@@ -35,7 +35,7 @@ internal sealed class NexaFeedback : FrameworkElement, IDisposable
         foreach (var item in events)
         {
             if (!observed.Add(item.Id)) continue;
-            if (item.BasePoints + item.BonusPoints == 0) continue;
+            if (item.BasePoints + item.BonusPoints == 0 || item.Category == "Bug squash") continue;
             edgeNegative=item.BasePoints+item.BonusPoints<0;edgeStarted=clock.Elapsed.TotalSeconds;
             var kind = edgeNegative?"negative":item.Category == "Task completed" ? "task" : item.Category == "Timer" ? "timer" : item.Category == "Notes" ? "note" : "points";
             Show(kind, locate(item.WidgetId) ?? new Rect(Math.Max(0, ActualWidth - 240), Math.Max(0, ActualHeight - 180), 180, 60), (item.BasePoints+item.BonusPoints>0?"+":"") + (item.BasePoints + item.BonusPoints));

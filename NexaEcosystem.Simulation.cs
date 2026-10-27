@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 
 namespace SessionDashboard;
 
@@ -83,7 +83,7 @@ internal sealed partial class BugManager
         if (Bugs.Count < EcosystemCap && WorldSpawnDelay <= 0)
         {
             var bug = Spawn(); bug.Scale = EcosystemSettings.Size; bug.Personality = (BugPersonality)random.Next(4); bug.Decision = 0;
-            if (Bugs.Count <= 6 && Preferences.Species == BugSpecies.AllBugs) bug.Species = AllSpecies[(Bugs.Count - 1) % 6];
+            if (Preferences.Species == BugSpecies.AllBugs) bug.Species = AllSpecies.OrderBy(species => Bugs.Count(other => !ReferenceEquals(other, bug) && other.Species == species)).First();
             bug.Speed = bug.Species switch { BugSpecies.Ants => Range(18,34), BugSpecies.Roaches => Range(75,125), BugSpecies.Ladybugs => Range(22,38), BugSpecies.Centipedes => Range(38,58), _ => Range(50,90) };
             var nest = Nest(bug.Species); bug.Position = nest.Position + new Vector(Range(-35, 35), Range(-35, 35)); bug.Surface = null;
             WorldSpawnDelay = Bugs.Count < 12 ? .15 : nest.Food >= 1 ? 2 : 8;
