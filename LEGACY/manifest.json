@@ -1168,5 +1168,29 @@
     "Action": "Recover source",
     "Source": "implementation/WidgetActivity.cs",
     "Destination": "LEGACY/implementation-staging/WidgetActivity.cs"
+  },
+  {
+    "Action": "Move",
+    "Source": "Story.cs",
+    "Destination": "LEGACY/source/Story.cs",
+    "Reason": "2026-10-27 root audit: retired or superseded material"
+  },
+  {
+    "Action": "Move",
+    "Source": "StoryArtwork.cs",
+    "Destination": "LEGACY/source/StoryArtwork.cs",
+    "Reason": "2026-10-27 root audit: retired or superseded material"
+  },
+  {
+    "Action": "Move",
+    "Source": "CHANGELOG.md",
+    "Destination": "LEGACY/notes/CHANGELOG-through-20261027.md",
+    "Reason": "2026-10-27 root audit: retired or superseded material"
+  },
+  {
+    "Action": "Move",
+    "Source": "INTEGRATIONS.md",
+    "Destination": "LEGACY/notes/INTEGRATIONS-0.1.6.md",
+    "Reason": "2026-10-27 root audit: retired or superseded material"
   }
 ]

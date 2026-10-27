@@ -1,52 +1,83 @@
-# nexa v0.1.24 alpha — NEXAWEEN
+<div align="center">
 
-A space for whatever haunts you next.
+![nexa v0.1.24 alpha — NEXAWEEN. A space for whatever haunts you next.](docs/media/nexaween-banner.svg)
 
-Nexa is a local Windows productivity dashboard built with .NET 10 and WPF. It provides movable widgets, recurring class schedules, notes and session history, protected autosaving, productivity statistics and an optional seasonal bug ecosystem.
+![Version: 0.1.24 Alpha](https://img.shields.io/badge/version-0.1.24%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
+![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-A855F7?style=flat-square&labelColor=1C102A)
+![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-F97316?style=flat-square&labelColor=1C102A)
 
-## Build and run
+**Your dashboard. Your Space. A little seasonal mischief.**
 
-Install the .NET 10 SDK with Windows desktop support, then run:
+[Download Nexa](https://github.com/scrmarsh/nexa/releases/tag/v0.1.24-alpha) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Verification report](docs/IMPLEMENTATION-0.1.24.md)
+
+</div>
+
+Nexa is a local Windows productivity dashboard for classes, study, meetings and everyday work. Arrange movable widgets into a Space, follow your recurring sessions, and keep your notes, tasks and progress together.
+
+## Get Nexa
+
+1. Open the [0.1.24 Alpha release](https://github.com/scrmarsh/nexa/releases/tag/v0.1.24-alpha).
+2. Download **Nexa.exe** from **Assets** and place it in a folder you control.
+3. Run it. The self-contained Windows x64 build includes its .NET runtime; no installer or separate .NET installation is required.
+
+Release assets also include `SHA256SUMS.txt`. To inspect your download's checksum:
+
+```powershell
+Get-FileHash .\Nexa.exe -Algorithm SHA256
+```
+
+Compare the result with `SHA256SUMS.txt`. User data stays in the existing Windows LocalAppData `SessionDashboard` location, so replacing the executable preserves saved Spaces, settings and history. The repository and downloads currently require an authorized GitHub account.
+
+## Inside your Space
+
+| Make it useful | Make it yours |
+| --- | --- |
+| Recurring class schedules and a Pixel Timer that fills during class and counts down between sessions | Movable, resizable widgets with scrolling room below your layout |
+| Notes, tasks, water tracking, counters, Scripture and recording/timeline tools | Configurable appearance, sounds and optional integrations |
+| Session history, automatic checkpoints and save-before-reset protection | Productivity Meter, score breakdowns and squash streaks |
+| Time zone settings and precise linked or independent progress bars | Classic, Cozy, Creepy and Combative bugs with species-specific movement |
+
+## 🎃 NEXAWEEN
+
+The seasonal update brings **candy-only backgrounds**, pumpkins and vines anchored to real widget corners, six costumed bug species, and spider-owned webs. The app's seasonal changelog palette carries onto this page: deep purple `#1C102A`, neon green `#84CC16`, pumpkin orange `#F97316`, pale green `#D9F99D`, and witch purple `#A855F7`.
+
+Seasonal settings support automatic dates or a manual switch. Your normal appearance settings are retained. Decorations avoid widget controls, and advanced effects respect reduced-motion preferences.
+
+Read the [current changelog](CHANGELOG.md) for the release features and the [implementation report](docs/IMPLEMENTATION-0.1.24.md) for evidence and limitations. Physical hibernation, real account/microphone integrations, and extended mixed-DPI/GPU testing remain manual acceptance work.
+
+## Build from source
+
+Use Windows and the **.NET 10 SDK** with Windows desktop support:
 
 ```powershell
 dotnet build .\SessionDashboard.csproj -c Release
 .\bin\Release\net10.0-windows\Nexa.exe
 ```
 
-`run.bat` performs the same build-and-launch workflow. To publish a self-contained Windows x64 application:
+`run.bat` provides the same build-and-launch workflow. To create a self-contained Windows x64 executable:
 
 ```powershell
 .\Publish-Exe.ps1
 .\publish\win-x64\Nexa.exe
 ```
 
-Generated executables and output directories are excluded from source control. `CreateDesktopShortcut.ps1` uses an available root, published or Release executable.
+The historical project filename and save-data namespace remain for compatibility; the product and executable are **Nexa**.
 
-## Verify
+## Verify and contribute
 
 ```powershell
 .\tools\Verify.ps1
 ```
 
-The script builds the focused WPF checks and runs all ten acceptance routes. Logs and isolated screenshots go into the ignored `verification/` directory. These checks use isolated stores, not personal dashboard data.
+The ten-route suite checks timing, layout, scrolling, saving, history, controls, the ecosystem and animations using isolated data stores. Generated logs and captures stay in the ignored `verification/` directory. See [development notes](docs/DEVELOPMENT.md) and the [root audit](docs/ROOT-AUDIT.md).
 
-## Project layout
+| Location | Purpose |
+| --- | --- |
+| Root `.cs` / `.xaml` files | Active WPF application and shared services |
+| `assets/` | Runtime artwork, embedded offline indexes and retained source assets |
+| `tests/` | Current functional and regression checks |
+| `tools/`, `Properties/` | Verification, publishing configuration and asset-development helpers |
+| `docs/` | Development, integrations, requirements, audit and implementation reports |
+| [`LEGACY/`](LEGACY/README.md) | Retired source, pre-naming-scheme notes, old tests and historical development logs; excluded from compilation |
 
-- Root `.cs` / `.xaml` files: active WPF application and services. `SessionDashboard.csproj` retains its compatible historical filename; its assembly/product is Nexa.
-- `assets/`: required native artwork, embedded offline Bible indexes and their supplied source PDFs.
-- `tests/`: current functional, layout, persistence, ecosystem and animation checks.
-- `tools/`: current verification/publishing configuration and Bible-index development tools.
-- `docs/`: requirements, implementation/verification report and animation notes.
-- `LEGACY/`: obsolete source, tests, planning notes and maintenance drafts, excluded from compilation.
-
-## Current update
-
-The Pixel Timer fills from the top-left during class and clears from the bottom-right between sessions. Linked progress bars share the same timestamps and phase; independent bars retain their own ranges. Recurring weekdays and date/duration editing live in the Pixel Timer editor.
-
-Session opens history, saving and tips. Main Settings has unified Appearance, separate Sounds and a pumpkin control with a separate Nexaween switch. Classic, Cozy, Creepy and Combative modes determine bug appearance. Scoring uses timestamp-based two-minute squash streaks, bounded half-step multipliers and optional negative categories.
-
-Contextual decoration placement accepts optional rectangle targets; collision/reserved regions never become inferred attachment locations. Missing targets produce candy-only backgrounds. Spider-owned webs are handled independently by the ecosystem.
-
-See [implementation and verification](docs/IMPLEMENTATION-0.1.24.md), [requirements](docs/NEXAWEEN-0.1.24-requirements.md) and [species animation notes](docs/ANIMATION_NOTES.md). Physical hibernation, live account/microphone integrations and extended multi-monitor/GPU acceptance remain manual checks; details are in the report.
-
-User saves continue to use the established Windows LocalAppData location. Presets, layouts and history are preserved. Never commit recordings, credentials, profiles, verification backups or generated application bundles.
+Build outputs, executable bundles, personal profiles, recordings, credentials and recovery backups are excluded from Git. Downloadable executables belong in **Releases**.

@@ -24,7 +24,7 @@ internal static class GoogleAuthorization
     }
     internal static async Task Connect(IntegrationVault vault,string service,CancellationToken cancellation)
     {
-        var app=vault.Read("Google app")??throw new IntegrationException("Set up a Google desktop app connection first. See INTEGRATIONS.md.");
+        var app=vault.Read("Google app")??throw new IntegrationException("Set up a Google desktop app connection first. See docs/INTEGRATIONS.md.");
         var scope=service=="Google Tasks"?"https://www.googleapis.com/auth/tasks":"https://www.googleapis.com/auth/calendar.readonly";
         using var timeout=CancellationTokenSource.CreateLinkedTokenSource(cancellation); timeout.CancelAfter(TimeSpan.FromMinutes(3));
         var token=timeout.Token; var state=Base64Url(RandomNumberGenerator.GetBytes(32)); var verifier=Base64Url(RandomNumberGenerator.GetBytes(64));

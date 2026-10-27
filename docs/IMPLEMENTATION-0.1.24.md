@@ -68,7 +68,7 @@ The prominent lightning score and centered multiplier use subtle streak pulses a
 
 ## Repository cleanup and GitHub
 
-The canonical repository is [scrmarsh/nexa](https://github.com/scrmarsh/nexa). Active updater metadata/download allowlists use that canonical path, with synthetic tests rejecting unrelated repositories. No installer release or GitHub visibility change was created. Its existing main history is retained. `LEGACY/` preserves obsolete embedded-game code, old checks, notes and one-time maintenance drafts and is excluded from compilation. Active compatibility migration code stays active. The separate Aevoria project was not modified.
+The canonical repository is [scrmarsh/nexa](https://github.com/scrmarsh/nexa). Active updater metadata/download allowlists use that canonical path, with synthetic tests rejecting unrelated repositories. The Windows x64 executable is distributed through the [0.1.24 Alpha GitHub release](https://github.com/scrmarsh/nexa/releases/tag/v0.1.24-alpha), with a SHA-256 checksum. Repository visibility is unchanged. See the [root audit](ROOT-AUDIT.md) for the subsequent cleanup and retained compatibility files. Its existing main history is retained. `LEGACY/` preserves obsolete embedded-game code, old checks, notes and one-time maintenance drafts and is excluded from compilation. Active compatibility migration code stays active. The separate Aevoria project was not modified.
 
 Build outputs, local executable bundles, recordings, credentials, personal profiles, diagnostic captures and recovery backups are ignored. Active source, required assets, tests, publishing configuration and documentation are the repository deliverable. See `LEGACY/README.md` and its manifest for the historical organization.
 
@@ -79,3 +79,7 @@ Build outputs, local executable bundles, recordings, credentials, personal profi
 - All autosave intervals are checked for configuration/application/persistence; only the 30-second interval was exercised for its full continuous-typing duration.
 - Locomotion is stylized planar procedural animation, not a full biological/3D physics model. Detailed cooperative lifting, surface-conforming foot locking and further multi-creature choreography remain polish work.
 - Offline simulation/render timings are local microbenchmarks, not proven interactive FPS or extended GPU/memory results. No exhaustive hardware-performance claim is made.
+
+## Release root audit follow-up
+
+The final package pass reproduced an intermittent shared-layout regression: reopening preserved the live widgets, but a subsequent `StateStore.Load()` during a background checkpoint returned defaults with an unreadable-file warning. Workspace reads now serialize with the existing write gate. The shared restart check captures one committed snapshot and writes widget-identity diagnostics instead of failing with an uninformative LINQ exception. Retired story source is excluded from MSBuild; its legacy save fields remain readable. The Pixel Timer catalog description now refers to Pixel Swarm rather than the retired story.

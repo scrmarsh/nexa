@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 
 namespace SessionDashboard;
 
@@ -101,7 +101,7 @@ public static class WidgetLibrary
         new("Google Tasks", "Integrations", "Optional connected task lists.", "externalTasks", MinHeight:288, DefaultHeight:384, CanMinimize:false),
         new("Calendar", "Integrations", "Optional Google or Outlook schedule.", "calendar", MinHeight:216, DefaultHeight:240, CanMinimize:false),
         new("Progress bar", "Session", "Progress of your dashboard session.", "progress", MinHeight: 120, DefaultSpan: 6, DefaultHeight: 144, MinWidth: 240, CanMinimize: false),
-        new("Pixel timer", "Session", "The original pixel display and story.", "progress", 6, 480, CanMinimize: false),
+        new("Pixel timer", "Session", "Session pixels with an optional Pixel Swarm break.", "progress", 6, 480, CanMinimize: false),
         new("Session controls", "Session", "Schedule sessions and manage timer presets.", "setup", 4, 480),
         new("Session timeline", "Session", "Manual notes and a timeline for any session, with optional connected sources.", "timeline", 4, 288, DefaultHeight: 360, CanMinimize: false),
         new("Audio Recorder", "Session", "Record locally; keep audio alongside your Session Timeline.", "recorder", MinHeight: 240, DefaultHeight: 288, MinWidth: 280, CanMinimize: false),

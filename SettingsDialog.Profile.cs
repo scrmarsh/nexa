@@ -81,7 +81,7 @@ internal sealed partial class SettingsDialog
         microsoftSetup.Click+=(_,_)=> { try { MicrosoftAuthorization.Configure(client.Vault,microsoftId.Text.Trim()); microsoftStatus.Text="Microsoft app configured."; }
             catch(Exception ex) when(ex is IntegrationException or IOException or UnauthorizedAccessException) { microsoftStatus.Text=ex is IntegrationException?ex.Message:"Could not save the Microsoft app ID."; } };
         page.Children.Add(microsoftSetup); page.Children.Add(microsoftStatus);
-        page.Children.Add(new TextBlock { Text="Google and Microsoft require registered desktop/public apps. See INTEGRATIONS.md. Calendar access is read-only. Disconnect removes locally saved authorization; revoke permission in the provider account if needed.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,0) });
+        page.Children.Add(new TextBlock { Text="Google and Microsoft require registered desktop/public apps. See docs/INTEGRATIONS.md. Calendar access is read-only. Disconnect removes locally saved authorization; revoke permission in the provider account if needed.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,0) });
         hedySettingsSection=new Border { Child=BuildHedy(),Margin=new Thickness(0,28,0,0),Focusable=true }; page.Children.Add(hedySettingsSection);
         return new ScrollViewer { Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto };
     }

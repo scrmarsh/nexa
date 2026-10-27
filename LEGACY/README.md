@@ -2,9 +2,9 @@
 
 Preserved project history. This directory is excluded from Nexa compilation; it is not a second active application.
 
-- `source/`: retired duplicate Session UI and unused sprite-atlas implementation.
+- `source/`: retired story engine and artwork, duplicate Session UI and unused sprite-atlas implementation.
 - `embedded-aevoria/`: archived Aevoria/Colony Wars/Living Worlds source, tests, assets and design notes recovered from the earlier local archive. The separate active Aevoria project was not modified.
-- `notes/`: superseded validation reports, handoff notes and planning documents.
+- `notes/`: superseded validation reports, pre-naming-scheme 1.0.x notes, handoff/planning documents, the original 0.1.6 integration guide and full historical/mixed development changelog.
 - `tests/`: an obsolete duplicate test project. Current checks are in the root `tests/` directory.
 - `tools/`, `assets/`, `maintenance/`: obsolete launch helpers, icon and one-time cleanup scripts.
 - `implementation-staging/`: historical one-time staging scripts/drafts retained for provenance. Many contain old absolute paths or non-idempotent substitutions; do not run them against current source.

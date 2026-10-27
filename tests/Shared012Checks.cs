@@ -65,9 +65,20 @@ internal static partial class Program
         Assert(store.LoadAppTheme() == AppTheme.Ember, "Selected global theme is saved");
         settings.Close(); window.Close();
         var reopened = new MainWindow(store) { Width = 1450, Height = 950 }; reopened.Show(); Pump(TimeSpan.FromMilliseconds(160));
-        Assert(reopened.state.Widgets.Single(w => w.Id == pixel.Id).BannerSpan == store.Load().Widgets.Single(w => w.Id == pixel.Id).BannerSpan &&
-            reopened.state.Widgets.Single(w => w.Id == notes.Id).Span == store.Load().Widgets.Single(w => w.Id == notes.Id).Span,
-            "Saved shared layout reloads with existing Space data");
+        var persisted = store.Load();
+        File.WriteAllText(Path.Combine(output, "shared-restart.json"), System.Text.Json.JsonSerializer.Serialize(new
+        {
+            ExpectedPixel = pixel.Id, ExpectedNotes = notes.Id, store.Warning,
+            Reopened = reopened.state.Widgets.Select(w => new { w.Id, w.Kind, w.BannerSpan, w.Span }),
+            Persisted = persisted.Widgets.Select(w => new { w.Id, w.Kind, w.BannerSpan, w.Span })
+        }));
+        var reopenedPixel = reopened.state.Widgets.SingleOrDefault(w => w.Id == pixel.Id);
+        var reopenedNotes = reopened.state.Widgets.SingleOrDefault(w => w.Id == notes.Id);
+        var savedPixel = persisted.Widgets.SingleOrDefault(w => w.Id == pixel.Id);
+        var savedNotes = persisted.Widgets.SingleOrDefault(w => w.Id == notes.Id);
+        Assert(reopenedPixel != null && reopenedNotes != null && savedPixel != null && savedNotes != null &&
+            reopenedPixel.BannerSpan == savedPixel.BannerSpan && reopenedNotes.Span == savedNotes.Span,
+            "Saved shared layout reloads with existing Space data; details: shared-restart.json");
         reopened.Close();
     }
 }

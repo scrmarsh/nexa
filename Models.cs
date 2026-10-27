@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -241,6 +241,12 @@ public sealed partial class StateStore
     }
 
     public AppState Load()
+    {
+        // A UI refresh/reopen must not interpret a concurrent checkpoint's file
+        // replacement as an unreadable workspace and fall back to empty defaults.
+        lock (writeLock) return LoadCommitted();
+    }
+    private AppState LoadCommitted()
     {
         Warning = null; blocked = false;
         foreach (var candidate in new[] { FilePath, FilePath + ".bak" })
