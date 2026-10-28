@@ -79,6 +79,9 @@ internal static partial class Program
         state.Widgets=[hedy];state.Workspace=Continuity.Migrate(state,store.UserId);state.Workspace.Settings=new(){ReduceMotion=true,SeasonalMode="Off",ShowSystemIndicators=false};store.Save(state);
         var main=OffscreenHandoff(new MainWindow(store));main.Show();Pump(TimeSpan.FromMilliseconds(70));
         var notes=main.state.Notes;var sessionId=Continuity.Current(main.state.Workspace!,store.UserId).Current.SessionId;var before=new Rect(main.Left,main.Top,main.Width,main.Height);
+        var nameBounds=main.SessionNameHost.TransformToVisual((Visual)main.Content).TransformBounds(new Rect(main.SessionNameHost.RenderSize));
+        var iconBounds=main.SpaceIconHost.TransformToVisual((Visual)main.Content).TransformBounds(new Rect(main.SpaceIconHost.RenderSize));
+        Assert(nameBounds.Right<=iconBounds.Left && Math.Abs(iconBounds.Left-nameBounds.Right-8)<.5,"Dashboard top bar places the Space name before its icon with an eight-DIP gap");
         main.ToggleFullscreen();Pump(TimeSpan.FromMilliseconds(100));
         Assert(main.IsFullscreen && main.DashboardHeader.Height==44 && main.WorkspaceOuter.Margin.Left==8 && main.ExitButton.Visibility==Visibility.Collapsed,"Fullscreen has compact flush-top navigation and removes caption controls");
         var headerPosition=main.DashboardHeader.TranslatePoint(new Point(),(UIElement)main.Content);
@@ -117,6 +120,12 @@ internal static partial class Program
         Assert(Descendants(settings).OfType<ComboBox>().Any(c=>c.Items.OfType<string>().Contains("Manual Mode")) && !Descendants(settings).OfType<Button>().Any(b=>Equals(b.Content,"Edit Pixel Timer schedule")),"Session Settings directly embeds Manual/Scheduled controls");settings.Close();
         main.Close();
         var home=new HomeWindow(store);home.Show();Pump(TimeSpan.FromMilliseconds(40));
+        var tile=Descendants(home.Recent).OfType<Button>().First(b=>b.Tag is Guid);
+        var tileName=Descendants(tile).OfType<TextBlock>().Single(t=>t.FontSize==19);
+        var tileIcon=Descendants(tile).OfType<System.Windows.Shapes.Path>().Single();
+        var tileNameBounds=tileName.TransformToVisual(tile).TransformBounds(new Rect(tileName.RenderSize));
+        var tileIconBounds=tileIcon.TransformToVisual(tile).TransformBounds(new Rect(tileIcon.RenderSize));
+        Assert(tileIconBounds.Right<=tileNameBounds.Left,"Home Space tiles keep their icons to the left of their names");
         SnapshotHome029(home,"nexa029-home-classic");
         foreach(var active in new[]{true,false,true,false}){Theme.SetSeasonalEnabled(active);Assert(Theme.SeasonalEnabled==active,"Repeated theme toggle refreshes current visual state");}
         Assert(WallpaperImages.Load(new(){Mode=SpaceBackgroundMode.CustomImage,ImagePath=Path.Combine(output,"missing.png")})==null,"Deleted wallpaper falls back without throwing");

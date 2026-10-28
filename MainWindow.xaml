@@ -13,7 +13,7 @@
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" MaxWidth="210" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Image x:Name="HeaderBrandIcon" Source="assets/nexa-icon-256.png" Width="24" Height="24" Margin="0,0,12,0"/>
-                    <ContentControl x:Name="SpaceIconHost" Margin="0,0,8,0" VerticalAlignment="Center"/><ContentControl x:Name="SessionNameHost" MaxWidth="290" VerticalAlignment="Center"/>
+                    <ContentControl x:Name="SessionNameHost" MaxWidth="290" VerticalAlignment="Center"/><ContentControl x:Name="SpaceIconHost" Margin="8,0,0,0" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Viewbox Grid.Column="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center" Margin="8,0">
                 <StackPanel x:Name="TopNavigation" Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">

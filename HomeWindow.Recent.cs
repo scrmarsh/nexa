@@ -68,9 +68,9 @@ internal sealed partial class HomeWindow
             var text=new Grid{Height=78};
             text.RowDefinitions.Add(new());text.RowDefinitions.Add(new(){Height=GridLength.Auto});
             var group=new Grid{HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center};
-            group.ColumnDefinitions.Add(new());group.ColumnDefinitions.Add(new(){Width=GridLength.Auto});
-            var name=new TextBlock{Text=space.Name,FontSize=19,FontWeight=FontWeights.SemiBold,TextAlignment=TextAlignment.Center,VerticalAlignment=VerticalAlignment.Center,TextTrimming=TextTrimming.CharacterEllipsis,MaxWidth=260};group.Children.Add(name);
-            var icon=SpaceIcons.Create(SpaceIcons.Resolve(space.Current.Data.SpaceIcon,space.PresetOrigin),26);icon.Margin=new Thickness(9,0,0,0);Grid.SetColumn(icon,1);group.Children.Add(icon);text.Children.Add(group);
+            group.ColumnDefinitions.Add(new(){Width=GridLength.Auto});group.ColumnDefinitions.Add(new());
+            var name=new TextBlock{Text=space.Name,FontSize=19,FontWeight=FontWeights.SemiBold,TextAlignment=TextAlignment.Center,VerticalAlignment=VerticalAlignment.Center,TextTrimming=TextTrimming.CharacterEllipsis,MaxWidth=260};Grid.SetColumn(name,1);group.Children.Add(name);
+            var icon=SpaceIcons.Create(SpaceIcons.Resolve(space.Current.Data.SpaceIcon,space.PresetOrigin),26);icon.Margin=new Thickness(0,0,9,0);group.Children.Add(icon);text.Children.Add(group);
             text.SizeChanged+=(_,_)=>name.MaxWidth=Math.Max(40,text.ActualWidth-44);
             var detail=new TextBlock{Text=NexaTime.Local(space.Current.LastAccessedAt,Saved.Workspace?.Settings.TimeZoneId??"Automatic").ToString("g"),FontSize=11,HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(0,7,0,2)};detail.SetResourceReference(TextBlock.ForegroundProperty,"MutedBrush");Grid.SetRow(detail,1);text.Children.Add(detail);
             var button = previousCards.GetValueOrDefault(space.DashboardId) ?? new Button { Tag = space.DashboardId, Content = text, HorizontalContentAlignment = HorizontalAlignment.Stretch, Margin = new Thickness(4, 0, 4, 8), ToolTip = space.Name };
