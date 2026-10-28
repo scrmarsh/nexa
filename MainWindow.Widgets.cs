@@ -104,10 +104,12 @@ public partial class MainWindow
             if(e.ViewportHeightChange!=0 || e.ViewportWidthChange!=0)ArrangeWidgetFrames();
             LoadVisibleWidgetBodies();
         };
+        var modelWatch=System.Diagnostics.Stopwatch.StartNew();
         var adaptedWidgets = WidgetLibrary.PrepareLayout(state);
         var migrated = !state.WidgetLayoutInitialized; WidgetLibrary.EnsureLayout(state);
         var removedSessionControls = state.Widgets.RemoveAll(w => w.Kind == "Session controls" || w.PanelKey == "setup") > 0;
         var expandedPixelTimers = WidgetLibrary.UpgradeGrid(state.Widgets);
+        ConstructionProfile["Widget model preparation"]=modelWatch.Elapsed.TotalMilliseconds;
         RenderWidgets();
         if (migrated || adaptedWidgets || removedSessionControls || expandedPixelTimers) { Changed(); SaveNow(); }
     }
@@ -124,6 +126,7 @@ public partial class MainWindow
     {
         if (!widgetsReady) return;
         if (widgetGestureActive) { widgetRenderDeferred = true; return; }
+        var visualWatch=System.Diagnostics.Stopwatch.StartNew();
         ClearWidgetFocus(); stopwatchRefresh.Stop(); stopwatchTicks.Clear();
         if (WidgetLibrary.PrepareLayout(state)) Changed();
         foreach (var panel in legacyPanels.Values) { Detach(panel); parkedPanels.Children.Add(panel); }
@@ -254,7 +257,9 @@ public partial class MainWindow
             if(IsLoaded && !existingWidgetIds.Contains(widget.Id))NexaMotion.Entrance(frame,Options);
         }
         ArrangeWidgetFrames(); UpdateWidgetClocks(DateTimeOffset.Now);
+        ConstructionProfile["Widget visual creation"]=visualWatch.Elapsed.TotalMilliseconds;
     }
+    internal void AnimateWidgetEntrance()=>NexaMotion.Stagger(widgetFrames.Values,Options);
     private ControlTemplate HandleTemplate(string text)
     {
         var visual = new FrameworkElementFactory(typeof(TextBlock)); visual.SetValue(TextBlock.TextProperty, text); visual.SetValue(TextBlock.ForegroundProperty, DashboardBrush("MutedBrush")); visual.SetValue(TextBlock.TextAlignmentProperty, TextAlignment.Center); visual.SetValue(TextBlock.FontSizeProperty, 20.0);

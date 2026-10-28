@@ -27,7 +27,7 @@ internal static partial class Program
     }
     private static void Check026()
     {
-        Assert(App.VersionLabel=="nexa v0.1.26 alpha","Current alpha version comes from assembly metadata");
+        Assert(App.VersionLabel=="Nexa v0.1.26 alpha","Current alpha version comes from assembly metadata");
         var store=new StateStore(Path.Combine(output,"alpha026.json"));
         var spaces=Enumerable.Range(0,10).Select(i=>Continuity.NewDashboard("Space "+i,"Study",new DashboardData{SpaceIcon="Palette",WidgetLayoutInitialized=true,Widgets=[WidgetLibrary.Create("Notes","notes")]},store.UserId)).ToList();
         var model=Continuity.Activate(new WorkspaceDocument{UserId=store.UserId,ActiveDashboardId=spaces[0].DashboardId,Dashboards=spaces},store.UserId);model.Workspace!.Settings.ReduceMotion=true;store.Save(model);
@@ -38,14 +38,14 @@ internal static partial class Program
         var initial=Descendants(home.Recent).OfType<Button>().Where(b=>b.Tag is Guid).ToArray();Assert(initial.Length==6,"Home displays exactly six initial cards");
         var more=Descendants(home.Recent).OfType<Button>().Single(b=>Equals(b.Content,"↓ Show More Spaces"));more.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
         Assert(Descendants(home.Recent).OfType<Button>().Count(b=>b.Tag is Guid)==10 && initial.All(b=>Descendants(home.Recent).Contains(b)),"Expansion shows all additional Spaces and retains original six controls");
-        more.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Assert(Descendants(home.Recent).OfType<Button>().Count(b=>b.Tag is Guid)==6,"Hide More restores six cards");
+        more.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Pump(TimeSpan.FromMilliseconds(40));Assert(Descendants(home.Recent).OfType<Button>().Count(b=>b.Tag is Guid)==6,"Hide More restores six cards");
         var settings=new SettingsDialog(home,store,home.Saved,null,"Appearance");settings.Show();Pump(TimeSpan.FromMilliseconds(80));
-        Assert(Descendants(settings).OfType<Expander>().Single().Header.ToString()=="Experimental Features","Experimental pages form a collapsible group");
+        Assert(!Descendants(settings).OfType<Expander>().Any() && Descendants(settings).OfType<Button>().Count(b=>Equals(b.Content,"Experimental Features"))==1,"Experimental Features is a standalone tab without a collapsible arrow");
         Assert(!Descendants(settings).OfType<TextBlock>().Any(t=>t.Text=="API token from Todoist / Settings / Integrations / Developer"),"Hidden integrations are not constructed with Appearance");
         var bounds=new Rect(settings.Left,settings.Top,settings.Width,settings.Height);settings.SelectSection("Sounds");settings.SelectSection("Appearance");
         Assert(bounds==new Rect(settings.Left,settings.Top,settings.Width,settings.Height),"Settings tab navigation preserves geometry");settings.Close();
         var motion=new Border{Opacity=1};var fade=NexaMotion.Fade(motion,0,new NexaOptions{ReduceMotion=true});Assert(fade.IsCompleted && motion.Opacity==0,"Reduced motion completes fades immediately");
-        var splash=new SplashWindow(new NexaOptions{ReduceMotion=true});Assert(splash.Loading.Visibility==Visibility.Visible && Descendants(splash).OfType<TextBlock>().Any(t=>t.Text==App.VersionLabel && t.Visibility==Visibility.Visible),"Splash progress and current version are visible immediately");splash.Report(.6,"Fixture ready");splash.Report(.3,"Another milestone");Assert(splash.Loading.Value==.6,"Startup progress cannot move backward");splash.Close();
+        var splash=new SplashWindow(new NexaOptions{ReduceMotion=true});Assert(splash.Loading.Visibility==Visibility.Collapsed && Descendants(splash).OfType<TextBlock>().Any(t=>t.Text==App.VersionLabel && t.Visibility==Visibility.Visible),"Splash version precedes the progress track");splash.Show();Pump(TimeSpan.FromMilliseconds(30));Assert(splash.TaglineComplete && splash.Loading.Visibility==Visibility.Visible,"Reduced motion completes the tagline before revealing progress");splash.Report(.6,"Fixture ready");splash.Report(.3,"Another milestone");Assert(splash.Loading.Value==.6,"Startup progress cannot move backward");splash.Close();
         var wizard=new OnboardingWindow(store){Owner=home};Assert(wizard.Options.SeasonalMode==model.Workspace.Settings.SeasonalMode,"Replayed setup preserves an existing seasonal preference");
         wizard.Advance();wizard.Advance();Assert(wizard.Step==3,"Onboarding skips the redundant activity page");wizard.Advance();wizard.Advance();Assert(wizard.Step==5,"Setup retains tools, customization and the final naming screen");wizard.Close();
         Capture026(home,"home-026");

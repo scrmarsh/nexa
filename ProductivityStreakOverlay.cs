@@ -32,7 +32,9 @@ internal sealed class ProductivityStreakOverlay : FrameworkElement, IDisposable
         if (Ledger is not {} ledger || !IsVisible || ActualWidth<80 || ActualHeight<140) return;
         var now=DateTimeOffset.UtcNow;var multiplier=DisplayMultiplier(ledger,now);if(multiplier<=0)return;
         var frame=LayoutFrame(RenderSize,NexaWindowBounds.TryWorkArea(this,out var work)?work:null);var width=frame.Width;var height=frame.Height;var x=frame.X;var y=frame.Y;var active=ledger.FrenzyUntil>now;
-        if(!active)dc.PushOpacity(Math.Clamp(multiplier/Math.Max(1,ledger.FrenzyMultiplier),.08,1));
+        var fadeIn=ledger.FrenzyStartedAt is {} began?Math.Clamp((now-began).TotalSeconds/.18,0,1):1;
+        var fadeOut=!active && ledger.FrenzyUntil is {} until?Math.Clamp(1-(now-until).TotalSeconds/(Math.Max(1,ledger.FrenzyMultiplier)*.7),0,1):1;
+        dc.PushOpacity(NexaMotion.Allowed(Options)?Math.Min(fadeIn,fadeOut):1);
         dc.DrawRoundedRectangle(BugVisuals.B(Theme.SeasonalEnabled?"#F21C102A":"#F2171B26"),BugVisuals.P(Theme.SeasonalEnabled?"#A855F7":"#7C6CF0",1.5),frame,16,16);
         void Text(string value,double size,double left,double available,string color)
         {
@@ -42,7 +44,7 @@ internal sealed class ProductivityStreakOverlay : FrameworkElement, IDisposable
         dc.PushTransform(new TranslateTransform(x+16,y+18));dc.DrawGeometry(ProductivityRing.LightningBrush,null,Geometry.Parse("M12,0 L2,14 L10,14 L7,27 L23,10 L14,10 L18,0 Z"));dc.Pop();
         Text((SpaceScore??ledger.Score).ToString("N0"),26,50,width*.46-42,"#FACC15");
         Text("Streak "+multiplier.ToString("0.0")+"×",17,width*.50,width*.50-14,Theme.SeasonalEnabled?"#84CC16":"#C4B5FD");
-        if(!active)dc.Pop();
+        dc.Pop();
     }
     public void Dispose() { Ledger=null; }
 }

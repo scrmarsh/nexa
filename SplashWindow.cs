@@ -18,6 +18,7 @@ internal sealed class SplashWindow:Window
     internal readonly TextBlock Stage=new(){Visibility=Visibility.Collapsed,FontSize=10,Foreground=Brushes.LightGray,HorizontalAlignment=HorizontalAlignment.Center,Margin=new Thickness(0,5,0,0)};
     private readonly TextBlock tagline=new(){FontSize=15,Foreground=Brushes.LightGray,HorizontalAlignment=HorizontalAlignment.Center,Margin=new Thickness(0,12,0,0)};
     internal readonly List<string> CompletedStages=[];
+    private Action beginSequence=()=>{};
     internal SplashWindow(NexaOptions? options=null)
     {
         this.options=options??new();Title="nexa";Icon=NexaChrome.Icon;WindowStyle=WindowStyle.None;ResizeMode=ResizeMode.NoResize;Width=620;Height=350;WindowStartupLocation=WindowStartupLocation.CenterScreen;
@@ -33,11 +34,27 @@ internal sealed class SplashWindow:Window
             taglineReady.TrySetResult();Loading.Visibility=Stage.Visibility=Visibility.Visible;ShowProgress();
         }
         typing.Tick+=(_,_)=>{if(position<phrase.Length)NexaBranding.ApplyTagline(tagline,phrase[..++position]);if(position>=phrase.Length)CompleteTagline();};
-        Loaded+=(_,_)=>{if(!NexaMotion.Allowed(this.options)||phrase.Length==0)CompleteTagline();else typing.Start();};
+        beginSequence=()=>{if(!NexaMotion.Allowed(this.options)||phrase.Length==0)CompleteTagline();else typing.Start();};
+        Loaded+=(_,_)=>beginSequence();
         Closed+=(_,_)=>{typing.Stop();if(!TaglineComplete)taglineReady.TrySetCanceled();};
         System.Windows.Automation.AutomationProperties.SetName(Loading,"Completed startup stages");Report(.05,"Configuration location ready");
     }
     internal Task WaitForLogoAsync()=>taglineReady.Task;
+    internal async Task PreviewIn(Grid host)
+    {
+        var renderer=(FrameworkElement)Content;Content=null;
+        var overlay=new Grid{Background=TryFindResource("BackgroundBrush") as Brush??Brushes.Black};overlay.Children.Add(renderer);
+        Panel.SetZIndex(overlay,2000);host.Children.Add(overlay);
+        try
+        {
+            beginSequence();Report(.6,"Current workspace loaded");
+            await WaitForLogoAsync();
+            await host.Dispatcher.InvokeAsync(()=>{Report(.9,"Dashboard controls initialized");host.UpdateLayout();Report(1,"Dashboard ready");});
+            if(NexaMotion.Allowed(options))await Task.Delay(260);
+            await host.Dispatcher.InvokeAsync(()=>NexaMotion.Fade(overlay,0,options)).Task.Unwrap();
+        }
+        finally{await host.Dispatcher.InvokeAsync(()=>{host.Children.Remove(overlay);Close();});}
+    }
     internal void Report(double progress,string completed)
     {
         reported=Math.Max(reported,Math.Clamp(progress,0,1));Stage.Text=completed;CompletedStages.Add(completed);
@@ -48,7 +65,9 @@ internal sealed class SplashWindow:Window
         var current=Loading.Value;Loading.BeginAnimation(System.Windows.Controls.Primitives.RangeBase.ValueProperty,null);Loading.Value=reported;
         if(NexaMotion.Allowed(options) && current<reported)Loading.BeginAnimation(System.Windows.Controls.Primitives.RangeBase.ValueProperty,new DoubleAnimation(current,reported,TimeSpan.FromMilliseconds(180)){FillBehavior=FillBehavior.Stop});
     }
-    internal async Task<HomeWindow> EnterHome(StateStore store,bool diagnostic=false,AppState? initialState=null)
+    internal Task<HomeWindow> EnterHome(StateStore store,bool diagnostic=false,AppState? initialState=null)
+        =>Dispatcher.InvokeAsync(()=>EnterHomeCore(store,diagnostic,initialState)).Task.Unwrap();
+    private async Task<HomeWindow> EnterHomeCore(StateStore store,bool diagnostic,AppState? initialState)
     {
         var watch=Stopwatch.StartNew();
         var loaded=await Task.Run(()=>{var state=initialState??store.Load();return(state,mode:store.LoadThemeMode(),theme:store.LoadAppTheme());});

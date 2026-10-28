@@ -34,7 +34,7 @@ internal sealed partial class SettingsDialog
         section.Children.Add(new TextBlock{Text="Hevy",FontSize=20,FontWeight=FontWeights.SemiBold});
         section.Children.Add(new TextBlock{Text="Optional workout-account connection. Use your Hevy Pro developer API key. The key stays encrypted for this Windows account. Hedy recording notes are separate.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,8,0,8)});
         var vault=new IntegrationVault(store);var key=new PasswordBox();section.Children.Add(key);
-        var status=new TextBlock{Text=vault.Connected("Hevy")?"Connected":"Not connected",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,6,0,8)};section.Children.Add(status);
+        var status=new TextBlock{Text=vault.Connected("Hevy")?"Saved connection · not verified this session":"Not connected",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,6,0,8)};section.Children.Add(status);
         var buttons=new WrapPanel();var connect=new Button{Content="Connect Hevy",Margin=new Thickness(0,0,8,0)};var disconnect=new Button{Content="Disconnect",IsEnabled=vault.Connected("Hevy")};buttons.Children.Add(connect);buttons.Children.Add(disconnect);section.Children.Add(buttons);
         CancellationTokenSource? pending=null;Closed+=(_,_)=>pending?.Cancel();
         connect.Click+=async(_,_)=>{

@@ -97,6 +97,10 @@ public sealed class DashboardExport
     public string PresetOrigin { get; set; } = "";
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.Now;
     public bool IncludesSessionData { get; set; }
+    [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public long? CumulativeScore {get;set;}
+    [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public long? ScoreAtStart {get;set;}
+    [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public long? ScoreAtEnd {get;set;}
+    [JsonIgnore(Condition=JsonIgnoreCondition.WhenWritingNull)] public SessionRecap? Recap {get;set;}
     public DashboardData Data { get; set; } = new();
 }
 
@@ -263,9 +267,12 @@ public static class Continuity
     public static string Export(DashboardRecord record, bool includeData, DashboardSession? session = null)
     {
         if (session != null && (session.DashboardId != record.DashboardId || session.UserId != record.UserId)) throw new UnauthorizedAccessException();
+        SpaceScores.Reconcile(record);var selected=session??record.Current;
         return JsonSerializer.Serialize(new DashboardExport
         {
             DashboardName = record.Name, PresetOrigin = record.PresetOrigin, IncludesSessionData = includeData,
+            CumulativeScore=includeData?(ReferenceEquals(selected,record.Current)?record.SpaceProductivityScore:selected.ScoreAtEnd??selected.Recap?.ScoreEnd):null,
+            ScoreAtStart=includeData?selected.ScoreAtStart:null,ScoreAtEnd=includeData?selected.ScoreAtEnd:null,Recap=includeData?selected.Recap:null,
             Data = includeData ? Clone((session ?? record.Current).Data) : ConfigurationOnly((session ?? record.Current).Data)
         }, Json);
     }
@@ -276,15 +283,25 @@ public static class Continuity
         if (file.FormatVersion != 1 || (file.Application != "Nexa" && file.Application != "Nexa Session Dashboard") || string.IsNullOrWhiteSpace(file.DashboardName) || file.DashboardName.Length > 100)
             throw new InvalidDataException("Unsupported or invalid Nexa dashboard file.");
         ValidateData(file.Data);
-        if (!file.IncludesSessionData) file.Data = ConfigurationOnly(file.Data);
+        if (!file.IncludesSessionData){file.Data = ConfigurationOnly(file.Data);file.CumulativeScore=file.ScoreAtStart=file.ScoreAtEnd=null;file.Recap=null;}
+        if(file.Recap is {} recap && (!double.IsFinite(recap.ActualSeconds) || recap.ActualSeconds<0 || recap.EndedAt<recap.StartedAt || recap.Accomplishments==null || recap.Accomplishments.Count>100 || recap.Accomplishments.Any(p=>string.IsNullOrWhiteSpace(p.Key) || p.Key.Length>100 || p.Value<0)))throw new InvalidDataException("Invalid portable recap metadata.");
         return file;
     }
     public static DashboardRecord Import(WorkspaceDocument workspace, DashboardExport file, string userId, bool acceptPrivateData)
     {
-        Current(workspace, userId);
+        if(workspace.Dashboards.Count>0)Current(workspace, userId);
+        else if(workspace.UserId!=userId)throw new UnauthorizedAccessException();
         if (file.IncludesSessionData && !acceptPrivateData) throw new InvalidOperationException("Import of private session data requires confirmation.");
         ValidateData(file.Data);
         var record = NewDashboard(file.DashboardName, file.PresetOrigin, file.Data, userId);
+        if(file.IncludesSessionData && file.CumulativeScore is {} cumulative)
+        {
+            record.SpaceScoreInitialized=true;record.SpaceProductivityScore=cumulative;
+            record.CreditedScoreEvents=record.Current.Data.Productivity.Events.Select(e=>e.Id).ToHashSet();
+            record.Current.ScoreAtStart=file.ScoreAtStart??cumulative;record.Current.ScoreAtEnd=file.ScoreAtEnd;
+            record.Current.Recap=file.Recap==null?null:Clone(file.Recap);
+            if(record.Current.Recap!=null)record.Current.IsActive=false;
+        }
         // Presets become owned definitions too, with fresh identities.
         foreach (var preset in record.Current.Data.Presets) preset.Id = Guid.NewGuid();
         foreach (var widget in record.Current.Data.Widgets) widget.Id = Guid.NewGuid();

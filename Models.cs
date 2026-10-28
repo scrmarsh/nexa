@@ -253,11 +253,14 @@ public sealed partial class StateStore
         AtomicWrite(PreferencesPath, JsonSerializer.Serialize(values, Options), false);
     }
 
+    internal double LastLoadMilliseconds {get;private set;}
     public AppState Load()
     {
         // A UI refresh/reopen must not interpret a concurrent checkpoint's file
         // replacement as an unreadable workspace and fall back to empty defaults.
-        lock (writeLock) return LoadCommitted();
+        var watch=System.Diagnostics.Stopwatch.StartNew();
+        try{lock (writeLock) return LoadCommitted();}
+        finally{LastLoadMilliseconds=watch.Elapsed.TotalMilliseconds;}
     }
     internal string ReadHistoryText(string path)
     {

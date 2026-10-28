@@ -35,7 +35,7 @@ internal sealed partial class HomeWindow : NexaDialog
         recentChevron.MouseEnter += (_, _) => recentChevron.Opacity = 1;
         recentChevron.MouseLeave += (_, _) => recentChevron.Opacity = .55;
         recentChevron.Click += (_, _) => ToggleRecentSpaces();
-        panel.Children.Add(new ScrollViewer { Content = Recent, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled }); RefreshRecentSpaces();
+        panel.Children.Add(Recent); RefreshRecentSpaces();
         if (!string.IsNullOrWhiteSpace(store.Warning)) { feedback.Text = store.Warning; panel.Children.Add(feedback); var hide = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(6) }; hide.Tick += (_, _) => { hide.Stop(); feedback.Visibility = Visibility.Collapsed; }; Loaded += (_, _) => hide.Start(); Closed += (_, _) => hide.Stop(); }
         var footer = new Grid { Margin = new Thickness(0, 10, 0, 30) }; footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto }); footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
         var left = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
@@ -141,7 +141,7 @@ internal sealed partial class HomeWindow : NexaDialog
     }
     internal async void OpenDashboard(Guid id)
     {
-        if (!FlushSettingsForNavigation()) return;
+        if (!FlushSettingsForNavigation(refresh:false)) return;
         await NavigateDashboard(()=>
         {
             var latest=store.Load();var workspace=latest.Workspace??throw new InvalidOperationException("Missing workspace");workspace.ActiveDashboardId=id;
@@ -152,7 +152,11 @@ internal sealed partial class HomeWindow : NexaDialog
     private async void ShowDashboard()=>await NavigateDashboard(()=>store.Load());
     private async Task NavigateDashboard(Func<AppState> prepare)
     {
-        try { await NexaNavigation.Change(this,async ()=>new MainWindow(store,loadedState:await Task.Run(()=>{var next=prepare();next.Workspace!.CleanShutdown=false;store.Save(next);return next;}),entryAlreadyPersisted:true),Saved.Workspace?.Settings??new()); }
+        try { await NexaNavigation.Change(this,async ()=>{
+            var preparation=await Task.Run(()=>{var watch=System.Diagnostics.Stopwatch.StartNew();var next=prepare();var model=watch.Elapsed.TotalMilliseconds;var load=store.LastLoadMilliseconds;watch.Restart();next.Workspace!.CleanShutdown=false;store.Save(next);return(next,model,load,save:watch.Elapsed.TotalMilliseconds);});
+            var window=new MainWindow(store,loadedState:preparation.next,entryAlreadyPersisted:true);
+            window.ConstructionProfile["Data loading"]=preparation.load;window.ConstructionProfile["Space model preparation"]=Math.Max(0,preparation.model-preparation.load);window.ConstructionProfile["Entry persistence"]=preparation.save;return window;
+        },Saved.Workspace?.Settings??new()); }
         catch(OperationCanceledException) when(Dispatcher.HasShutdownStarted) { }
         catch(Exception ex) when(HistoryArchive.Recoverable(ex)) { await Dispatcher.InvokeAsync(()=>feedback.Text="Could not open Space: "+ex.Message); }
     }
@@ -171,7 +175,7 @@ internal sealed partial class HomeWindow : NexaDialog
     }
     private async void OpenDeveloperDashboard()
     {
-        if (!FlushSettingsForNavigation()) return;
+        if (!FlushSettingsForNavigation(refresh:false)) return;
         await NavigateDashboard(()=>
         {
             var latest=store.Load();
@@ -255,14 +259,7 @@ internal sealed partial class HomeWindow : NexaDialog
             var file = Continuity.ReadExport(File.ReadAllText(picker.FileName));
             if (file.IncludesSessionData && MessageBox.Show(this, "This file includes private session data. Import that content into your Windows account?", "Import Space", MessageBoxButton.OKCancel, MessageBoxImage.Question, MessageBoxResult.Cancel) != MessageBoxResult.OK) return;
             var workspace = Saved.Workspace == null ? new WorkspaceDocument { UserId = store.UserId } : Continuity.Clone(Saved.Workspace);
-            if (workspace.Dashboards.Count == 0)
-            {
-                var record = Continuity.NewDashboard(file.DashboardName, file.PresetOrigin, file.Data, store.UserId);
-                foreach (var widget in record.Current.Data.Widgets) widget.Id = Guid.NewGuid();
-                foreach (var preset in record.Current.Data.Presets) preset.Id = Guid.NewGuid();
-                workspace.Dashboards.Add(record); workspace.ActiveDashboardId = record.DashboardId;
-            }
-            else Continuity.Import(workspace, file, store.UserId, file.IncludesSessionData);
+            Continuity.Import(workspace, file, store.UserId, file.IncludesSessionData);
             store.Save(Continuity.Activate(workspace, store.UserId, Saved.HedyRegion, Saved.HedyProtectedKey)); ShowDashboard();
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException or InvalidOperationException) { feedback.Text = "Import failed: " + ex.Message; }

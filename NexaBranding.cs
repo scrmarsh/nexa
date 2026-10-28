@@ -9,6 +9,7 @@ internal static class NexaBranding
     internal static void ApplyTagline(TextBlock target,string text)
     {
         target.Inlines.Clear();
+        if(text.Length==0)return;
         const string seasonal = "a space for whatever haunts you next";
         var index = seasonal.IndexOf("haunts", StringComparison.Ordinal);
         if (!Theme.SeasonalEnabled || text.Length <= index || !seasonal.StartsWith(text, StringComparison.Ordinal)) { target.Inlines.Add(new Run(text)); return; }

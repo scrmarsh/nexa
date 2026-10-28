@@ -3,12 +3,12 @@ namespace SessionDashboard;
 internal sealed partial class HomeWindow
 {
     private SettingsDialog? settingsWindow;
-    private bool FlushSettingsForNavigation()
+    private bool FlushSettingsForNavigation(bool refresh=true)
     {
         if (settingsWindow?.FlushPendingChanges() == false) return false;
         settingsWindow?.Close();
         // History commands may have updated the store since Home was constructed.
-        Saved = store.Load();
+        if(refresh)Saved = store.Load();
         return true;
     }
     private void OpenSettings() => OpenSettings("Appearance");

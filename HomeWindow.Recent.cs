@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 namespace SessionDashboard;
 internal sealed partial class HomeWindow
 {
@@ -13,21 +14,29 @@ internal sealed partial class HomeWindow
             var options=Saved.Workspace?.Settings??new();
             if(recentRows==3)
             {
+                var oldHeight=DescendantsOfRecent().FirstOrDefault()?.Parent is FrameworkElement oldGrid?oldGrid.ActualHeight:0;
                 recentRows=int.MaxValue;RefreshRecentSpaces();
-                if(NexaMotion.Allowed(options))await Task.Delay(RecentDelay(Math.Max(0,DescendantsOfRecent().Count()-7))+380);
+                if(NexaMotion.Allowed(options) && DescendantsOfRecent().FirstOrDefault()?.Parent is FrameworkElement grid)
+                {
+                    grid.UpdateLayout();var fullHeight=grid.ActualHeight;var duration=RecentDelay(Math.Max(0,DescendantsOfRecent().Count()-7))+360;
+                    grid.ClipToBounds=true;grid.MaxHeight=Math.Max(oldHeight,fullHeight);
+                    grid.BeginAnimation(MaxHeightProperty,new DoubleAnimation(oldHeight,fullHeight,TimeSpan.FromMilliseconds(duration)){EasingFunction=new CubicEase{EasingMode=EasingMode.EaseOut},FillBehavior=FillBehavior.Stop});
+                    await Task.Delay(duration);await Dispatcher.InvokeAsync(()=>{grid.BeginAnimation(MaxHeightProperty,null);grid.MaxHeight=double.PositiveInfinity;});
+                }
             }
             else
             {
                 var extra=DescendantsOfRecent().Skip(6).Reverse().ToArray();
                 await Task.WhenAll(extra.Select(async (card,index)=>{
                     await NexaMotion.CardTransition(card,false,options,RecentDelay(index));
-                    if(card.Parent is Panel parent)parent.Children.Remove(card);
                 }));
-                recentRows=3;RefreshRecentSpaces();
+                // Keep all row slots stable while the reverse sequence runs.
+                // Removing individual children would shift every later UniformGrid cell.
+                await Dispatcher.InvokeAsync(()=>{recentRows=3;RefreshRecentSpaces();});
             }
         }
         catch(TaskCanceledException){}
-        finally{togglingRecent=false;if(!Dispatcher.HasShutdownStarted)recentChevron.IsEnabled=true;}
+        finally{togglingRecent=false;if(!Dispatcher.HasShutdownStarted)await Dispatcher.InvokeAsync(()=>recentChevron.IsEnabled=true);}
     }
     internal static int RecentDelay(int index)=>Math.Min(2400,index<12?index*120:1440+(index-12)*12);
 
@@ -57,7 +66,7 @@ internal sealed partial class HomeWindow
         if (spaces.Length == 0) column.Children.Add(new TextBlock { Text = "Your first Space starts here. Choose a template or a blank canvas.", TextWrapping = TextWrapping.Wrap });
         recentChevron.Content = recentRows == 3 ? "↓ Show More Spaces" : "↑ Hide More Spaces"; recentChevron.MinWidth=260;recentChevron.FontSize=17;recentChevron.FontWeight=FontWeights.Bold;recentChevron.ToolTip = "Expand or collapse additional Spaces"; recentChevron.HorizontalAlignment = HorizontalAlignment.Center; recentChevron.Width = double.NaN;
         recentChevron.Visibility = spaces.Length > 6 ? Visibility.Visible : Visibility.Collapsed;
-        System.Windows.Automation.AutomationProperties.SetName(recentChevron, "Show More Spaces");
+        System.Windows.Automation.AutomationProperties.SetName(recentChevron, recentRows==3?"Show More Spaces":"Hide More Spaces");
         column.Children.Add(recentChevron);
         void Reveal(){var index=0;foreach(var card in cards.Children.OfType<Button>().Where(b=>!previousCards.ContainsKey((Guid)b.Tag)))_ = NexaMotion.CardTransition(card,true,Saved.Workspace?.Settings??new(),RecentDelay(index++));}
         if(IsLoaded)Reveal();else cards.Loaded+=(_,_)=>Reveal();

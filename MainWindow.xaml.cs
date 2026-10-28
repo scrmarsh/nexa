@@ -114,7 +114,7 @@ public partial class MainWindow
         Loaded+=(_,_)=>{if(state.OfferQuickStart && !Options.QuickStartCompleted)StartQuickStart(false);};
         Closed+=(_,_)=>RemoveQuickStart();
         SpaceIconHost.Cursor=Cursors.Hand;SpaceIconHost.ToolTip="Choose Space icon";SpaceIconHost.MouseLeftButtonUp+=(_,_)=>EditSpaceIcon();
-        Loaded+=(_,_)=>NexaMotion.Stagger(widgetFrames.Values,Options);
+        Loaded+=(_,_)=>{if(!entryAlreadyPersisted)AnimateWidgetEntrance();};
         clock.Start();
         Closing += (_, e) =>
         {
@@ -187,9 +187,11 @@ public partial class MainWindow
 
     private async void DeveloperSplashClick(object sender,RoutedEventArgs e)
     {
-        var preview=new SplashWindow(Options){Owner=this};var previous=Application.Current.MainWindow;preview.Show();
-        try{var home=await preview.EnterHome(store,true);Application.Current.MainWindow=previous;home.Close();}
-        catch(Exception ex){Application.Current.MainWindow=previous;preview.Close();Error("Startup preview failed: "+ex.Message);}
+        if(DeveloperSplashButton.IsEnabled==false)return;
+        DeveloperSplashButton.IsEnabled=false;
+        try{await new SplashWindow(Options).PreviewIn((Grid)Content);}
+        catch(Exception ex){await Dispatcher.InvokeAsync(()=>Error("Startup preview failed: "+ex.Message));}
+        finally{await Dispatcher.InvokeAsync(()=>DeveloperSplashButton.IsEnabled=true);}
     }
 
     private void DeveloperResetClick(object sender, RoutedEventArgs e)

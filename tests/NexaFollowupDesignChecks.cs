@@ -61,7 +61,7 @@ internal static partial class Program
         Theme.SetSeasonalEnabled(true);var tagline=new TextBlock();NexaBranding.ApplyTagline(tagline,NexaBranding.Tagline);
         var orange=tagline.Inlines.OfType<Run>().Where(r=>r.Foreground is SolidColorBrush b && b.Color==(Color)ColorConverter.ConvertFromString("#F97316")).ToArray();
         Assert(orange.Length==1 && orange[0].Text=="haunts" && new TextRange(tagline.ContentStart,tagline.ContentEnd).Text=="a space for whatever haunts you next","Only haunts receives Halloween orange in the new seasonal tagline");
-        Theme.SetSeasonalEnabled(false);Assert(NexaBranding.Tagline=="a space for whatever comes next.","Disabling Nexaween restores the ordinary tagline");
+        Theme.SetSeasonalEnabled(false);Assert(NexaBranding.Tagline=="","Disabling Nexaween removes the Home tagline entirely");
         var world=CreateWorld(BugBehavior.Cozy);world.SetSurfaces([new BugSurface("card",new Rect(300,300,300,200))],new Size(1600,1000));var owner=world.Bugs.FirstOrDefault(b=>b.Species==BugSpecies.Spiders);if(owner==null){Step(world,20);owner=world.Bugs.First(b=>b.Species==BugSpecies.Spiders);}
         var web=new EcosystemWeb{Owner=owner.InteractionId,AnchorId="card",AnchorOffsetX=12,AnchorOffsetY=-12,X=612,Y=288,Construction=.4};world.Webs.Add(web);
         world.SetSurfaces([new BugSurface("card",new Rect(400,400,300,200))],new Size(1600,1000));Assert(web.X==712 && web.Y==388,"Spider web anchors follow a moved widget without accumulating scroll deltas");

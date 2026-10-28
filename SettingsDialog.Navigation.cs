@@ -4,6 +4,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Windows.Media.Animation;
 
 namespace SessionDashboard;
 internal sealed partial class SettingsDialog
@@ -11,6 +12,7 @@ internal sealed partial class SettingsDialog
     internal bool SessionInterface {get;private set;}
     private Border? tipsTarget;
     private readonly List<CheckBox> seasonalSwitches=[];
+    private CheckBox? appearanceSeasonSwitch;
     internal UIElement BuildSettingsFooter(Button close)
     {
         var row = new Grid(); row.ColumnDefinitions.Add(new() { Width = new GridLength(140) }); row.ColumnDefinitions.Add(new()); row.ColumnDefinitions.Add(new() { Width = new GridLength(140) });
@@ -30,17 +32,34 @@ internal sealed partial class SettingsDialog
     }
     private CheckBox MakeSeasonSwitch()
     {
+        if(appearanceSeasonSwitch is {} existing)
+        {
+            if(existing.Parent is Panel parent)parent.Children.Remove(existing);
+            existing.IsChecked=NexaSeason.Active(ReliabilityOptions,DateTimeOffset.UtcNow);seasonalSwitches.Add(existing);return existing;
+        }
         var toggle=new CheckBox{IsChecked=NexaSeason.Active(ReliabilityOptions,DateTimeOffset.UtcNow),VerticalAlignment=VerticalAlignment.Center,ToolTip="Turn Nexaween on or off",Margin=new Thickness(6)};
         toggle.Template=new ControlTemplate(typeof(CheckBox)){VisualTree=SwitchTemplate()};
+        var initialized=false;
+        void Visual(bool animate)
+        {
+            toggle.ApplyTemplate();if(toggle.Template.FindName("Knob",toggle) is not Border knob || toggle.Template.FindName("Track",toggle) is not Border track)return;
+            var active=toggle.IsChecked==true;var duration=TimeSpan.FromMilliseconds(animate && NexaMotion.Allowed(ReliabilityOptions)?220:0);
+            var translation=(TranslateTransform)knob.RenderTransform;if(translation.IsFrozen){translation=translation.CloneCurrentValue();knob.RenderTransform=translation;}var from=translation.X;translation.BeginAnimation(TranslateTransform.XProperty,null);translation.X=active?24:0;
+            translation.BeginAnimation(TranslateTransform.XProperty,new DoubleAnimation(from,translation.X,duration){FillBehavior=FillBehavior.Stop,EasingFunction=new CubicEase{EasingMode=EasingMode.EaseInOut}});
+            var brush=new SolidColorBrush(active?Color.FromRgb(101,163,13):Color.FromRgb(153,27,27));var previous=(track.Background as SolidColorBrush)?.Color??brush.Color;track.Background=brush;
+            brush.BeginAnimation(SolidColorBrush.ColorProperty,new ColorAnimation(previous,brush.Color,duration){FillBehavior=FillBehavior.Stop});
+        }
+        toggle.Loaded+=(_,_)=>{if(!initialized){Visual(false);initialized=true;}};
+        toggle.Checked+=(_,_)=>Visual(true);toggle.Unchecked+=(_,_)=>Visual(true);
         System.Windows.Automation.AutomationProperties.SetName(toggle,"Nexaween enabled");
-        toggle.Click+=(_,_)=>SetNexaween(toggle.IsChecked==true);seasonalSwitches.Add(toggle);return toggle;
+        toggle.Click+=(_,_)=>SetNexaween(toggle.IsChecked==true);appearanceSeasonSwitch=toggle;seasonalSwitches.Add(toggle);return toggle;
     }
     private static FrameworkElementFactory SwitchTemplate()
     {
         var grid=new FrameworkElementFactory(typeof(Grid));grid.SetValue(FrameworkElement.WidthProperty,54d);grid.SetValue(FrameworkElement.HeightProperty,30d);
         var track=new FrameworkElementFactory(typeof(Border));track.Name="Track";track.SetValue(Border.CornerRadiusProperty,new CornerRadius(15));track.SetValue(Border.BackgroundProperty,new SolidColorBrush(Color.FromRgb(153,27,27)));
-        track.SetBinding(Border.BackgroundProperty,new System.Windows.Data.Binding("IsChecked"){RelativeSource=new(System.Windows.Data.RelativeSourceMode.TemplatedParent),Converter=new SeasonSwitchBrush()});grid.AppendChild(track);
-        var knob=new FrameworkElementFactory(typeof(Border));knob.SetValue(FrameworkElement.WidthProperty,22d);knob.SetValue(FrameworkElement.HeightProperty,22d);knob.SetValue(Border.CornerRadiusProperty,new CornerRadius(11));knob.SetValue(Border.BackgroundProperty,Brushes.White);knob.SetValue(FrameworkElement.MarginProperty,new Thickness(4));knob.SetBinding(FrameworkElement.HorizontalAlignmentProperty,new System.Windows.Data.Binding("IsChecked"){RelativeSource=new(System.Windows.Data.RelativeSourceMode.TemplatedParent),Converter=new SeasonSwitchAlignment()});grid.AppendChild(knob);return grid;
+        grid.AppendChild(track);
+        var knob=new FrameworkElementFactory(typeof(Border));knob.Name="Knob";knob.SetValue(FrameworkElement.WidthProperty,22d);knob.SetValue(FrameworkElement.HeightProperty,22d);knob.SetValue(Border.CornerRadiusProperty,new CornerRadius(11));knob.SetValue(Border.BackgroundProperty,Brushes.White);knob.SetValue(FrameworkElement.MarginProperty,new Thickness(4));knob.SetValue(FrameworkElement.HorizontalAlignmentProperty,HorizontalAlignment.Left);knob.SetValue(UIElement.RenderTransformProperty,new TranslateTransform());grid.AppendChild(knob);return grid;
     }
     private void SetNexaween(bool active)
     {

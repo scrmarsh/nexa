@@ -14,8 +14,8 @@ public partial class MainWindow
         streakRefresh.Tick+=(_,_)=>{if(IsVisible && WindowState!=WindowState.Minimized && DashboardShell.IsVisible){streakOverlay.SpaceScore=SpaceScores.Total(Continuity.Current(state.Workspace!,store.UserId),state.Productivity);streakOverlay.Ledger=state.Productivity;streakOverlay.Options=Options;streakOverlay.Refresh();}};
         WidgetCanvas.PreviewMouseLeftButtonDown+=(_,e)=>
         {
-            if(!ReferenceEquals(e.OriginalSource,WidgetCanvas) || state.Session?.FinalizedAt!=null || seasonalArtwork?.IsVisible!=true)return;
-            var id=seasonalArtwork.CandyAt(e.GetPosition(WidgetCanvas));if(id==null)return;
+            if(!ReferenceEquals(e.OriginalSource,WidgetCanvas) || !CanCollectSeasonalCandy)return;
+            var id=seasonalArtwork!.CandyAt(e.GetPosition(WidgetCanvas));if(id==null)return;
             if(bugsOverlay?.Manager.Bugs.Any(b=>b.ResourceId==id && b.Activity==BugActivity.Gathering)==true)return;
             var ledger=Continuity.Clone(state.Productivity);
             if(!ProductivityScoring.CollectCandy(ledger,id.Value,DateTimeOffset.UtcNow,Options.StreakMultiplierCap))return;
@@ -32,6 +32,7 @@ public partial class MainWindow
         WidgetScroller.ScrollChanged += (_, _) => seasonalArtwork?.SetViewport(new Rect(WidgetScroller.HorizontalOffset, WidgetScroller.VerticalOffset, Math.Max(1, WidgetScroller.ViewportWidth), Math.Max(1, WidgetScroller.ViewportHeight)));
         Closed += (_, _) => { streakRefresh.Stop();streakOverlay?.Dispose();feedbackOverlay?.Dispose(); seasonalArtwork?.Dispose(); };
     }
+    internal bool CanCollectSeasonalCandy=>NexaSeason.Active(Options,DateTimeOffset.UtcNow) && Options.SeasonalDecorations && Options.DecorationDensity!="Off" && state.Session?.FinalizedAt==null && seasonalArtwork?.IsVisible==true;
     private Rect? FeedbackBounds(Guid? id)
     {
         if (feedbackOverlay == null || !IsLoaded) return null;

@@ -53,7 +53,7 @@ internal static partial class Program
         Assert(window.Countdown.Text == "00:20:00" && window.CountdownCaption.Text == "SESSION PROGRESS", "The actual Pixel Timer displays elapsed class time");
         var lit = window.PixelGrid.Children.OfType<Border>().Select(p => Equals(p.Background, window.FullContent.Resources["DashboardPixelBrush"])).ToArray();
         Assert(lit.TakeWhile(x => x).Count() == lit.Count(x => x) && lit.Any(x => x) && lit.Any(x => !x), "Rendered pixels remain a contiguous partially filled prefix");
-        Assert(Descendants(window).OfType<TextBlock>().Any(t => t.Text.Contains("Meaningful actions:")) && Descendants(window).OfType<TextBlock>().Any(t => t.Text.Contains("Next milestone:")), "Both productivity widgets render working statistics in the dashboard");
+        Assert(Descendants(window).OfType<ProductivityRing>().Count()==2 && !Descendants(window).OfType<TextBlock>().Any(t=>t.Text.Contains("Meaningful actions:") || t.Text.Contains("Next milestone:")), "Both legacy productivity placements render compact rings without default activity summaries");
         window.ShowWeeklySchedule(); Pump(TimeSpan.FromMilliseconds(60));
         var editor = Application.Current.Windows.OfType<Window>().Single(w => w.Title == "Nexa · Pixel Timer");
         Assert(Descendants(editor).OfType<Button>().Any(b => Equals(b.Content, "M/W")) && Descendants(editor).OfType<Button>().Any(b => Equals(b.Content, "Apply timer settings")), "The timer's real editor exposes weekday shortcuts and a save action");

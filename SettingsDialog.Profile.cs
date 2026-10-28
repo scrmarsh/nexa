@@ -43,7 +43,7 @@ internal sealed partial class SettingsDialog
             if(service=="Hevy"){page.Children.Add(BuildHevyConnection());continue;}
             var section=new StackPanel { Margin=new Thickness(0,0,0,24) }; page.Children.Add(section);
             section.Children.Add(new TextBlock { Text=service,FontSize=20,FontWeight=FontWeights.SemiBold });
-            var status=new TextBlock { Text=client.Vault.Connected(service)?"Connected":"Not connected",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,8,0,8) }; section.Children.Add(status);
+            var status=new TextBlock { Text=client.Vault.Connected(service)?"Saved connection · not verified this session":"Not connected",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,8,0,8) }; section.Children.Add(status);
             PasswordBox? secret=null;
             if(service=="Todoist") { section.Children.Add(new TextBlock { Text="API token from Todoist / Settings / Integrations / Developer",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,6) }); secret=new PasswordBox(); section.Children.Add(secret); }
             var buttons=new StackPanel { Orientation=Orientation.Horizontal,Margin=new Thickness(0,10,0,0) }; section.Children.Add(buttons);

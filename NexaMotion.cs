@@ -33,6 +33,7 @@ internal static class NexaMotion
     private static async Task SetShownCore(FrameworkElement element,bool shown,NexaOptions options,double opacity)
     {
         var state=animations.GetOrCreateValue(element);if(state.Shown==shown)return;state.Shown=shown;var generation=++state.VisibilityGeneration;
+        if(!shown)element.IsHitTestVisible=false;
         if(!Allowed(options)||!element.IsLoaded){element.BeginAnimation(UIElement.OpacityProperty,null);element.Opacity=opacity;element.Visibility=shown?Visibility.Visible:Visibility.Collapsed;return;}
         if(shown){element.Visibility=Visibility.Visible;element.Opacity=0;}
         await Fade(element,shown?opacity:0,options);
@@ -41,12 +42,15 @@ internal static class NexaMotion
     internal static async Task CardTransition(FrameworkElement card,bool entering,NexaOptions options,int delay)
     {
         if(!Allowed(options)){card.Opacity=entering?1:0;return;}
-        var move=new TranslateTransform();card.RenderTransform=move;
+        var state=animations.GetOrCreateValue(card);var generation=++state.Generation;
+        card.BeginAnimation(UIElement.OpacityProperty,null);
+        var move=new TranslateTransform(0,entering?12:0);card.RenderTransform=move;
         var duration=TimeSpan.FromMilliseconds(360);var easing=new CubicEase{EasingMode=EasingMode.EaseOut};
-        card.Opacity=entering?1:0;
-        card.BeginAnimation(UIElement.OpacityProperty,new DoubleAnimation(entering?0:1,entering?1:0,duration){BeginTime=TimeSpan.FromMilliseconds(delay),FillBehavior=FillBehavior.Stop,EasingFunction=easing});
+        card.IsHitTestVisible=entering;card.Opacity=entering?0:1;
+        card.BeginAnimation(UIElement.OpacityProperty,new DoubleAnimation(entering?0:1,entering?1:0,duration){BeginTime=TimeSpan.FromMilliseconds(delay),FillBehavior=FillBehavior.HoldEnd,EasingFunction=easing});
         move.BeginAnimation(TranslateTransform.YProperty,new DoubleAnimation(entering?12:0,entering?0:12,duration){BeginTime=TimeSpan.FromMilliseconds(delay),FillBehavior=FillBehavior.HoldEnd,EasingFunction=easing});
         await Task.Delay(delay+360);
+        await card.Dispatcher.InvokeAsync(()=>{if(state.Generation!=generation)return;card.BeginAnimation(UIElement.OpacityProperty,null);card.Opacity=entering?1:0;move.BeginAnimation(TranslateTransform.YProperty,null);move.Y=entering?0:12;});
     }
     internal static void Pop(FrameworkElement element, NexaOptions options)
     {

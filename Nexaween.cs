@@ -18,13 +18,20 @@ public partial class MainWindow
 {
     private NexaweenDecorations? seasonalArtwork;
     private Button? workspaceAdd;
+    private bool seasonalArtworkShown;
+    private void ShowSeasonalArtwork(bool shown)
+    {
+        if(seasonalArtwork==null)return;
+        if(shown && !seasonalArtworkShown)seasonalArtwork.BeginReveal();seasonalArtworkShown=shown;
+        NexaMotion.SetShown(seasonalArtwork,shown,Options);
+    }
     private void ApplySeasonalOptions(DateTimeOffset? at = null)
     {
         var active = NexaSeason.Active(Options, at ?? DateTimeOffset.UtcNow);
         Theme.SetSeasonalEnabled(active);
         NexaEcosystem.UpdateSeason(store, Options);
         seasonalArtwork?.ConfigureAnimation(Options,new Rect(WidgetScroller.HorizontalOffset,WidgetScroller.VerticalOffset,Math.Max(1,WidgetScroller.ViewportWidth),Math.Max(1,WidgetScroller.ViewportHeight)));
-        if (seasonalArtwork != null) NexaMotion.SetShown(seasonalArtwork,active && Options.SeasonalDecorations && Options.DecorationDensity != "Off",Options);
+        ShowSeasonalArtwork(active && Options.SeasonalDecorations && Options.DecorationDensity != "Off");
     }
     internal void RefreshSeasonalWorkspace()
     {
@@ -49,7 +56,7 @@ public partial class MainWindow
         occupied.Add(new Rect(Canvas.GetLeft(workspaceAdd), bottom + 20, Math.Max(150,workspaceAdd.ActualWidth), 90));
         seasonalArtwork.ConfigureAnimation(Options,new Rect(WidgetScroller.HorizontalOffset,WidgetScroller.VerticalOffset,Math.Max(1,WidgetScroller.ViewportWidth),Math.Max(1,WidgetScroller.ViewportHeight)));
         seasonalArtwork.Update(Math.Max(1, WidgetCanvas.ActualWidth), Math.Max(1, WidgetCanvas.Height), occupied, Options.DecorationDensity,widgetTargets:widgetTargets);
-        NexaMotion.SetShown(seasonalArtwork,Theme.SeasonalEnabled && Options.SeasonalDecorations && Options.DecorationDensity != "Off",Options);
+        ShowSeasonalArtwork(Theme.SeasonalEnabled && Options.SeasonalDecorations && Options.DecorationDensity != "Off");
     }
 }
 internal sealed partial class SettingsDialog

@@ -20,9 +20,18 @@ internal sealed partial class NexaweenDecorations : IDisposable
     internal static readonly int[] BackgroundKinds=[5,6,8,13,16,5,6,8,16,6,1,4,20,2,21];
     private readonly List<Actor> actors = [];
     private static readonly Dictionary<int, Drawing> assets = [];
+    internal static void DrawPumpkinLight(DrawingContext dc,Rect bounds,double time)
+    {
+        dc.PushTransform(new TranslateTransform(bounds.X,bounds.Y));dc.PushTransform(new ScaleTransform(bounds.Width/64,bounds.Height/64));
+        dc.PushOpacity(.07+Math.Sin(time*1.7)*.018+Math.Sin(time*3.1)*.009);
+        dc.DrawGeometry(B("#FFE6A0"),null,Geometry.Parse("M8,27 Q14,26 22,32 L19,37 Z M25,31 Q32,24 39,26 L34,34 L26,36 Z M8,42 Q20,48 40,40 L29,52 L19,53 Z"));dc.Pop();dc.Pop();dc.Pop();
+    }
     private readonly DispatcherTimer animation = new(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(50) };
     private readonly DispatcherTimer candyRespawn=new(){Interval=TimeSpan.FromSeconds(1)};
     private readonly Stopwatch elapsed = Stopwatch.StartNew();
+    private double revealStarted=double.NegativeInfinity;
+    internal void BeginReveal(){revealStarted=animationOptions.SeasonalAnimation && NexaMotion.Allowed(animationOptions)?elapsed.Elapsed.TotalSeconds:double.NegativeInfinity;InvalidateVisual();}
+    private double RevealOpacity(Actor actor)=>!animationOptions.SeasonalAnimation || !NexaMotion.Allowed(animationOptions) || double.IsNegativeInfinity(revealStarted)?1:Math.Clamp((elapsed.Elapsed.TotalSeconds-revealStarted-(actor.Contextual?0:actor.Seed%15*.07))/.5,0,1);
     private NexaOptions animationOptions = new();
     private Rect visibleArea;
     private Window? host;
@@ -103,7 +112,7 @@ internal sealed partial class NexaweenDecorations : IDisposable
             var phase = time + actor.Seed * .7; var x = actor.Bounds.X; var y = actor.Bounds.Y;
             var lifecycleAge=time-actor.Born;
             var opacity=!moving || actor.Contextual || elapsed.Elapsed.TotalSeconds<actor.BusyUntil?1:lifecycleAge<1?Math.Clamp(lifecycleAge,0,1):lifecycleAge<=actor.Hold+1?1:Math.Clamp(actor.Hold+2-lifecycleAge,0,1);
-            dc.PushOpacity(opacity);
+            dc.PushOpacity(opacity*RevealOpacity(actor));
             dc.PushTransform(new TranslateTransform(x, y)); dc.PushTransform(new ScaleTransform(actor.Bounds.Width / 64, actor.Bounds.Height / 64));
             var rotation = 0d;
             dc.PushTransform(new RotateTransform(rotation, 32, 42));

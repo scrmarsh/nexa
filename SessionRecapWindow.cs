@@ -21,7 +21,10 @@ internal sealed class SessionRecapWindow:NexaDialog
             var cards=new WrapPanel();
             foreach(var item in recap.Accomplishments.Where(p=>p.Value>0))
             {
-                var card=new Border{CornerRadius=new CornerRadius(12),BorderThickness=new Thickness(1),Padding=new Thickness(16),Margin=new Thickness(0,0,10,10),Child=new TextBlock{Text=$"{item.Value:N0} {item.Key.ToLowerInvariant()}",FontSize=16}};
+                var illustration=item.Key switch{"Tasks completed"=>"Task","Notes captured"=>"Notes","Water bottles recorded"=>"Water","Candy collected"=>"Candy","Bugs squashed"=>"Bug",_=>"Clock"};
+                var detail=new StackPanel{Orientation=Orientation.Horizontal};var iconArt=(FrameworkElement)NexaIcons.Create(illustration);iconArt.Width=iconArt.Height=26;iconArt.Margin=new Thickness(0,0,12,0);detail.Children.Add(iconArt);
+                detail.Children.Add(new TextBlock{Text=$"{item.Value:N0} {item.Key.ToLowerInvariant()}",FontSize=16,VerticalAlignment=VerticalAlignment.Center});
+                var card=new Border{CornerRadius=new CornerRadius(12),BorderThickness=new Thickness(1),Padding=new Thickness(16),Margin=new Thickness(0,0,10,10),Child=detail};
                 card.SetResourceReference(Border.BorderBrushProperty,"AccentBrush");cards.Children.Add(card);
             }
             body.Children.Add(cards);Loaded+=(_,_)=>{var index=0;foreach(var card in cards.Children.OfType<FrameworkElement>())_ = NexaMotion.CardTransition(card,true,options,index++*120);};

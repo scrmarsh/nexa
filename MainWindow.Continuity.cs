@@ -174,6 +174,7 @@ public partial class MainWindow
             CloseNoteEditors(); PauseHedySync();
             if(state.Workspace?.ActiveDashboardId!=next.Workspace?.ActiveDashboardId || !preserveWidgetUndo && Continuity.Current(state.Workspace!,store.UserId).Current.SessionId != Continuity.Current(next.Workspace!,store.UserId).Current.SessionId) { widgetUndo.Clear(); widgetRedo.Clear(); FadeWidgetToast(null,EventArgs.Empty); }
             ready = false; state = next; revision++; saveTicket++; dirty = false; saveDelay.Stop();
+            InitializeInitialViewport();
             ApplyReliabilityOptions();
             if (keepRecording) recordingSession = state.Session;
             UpdateRecordingSource(); UpdateRecordingStatus();

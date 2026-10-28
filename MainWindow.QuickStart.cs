@@ -27,10 +27,14 @@ public partial class MainWindow
         if(guideLayer!=null)((Grid)Content).Children.Remove(guideLayer);
         guideLayer=null;guideShade=null;guideCard=null;
     }
-    private void FinishQuickStart(bool skipped)
+    private async void FinishQuickStart(bool skipped)
     {
         Options.QuickStartCompleted=true;Options.QuickStartSkipped=skipped;Options.QuickStartStep=0;state.OfferQuickStart=false;
-        Changed();SaveNow();RemoveQuickStart();
+        Changed();SaveNow();
+        if(!NexaMotion.Allowed(Options)){RemoveQuickStart();return;}
+        var layer=guideLayer;if(layer==null)return;layer.IsHitTestVisible=false;
+        await NexaMotion.Fade(layer,0,Options);
+        await Dispatcher.InvokeAsync(()=>{if(ReferenceEquals(layer,guideLayer))RemoveQuickStart();});
     }
     private FrameworkElement? GuideTarget()
     {
@@ -89,15 +93,16 @@ public partial class MainWindow
         }
         if(step==5)
         {
-            foreach(var service in new[]{"Todoist","Hevy"}){var connect=new Button{Content="Connect "+service,Margin=new Thickness(0,0,8,6),HorizontalAlignment=HorizontalAlignment.Left};connect.Click+=(_,_)=>OpenMainSettings("Integrations");panel.Children.Add(connect);}
+            foreach(var service in new[]{"Todoist","Hedy","Hevy"}){var connect=new Button{Content="Connect "+service,Margin=new Thickness(0,0,8,6),HorizontalAlignment=HorizontalAlignment.Left};connect.Click+=(_,_)=>OpenMainSettings(service=="Hedy"?"Hedy":"Integrations");panel.Children.Add(connect);}
         }
         if(step==6)panel.Children.Add(SpaceIcons.Create(SpaceIcons.Resolve(state.SpaceIcon,""),34));
-        var controls=new WrapPanel();panel.Children.Add(controls);
-        void Button(string label,Action click){var b=new Button{Content=label,Margin=new Thickness(0,0,8,0),MinWidth=90};b.Click+=(_,_)=>click();controls.Children.Add(b);}
+        var controls=new Grid();controls.ColumnDefinitions.Add(new());controls.ColumnDefinitions.Add(new(){Width=GridLength.Auto});panel.Children.Add(controls);
+        var leftControls=new WrapPanel();controls.Children.Add(leftControls);var rightControls=new WrapPanel{HorizontalAlignment=HorizontalAlignment.Right};Grid.SetColumn(rightControls,1);controls.Children.Add(rightControls);
+        void Button(string label,Action click,bool right=false){var b=new Button{Content=label,Margin=new Thickness(0,0,8,0),MinWidth=90};b.Click+=(_,_)=>click();(right?rightControls:leftControls).Children.Add(b);}
         if(step>0)Button("Back",()=>{Options.QuickStartStep--;RenderGuide();Changed();SaveNow();});
         Button(step==0?"I Know What I'm Doing":"Skip guide",()=>FinishQuickStart(true));
         if(step is 1 or 2 or 3 or 4)Button("Skip step",AdvanceGuide);
-        else Button(step==6?"Get Started":step==5?"Skip for Now":"Continue",()=>{if(step==6)FinishQuickStart(false);else AdvanceGuide();});
+        else Button(step==6?"Get Started":step==5?"Skip for Now":"Continue",()=>{if(step==6)FinishQuickStart(false);else AdvanceGuide();},true);
         var card=new Border{Child=panel,Padding=new Thickness(22),CornerRadius=new CornerRadius(16),BorderThickness=new Thickness(2),MaxWidth=580,HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Bottom,Margin=new Thickness(24)};
         card.SetResourceReference(Border.BackgroundProperty,"PanelBrush");card.SetResourceReference(Border.BorderBrushProperty,"AccentBrush");guideCard=card;guideLayer.Children.Add(card);NexaMotion.Entrance(card,Options);
         Dispatcher.BeginInvoke(new Action(()=>{PositionGuide(null,EventArgs.Empty);if(GuideTarget() is {} target && step is 2 or 3 or 4)target.BringIntoView();}),DispatcherPriority.Loaded);
@@ -114,5 +119,12 @@ internal sealed class TourShade:FrameworkElement
         var shade=new CombinedGeometry(GeometryCombineMode.Exclude,new RectangleGeometry(new Rect(RenderSize)),hole.IsEmpty?Geometry.Empty:new RectangleGeometry(hole,8,8));
         dc.DrawGeometry(new SolidColorBrush(Color.FromArgb(190,0,0,0)),null,shade);
         if(!hole.IsEmpty)dc.DrawRoundedRectangle(null,new Pen(TryFindResource("AccentBrush") as Brush??Brushes.MediumPurple,2),hole,8,8);
+        if(!hole.IsEmpty)
+        {
+            var brush=TryFindResource("AccentBrush") as Brush??Brushes.Gold;var x=Math.Clamp(hole.Left+hole.Width/2,20,Math.Max(20,ActualWidth-20));
+            var above=hole.Top>55;var tip=new Point(x,above?hole.Top-9:hole.Bottom+9);var direction=above?-1:1;
+            dc.DrawLine(new Pen(brush,3),new Point(x+10,tip.Y+direction*34),tip);
+            dc.DrawLine(new Pen(brush,3),tip,new Point(x-7,tip.Y+direction*12));dc.DrawLine(new Pen(brush,3),tip,new Point(x+11,tip.Y+direction*8));
+        }
     }
 }

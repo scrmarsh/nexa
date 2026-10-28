@@ -25,9 +25,11 @@ internal static partial class Program
                 settings.Closed+=(_,_)=>{main.Close();lifetime.Stop();app.Shutdown();};main.Closed+=(_,_)=>app.Shutdown();app.Run();return 0;
             }
             if(args.Contains("--home-fullscreen026")) { ShowHomeFullscreen026(app); return 0; }
+            if(args.Contains("--handoff-ui026")) { ShowHandoffUi026(app); return 0; }
             if(args.Contains("--showcase"))GenerateShowcase(args[Array.IndexOf(args,"--showcase")+1]);
             else if(args.Contains("--existing-data"))CheckExistingData(args[Array.IndexOf(args,"--existing-data")+1]);
             else if(args.Contains("--public-updates"))CheckPublicUpdates025();
+            else if(args.Contains("--handoff026"))CheckHandoff026();
             else if(args.Contains("--profile026"))Profile026();
             else if(args.Contains("--performance026"))Measure026();
             else if(args.Contains("--pass026"))CheckPass026();
