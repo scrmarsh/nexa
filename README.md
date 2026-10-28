@@ -6,13 +6,13 @@
 ![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-A855F7?style=flat-square&labelColor=1C102A)
 ![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-F97316?style=flat-square&labelColor=1C102A)
 
-**Your dashboard. Your Space. A little seasonal mischief.**
+**a space for whatever haunts you next**
 
 [Download Nexa](https://github.com/scrmarsh/nexa/releases/tag/v0.1.24-alpha) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Verification report](docs/IMPLEMENTATION-0.1.24.md)
 
 </div>
 
-> **Final Nexaween candidate:** this branch contains critical repairs and selected interface improvements. It is **not yet the final release**. The published release is unchanged; see the [candidate status and remaining acceptance](docs/FINAL-0.1.24-STATUS.md).
+> **0.1.25 Alpha development candidate:** repairs are under test on this branch. This is not an approved release. See the [feature audit](docs/FEATURE-AUDIT-0.1.25.md), [repair report](docs/REPAIR-REPORT-0.1.25.md), and [manual acceptance checklist](docs/MANUAL-TESTING-0.1.25.md).
 
 
 Nexa is a local Windows productivity dashboard for classes, study, meetings and everyday work. Arrange movable widgets into a Space, follow your recurring sessions, and keep your notes, tasks and progress together.
@@ -29,7 +29,7 @@ Release assets also include `SHA256SUMS.txt`. To inspect your download's checksu
 Get-FileHash .\Nexa.exe -Algorithm SHA256
 ```
 
-Compare the result with `SHA256SUMS.txt`. User data stays in the existing Windows LocalAppData `SessionDashboard` location, so replacing the executable preserves saved Spaces, settings and history. The repository and downloads currently require an authorized GitHub account.
+Compare the result with `SHA256SUMS.txt`. User data stays in the existing Windows LocalAppData `SessionDashboard` location, so replacing the executable preserves saved Spaces, settings and history. The repository and release downloads are public; no GitHub sign-in is needed.
 
 ## Inside your Space
 
@@ -37,12 +37,12 @@ Compare the result with `SHA256SUMS.txt`. User data stays in the existing Window
 | --- | --- |
 | Recurring class schedules and a Pixel Timer that fills during class and counts down between sessions | Movable, resizable widgets with scrolling room below your layout |
 | Notes, tasks, water tracking, counters, Scripture and recording/timeline tools | Configurable appearance, sounds and optional integrations |
-| Session history, automatic checkpoints and save-before-reset protection | Productivity Meter, score breakdowns and squash streaks |
+| Session history, automatic checkpoints and save-before-reset protection | Combined Productivity view, score breakdowns and squash streaks |
 | Time zone settings and precise linked or independent progress bars | Classic, Cozy and Combative behavior, independent Classic/Creepy/Halloween appearance, and species-specific movement |
 
 ## 🎃 NEXAWEEN
 
-The seasonal update brings **candy-only backgrounds**, pumpkins and vines anchored to real widget corners, six costumed bug species, and spider-owned webs. The app's seasonal changelog palette carries onto this page: deep purple `#1C102A`, neon green `#84CC16`, pumpkin orange `#F97316`, pale green `#D9F99D`, and witch purple `#A855F7`.
+The seasonal update brings **candy-weighted seasonal backgrounds**, pumpkins and vines anchored to real widget corners, six costumed bug species, and spider-owned webs. The app's seasonal changelog palette carries onto this page: deep purple `#1C102A`, neon green `#84CC16`, pumpkin orange `#F97316`, pale green `#D9F99D`, and witch purple `#A855F7`.
 
 Seasonal settings support automatic dates or a manual switch. Your normal appearance settings are retained. Decorations avoid widget controls, and advanced effects respect reduced-motion preferences.
 
@@ -61,7 +61,7 @@ dotnet build .\SessionDashboard.csproj -c Release
 
 ```powershell
 .\Publish-Exe.ps1
-.\publish\win-x64\Nexa.exe
+.\Builds\Testing\Nexa.exe
 ```
 
 The historical project filename and save-data namespace remain for compatibility; the product and executable are **Nexa**.
@@ -72,15 +72,16 @@ The historical project filename and save-data namespace remain for compatibility
 .\tools\Verify.ps1
 ```
 
-The eleven-route suite checks timing, layout, scrolling, saving, history, controls, the ecosystem and animations using isolated data stores. Generated logs and captures stay in the ignored `verification/` directory. See [development notes](docs/DEVELOPMENT.md) and the [root audit](docs/ROOT-AUDIT.md).
+The twelve-route suite checks timing, layout, scrolling, saving, history, controls, the ecosystem and animations using isolated data stores. Generated logs and captures stay in the ignored `verification/` directory. See [development notes](docs/DEVELOPMENT.md) and the [root audit](docs/ROOT-AUDIT.md).
 
 | Location | Purpose |
 | --- | --- |
 | Root `.cs` / `.xaml` files | Active WPF application and shared services |
 | `assets/` | Runtime artwork, embedded offline indexes and retained source assets |
+| `Builds/Testing`, `Builds/Latest`, `Builds/Archive` | Unapproved candidate, approved build, and older approved builds respectively; ignored by Git |
 | `tests/` | Current functional and regression checks |
 | `tools/`, `Properties/` | Verification, publishing configuration and asset-development helpers |
 | `docs/` | Development, integrations, requirements, audit and implementation reports |
 | [`LEGACY/`](LEGACY/README.md) | Retired source, pre-naming-scheme notes, old tests and historical development logs; excluded from compilation |
 
-Build outputs, executable bundles, personal profiles, recordings, credentials and recovery backups are excluded from Git. Downloadable executables belong in **Releases**.
+Build outputs, executable bundles, personal profiles, recordings, credentials and recovery backups are excluded from Git. Approved downloadable executables belong in **Releases**. Development candidates stay in `Builds/Testing` until approved; publishing a candidate never replaces `Builds/Latest` or the root executable.
