@@ -1,4 +1,21 @@
-# nexa v0.1.26 alpha - testing after three passes
+# Nexa v0.1.26 alpha — handoff candidate testing
+
+Final application/test source: `25391210c751b9059e269bbb9229bc68fafcb74b`. This section concerns the unpublished handoff candidate; historical published-build evidence is retained below.
+
+- **604 checks passed across all sixteen routes**, including 95 handoff checks. Release application/checks build: **0 warnings, 0 errors**. Evidence: `verification/acceptance-20261028-113810`.
+- **10 native updater checks against the exact final executable**: `verification/20261028-114444`. Disposable targets only; rollback, byte replacement, data preservation, repeat/interruption handling, tamper rejection, external helper, isolated restart and separate-process startup. SHA-256: `043FD59E18D22002035FA1EBD7A95B4C35AD762871CEEB8C93190B766D06FD31`.
+- **2 live unauthenticated public discovery checks** passed at `verification/20261028-113218`; the existing published v0.1.26 asset still reports digest `1D08B896653932F0470BF09EEF5464887BC9ABB0C539E8E91AC549B227E0868C`. No download asset, tag or release was changed.
+- Exact final package startup is also exercised by the updater route's separate native-startup and restart-health processes: x64, PerMonitorV2, 759 pixels, four presets and all NLT/CSB/NKJV data. Runtime and native libraries are embedded; no adjacent DLL or installed .NET runtime is required by the package.
+- Baseline, final reduced-motion and preceding-source animated profiles each passed their sixteen deadline/geometry checks. These repeated diagnostic assertions are not added to the 604 regression total. Final comparison uses a308076 versus 2539121, not a cherry-picked earlier candidate sample.
+- Native desktop screenshots and interactions cover normal/seasonal/fullscreen Home, expanded/collapsed Spaces, mouse wheel, keyboard reachability, Developer, splash preview, early completion and recap/Home navigation. Offscreen WPF control renders cover onboarding, Settings/time-zone search, compact scores, spotlights and illustrated recaps. See the [scope, gallery and performance table](HANDOFF-COMPLETION-0.1.26-alpha.md).
+
+Earlier failures were retained and diagnosed: obsolete expander/immediate-progress/activity-summary expectations; cross-thread delayed card cleanup and startup; a frozen template transform; missed in-window viewport reset; swallowed native wheel events; missing late clock start; and raw native zone labels. A newly added onboarding capture fixture initially attempted DialogResult after showing nonmodally; its progression was corrected. An early rebuild collided with a still-running native fixture and was rerun after closing that fixture. No failing route remains in the final full run.
+
+Publishing succeeded but emitted NU1900 warnings because NuGet vulnerability metadata was unavailable. The Release application/checks build was warning-free; an online vulnerability-audit pass is not claimed. A sandboxed single-file startup attempt could not complete; desktop-context isolated startup and helper tests succeeded with workspace-local extraction. This is recorded as an environment limitation rather than silently counted as a pass.
+
+Outstanding: live accounts/microphone, actual sleep/hibernate/crash/power failure, approved private-data compatibility, full guide/Settings/About physical interaction, mixed monitors/DPI, subjective audio/artwork and long memory/GPU/FPS runs. Developer layout and teardown remain material latency. This candidate is not fully manually accepted.
+
+## Historical published-candidate evidence — three passes
 
 ## Automated checks
 

@@ -1,5 +1,7 @@
 # nexa v0.1.26 alpha - implementation after three passes
 
+The following three-pass record describes the earlier published source. The later **unpublished handoff candidate** is implemented through application/test commit `2539121`; its complete corrections, current classifications, evidence and remaining manual acceptance are documented in [handoff completion](HANDOFF-COMPLETION-0.1.26-alpha.md). In particular, the old Experimental expander and immediate-progress splash behavior have been superseded.
+
 Testing candidate on **codex/nexa-026-alpha**. No new version, beta promotion, public release, approved-executable replacement or live-user-data migration was performed. Recovery source: **codex/recovery-before-026-passes** (278bbfe).
 
 ## Pass 1 - productivity and session completion
