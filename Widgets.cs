@@ -92,7 +92,7 @@ public static class WidgetLibrary
     public static IReadOnlyList<WidgetDefinition> Definitions { get; } =
     [
         new("Bugs Squashed", "Bugs", "Direct user squashes in this session and across all sessions.", "squashes", MinHeight:480, DefaultHeight:528, MinWidth:400),
-        new("Productivity", "Session", "Session score, meaningful actions, recent activity, milestones and streaks.", "productivity", DefaultHeight: 384),
+        new("Productivity", "Session", "Compact cumulative score and streak, with optional details.", "productivity", MinHeight:192,DefaultHeight:192,DefaultSpan:5,MinWidth:220,CanMinimize:false),
         new("Timer", "Session", "Independent countdown or elapsed timer.", "timer", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
         new("Stopwatch", "Session", "Digital and analog elapsed time with pause and resume.", "stopwatch", MinHeight: 360, DefaultSpan: 6, DefaultHeight: 384, MinWidth: 280, CanMinimize: false),
         new("Clock", "Session", "Your local date and time.", "clock", MinHeight: 96, DefaultSpan: 4, DefaultHeight: 120, MinWidth: 200, CanMinimize: false),
@@ -173,6 +173,7 @@ public static class WidgetLibrary
                 if (previousKind is "Task" or "Tasks" && widget.Title == previousKind) widget.Title = "Task List";
                 changed = true;
             }
+            if(widget.Kind=="Productivity" && !widget.CustomSize && widget.Height==384 && widget.Span==10){widget.Height=192;widget.Span=5;changed=true;}
             if (widget.Kind == "Water Bottle Counter" && widget.WaterBottleGoal < 4)
             { widget.WaterBottleGoal = 4; changed = true; }
             if(widget.BeverageVessel is not ("Wine Glass" or "Shot Glass" or "Beer Bottle"))

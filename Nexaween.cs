@@ -146,7 +146,7 @@ internal sealed partial class NexaweenDecorations : FrameworkElement
                 for(var rib=0;rib<ribPaths.Length;rib++)
                 {
                     var curve=Geometry.Parse(ribPaths[rib]);
-                    dc.DrawGeometry(null,P(rib==3?"#6035190C":"#483E1D0C",3.5),curve);
+                    dc.DrawGeometry(null,P(rib==3?"#8535190C":"#703E1D0C",3.2),curve);
                     dc.PushTransform(new TranslateTransform(-.8,0));
                     dc.DrawGeometry(null,P("#45FFCE7C",.65),curve);dc.Pop();
                 }
@@ -160,6 +160,7 @@ internal sealed partial class NexaweenDecorations : FrameworkElement
                 {
                     var candle=new RadialGradientBrush((Color)ColorConverter.ConvertFromString("#FFF0AF"),(Color)ColorConverter.ConvertFromString("#A94A0D")){GradientOrigin=new Point(.35,.65),RadiusX=.8,RadiusY=.72};candle.Freeze();
                     var face=Geometry.Parse("M8,27 Q14,26 22,32 L19,37 Q12,33 8,27 Z M25,31 Q32,24 39,26 L34,34 L26,36 Z M22,36 L18,42 L25,41 Z M8,42 Q20,48 40,40 L36,48 L32,46 L29,52 L24,49 L19,53 L16,48 L12,49 Z");
+                    dc.DrawGeometry(null,P("#18FFAD32",5),face);dc.DrawGeometry(null,P("#30FCA63C",3),face);
                     dc.DrawGeometry(candle,P("#391C0B",1.1),face);
                     dc.DrawGeometry(null,P("#D36F25",.35),Geometry.Parse("M10,28 Q15,28 20,32 M27,31 L36,27 M11,43 Q21,47 37,42"));
                 }

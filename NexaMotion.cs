@@ -38,6 +38,16 @@ internal static class NexaMotion
         await Fade(element,shown?opacity:0,options);
         await element.Dispatcher.InvokeAsync(()=>{if(state.VisibilityGeneration==generation && !shown)element.Visibility=Visibility.Collapsed;});
     }
+    internal static async Task CardTransition(FrameworkElement card,bool entering,NexaOptions options,int delay)
+    {
+        if(!Allowed(options)){card.Opacity=entering?1:0;return;}
+        var move=new TranslateTransform();card.RenderTransform=move;
+        var duration=TimeSpan.FromMilliseconds(360);var easing=new CubicEase{EasingMode=EasingMode.EaseOut};
+        card.Opacity=entering?1:0;
+        card.BeginAnimation(UIElement.OpacityProperty,new DoubleAnimation(entering?0:1,entering?1:0,duration){BeginTime=TimeSpan.FromMilliseconds(delay),FillBehavior=FillBehavior.Stop,EasingFunction=easing});
+        move.BeginAnimation(TranslateTransform.YProperty,new DoubleAnimation(entering?12:0,entering?0:12,duration){BeginTime=TimeSpan.FromMilliseconds(delay),FillBehavior=FillBehavior.HoldEnd,EasingFunction=easing});
+        await Task.Delay(delay+360);
+    }
     internal static void Pop(FrameworkElement element, NexaOptions options)
     {
         if (!Allowed(options) || !options.CelebrationEffects) return;

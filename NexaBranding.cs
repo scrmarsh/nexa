@@ -5,7 +5,7 @@ using System.Windows.Media;
 namespace SessionDashboard;
 internal static class NexaBranding
 {
-    internal static string Tagline=>Theme.SeasonalEnabled?"a space for whatever haunts you next":"a space for whatever comes next.";
+    internal static string Tagline=>Theme.SeasonalEnabled?"a space for whatever haunts you next":"";
     internal static void ApplyTagline(TextBlock target,string text)
     {
         target.Inlines.Clear();

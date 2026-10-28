@@ -78,7 +78,10 @@ public class DashboardData
         new() { Name = "Studying", Minutes = 25, IntervalMinutes = 5, AccentColor = "#C6A5FF", PixelColor = "#A67AF2" }
     ];
     public bool FocusNudgesEnabled { get; set; }
+    public bool InitialViewPending { get; set; }
     public bool InterfaceSoundsEnabled { get; set; }
+    public string PositiveFeedbackSound {get;set;}="Chime";
+    public string NegativeFeedbackSound {get;set;}="Eerie";
     public double InterfaceSoundVolume { get; set; } = .25;
     public string PixelShape { get; set; } = "Square";
     public bool DistractionEscalationEnabled { get; set; } = true;
@@ -159,6 +162,8 @@ public sealed partial class StateStore
             if (!File.Exists(InteractionPreferencesPath)) return;
             var preferences = JsonSerializer.Deserialize<InteractionPreferences>(File.ReadAllText(InteractionPreferencesPath), Options);
             if (preferences == null) return;
+            state.PositiveFeedbackSound=InterfaceAudio.PositiveChoices.Contains(preferences.Positive)?preferences.Positive:"Chime";
+            state.NegativeFeedbackSound=InterfaceAudio.NegativeChoices.Contains(preferences.Negative)?preferences.Negative:"Eerie";
             state.InterfaceSoundsEnabled=preferences.Sounds; state.FocusNudgesEnabled=preferences.Nudges;
             state.InterfaceSoundVolume=double.IsFinite(preferences.Volume) ? Math.Clamp(preferences.Volume,0,1) : .25;
             state.PixelShape=preferences.PixelShape == "Circle" ? "Circle" : "Square";
@@ -171,10 +176,12 @@ public sealed partial class StateStore
     internal void SaveInteractionPreferences(DashboardData state)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(InteractionPreferencesPath)!);
-        AtomicWrite(InteractionPreferencesPath,JsonSerializer.Serialize(new InteractionPreferences { Sounds=state.InterfaceSoundsEnabled,Nudges=state.FocusNudgesEnabled,Volume=state.InterfaceSoundVolume,PixelShape=state.PixelShape,DistractionEscalation=state.DistractionEscalationEnabled,FocusPulse=state.FocusPulseEnabled,PulseIntensity=state.FocusPulseIntensity },Options),false);
+        AtomicWrite(InteractionPreferencesPath,JsonSerializer.Serialize(new InteractionPreferences { Positive=state.PositiveFeedbackSound,Negative=state.NegativeFeedbackSound,Sounds=state.InterfaceSoundsEnabled,Nudges=state.FocusNudgesEnabled,Volume=state.InterfaceSoundVolume,PixelShape=state.PixelShape,DistractionEscalation=state.DistractionEscalationEnabled,FocusPulse=state.FocusPulseEnabled,PulseIntensity=state.FocusPulseIntensity },Options),false);
     }
     private sealed class InteractionPreferences
     {
+        public string Positive {get;set;}="Chime";
+        public string Negative {get;set;}="Eerie";
         public bool Sounds { get; set; }
         public bool Nudges { get; set; }
         public double Volume { get; set; } = .25;

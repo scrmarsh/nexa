@@ -15,8 +15,6 @@ public partial class MainWindow
     private DateTimeOffset? awaySince;
     private DateTimeOffset lastNudge = DateTimeOffset.MinValue;
     private DateTimeOffset? lastRunningSessionEnd;
-    private SoundPlayer? interfacePlayer;
-    private MemoryStream? interfaceAudio;
 
     private Rect FreeWidgetPlacement(WidgetInstance widget, double x, double y, double width, double height)
     {
@@ -88,14 +86,7 @@ public partial class MainWindow
     internal void PlayInterfaceSound()
     {
         if (!state.InterfaceSoundsEnabled) return;
-        // Original soft two-note chime, synthesized locally; no system sound or external assets.
-        try
-        {
-            interfacePlayer?.Stop(); interfacePlayer?.Dispose(); interfaceAudio?.Dispose();
-            interfaceAudio = InterfaceAudio.Create(state.InterfaceSoundVolume);
-            interfaceAudio.Position = 0; interfacePlayer = new SoundPlayer(interfaceAudio); interfacePlayer.Play();
-        }
-        catch (Exception ex) when (ex is IOException or InvalidOperationException or System.ComponentModel.Win32Exception) { }
+        InterfaceAudio.Preview(state.InterfaceSoundVolume);
     }
 }
 

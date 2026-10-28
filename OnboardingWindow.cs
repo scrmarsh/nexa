@@ -121,7 +121,7 @@ internal sealed class OnboardingWindow : NexaDialog
                 Choice("On (short, soft chimes)",Profile.Sounds,on=>Profile.Sounds=on);
                 var preview=new Button { Content="Preview sound", HorizontalAlignment=HorizontalAlignment.Left };
                 preview.Click+=(_,_)=> { if(Profile.Sounds) InterfaceAudio.Preview(Profile.Volume); else error.Text="Turn sounds on first to preview."; }; body.Children.Add(preview);
-                Text("Optional accounts can be connected later in Settings / Integrations."); break;
+                break;
             case 5:
                 Text("Name your space");
                 var spaceName=new TextBox { Text=name,FontSize=24,MinHeight=56,Padding=new Thickness(14), MaxLength=100, Margin=new Thickness(0,0,0,18) }; spaceName.TextChanged+=(_,_)=>name=spaceName.Text.Trim(); body.Children.Add(spaceName);

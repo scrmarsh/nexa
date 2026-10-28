@@ -141,41 +141,38 @@ public partial class MainWindow
     private readonly Dictionary<Guid,FrameworkElement> scoreAreas=[];
     private void BuildProductivityWidget(StackPanel panel, WidgetInstance widget, bool score)
     {
-        var ring=new ProductivityRing();panel.Children.Add(ring);scoreAreas[widget.Id]=ring;
-        var multiplier=new TextBlock{FontSize=17,HorizontalAlignment=HorizontalAlignment.Center};
-        var milestone=new TextBlock{FontSize=12,HorizontalAlignment=HorizontalAlignment.Center,Margin=new Thickness(0,5,0,10)};
-        panel.Children.Add(multiplier);panel.Children.Add(milestone);
-        var text = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 10) };
-        panel.Children.Add(text);
-        var expanded = new CheckBox { Content = "View Details", IsChecked = widget.DisplayMode == "Expanded" };
-        expanded.Click += (_, _) => { widget.DisplayMode = expanded.IsChecked == true ? "Expanded" : "Compact"; Changed(); };
-        panel.Children.Add(expanded);
-        var categories = new[] { "Task created", "Task completed", "Task reopened", "Notes", "Water", "Scripture", "Timer", "Timer activity", "Counter", "Widget", "Study", "Integrations", "Bug squash" };
-        var filters = new WrapPanel();
-        foreach (var category in categories)
-        {
-            var check = new CheckBox { Content = category, IsChecked = !widget.HiddenProductivityCategories.Contains(category), Margin = new Thickness(0, 0, 12, 8) };
-            check.Click += (_, _) => { if (check.IsChecked == true) widget.HiddenProductivityCategories.Remove(category); else if (!widget.HiddenProductivityCategories.Contains(category)) widget.HiddenProductivityCategories.Add(category); Changed(); };
-            filters.Children.Add(check);
-        }
-        var filterExpander=new Expander { Header = "Statistics to show", Content = filters, Margin = new Thickness(0, 8, 0, 8) };panel.Children.Add(filterExpander);
-        string previous = "";
-        widgetTicks.Add(now =>
-        {
-            var ledger = state.Productivity;
-            var total=SpaceScores.Total(Continuity.Current(state.Workspace!,store.UserId),ledger);
-            ring.Update(total,Options);multiplier.Text=ledger.Multiplier(now).ToString("0.0")+"x";
-            milestone.Text="Next milestone: "+((Math.Max(0,total)/500+1)*500).ToString("N0");
-            text.Visibility=filterExpander.Visibility=expanded.IsChecked==true?Visibility.Visible:Visibility.Collapsed;
-            var visible = ledger.Events.Where(e => !widget.HiddenProductivityCategories.Contains(e.Category)).ToArray();
-            var value = score ? $"Meaningful actions: {ledger.Events.Count:N0} · Completed tasks: {ledger.Events.Count(e => e.Category == "Task completed"):N0}\n" + $"Base: {ledger.Events.Sum(e => e.BasePoints):N0} · Bonus: {ledger.Events.Sum(e => e.BonusPoints):N0}\n" +
-                (ledger.FrenzyUntil > now ? $"Streak · {ledger.Multiplier(now):0.0}× · {(ledger.FrenzyUntil.Value - now).TotalSeconds:0}s\n" : "") +
-                $"Next milestone: {(ledger.Score / 500 + 1) * 500:N0}" + (expanded.IsChecked == true ? $"\nAll-time score: {state.Workspace?.AllTimeProductivityScore ?? 0:N0}" : "")
-                : $"Meaningful actions: {ledger.Events.Count:N0}\nCompleted tasks: {ledger.Events.Count(e => e.Category == "Task completed"):N0}";
-            if (expanded.IsChecked == true)
-                value += "\n\n" + string.Join("\n", visible.GroupBy(e => e.Category).Select(g => $"{g.Key}: {g.Count()} · {g.Sum(e => e.BasePoints + e.BonusPoints)} pts"));
-            value += "\n\n" + string.Join("\n", visible.TakeLast(expanded.IsChecked == true ? 12 : 4).Reverse().Select(e => $"{NexaTime.Local(e.At, Options.TimeZoneId):t} · {e.Description} ({e.BasePoints + e.BonusPoints:+0;-0;0})"));
-            if (value == previous) return; previous = value; text.Text = value;
+        var row=new Grid();row.ColumnDefinitions.Add(new());row.ColumnDefinitions.Add(new(){Width=GridLength.Auto});
+        var ring=new ProductivityRing {Width=108,Height=108,HorizontalAlignment=HorizontalAlignment.Center};
+        row.Children.Add(ring);scoreAreas[widget.Id]=ring;
+        var side=new StackPanel {VerticalAlignment=VerticalAlignment.Center,Margin=new Thickness(8,0,0,0)};
+        var multiplier=new TextBlock {FontSize=20,FontWeight=FontWeights.SemiBold,HorizontalAlignment=HorizontalAlignment.Center};
+        var badge=new Border{Child=multiplier,CornerRadius=new CornerRadius(8),BorderThickness=new Thickness(1),Padding=new Thickness(7,4,7,4),Margin=new Thickness(0,0,0,8)};
+        badge.SetResourceReference(Border.BorderBrushProperty,"LineBrush");side.Children.Add(badge);
+        var details=new Button {Content="···",ToolTip="Productivity details",FontSize=18,Padding=new Thickness(8,0,8,0),MinHeight=26};
+        System.Windows.Automation.AutomationProperties.SetName(details,"Productivity details");
+        details.Click+=(_,_)=>ShowProductivityDetails(widget);side.Children.Add(details);Grid.SetColumn(side,1);row.Children.Add(side);panel.Children.Add(row);
+        widgetTicks.Add(now=>{
+            ring.Update(SpaceScores.Total(Continuity.Current(state.Workspace!,store.UserId),state.Productivity),Options);
+            var value=state.Productivity.Multiplier(now);badge.Visibility=value>1?Visibility.Visible:Visibility.Collapsed;
+            multiplier.Text=value.ToString("0.0")+"×";
         });
+    }
+    private void ShowProductivityDetails(WidgetInstance widget)
+    {
+        var dialog=new NexaPanel {Owner=this,Title="nexa · Productivity details",Width=660,Height=560,WindowStartupLocation=WindowStartupLocation.CenterOwner};
+        var panel=new StackPanel{Margin=new Thickness(22)};
+        var ledger=state.Productivity;
+        panel.Children.Add(new TextBlock{Text="Your productivity",FontSize=26,FontWeight=FontWeights.SemiBold});
+        var statistics=new WrapPanel();
+        foreach(var item in new[]{("Actions",(long)ledger.Events.Count),("Tasks",(long)ledger.Events.Count(e=>e.Category=="Task completed")),("Base points",ledger.Events.Sum(e=>(long)e.BasePoints)),("Bonus points",ledger.Events.Sum(e=>(long)e.BonusPoints))})
+        {
+            var text=new StackPanel();text.Children.Add(new TextBlock{Text=item.Item2.ToString("N0"),FontSize=27,FontWeight=FontWeights.Bold});text.Children.Add(new TextBlock{Text=item.Item1,FontSize=13});
+            var card=new Border{Child=text,Padding=new Thickness(16),CornerRadius=new CornerRadius(10),BorderThickness=new Thickness(1),Margin=new Thickness(0,16,10,10)};card.SetResourceReference(Border.BorderBrushProperty,"LineBrush");statistics.Children.Add(card);
+        }
+        panel.Children.Add(statistics);
+        panel.Children.Add(new TextBlock{Text="Recent recorded activity",FontSize=18,Margin=new Thickness(0,14,0,8)});
+        foreach(var item in ledger.Events.Where(e=>!widget.HiddenProductivityCategories.Contains(e.Category)).TakeLast(100).Reverse())
+            panel.Children.Add(new TextBlock{Text=$"{NexaTime.Local(item.At,Options.TimeZoneId):t} · {item.Description} ({item.BasePoints+item.BonusPoints:+0;-0;0})",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,4,0,4)});
+        dialog.Content=new ScrollViewer{Content=panel,VerticalScrollBarVisibility=ScrollBarVisibility.Auto};dialog.ShowDismissible();
     }
 }

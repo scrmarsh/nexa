@@ -30,17 +30,28 @@ internal sealed partial class SettingsDialog
     private UIElement BuildTimeZoneClock()
     {
         var page = Page("Time Zone & Clock", "Schedules use local wall times in the selected zone. Elapsed time and saved activity use UTC instants.");
-        var installed = TimeZoneInfo.GetSystemTimeZones();
-        var choices = new[] { "Automatic" }.Concat(installed.Select(z => z.Id)).Concat(installed.Select(z => TimeZoneInfo.TryConvertWindowsIdToIanaId(z.Id, out var iana) ? iana : z.Id)).Distinct().ToArray();
-        var search = new TextBox { ToolTip = "Search worldwide time zones by name or IANA identifier" };
-        var zones = new ComboBox { ItemsSource = choices, SelectedItem = ReliabilityOptions.TimeZoneId, IsEditable = true, IsTextSearchEnabled = true, MaxDropDownHeight = 260 };
-        Field(page, "Search time zones", search); Field(page, "Time zone (Windows or IANA ID)", zones);
-        search.TextChanged += (_, _) => zones.ItemsSource = choices.Where(x => x.Contains(search.Text, StringComparison.OrdinalIgnoreCase) || (x != "Automatic" && NexaTime.Zone(x).DisplayName.Contains(search.Text, StringComparison.OrdinalIgnoreCase))).ToArray();
+        var choices=TimeZoneCatalog.Choices;
+        var search=new TextBox {ToolTip="Search cities, regions, time zone names or identifiers"};
+        System.Windows.Automation.AutomationProperties.SetName(search,"Search time zones");
+        var zones=new ComboBox {ItemsSource=choices,DisplayMemberPath="Label",IsEditable=false,IsTextSearchEnabled=false,MaxDropDownHeight=260};
+        zones.SelectedItem=choices.FirstOrDefault(c=>c.Id==TimeZoneCatalog.Canonical(ReliabilityOptions.TimeZoneId))??choices[0];
+        Field(page,"Search time zones",search);Field(page,"Time zone",zones);
+        var synchronizing=false;
+        search.TextChanged+=(_,_)=>{
+            if(synchronizing)return;var selected=zones.SelectedItem;
+            zones.ItemsSource=TimeZoneCatalog.Search(search.Text).ToArray();
+            if(zones.Items.Contains(selected))zones.SelectedItem=selected;
+        };
+        zones.SelectionChanged+=(_,_)=>{
+            if(synchronizing || zones.SelectedItem is not TimeZoneChoice picked)return;
+            synchronizing=true;search.Text="";zones.ItemsSource=choices;zones.SelectedItem=picked;synchronizing=false;
+        };
         var status = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 14, 0, 14) }; page.Children.Add(status);
         var apply = new Button { Content = "Use selected time zone", HorizontalAlignment = HorizontalAlignment.Left };
         apply.Click += (_, _) =>
         {
-            var id = zones.Text.Trim();
+            if(zones.SelectedItem is not TimeZoneChoice selected){status.Text="Select a matching time zone.";return;}
+            var id = selected.Id;
             try
             {
                 if (id != "Automatic") TimeZoneInfo.FindSystemTimeZoneById(id);

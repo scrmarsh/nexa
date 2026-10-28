@@ -52,7 +52,7 @@ public partial class MainWindow
         if (soundSessionId != current.SessionId) { soundSessionId = current.SessionId; soundedEvents.Clear(); foreach (var item in state.Productivity.Events) soundedEvents.Add(item.Id); return; }
         foreach (var item in state.Productivity.Events)
             if (soundedEvents.Add(item.Id) && state.InterfaceSoundsEnabled && item.BasePoints + item.BonusPoints != 0 && item.Category != "Bug squash")
-                InterfaceAudio.PreviewCue(state.InterfaceSoundVolume, item.BasePoints + item.BonusPoints > 0 ? "positive" : "negative");
+                InterfaceAudio.PreviewCue(state.InterfaceSoundVolume, item.BasePoints + item.BonusPoints > 0 ? "positive" : "negative",item.BasePoints+item.BonusPoints>0?state.PositiveFeedbackSound:state.NegativeFeedbackSound);
     }
     private void UpdateFrenzyFeedback()
     {

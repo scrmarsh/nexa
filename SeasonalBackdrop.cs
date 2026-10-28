@@ -14,7 +14,11 @@ internal static class SeasonalBackdrop
             NexaMotion.SetShown(art,enabled,settings,.35);NexaMotion.SetShown(corners,enabled,settings);corners.Options=settings;
             var viewport=new Rect(0,0,Math.Max(1,root.ActualWidth),Math.Max(1,root.ActualHeight));art.ConfigureAnimation(settings,viewport);art.Update(viewport.Width,viewport.Height,[],settings.DecorationDensity);
         }
-        root.SizeChanged+=(_,_)=>Refresh();root.Loaded+=(_,_)=>Refresh();root.IsVisibleChanged+=(_,_)=>Refresh();return root;
+        void Changed(object? sender,EventArgs e)=>Refresh();
+        root.SizeChanged+=(_,_)=>Refresh();
+        root.Loaded+=(_,_)=>{Theme.SeasonalChanged-=Changed;Theme.SeasonalChanged+=Changed;Refresh();};
+        root.Unloaded+=(_,_)=>Theme.SeasonalChanged-=Changed;
+        root.IsVisibleChanged+=(_,_)=>Refresh();return root;
     }
 }
 internal sealed class SeasonalCorners:FrameworkElement
@@ -26,7 +30,8 @@ internal sealed class SeasonalCorners:FrameworkElement
     internal static double WebSize(Size size)=>Math.Min(725,Math.Min(size.Width*.46,size.Height*.62));
     internal static Point SpiderPoint(double time,double size)
     {
-        var angle=time*.06+.4*Math.Sin(time*.15);return new(26+6*Math.Cos(angle),Math.Min(size*.24,120)+14*Math.Sin(angle));
+        var cycle=time%60;var travel=cycle<20?cycle/20:cycle<30?1:cycle<50?1-(cycle-30)/20:0;
+        var eased=travel*travel*(3-2*travel);return new(25+8*eased,Math.Min(size*.24,120)+18*eased);
     }
     internal SeasonalCorners()
     {
@@ -66,7 +71,7 @@ internal sealed class SeasonalCorners:FrameworkElement
             {
                 var t=leaf/6d;var u=1-t;var at=new Point(u*u*u*stem.X+3*u*u*t*one.X+3*u*t*t*two.X+t*t*t*end.X,u*u*u*stem.Y+3*u*u*t*one.Y+3*u*t*t*two.Y+t*t*t*end.Y);
                 dc.PushTransform(new TranslateTransform(at.X,at.Y));dc.PushTransform(new RotateTransform(random.Next(-165,166)));
-                dc.DrawGeometry(null,BugVisuals.P("#A0536943",1.4),Geometry.Parse("M0,0 C-18,-35 32,-40 23,-16 C18,-4 2,-20 15,-23"));
+                dc.DrawGeometry(null,BugVisuals.P("#A0536943",1.4),Geometry.Parse(leaf%3==0?"M0,0 C-12,-18 19,-34 24,-18 C29,-6 6,-2 10,-16":leaf%3==1?"M0,0 C-18,-35 32,-40 23,-16 C18,-4 2,-20 15,-23":"M0,0 C-22,-9 -24,23 -6,25 C7,27 10,10 -2,12"));
                 dc.DrawGeometry(BugVisuals.B("#C04F6540"),BugVisuals.P("#A02F422D",.6),Geometry.Parse("M4,-4 Q8,-23 25,-15 Q23,3 4,-4 Z"));dc.Pop();dc.Pop();
             }
         }

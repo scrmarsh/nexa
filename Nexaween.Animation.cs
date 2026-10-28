@@ -112,8 +112,8 @@ internal sealed partial class NexaweenDecorations : IDisposable
             if (actor.Kind == 2) dc.Pop();
             if (actor.Kind == 1)
             {
-                dc.PushOpacity(.2 + Math.Sin(phase * 2) * .05);
-                dc.DrawEllipse(B("#BEF264"), null, new(32, 37), 17, 13); dc.Pop();
+                var flicker=moving?.10+Math.Sin(phase*1.7)*.025+Math.Sin(phase*3.1)*.012:.10;
+                dc.PushOpacity(flicker);dc.DrawGeometry(B("#FFD878"),null,Geometry.Parse("M8,27 Q14,26 22,32 L19,37 Z M25,31 Q32,24 39,26 L34,34 L26,36 Z M8,42 Q20,48 40,40 L29,52 L19,53 Z"));dc.Pop();
             }
             if (actor.Kind is 4 or 14)
             {

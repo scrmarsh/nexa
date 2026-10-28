@@ -7,16 +7,30 @@ internal sealed partial class HomeWindow
     private async void ToggleRecentSpaces()
     {
         if(togglingRecent)return;
-        if(recentRows==3 || !NexaMotion.Allowed(Saved.Workspace?.Settings??new())){recentRows=recentRows==3?int.MaxValue:3;RefreshRecentSpaces();return;}
         togglingRecent=true;recentChevron.IsEnabled=false;
         try
         {
-            await Task.WhenAll(DescendantsOfRecent().Skip(6).Select(card=>NexaMotion.Fade(card,0,Saved.Workspace?.Settings??new(),180)));
-            await Dispatcher.InvokeAsync(()=>{if(IsVisible){recentRows=3;RefreshRecentSpaces();}});
+            var options=Saved.Workspace?.Settings??new();
+            if(recentRows==3)
+            {
+                recentRows=int.MaxValue;RefreshRecentSpaces();
+                if(NexaMotion.Allowed(options))await Task.Delay(RecentDelay(Math.Max(0,DescendantsOfRecent().Count()-7))+380);
+            }
+            else
+            {
+                var extra=DescendantsOfRecent().Skip(6).Reverse().ToArray();
+                await Task.WhenAll(extra.Select(async (card,index)=>{
+                    await NexaMotion.CardTransition(card,false,options,RecentDelay(index));
+                    if(card.Parent is Panel parent)parent.Children.Remove(card);
+                }));
+                recentRows=3;RefreshRecentSpaces();
+            }
         }
         catch(TaskCanceledException){}
-        finally{togglingRecent=false;if(!Dispatcher.HasShutdownStarted)_ = Dispatcher.BeginInvoke(new Action(()=>recentChevron.IsEnabled=true));}
+        finally{togglingRecent=false;if(!Dispatcher.HasShutdownStarted)recentChevron.IsEnabled=true;}
     }
+    internal static int RecentDelay(int index)=>Math.Min(2400,index<12?index*120:1440+(index-12)*12);
+
     private int recentRows = 3;
     private IEnumerable<Button> DescendantsOfRecent()=>Recent.Children.OfType<StackPanel>().SelectMany(c=>c.Children.OfType<System.Windows.Controls.Primitives.UniformGrid>()).SelectMany(c=>c.Children.OfType<Button>());
     private void RefreshRecentSpaces()
@@ -32,9 +46,12 @@ internal sealed partial class HomeWindow
         column.Children.Add(cards);
         foreach (var space in spaces.Take(recentRows == 3 ? 6 : spaces.Length))
         {
-            var text = new StackPanel(); text.Children.Add(SpaceIcons.Create(SpaceIcons.Resolve(space.Current.Data.SpaceIcon,space.PresetOrigin),24)); text.Children.Add(new TextBlock { Text = space.Name, FontSize = 15, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis });
-            var detail = new TextBlock { Text = $"{space.PresetOrigin} · {space.Current.LastAccessedAt.LocalDateTime:g}", FontSize = 12, Margin = new Thickness(0, 5, 0, 0) }; detail.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush"); text.Children.Add(detail);
+            var text=new Grid{Height=78};
+            var icon=SpaceIcons.Create(SpaceIcons.Resolve(space.Current.Data.SpaceIcon,space.PresetOrigin),28);icon.HorizontalAlignment=HorizontalAlignment.Left;icon.VerticalAlignment=VerticalAlignment.Center;text.Children.Add(icon);
+            var name=new TextBlock{Text=space.Name,FontSize=16,FontWeight=FontWeights.SemiBold,TextAlignment=TextAlignment.Center,HorizontalAlignment=HorizontalAlignment.Stretch,VerticalAlignment=VerticalAlignment.Center,TextTrimming=TextTrimming.CharacterEllipsis,Margin=new Thickness(40,0,40,15)};text.Children.Add(name);
+            var detail=new TextBlock{Text=NexaTime.Local(space.Current.LastAccessedAt,Saved.Workspace?.Settings.TimeZoneId??"Automatic").ToString("g"),FontSize=11,HorizontalAlignment=HorizontalAlignment.Right,VerticalAlignment=VerticalAlignment.Bottom,Margin=new Thickness(0,0,0,2)};detail.SetResourceReference(TextBlock.ForegroundProperty,"MutedBrush");text.Children.Add(detail);
             var button = previousCards.GetValueOrDefault(space.DashboardId) ?? new Button { Tag = space.DashboardId, Content = text, HorizontalContentAlignment = HorizontalAlignment.Stretch, Margin = new Thickness(4, 0, 4, 8), ToolTip = space.Name };
+            if(previousCards.ContainsKey(space.DashboardId))button.Content=text;
             if(!previousCards.ContainsKey(space.DashboardId))button.Click += (_, _) => OpenDashboard(space.DashboardId); cards.Children.Add(button);
         }
         if (spaces.Length == 0) column.Children.Add(new TextBlock { Text = "Your first Space starts here. Choose a template or a blank canvas.", TextWrapping = TextWrapping.Wrap });
@@ -42,7 +59,7 @@ internal sealed partial class HomeWindow
         recentChevron.Visibility = spaces.Length > 6 ? Visibility.Visible : Visibility.Collapsed;
         System.Windows.Automation.AutomationProperties.SetName(recentChevron, "Show More Spaces");
         column.Children.Add(recentChevron);
-        void Reveal()=>NexaMotion.Stagger(cards.Children.OfType<Button>().Where(b=>!previousCards.ContainsKey((Guid)b.Tag)),Saved.Workspace?.Settings??new());
+        void Reveal(){var index=0;foreach(var card in cards.Children.OfType<Button>().Where(b=>!previousCards.ContainsKey((Guid)b.Tag)))_ = NexaMotion.CardTransition(card,true,Saved.Workspace?.Settings??new(),RecentDelay(index++));}
         if(IsLoaded)Reveal();else cards.Loaded+=(_,_)=>Reveal();
     }
 }

@@ -13,17 +13,22 @@ internal sealed partial class HomeWindow
     private void BuildHomeHeader(StackPanel panel)
     {
         var header = new Grid(); header.ColumnDefinitions.Add(new() { Width = new GridLength(300) }); header.ColumnDefinitions.Add(new() { Width = new GridLength(32) }); header.ColumnDefinitions.Add(new());
-        var brand = new StackPanel(); header.Children.Add(brand);
-        brand.Children.Add(new NexaLogo { Width = 290, Height = 92, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(-10, 0, 0, 0) });
-        brand.Children.Add(new TextBlock { Text = App.VersionLabel, Foreground = (Brush)FindResource("MutedBrush"), FontSize = 13, Margin = new Thickness(0, 8, 0, 12) });
+        var brand=new NexaWordmark(300);header.Children.Add(brand);
         var tagline = new TextBlock { Text = "", FontSize = 24, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("TextBrush"), VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 25, 0, 0), MinHeight = 64 };
         System.Windows.Automation.AutomationProperties.SetName(tagline, "Home tagline"); Grid.SetColumn(tagline, 2); header.Children.Add(tagline); panel.Children.Add(header);
 
         var position = 0; var hold = 0; var restartDelay = 0; var fading = false; var typing = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(55) };
-        refreshBranding=()=>{var phrase=NexaBranding.Tagline;position=Math.Min(position,phrase.Length);NexaBranding.ApplyTagline(tagline,phrase[..position]);};
+        refreshBranding=()=>{
+            var phrase=NexaBranding.Tagline;position=hold=restartDelay=0;fading=false;
+            tagline.BeginAnimation(OpacityProperty,null);tagline.Opacity=1;
+            tagline.Visibility=phrase.Length==0?Visibility.Collapsed:Visibility.Visible;
+            header.ColumnDefinitions[1].Width=new GridLength(phrase.Length==0?0:32);
+            header.ColumnDefinitions[2].Width=phrase.Length==0?new GridLength(0):new GridLength(1,GridUnitType.Star);
+            NexaBranding.ApplyTagline(tagline,NexaMotion.Allowed(Saved.Workspace?.Settings??new())?"":phrase);
+        };refreshBranding();
         typing.Tick += (_, _) =>
         {
-            var phrase=NexaBranding.Tagline;
+            var phrase=NexaBranding.Tagline;if(phrase.Length==0)return;
             if(position>phrase.Length)position=phrase.Length;
             if (fading) return;
             if (restartDelay > 0)
@@ -53,12 +58,27 @@ internal sealed partial class HomeWindow
         var body = new StackPanel { Margin = new Thickness(28) };
         body.Children.Add(new NexaLogo { Width = 260, Height = 82, HorizontalAlignment = HorizontalAlignment.Left });
         body.Children.Add(Copy(App.VersionLabel, 13));
-        body.Children.Add(new TextBlock { Text = "a space for whatever comes next.", FontSize = 24, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 16) });
-        body.Children.Add(Copy(ReleaseNotes.Description));
-        body.Children.Add(new TextBlock { Text = "Made for your sessions", FontSize = 18, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 12) });
-        body.Children.Add(Copy(ReleaseNotes.UseCases));
-        body.Children.Add(Copy("Your work stays on this PC under your Windows account. Autosave and session history help you return to notes, tasks and data. Preview uses a separate sample workspace."));
-        body.Children.Add(Copy("Web app version coming soon. The Windows desktop app is the current release.", 12));
+        body.Children.Add(Copy("a space for whatever comes next",24));
+        void Section(string icon,string title,string description)
+        {
+            var content=new StackPanel();var heading=new StackPanel{Orientation=Orientation.Horizontal};
+            heading.Children.Add(NexaIcons.Create(icon));heading.Children.Add(new TextBlock{Text=title,FontSize=20,FontWeight=FontWeights.SemiBold,Margin=new Thickness(12,0,0,10)});
+            content.Children.Add(heading);var copy=Copy(description);copy.Margin=new Thickness(0);content.Children.Add(copy);
+            var card=new Border{Child=content,Padding=new Thickness(20),CornerRadius=new CornerRadius(14),BorderThickness=new Thickness(1),Margin=new Thickness(0,0,0,14)};
+            card.SetResourceReference(Border.BackgroundProperty,"PanelBrush");card.SetResourceReference(Border.BorderBrushProperty,"LineBrush");body.Children.Add(card);
+        }
+        Section("Home","About nexa","A customizable local workspace for studying, work, meetings, planning and everyday progress. Keep useful tools together and arrange them around the way you spend your time.");
+        Section("Clock","Spaces and Sessions","Create named Spaces with icons and saved layouts. Use session presets and recurring schedules, keep notes and tasks, and review recorded history without reopening an old session.");
+        Section("Widgets","Widgets",string.Join("\n",WidgetLibrary.Definitions.Where(d=>d.Name!="Bugs Squashed").GroupBy(d=>d.Group).Select(g=>g.Key+": "+string.Join(", ",g.Select(d=>d.Name))))+"\nBugs Squashed is available separately in Add Bugs. Calendar and Google Tasks require existing experimental provider configuration.");
+        Section("Productivity","Productivity","Cumulative per-Space scores survive sessions. Qualifying recorded actions award points; candy collection and direct bug squashes share a bounded streak multiplier. End Session preserves actual elapsed time and saves an accomplishment/score recap.");
+        Section("Settings","Integrations","Todoist connects tasks. Hedy provides recording notes, transcripts and interval summaries through its own connection. Hevy is a separate optional workout-account connection. Google Tasks, Google Calendar and Outlook Calendar are listed separately as future/experimental integrations. Accounts are optional.");
+        Section("Settings","Customization","Choose normal appearance and sound preferences, arrange or resize widgets, choose Space icons, or enable Nexaween. Seasonal decorations, collectible candy and costumed bug artwork are optional. Add Bugs is independent of the seasonal decoration switch.");
+        Section("History","Data and Privacy","Spaces, notes, settings, history and scores are saved locally in JSON. Space import/export and local recovery copies are supported. Ordinary notes are not encrypted. Integration secrets use Windows account protection where the provider supports stored credentials. Configured providers receive the data needed for their features; cloud synchronization is not provided.");
+        var build=typeof(App).Assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute),false).OfType<System.Reflection.AssemblyInformationalVersionAttribute>().FirstOrDefault()?.InformationalVersion??App.VersionLabel;
+        Section("Settings","Development",App.VersionLabel+" · Alpha testing\nBuild: "+build+"\n"+ReleaseNotes.Description);
+        var project=new Button{Content="GitHub project",HorizontalAlignment=HorizontalAlignment.Left};
+        project.Click+=(_,_)=>System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://github.com/scrmarsh/nexa"){UseShellExecute=true});body.Children.Add(project);
+        dialog.Loaded+=(_,_)=>NexaMotion.Stagger(body.Children.OfType<FrameworkElement>(),Saved.Workspace?.Settings??new());
         root.Children.Add(new ScrollViewer { Content = body, VerticalScrollBarVisibility = ScrollBarVisibility.Auto }); dialog.Content = root; dialog.ShowDismissible();
     }
 

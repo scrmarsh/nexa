@@ -35,12 +35,14 @@ public static class Theme
         var from=brush.Color;brush.BeginAnimation(SolidColorBrush.ColorProperty,null);brush.Color=color;
         if(AnimatePalette)brush.BeginAnimation(SolidColorBrush.ColorProperty,new System.Windows.Media.Animation.ColorAnimation(from,color,TimeSpan.FromMilliseconds(280)){FillBehavior=System.Windows.Media.Animation.FillBehavior.Stop,EasingFunction=new System.Windows.Media.Animation.CubicEase{EasingMode=System.Windows.Media.Animation.EasingMode.EaseInOut}});
     }
+    internal static event EventHandler? SeasonalChanged;
     internal static bool SeasonalEnabled { get; private set; }
     internal static void SetSeasonalEnabled(bool enabled)
     {
         if (SeasonalEnabled == enabled) return;
         SeasonalEnabled = enabled;
         if (Application.Current != null) Apply(Application.Current.Resources, currentMode, currentTheme);
+        SeasonalChanged?.Invoke(null,EventArgs.Empty);
     }
     private static ThemeMode currentMode = ThemeMode.System;
     private static string currentAccent = "#5B7CFF";

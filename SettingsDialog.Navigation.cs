@@ -75,15 +75,18 @@ internal sealed partial class SettingsDialog
         var volume=new Slider{Minimum=0,Maximum=1,Value=state.InterfaceSoundVolume};Field(page,"Sound volume",volume);
         var preview = new Button { Content = "Test Sound", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 6, 0, 6) };
         preview.Click += (_, _) => InterfaceAudio.Preview(volume.Value); page.Children.Insert(page.Children.IndexOf(volume), preview);
-        page.Children.Add(new TextBlock { Text = "Pop: selected interface interactions. Angelic chime: saved positive productivity events. Eerie tone: saved negative events when a penalty is configured. Automatic sounds respect the enable switch and volume.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 8) });
-        var previews = new WrapPanel();
-        foreach (var cue in new[] { ("Preview positive chime", "positive"), ("Preview negative tone", "negative") })
-        { var button = new Button { Content = cue.Item1, Margin = new Thickness(0, 0, 8, 6) }; button.Click += (_, _) => InterfaceAudio.PreviewCue(volume.Value, cue.Item2); previews.Children.Add(button); }
-        page.Children.Add(previews);
+        var styles=new ComboBox{ItemsSource=new[]{"Classic","Bell garden","Warm wood","Glass","Soft"},SelectedIndex=-1};
+        Field(page,"Sound style (sets both feedback choices)",styles);
+        var positive=new ComboBox{ItemsSource=InterfaceAudio.PositiveChoices,SelectedItem=state.PositiveFeedbackSound};
+        var negative=new ComboBox{ItemsSource=InterfaceAudio.NegativeChoices,SelectedItem=state.NegativeFeedbackSound};
+        Field(page,"Positive feedback",positive);var positivePreview=new Button{Content="Preview positive",HorizontalAlignment=HorizontalAlignment.Left};positivePreview.Click+=(_,_)=>InterfaceAudio.PreviewCue(volume.Value,"positive",positive.SelectedItem?.ToString());page.Children.Add(positivePreview);
+        Field(page,"Negative feedback",negative);var negativePreview=new Button{Content="Preview negative",HorizontalAlignment=HorizontalAlignment.Left};negativePreview.Click+=(_,_)=>InterfaceAudio.PreviewCue(volume.Value,"negative",negative.SelectedItem?.ToString());page.Children.Add(negativePreview);
+        page.Children.Add(new TextBlock{Text="Positive: saved productive actions. Negative: saved configured penalties. Interface pop: selected controls. Playback is bounded to one short sound at a time.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,8)});
         var nudges=new CheckBox{Content="Playful focus nudges after 3 minutes away",IsChecked=state.FocusNudgesEnabled,Margin=new Thickness(0,12,0,12)};page.Children.Add(nudges);
         var seasonal=new CheckBox{Content="Seasonal sounds",IsChecked=ReliabilityOptions.SeasonalSounds};page.Children.Add(seasonal);
-        void Save(){state.InterfaceSoundsEnabled=enabled.IsChecked==true;state.InterfaceSoundVolume=volume.Value;state.FocusNudgesEnabled=nudges.IsChecked==true;ReliabilityOptions.SeasonalSounds=seasonal.IsChecked==true;NexaEcosystem.UpdateSeason(store,ReliabilityOptions);QueueSave("sounds",()=>{SaveInteractionOptions();SaveState();});}
-        enabled.Click+=(_,_)=>Save();volume.ValueChanged+=(_,_)=>Save();nudges.Click+=(_,_)=>Save();seasonal.Click+=(_,_)=>Save();return page;
+        void Save(){state.PositiveFeedbackSound=positive.SelectedItem?.ToString()??"Chime";state.NegativeFeedbackSound=negative.SelectedItem?.ToString()??"Eerie";state.InterfaceSoundsEnabled=enabled.IsChecked==true;state.InterfaceSoundVolume=volume.Value;state.FocusNudgesEnabled=nudges.IsChecked==true;ReliabilityOptions.SeasonalSounds=seasonal.IsChecked==true;NexaEcosystem.UpdateSeason(store,ReliabilityOptions);QueueSave("sounds",()=>{SaveInteractionOptions();SaveState();});}
+        positive.SelectionChanged+=(_,_)=>Save();negative.SelectionChanged+=(_,_)=>Save();styles.SelectionChanged+=(_,_)=>{if(styles.SelectedIndex<0)return;positive.SelectedIndex=negative.SelectedIndex=styles.SelectedIndex;Save();};
+        enabled.Click+=(_,_)=>Save();volume.ValueChanged+=(_,_)=>Save();nudges.Click+=(_,_)=>Save();seasonal.Click+=(_,_)=>Save();return new ScrollViewer{Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto};
     }
 }
 internal sealed class SeasonSwitchBrush:System.Windows.Data.IValueConverter

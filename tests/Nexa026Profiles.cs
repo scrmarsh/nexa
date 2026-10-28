@@ -17,14 +17,14 @@ internal static partial class Program
         {
             var watch=Stopwatch.StartNew();home.OpenDashboard(spaces[i%spaces.Count].DashboardId);Wait(()=>!home.IsVisible);
             results.Add($"Open Space cycle {i}: {watch.Elapsed.TotalMilliseconds:F2} ms; "+string.Join(", ",NexaNavigation.LastProfile.Select(p=>$"{p.Key} {p.Value:F2} ms")));
-            var main=(MainWindow)Application.Current.MainWindow;
+            var main=(MainWindow)Application.Current.MainWindow;results.Add("Construction: "+string.Join(", ",main.ConstructionProfile.Select(p=>$"{p.Key} {p.Value:F2} ms")));
             watch.Restart();var settings=new SettingsDialog(main,store,main.state,main,"Appearance");settings.Show();Pump(TimeSpan.FromMilliseconds(40));results.Add($"Settings first layout {i}: {watch.Elapsed.TotalMilliseconds:F2} ms");settings.Close();
             watch.Restart();Theme.BeginTransition(main.state.Workspace!.Settings);main.state.Workspace.Settings.SeasonalMode=i%2==0?"On":"Off";main.ApplyReliabilityOptions();Pump(TimeSpan.FromMilliseconds(30));results.Add($"Theme update reduced-motion {i}: {watch.Elapsed.TotalMilliseconds:F2} ms");
             var back=main.TopNavigation.Children.OfType<Button>().First(b=>Descendants(b).OfType<TextBlock>().Any(t=>t.Text=="Home"));watch.Restart();back.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Wait(()=>!main.IsVisible);
             results.Add($"Return Home {i}: {watch.Elapsed.TotalMilliseconds:F2} ms");home=(HomeWindow)Application.Current.MainWindow;
         }
         var dev=Descendants(home).OfType<Button>().Single(b=>Equals(b.Content,"DEV"));var developer=Stopwatch.StartNew();dev.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Wait(()=>!home.IsVisible);results.Add($"Developer first layout: {developer.Elapsed.TotalMilliseconds:F2} ms");
-        var dashboard=(MainWindow)Application.Current.MainWindow;Capture026(dashboard,"developer-026");dashboard.Close();
+        var dashboard=(MainWindow)Application.Current.MainWindow;results.Add("Deferred offscreen editors at readiness: "+dashboard.DeferredWidgetBodies);results.Add("Developer construction: "+string.Join(", ",dashboard.ConstructionProfile.Select(p=>$"{p.Key} {p.Value:F2} ms")));Capture026(dashboard,"developer-026");dashboard.Close();
         GC.Collect();GC.WaitForPendingFinalizers();GC.Collect();results.Add($"Working set start {startMemory:N0} bytes; after four cycles plus Developer {Process.GetCurrentProcess().WorkingSet64:N0} bytes. This is a short stress sample, not an extended-session leak certification.");
         var world=CreateWorld(BugBehavior.Cozy);world.Configure(new BugPreferences(true,BugSpecies.AllBugs,BugDensity.Infestation,world.EcosystemSettings));var simulation=Stopwatch.StartNew();Step(world,90);results.Add($"High-density simulation workload: {simulation.Elapsed.TotalMilliseconds:F2} ms for 90 simulated seconds; population {world.Bugs.Count}. This is CPU workload timing, not observed display FPS.");
         File.WriteAllLines(Path.Combine(output,"navigation-profile.txt"),results);foreach(var row in results)Console.WriteLine(row);

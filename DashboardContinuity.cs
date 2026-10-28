@@ -127,6 +127,7 @@ public static class Continuity
     }
     public static DashboardRecord NewDashboard(string name, string origin, DashboardData data, string userId)
     {
+        data.InitialViewPending=true;
         if (string.IsNullOrWhiteSpace(name) || name.Length > 100) throw new InvalidDataException("Dashboard name must contain 1–100 characters.");
         var record = new DashboardRecord { UserId = userId, Name = name.Trim(), PresetOrigin = origin };
         record.Current = NewSession(record, data);

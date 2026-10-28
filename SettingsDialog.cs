@@ -31,7 +31,8 @@ internal sealed partial class SettingsDialog : NexaPanel
         var root = new Grid(); root.ColumnDefinitions.Add(new() { Width = new GridLength(190) }); root.ColumnDefinitions.Add(new());
         var nav = new StackPanel { Margin = new Thickness(18) };
         nav.Children.Add(new TextBlock { Text = "\uE713", FontFamily = new FontFamily("Segoe MDL2 Assets"), FontSize = 30, Margin = new Thickness(10, 4, 0, 22), ToolTip = "Settings" });
-        var sidebar = new Border { Child = new ScrollViewer { Content = nav, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled }, BorderThickness = new Thickness(0, 0, 1, 0) };
+        var navigationDock=new DockPanel();
+        var sidebar = new Border { Child = navigationDock, BorderThickness = new Thickness(0, 0, 1, 0) };
         sidebar.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); sidebar.SetResourceReference(Border.BorderBrushProperty, "LineBrush"); root.Children.Add(sidebar);
         host.Margin = new Thickness(30, 24, 30, 28); Grid.SetColumn(host, 1); root.Children.Add(host);
         sessionWasActive = HasCurrentSession;
@@ -50,12 +51,11 @@ internal sealed partial class SettingsDialog : NexaPanel
             AddPage(nav,"Widgets",BuildWidgetPreferences);
             AddPage(nav,"Integrations",()=>BuildIntegrations());AddPage(nav,"Updates",BuildUpdates);
             AddPage(nav,"Add Bugs",BuildBugs);
-            var experimental = new StackPanel();
-            AddPage(experimental,"Account & Data",()=>ComingSoon("Account & Data","Optional account tools are in development. Local import/export remains available."));
-            AddPage(experimental,"Future Integrations",BuildFutureIntegrations);
-            var group = new Expander { Header="Experimental Features", Content=experimental, Margin=new Thickness(0,18,0,0), IsExpanded=false };
-            group.Expanded+=(_,_)=>NexaMotion.Entrance(experimental,ReliabilityOptions);nav.Children.Add(group);
+            var bottom=new StackPanel {Margin=new Thickness(18,8,18,18)};DockPanel.SetDock(bottom,Dock.Bottom);navigationDock.Children.Add(bottom);
+            AddPage(bottom,"Experimental Features",BuildExperimental);
+
         }
+        navigationDock.Children.Add(new ScrollViewer {Content=nav,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled});
         Content = root; SelectSection(initialSection);
         InitializeAutosave();
         sessionStatusTimer.Tick += (_, _) =>

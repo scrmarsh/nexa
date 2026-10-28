@@ -11,6 +11,9 @@ namespace SessionDashboard;
 
 public partial class MainWindow
 {
+    private readonly Dictionary<Guid,(WidgetInstance Widget,ScrollViewer Body)> deferredWidgetBodies=[];
+    internal int DeferredWidgetBodies=>deferredWidgetBodies.Count;
+    private bool loadingWidgetBodies,arrangingWidgets;
     private bool widgetsReady;
     internal bool editingDashboard;
     private readonly Dictionary<string, Border> legacyPanels = [];
@@ -44,6 +47,7 @@ public partial class MainWindow
         LegacyContent.Children.Add(parkedPanels); widgetsReady = true;
         WidgetScroller.SizeChanged += (_, _) => ArrangeWidgetFrames();
         stopwatchRefresh.Tick += (_, _) => { var now = DateTimeOffset.Now; foreach (var tick in stopwatchTicks) tick(now); };
+        Loaded+=(_,_)=>LoadVisibleWidgetBodies();
         Closed += (_, _) => stopwatchRefresh.Stop();
         PixelBannerHost.SizeChanged += (_, _) => ArrangeWidgetFrames();
         PixelWidthHandle.DragStarted += (_, _) =>
@@ -95,7 +99,11 @@ public partial class MainWindow
             ArrangeWidgetFrames();
         };
         WidgetCanvas.MouseLeftButtonDown += (_, e) => { if (ReferenceEquals(e.OriginalSource, WidgetCanvas)) { addWidgetLocation = e.GetPosition(WidgetCanvas); e.Handled = true; AddWidgetClick(WidgetCanvas, new RoutedEventArgs()); } };
-        WidgetScroller.ScrollChanged += (_, e) => { if (ReferenceEquals(e.OriginalSource, WidgetScroller) && (e.ViewportHeightChange != 0 || e.ViewportWidthChange != 0)) ArrangeWidgetFrames(); };
+        WidgetScroller.ScrollChanged += (_,e)=>{
+            if(!ReferenceEquals(e.OriginalSource,WidgetScroller))return;
+            if(e.ViewportHeightChange!=0 || e.ViewportWidthChange!=0)ArrangeWidgetFrames();
+            LoadVisibleWidgetBodies();
+        };
         var adaptedWidgets = WidgetLibrary.PrepareLayout(state);
         var migrated = !state.WidgetLayoutInitialized; WidgetLibrary.EnsureLayout(state);
         var removedSessionControls = state.Widgets.RemoveAll(w => w.Kind == "Session controls" || w.PanelKey == "setup") > 0;
@@ -119,7 +127,7 @@ public partial class MainWindow
         ClearWidgetFocus(); stopwatchRefresh.Stop(); stopwatchTicks.Clear();
         if (WidgetLibrary.PrepareLayout(state)) Changed();
         foreach (var panel in legacyPanels.Values) { Detach(panel); parkedPanels.Children.Add(panel); }
-        var existingWidgetIds=widgetFrames.Keys.ToHashSet();
+        var existingWidgetIds=widgetFrames.Keys.ToHashSet();deferredWidgetBodies.Clear();
         WidgetCanvas.Children.Clear(); scoreAreas.Clear(); widgetFrames.Clear(); widgetResizeHandles.Clear(); widgetTicks.Clear(); expandedMicroWidgets.Clear(); collapseMicroWidgets.Clear();
         EditToolbar.Visibility = editingDashboard ? Visibility.Visible : Visibility.Collapsed;
         PixelBannerHost.Content = null;
@@ -182,16 +190,18 @@ public partial class MainWindow
             options.Items.Add(permanent);
             titleEditor.ContextMenu=options;
             header.Children.Add(titleEditor);
-            UIElement content;
+            UIElement content;var deferBody=false;
             if (widget.Kind == "Pixel timer" && state.Widgets.First(w => w.Kind == "Pixel timer").Id == widget.Id)
             { Detach(PixelPanel); PixelPanel.Margin = new Thickness(0); PixelPanel.Padding = new Thickness(14); PixelPanel.BorderThickness = new Thickness(0); PixelPanel.Background = DashboardBrush("PanelBrush"); content = PixelPanel; }
             else if (widget.PanelKey.Length > 0 && widget.PanelKey is not ("setup" or "timeline" or "hedy" or "notes" or "tasks") && legacyPanels.TryGetValue(widget.PanelKey, out var legacy))
             {
                 Detach(legacy); legacy.Margin = new Thickness(0); legacy.Padding = new Thickness(14); legacy.BorderThickness = new Thickness(0); legacy.Background = DashboardBrush("PanelBrush"); content = legacy;
             }
+            else if(state.Widgets.Count>12 && widget.Kind is ("Bible" or "Flashcards" or "Calculator" or "Distribution Tracker" or "Session timeline" or "Bugs Squashed"))
+            {deferBody=true;content=new Border{Height=Math.Max(40,widget.Height-64),IsHitTestVisible=false};}
             else content = BuildWidgetContent(widget);
             var body = new ScrollViewer { Content = content, VerticalScrollBarVisibility = widget.Kind is "Water Bottle Counter" or "Alcoholic Beverage" or "Stopwatch" ? ScrollBarVisibility.Hidden : ScrollBarVisibility.Disabled, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Tag = "WidgetBody" };
-            layout.Children.Add(body);
+            layout.Children.Add(body);if(deferBody)deferredWidgetBodies[widget.Id]=(widget,body);
             if (widget.IsMicro)
             {
                 var microView = new Border
@@ -348,7 +358,29 @@ public partial class MainWindow
     }
     private Rect? PixelObstacle => PixelBannerContainer.Visibility == Visibility.Visible && PixelBannerContainer.Height > 0
         ? new Rect(0, 0, PixelBannerContainer.Width, PixelBannerContainer.Height) : null;
+    private void LoadVisibleWidgetBodies()
+    {
+        if(loadingWidgetBodies || !IsLoaded || WidgetScroller.ViewportHeight<=0)return;
+        loadingWidgetBodies=true;var loaded=false;
+        try
+        {
+            var top=Math.Max(0,WidgetScroller.VerticalOffset-100);var bottom=WidgetScroller.VerticalOffset+WidgetScroller.ViewportHeight+100;
+            foreach(var (id,pending) in deferredWidgetBodies.ToArray())
+            {
+                if(!widgetFrames.TryGetValue(id,out var frame) || Canvas.GetTop(frame)>bottom || Canvas.GetTop(frame)+frame.Height<top)continue;
+                deferredWidgetBodies.Remove(id);pending.Body.Content=BuildWidgetContent(pending.Widget);loaded=true;
+            }
+            if(loaded){UpdateWidgetClocks(DateTimeOffset.UtcNow);Dispatcher.BeginInvoke(new Action(ArrangeWidgetFrames),System.Windows.Threading.DispatcherPriority.Loaded);}
+        }
+        finally{loadingWidgetBodies=false;}
+    }
     private void ArrangeWidgetFrames()
+    {
+        if(arrangingWidgets)return;arrangingWidgets=true;
+        try{ArrangeWidgetFramesCore();}finally{arrangingWidgets=false;}
+        LoadVisibleWidgetBodies();
+    }
+    private void ArrangeWidgetFramesCore()
     {
         // Layout must not fight a freely moving card or rebuild its captured grip.
         if (widgetGestureActive) return;

@@ -39,7 +39,7 @@ internal sealed class ProductivityStreakOverlay : FrameworkElement, IDisposable
             var text=new FormattedText(value,CultureInfo.CurrentCulture,FlowDirection.LeftToRight,new Typeface("Segoe UI Semibold"),size,BugVisuals.B(color),VisualTreeHelper.GetDpi(this).PixelsPerDip){MaxTextWidth=Math.Max(1,available),Trimming=TextTrimming.CharacterEllipsis};
             dc.DrawText(text,new(x+left,y+(height-text.Height)/2));
         }
-        dc.PushTransform(new TranslateTransform(x+16,y+18));dc.DrawGeometry(BugVisuals.B("#FACC15"),null,Geometry.Parse("M12,0 L2,14 L10,14 L7,27 L23,10 L14,10 L18,0 Z"));dc.Pop();
+        dc.PushTransform(new TranslateTransform(x+16,y+18));dc.DrawGeometry(ProductivityRing.LightningBrush,null,Geometry.Parse("M12,0 L2,14 L10,14 L7,27 L23,10 L14,10 L18,0 Z"));dc.Pop();
         Text((SpaceScore??ledger.Score).ToString("N0"),26,50,width*.46-42,"#FACC15");
         Text("Streak "+multiplier.ToString("0.0")+"×",17,width*.50,width*.50-14,Theme.SeasonalEnabled?"#84CC16":"#C4B5FD");
         if(!active)dc.Pop();

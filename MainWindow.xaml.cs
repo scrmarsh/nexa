@@ -25,6 +25,7 @@ public partial class MainWindow
     internal int PixelLayoutChanges { get; private set; }
     internal int PixelVisualsCreated { get; private set; }
     private readonly List<Border> intervals = [];
+    internal Dictionary<string,double> ConstructionProfile {get;}=[];
     private bool ready;
     private bool dirty;
     private bool closingAfterTransition;
@@ -52,8 +53,9 @@ public partial class MainWindow
     {
         this.store = store;this.entryAlreadyPersisted=entryAlreadyPersisted;
         this.previewHomeStore = previewHomeStore;
+        void Measure(string name,Action action){var watch=System.Diagnostics.Stopwatch.StartNew();action();ConstructionProfile[name]=watch.Elapsed.TotalMilliseconds;}
         state = loadedState ?? store.Load(); store.LoadInteractionPreferences(state);
-        InitializeComponent();
+        Measure("InitializeComponent",InitializeComponent);
         DashboardHeader.SizeChanged += (_, _) => UpdateDashboardHeaderGeometry();
         TopNavigation.SizeChanged += (_, _) => UpdateDashboardHeaderGeometry();
         PreviewBanner.Visibility = IsPreview ? Visibility.Visible : Visibility.Collapsed;
@@ -83,12 +85,12 @@ public partial class MainWindow
         EndDate.SelectedDate = DateTime.Now.AddHours(1).Date;
         RefreshPresets(state.Presets.FirstOrDefault()?.Id);
         RenderTasks();
-        ApplyColors();
+        Measure("ApplyColors",ApplyColors);
         ApplySpaceBackground();
-        ApplySettings();
-        BuildTimeline();
-        InitializeHedy();
-        InitializeLocalRecording();
+        Measure("ApplySettings",ApplySettings);
+        Measure("BuildTimeline",BuildTimeline);
+        Measure("InitializeHedy",InitializeHedy);
+        Measure("InitializeLocalRecording",InitializeLocalRecording);
         ready = true;
         UpdateClock();
         Feedback.Text = store.Warning ?? "Saved on this PC • Your workspace is ready";
@@ -96,16 +98,16 @@ public partial class MainWindow
         clock.Tick += (_, _) => { UpdateClock(); clock.Interval=PixelTiming.UntilNextSecond(DateTimeOffset.UtcNow); };
         saveDelay.Tick += async (_, _) => { saveDelay.Stop(); await SaveInBackground(); };
         boredomTicker.Tick += (_, _) => UpdateBoredomGame();
-        InitializeContinuity();
+        Measure("InitializeContinuity",InitializeContinuity);
         UpdateDeveloperToolsVisibility();
-        InitializeWidgets();
-        InitializeBugs();
+        Measure("InitializeWidgets",InitializeWidgets);
+        InitializeInitialViewport();
+        Measure("InitializeBugs",InitializeBugs);
         InitializeDashboardTips();
         Countdown.Cursor = System.Windows.Input.Cursors.Hand; Countdown.ToolTip = "Click to edit session duration";
         Countdown.MouseLeftButtonUp += SessionTimeEditClick;
         foreach (var button in TopNavigation.Children.OfType<Button>().Where(b => b.Content is string text && text == "Home")) button.Content = NexaIcons.Label("Home");
         SessionEditButton.Content = NexaIcons.Label("Edit");
-        Closed += (_, _) => { interfacePlayer?.Stop(); interfacePlayer?.Dispose(); interfaceAudio?.Dispose(); };
         Closed+=(_,_)=>{widgetToastTimer.Stop();completionFill.Stop();recapWindow?.Close();};
         InitializeInlineSession();
         PreviewKeyDown+=(_,e)=>{if(TutorialActive && e.Key==Key.Escape){FinishQuickStart(true);e.Handled=true;}};
@@ -185,7 +187,7 @@ public partial class MainWindow
 
     private async void DeveloperSplashClick(object sender,RoutedEventArgs e)
     {
-        var preview=new SplashWindow{Owner=this};var previous=Application.Current.MainWindow;preview.Show();
+        var preview=new SplashWindow(Options){Owner=this};var previous=Application.Current.MainWindow;preview.Show();
         try{var home=await preview.EnterHome(store,true);Application.Current.MainWindow=previous;home.Close();}
         catch(Exception ex){Application.Current.MainWindow=previous;preview.Close();Error("Startup preview failed: "+ex.Message);}
     }
