@@ -10,29 +10,32 @@ internal sealed partial class NexaweenDecorations
     internal IReadOnlyList<Rect> AttachmentBounds=>actors.Where(a=>a.Contextual).Select(a=>a.Bounds).ToArray();
     private static void DrawVine(DrawingContext dc,Rect rect,double time=0,Rect? pumpkin=null)
     {
-        var x=pumpkin is {} attached && attached.Left+attached.Width/2<rect.Left+rect.Width/2?rect.Left:rect.Right+3;
-        var y=pumpkin is {} above && above.Top+above.Height/2<rect.Top+rect.Height/2?rect.Top:rect.Bottom+3;var sway=0d;
-        if(pumpkin is {} fruit)
+        var fruit=pumpkin??new Rect(rect.Right-30,rect.Bottom-15,88,88);var stem=PumpkinStalk(fruit);
+        var left=fruit.Left+fruit.Width/2<rect.Left+rect.Width/2;var top=fruit.Top+fruit.Height/2<rect.Top+rect.Height/2;
+        var x=left?rect.Left-4:rect.Right+4;var y=top?rect.Top-4:rect.Bottom+4;var dx=left?1d:-1d;var dy=top?1d:-1d;
+        var growth=time<=0?1:Math.Clamp(time/20,.12,1);dc.PushClip(new RectangleGeometry(new Rect(stem.X-240*growth,stem.Y-240*growth,480*growth,480*growth)));
+        for(var branch=0;branch<5;branch++)
         {
-            var stem=new Point(fruit.Left+fruit.Width*.5,fruit.Top+fruit.Height*.2);
-            var connector=new StreamGeometry();using(var g=connector.Open()){g.BeginFigure(stem,false,false);g.BezierTo(new(stem.X+12,stem.Y-14),new(x+8,y-12),new(x,y),true,false);}dc.DrawGeometry(null,P("#99567D36",3),connector);
+            var end=branch switch{0=>new Point(x+dx*Math.Min(180,rect.Width*.65),y),1=>new Point(x,y+dy*Math.Min(160,rect.Height*.65)),2=>new Point(x+dx*67,y+dy*12),3=>new Point(x+dx*12,y+dy*79),_=>new Point(x+dx*42,y+dy*38)};
+            var one=new Point(stem.X+dx*(14+branch*3),stem.Y-18+branch*2);var two=new Point(end.X-dx*(24+branch*5),end.Y-dy*(branch%2==0?24:10));
+            var path=new StreamGeometry();using(var g=path.Open()){g.BeginFigure(stem,false,false);g.BezierTo(one,two,end,true,false);}path.Freeze();dc.DrawGeometry(null,P(branch<2?"#C0536943":"#99536943",branch<2?3:1.7),path);
+            if(branch<2)for(var leaf=1;leaf<=2;leaf++)
+            {
+                var t=.45+leaf*.18;var u=1-t;var at=new Point(u*u*u*stem.X+3*u*u*t*one.X+3*u*t*t*two.X+t*t*t*end.X,u*u*u*stem.Y+3*u*u*t*one.Y+3*u*t*t*two.Y+t*t*t*end.Y);
+                dc.PushTransform(new TranslateTransform(at.X,at.Y));dc.PushTransform(new RotateTransform(branch*60+leaf*37));dc.DrawGeometry(B("#B04F6540"),P("#8033462D",.5),Geometry.Parse("M0,0 Q5,-13 16,-8 Q14,5 0,0 Z"));
+                dc.DrawGeometry(null,P("#99536943",1),Geometry.Parse("M0,0 C-12,-22 19,-26 16,-12 C12,-4 3,-16 10,-17"));dc.Pop();dc.Pop();
+            }
         }
-        var path=new StreamGeometry();using(var g=path.Open()){g.BeginFigure(new Point(x-68,y),false,false);g.BezierTo(new(x+15,y+9),new(x-8+sway,y-35),new(x+3,y-80),true,false);g.BezierTo(new(x+15,y-95),new(x+23,y-70),new(x+8,y-72),true,false);}path.Freeze();
-        var growth=time<=0?1:Math.Clamp(time/20,.12,1);
-        dc.PushClip(new RectangleGeometry(new Rect(x-80*growth,y-110*growth,115,115*growth)));
-        dc.DrawGeometry(null,P("#99567D36",4),path);
-        for(var branch=0;branch<3;branch++)
-        {var line=new StreamGeometry();using(var g=line.Open()){g.BeginFigure(new(x-branch*17,y),false,false);g.BezierTo(new(x-30-branch*22,y+15),new(x-45-branch*12,y-branch*12),new(x-60-branch*17,y-8),true,false);}dc.DrawGeometry(null,P("#7065A30D",1.5),line);}
-        for(var i=0;i<3;i++){var p=new Point(x-i*19-12,y+Math.Sin(i)*3);dc.PushTransform(new RotateTransform(-35+i*25,p.X,p.Y));dc.DrawEllipse(B("#8065A30D"),null,p,7,3);dc.Pop();}
         dc.Pop();
     }
+
     private void AddContextual(DrawingContext dc,IReadOnlyList<Rect> widgets,List<Rect> occupied,int limit)
     {
         var count=0;
         var selection=new Random(102725);
         foreach(var rect in widgets.OrderBy(_=>selection.Next()))
         {
-            if(count>=limit)break;var size=76d;
+            if(count>=limit)break;var size=88d;
             var candidates=new[]{new Rect(Math.Clamp(rect.Right-size*.4,0,Math.Max(0,Width-size)),rect.Bottom-size*.18,size,size),new Rect(Math.Clamp(rect.Left-size*.6,0,Math.Max(0,Width-size)),rect.Bottom-size*.18,size,size),new Rect(Math.Clamp(rect.Left-size*.3,0,Math.Max(0,Width-size)),rect.Top-size*.85,size,size)};
             var bounds=Rect.Empty;
             foreach(var candidate in candidates)

@@ -4,7 +4,7 @@
 
 The three requested implementation passes are represented in working code. A release has not been published and the approved executable has not been overwritten. This remains alpha.
 
-Candidate destination: M:/Nexa/Builds/Testing/0.1.26-alpha-passes-20261027/Nexa.exe.
+Candidate destination: M:/Nexa/Builds/Testing/0.1.26-alpha-passes-20261028/Nexa.exe.
 
 The final source commit, checksum, complete test totals and packaged health result will be recorded below after packaging.
 

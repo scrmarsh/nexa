@@ -60,7 +60,7 @@ internal static partial class Program
         Assert(ant.State==BugState.Edge && (ant.Position.Y==card.Top || ant.Position.X==card.Right || ant.Position.Y==card.Bottom || ant.Position.X==card.Left) && ant.CrawlPhase>0,"Ants march along actual widget edges with moving legs");
         var hiding=CreateWorld(BugBehavior.Cozy);hiding.SetSurfaces([new BugSurface("hide-card",card)],new Size(1600,1000));var roach=new BugEntity{Species=BugSpecies.Roaches,Position=new(500,400),Activity=BugActivity.Hiding,Decision=5};var lady=new BugEntity{Species=BugSpecies.Ladybugs,Position=new(700,450),Activity=BugActivity.Hiding,State=BugState.Hiding,Decision=5};hiding.Bugs.AddRange([roach,lady]);hiding.Advance(.1);
         Assert(roach.State==BugState.Hiding && lady.State!=BugState.Hiding,"Only roaches may hide behind a widget; other species remain visible");
-        using var art=new NexaweenDecorations();art.Update(1200,1200,[card],"High",[card]);Assert(art.AttachmentBounds.Count>0 && art.AttachmentBounds.All(b=>b.Width==76),"Visible jack-o-lanterns attach at a larger size to free widget corners");
+        using var art=new NexaweenDecorations();art.Update(1200,1200,[card],"High",[card]);Assert(art.AttachmentBounds.Count>0 && art.AttachmentBounds.All(b=>b.Width==88),"Visible jack-o-lanterns attach at a larger size to free widget corners");
         var gallery=WidgetLibrary.Create("Bugs Squashed");gallery.Span=20;gallery.PlacementX=0;gallery.PlacementY=16;
         var productivity=WidgetLibrary.Create("Productivity");productivity.Span=10;productivity.PlacementX=0;productivity.PlacementY=650;
         var bottle=WidgetLibrary.Create("Water Bottle Counter");bottle.Value=4;bottle.PlacementX=.55;bottle.PlacementY=650;

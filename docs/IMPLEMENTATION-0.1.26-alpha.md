@@ -106,3 +106,11 @@ These are native WPF renders of the testing source with synthetic data.
 ![Saved recap preview](media/preview026/recap.png)
 
 Additional report assets: docs/media/preview026/home.png, docs/media/preview026/guide.png and docs/media/preview026/recap.png.
+
+## Pumpkin shape follow-up, October 28
+
+The shared vector pumpkin now has one continuous rounded body. Its ribs are clipped internal shading rather than separate overlapping oval silhouettes. A darker rear flank and asymmetrical carved face preserve the slight leftward turn. The larger Home/menu pumpkin and widget pumpkins share a curved stalk anchor; every main vine begins at that anchor, with earthy greens, curls and leaves. Widget attachment still uses explicit widget targets, collision avoidance remains separate, and decorative art is not hit-testable.
+
+The isolated fullscreen preview route is --home-fullscreen026 in the checks executable. It displays the real Home controls with six synthetic Spaces, fills the primary monitor, and closes with Escape or after ten minutes. It never loads the user's workspace.
+
+![Fullscreen Home with synthetic Spaces](media/preview026/home-fullscreen.jpg)

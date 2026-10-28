@@ -52,3 +52,13 @@ Only synthetic data and isolated repositories/packages were used for this pass. 
 - Final geometry review moved the spider clear of the version label and joined vines to the actual selected pumpkin corners. Previously completed saved webs are visually revealed after their owners arrive; saved strand state is unchanged.
 
 The testing candidate still requires the manual acceptance listed above. No physical UI, live integration account, live-data migration or real newer-release installation is claimed.
+
+## October 28 pumpkin and fullscreen follow-up
+
+- The shared pumpkin silhouette was corrected; the preceding separate-lobe treatment looked like an oval attached to its side.
+- The Release application/test build completed with zero warnings and zero errors after registering the test-only preview source in the project's explicit compile list.
+- The widget attachment expectations were updated from 76 to 88 logical pixels to match the deliberately enlarged artwork. Resize/move and scroll-coordinate invariants are unchanged.
+- A native Windows capture of Home filling the 2560 x 1440 primary monitor was inspected and saved as [fullscreen Home](media/preview026/home-fullscreen.jpg). It uses only synthetic Spaces. This verifies the visible primary-monitor presentation, not mixed-DPI or all physical interactions.
+- The native update test now uses App.AppVersion instead of a stale 0.1.25 expectation.
+
+- Full post-art regression: **507 checks passed across all fifteen routes**, verification/acceptance-20261028-080105. This includes widget layout/scrolling, persistence, scheduling, guide, score, ecosystem and animation checks.

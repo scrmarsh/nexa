@@ -117,6 +117,7 @@ internal sealed partial class NexaweenDecorations : FrameworkElement
         }
         result.Freeze(); drawing = result; ReconcileAnimation(); InvalidateVisual();
     }
+    internal static Point PumpkinStalk(Rect bounds)=>new(bounds.Left+bounds.Width*35/64,bounds.Top+bounds.Height*8/64);
     private static readonly Dictionary<string, SolidColorBrush> brushes = [];
     private static SolidColorBrush B(string hex)
     { if (!brushes.TryGetValue(hex, out var b)) { b = new((Color)ColorConverter.ConvertFromString(hex)); b.Freeze(); brushes[hex] = b; } return b; }
@@ -130,20 +131,44 @@ internal sealed partial class NexaweenDecorations : FrameworkElement
         switch (kind)
         {
             case 0: case 1: // Pumpkin / jack-o-lantern
-                dc.DrawEllipse(B("#50000000"),null,new(33,58),27,4);
-                for(var lobe=0;lobe<5;lobe++)
+                dc.DrawEllipse(B("#65000000"),null,new(34,59),28,4);
+                var shell=new RadialGradientBrush((Color)ColorConverter.ConvertFromString("#EF9A3E"),(Color)ColorConverter.ConvertFromString("#54230E")){GradientOrigin=new Point(.25,.22),Center=new Point(.4,.44),RadiusX=.7,RadiusY=.76};shell.Freeze();
+                // One continuous silhouette; ribs are clipped shading rather than separate oval bodies.
+                var body=Geometry.Parse("M33,16 C27,11 20,11 15,15 C8,16 3,24 3,34 C2,44 7,53 15,56 C21,61 28,61 33,59 C40,62 47,59 51,55 C58,51 62,43 61,33 C61,23 56,16 49,15 C43,11 38,13 33,16 Z");
+                dc.DrawGeometry(shell,P("#542710",.8),body);
+                dc.PushClip(body);
+                var ribPaths=new[]{
+                    "M27,14 C11,17 8,43 21,59",
+                    "M33,15 C23,22 22,49 29,61",
+                    "M37,15 C42,25 44,48 37,61",
+                    "M42,14 C55,23 57,44 46,58",
+                    "M20,14 C2,25 4,44 13,55"};
+                for(var rib=0;rib<ribPaths.Length;rib++)
                 {
-                    var colors=new[]{("#B84A0B","#6B250B"),("#EE7817","#99360D"),("#FFB04F","#C44D0C"),("#EF8B24","#87300C"),("#C35E10","#572009")};
-                    var pair=colors[lobe];var surface=new RadialGradientBrush((Color)ColorConverter.ConvertFromString(pair.Item1),(Color)ColorConverter.ConvertFromString(pair.Item2)){GradientOrigin=new Point(.28,.2),Center=new Point(.45,.45),RadiusX=.8,RadiusY=.7};surface.Freeze();
-                    dc.DrawEllipse(surface,P("#663B1C10",.65),new(13+lobe*9,36),lobe==2?15:12,19+Math.Sin(lobe*Math.PI/4)*5);
+                    var curve=Geometry.Parse(ribPaths[rib]);
+                    dc.DrawGeometry(null,P(rib==3?"#6035190C":"#483E1D0C",3.5),curve);
+                    dc.PushTransform(new TranslateTransform(-.8,0));
+                    dc.DrawGeometry(null,P("#45FFCE7C",.65),curve);dc.Pop();
                 }
-                Shape(dc,"M28,18 C24,10 25,3 34,3 C41,3 46,7 48,2 C53,10 43,14 36,12 L36,19 Z","#4D7C0F","#365314");
-                dc.DrawGeometry(null,P("#84CC16",1.6),Geometry.Parse("M30,16 C27,8 30,5 35,6 C41,8 45,9 47,6"));
+                // Broad soft reflected light follows the front plane, with a shaded rear flank.
+                var flank=new LinearGradientBrush();flank.StartPoint=new(0,0);flank.EndPoint=new(1,0);
+                flank.GradientStops.Add(new GradientStop(Colors.Transparent,.55));
+                flank.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#8030160C"),1));flank.Freeze();
+                dc.DrawGeometry(flank,null,body);
+                dc.Pop();
                 if(kind==1)
                 {
-                    var candle=new RadialGradientBrush((Color)ColorConverter.ConvertFromString("#FFF9C4"),(Color)ColorConverter.ConvertFromString("#D97706")){GradientOrigin=new Point(.46,.65),RadiusX=.8,RadiusY=.8};candle.Freeze();
-                    dc.DrawGeometry(candle,P("#733809",.8),Geometry.Parse("M15,33 L22,25 L28,34 Z M36,34 L42,25 L49,34 Z M16,43 L24,47 L30,43 L37,48 L48,42 Q35,60 16,43 Z"));
+                    var candle=new RadialGradientBrush((Color)ColorConverter.ConvertFromString("#FFF0AF"),(Color)ColorConverter.ConvertFromString("#A94A0D")){GradientOrigin=new Point(.35,.65),RadiusX=.8,RadiusY=.72};candle.Freeze();
+                    var face=Geometry.Parse("M8,27 Q14,26 22,32 L19,37 Q12,33 8,27 Z M25,31 Q32,24 39,26 L34,34 L26,36 Z M22,36 L18,42 L25,41 Z M8,42 Q20,48 40,40 L36,48 L32,46 L29,52 L24,49 L19,53 L16,48 L12,49 Z");
+                    dc.DrawGeometry(candle,P("#391C0B",1.1),face);
+                    dc.DrawGeometry(null,P("#D36F25",.35),Geometry.Parse("M10,28 Q15,28 20,32 M27,31 L36,27 M11,43 Q21,47 37,42"));
                 }
+                var marks=new Random(102726);
+                for(var mark=0;mark<14;mark++){var x=9+marks.NextDouble()*46;var y=18+marks.NextDouble()*35;dc.DrawEllipse(B("#354E351B"),null,new(x,y),.25+marks.NextDouble()*.6,.25+marks.NextDouble());}
+                dc.DrawGeometry(null,P("#80634322",.7),Geometry.Parse("M48,24 l-2,6 2,4 -3,8 M12,36 l-3,4 2,4 M39,52 l3,3 -2,3"));
+                var stalk=new LinearGradientBrush((Color)ColorConverter.ConvertFromString("#7D8957"),(Color)ColorConverter.ConvertFromString("#30412A"),0);stalk.Freeze();
+                dc.DrawGeometry(stalk,P("#26371F",.9),Geometry.Parse("M32,18 C34,13 38,12 36,8 C35,5 29,7 27,3 C29,-1 36,0 40,4 C46,10 40,15 38,19 Z"));
+                dc.DrawGeometry(null,P("#A0AA76",.7),Geometry.Parse("M35,16 C39,11 40,8 35,5 L30,3"));
                 break;
             case 2: // Ghost
                 Shape(dc,"M9,58 L10,25 Q13,3 32,5 Q53,4 55,26 L56,58 L47,51 L39,59 L31,52 L21,59 L16,52 Z","#D8D1F0");

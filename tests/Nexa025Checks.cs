@@ -114,7 +114,7 @@ internal static partial class Program
         var target=Path.Combine(root,"Nexa.exe");File.Copy(candidate,target);
         var old=File.ReadAllBytes(target).Concat(new byte[]{42}).ToArray();File.WriteAllBytes(target,old);var before=UpdateTransaction.Hash(target);
         var store=new StateStore(Path.Combine(root,"data","state.json"));Directory.CreateDirectory(Path.GetDirectoryName(store.FilePath)!);File.WriteAllText(store.FilePath,"preserve user data");
-        string Prepare()=>UpdateTransaction.Prepare(store,target,candidate,UpdateTransaction.Hash(candidate),"0.1.25").GetAwaiter().GetResult();
+        string Prepare()=>UpdateTransaction.Prepare(store,target,candidate,UpdateTransaction.Hash(candidate),App.AppVersion).GetAwaiter().GetResult();
         var plan=Prepare();var rejected=false;try{UpdateTransaction.Apply(plan,_=>Task.FromResult(false),waitForParent:false).GetAwaiter().GetResult();}catch(IOException){rejected=true;}
         Assert(rejected && UpdateTransaction.Hash(target)==before,"Failed installed health check restores the actual previous executable");
         Assert(JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.State=="RolledBack","Failed update has a durable rollback checkpoint");
