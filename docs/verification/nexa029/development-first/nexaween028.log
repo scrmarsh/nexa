@@ -1,0 +1,20 @@
+PASS: Current .28 identity uses the existing version infrastructure
+PASS: Pre-.28 ledger JSON preserves recorded score/event identity without inventing a new boost
+PASS: Disposable child writer starts without opening the user's workspace
+PASS: Process termination during repeated atomic saves preserves session/widget identities, counters and permanent tasks
+PASS: Restart ignores orphan partial temp files and retains a committed layout/note generation
+PASS: Corrupt primary restores the existing same-owner backup
+PASS: Saving recovered data preserves both valid backup and unreadable primary evidence
+PASS: An exclusive file lock reports save failure
+PASS: Failed write leaves the committed primary unchanged
+PASS: A later retry persists pending edits without replacing session identity
+PASS: Monday 2:15 PM finalizes exactly the recorded session
+PASS: Monday 2:20 PM commits the five-minute checkpoint
+PASS: Wednesday 12:50 PM exposes the actual postpone-reset action
+PASS: Failed pre-reset save cannot clear the previous session
+PASS: Postponed reset survives application restart
+System.InvalidOperationException: FAIL: Completing postponed reset archives one old identity and starts the correct Wednesday occurrence
+   at Program.Assert(Boolean condition, String description) in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\Nexa024Runner.cs:line 63
+   at Program.CheckSchedule028() in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\Nexa028Checks.cs:line 101
+   at Program.Check028() in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\Nexa028Checks.cs:line 23
+   at Program.Main(String[] args) in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\Nexa024Runner.cs:line 35

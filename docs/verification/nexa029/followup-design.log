@@ -1,0 +1,32 @@
+PASS: Configured negative awards survive the real workspace validator and restart payload
+PASS: Re-saving a signed award cannot change lifetime totals again
+PASS: Changing recurring time zone recognizes today's newly active wall-clock class
+PASS: Selecting saved preset timing applies through the persisted edit path
+PASS: Preset selection recognizes an active class without replacing its report identity
+PASS: The separate red/green switch activates and persists Nexaween
+PASS: Sounds remain usable while the seasonal appearance is locked
+PASS: Appearance stays accessible in the same Settings window
+PASS: The top Appearance switch restores normal appearance
+PASS: Seasonal controls live directly in Appearance
+PASS: Direct decoration-density selection persists
+PASS: Tips navigation scrolls the Session page to its bottom setting
+PASS: Tips can be disabled from their new Session location
+PASS: Seasonal background favors varied candy and keeps generated webs separate
+PASS: Contextual widget-corner decorations share the bounded budget
+PASS: Occupied reserved regions never become inferred attachment targets
+PASS: Decoration placement does not modify the caller's occupied collision list
+PASS: Only widget target changes are enough to reposition attached art on resize/move
+PASS: Viewport scrolling preserves the decoration's canvas attachment coordinates
+PASS: Missing optional targets clear contextual art gracefully and never intercept controls
+PASS: Reserved UI regions are avoided when choosing a safe alternative widget corner
+PASS: Only haunts receives Halloween orange in the new seasonal tagline
+PASS: Disabling Nexaween removes the Home tagline entirely
+PASS: Spider web anchors follow a moved widget without accumulating scroll deltas
+PASS: Persistent web geometry has irregular spoke lengths
+PASS: Partial web construction and widget anchors survive restart
+PASS: Autosave notifications occupy the left anchor
+PASS: Tips remain at the independent right anchor
+PASS: Real splash stages reach 100% only after the home window renders
+PASS: Startup progress records actual completed data and UI initialization stages
+PASS: Shared startup preserves the three-second minimum display
+PASS: 31 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-160749

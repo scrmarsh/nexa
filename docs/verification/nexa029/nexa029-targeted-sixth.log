@@ -1,0 +1,80 @@
+PASS: Current candidate has lowercase Alpha identity
+PASS: Old settings acquire all five display defaults
+PASS: Old wallpaper saves preserve default fill behavior
+PASS: Splash has a real five-second minimum
+PASS: Version label sits below left branding
+PASS: Graduation-cap icon has a persistent portable identity
+PASS: Distraction phrase 0 is defined
+PASS: Distraction phrase 1 is defined
+PASS: Distraction phrase 2 is defined
+PASS: Distraction phrase 3 is defined
+PASS: Distraction phrase 4 is defined
+PASS: Distraction phrase 5 is defined
+PASS: Distraction phrase 6 is defined
+PASS: Distraction phrase 7 is defined
+PASS: Distraction phrase 8 is defined
+PASS: Distraction phrase 9 is defined
+PASS: Distraction phrase 10 is defined
+PASS: Distraction phrase 11 is defined
+PASS: Distraction phrase 12 is defined
+PASS: Distraction phrase 13 is defined
+PASS: Distraction phrase 14 is defined
+PASS: Distraction phrase 15 is defined
+PASS: Distraction phrase 16 is defined
+PASS: Distraction phrase 17 is defined
+PASS: Distraction phrase 18 is defined
+PASS: Distraction phrase 19 is defined
+PASS: Distraction phrase 20 is defined
+PASS: Distraction boundaries retain requested exact playful messages
+PASS: Failed save rejects completion before reset
+PASS: Save failure retains notes/counters and creates no archive
+PASS: Completion commits successfully after lock release
+PASS: Original session identity, notes and counters are immutable in History
+PASS: Archived recording reference and transcript survive reset
+PASS: Session notes/counters/water/stopwatch reset together
+PASS: All local tasks and explicit persistent widget state survive
+PASS: Session squashes reset without touching all-time totals
+PASS: Fresh workspace identity retains the previous recap and persistent reset checkpoint
+PASS: Repeated completion is idempotent
+PASS: Restart sees complete archive/reset transaction without animation dependency
+PASS: Work entered after completion archives separately without overwriting the original recap
+PASS: Reset preserves widget identities and Space wallpaper
+PASS: Resume copies original notes with provenance and archives the replaced current content
+PASS: Restore retains target Space identity, wallpaper and tasks
+PASS: Resume never restarts remote/local recording or reuses provider session links
+PASS: Restored historical score events are not credited to the target again
+PASS: Restorable counter values reuse existing target widget identity
+PASS: Load-as-new has a fresh clock and no imported scoring awards
+PASS: Resume and new-session load leave the original history record unchanged
+PASS: Fullscreen has compact flush-top navigation and removes caption controls
+PASS: Fullscreen notice overlays at top without shifting navigation
+PASS: Fullscreen restores dimensions and caption controls
+PASS: Fullscreen leaves session identity/data intact
+PASS: Hedy transcript viewport grows substantially with widget resize
+PASS: Session Settings directly embeds Manual/Scheduled controls
+PASS: Repeated theme toggle refreshes current visual state
+PASS: Repeated theme toggle refreshes current visual state
+PASS: Repeated theme toggle refreshes current visual state
+PASS: Repeated theme toggle refreshes current visual state
+PASS: Deleted wallpaper falls back without throwing
+PASS: Damaged wallpaper falls back without throwing
+PASS: Animated completion commits before any presentation ticks
+PASS: On-disk reset and original archive are already correct during closing animation
+PASS: Repeated End Session input is blocked throughout closing animation
+PASS: Counters and vessels share a transient visual layer after successful archive
+PASS: Closing presentation finishes and opens the existing recap
+PASS: Closing animation cannot add duplicate History or restore old counters
+PASS: Explicit linked Notes reset opt-out remains respected
+PASS: Read-only Windows connectivity query returns an explicit state on this host
+PASS: Read-only default output query is bounded without changing Windows volume
+PASS: Direct nonfatal click updates actual health and preserves red hit feedback
+PASS: Full-health roach keeps five-click resilience and ends at zero health
+PASS: Friendly mode cancels a stale advanced combat order before damage
+PASS: A real synthetic PNG decodes through the application wallpaper loader
+PASS: Space wallpaper saves through the current Space persistence path
+PASS: Wallpaper changes preserve exact stored widget positions and sizes
+PASS: Home and Space image/fit choices persist independently through restart
+PASS: Study wallpaper does not alter the other Space
+PASS: All five fullscreen preferences persist when disabled
+PASS: Disabling seasonal appearance preserves the custom wallpaper
+PASS: 79 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-160459

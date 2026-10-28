@@ -1,0 +1,19 @@
+PASS: Dashboard gets an initial quiet period instead of an immediate spawn burst
+PASS: New bugs arrive gradually, rather than a dozen in the first few seconds
+PASS: New arrivals are distributed inside the current viewport
+PASS: Cozy newcomers explore before seeking shared nests or food
+PASS: Random arrival positions cover a broad area instead of one nest or central cluster
+PASS: Exploration eventually yields to normal Cozy gathering and social behavior
+PASS: Restored populations are kept but do not all activate on the opening frame
+PASS: Saving during the arrival ramp preserves every dormant saved creature and identity
+PASS: Saved creatures reappear one at a time across multiple frames
+PASS: Dormant creatures do not run hidden simulation before their arrival
+PASS: Frame pressure throttles spawning at ordinary densities too
+PASS: Productivity popup is bottom-centered above the work-area margin
+PASS: Nexaween water uses an orange liquid palette
+PASS: Disabling Nexaween restores the normal blue water
+System.InvalidOperationException: FAIL: Persistent webs span most of their widget rather than a tiny circle
+   at Program.Assert(Boolean condition, String description) in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\Nexa024Runner.cs:line 63
+   at Program.CheckVisualBehaviorTweaks() in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\NexaArrivalChecks.cs:line 47
+   at Program.CheckArrivalTweaks() in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\NexaArrivalChecks.cs:line 23
+   at Program.Main(String[] args) in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\Nexa024Runner.cs:line 43

@@ -1,0 +1,12 @@
+PASS: Click outside a menu is consumed by the owner
+PASS: Click outside closes the menu
+PASS: Owner activation closes a menu when Windows consumes the first click
+Nested menu before outside click: parent visible=True, child visible=True
+Nested menu after outside click: handled=True, parent visible=True, child visible=False, parent closing=False, child closing=True
+PASS: Outside click closes only the topmost nested menu
+PASS: Next outside click closes the remaining menu
+PASS: DEV opens legacy Space without duplicate linked tasks or lost content
+PASS: DEV opens its dashboard successfully
+PASS: DEV navigation preserves its existing scheduled timer
+PASS: DEV navigation preserves outer window bounds
+PASS: 9 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-160906

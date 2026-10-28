@@ -38,7 +38,7 @@ Real screenshots of the published Windows build, using sample notes and tasks. S
 
 ## Development builds and historical downloads
 
-Build the current Alpha from source using the instructions below. No .28 public
+Build the current Alpha from source using the instructions below. No .29 public
 release is published. The [releases page](https://github.com/scrmarsh/nexa/releases)
 may contain historical experimental packages; those are not this source candidate.
 Self-contained Windows x64 packages include their .NET runtime; framework-dependent

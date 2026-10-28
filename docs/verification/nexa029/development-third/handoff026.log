@@ -1,0 +1,27 @@
+PASS: Fresh normal Home removes seasonal rendering and hit targets
+PASS: Normal Home leaves no tagline text run or layout gap
+PASS: Initial Home contains exactly six Spaces
+PASS: Space title uses symmetric whole-card centering independently of its icon
+PASS: Last-used label occupies the bottom-right corner
+PASS: Expansion preserves original card instances
+PASS: Delayed entrance stays invisible before its assigned start
+PASS: Additional cards enter visibly in sequence
+PASS: Expanded layout completes within a bounded deadline
+PASS: Mouse wheel bubbles from expanded Space cards to the page scroller
+PASS: Hide More retains visual children during exit
+PASS: Last added Space exits first
+Unhandled exception. System.InvalidOperationException: The calling thread cannot access this object because a different thread owns it.
+   at System.Windows.Threading.Dispatcher.<VerifyAccess>g__ThrowVerifyAccess|7_0()
+   at System.Windows.Controls.Panel.get_IsItemsHost()
+   at System.Windows.Controls.ItemsControl.GetItemsOwnerInternal(DependencyObject element, ItemsControl& itemsControl)
+   at System.Windows.Controls.Panel.VerifyBoundState()
+   at System.Windows.Controls.Panel.get_InternalChildren()
+   at SessionDashboard.HomeWindow.DescendantsOfRecent() in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\HomeWindow.Recent.cs:line 52
+   at SessionDashboard.HomeWindow.ToggleRecentSpaces() in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\HomeWindow.Recent.cs:line 34
+   at SessionDashboard.HomeWindow.ToggleRecentSpaces() in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\HomeWindow.Recent.cs:line 47
+   at System.Threading.Tasks.Task.<>c.<ThrowAsync>b__124_0(Object state)
+   at System.Threading.ExecutionContext.RunForThreadPoolUnsafe[TState](ExecutionContext executionContext, Action`1 callback, TState& state)
+   at System.Threading.QueueUserWorkItemCallback`1.Execute()
+   at System.Threading.ThreadPoolWorkQueue.Dispatch()
+   at System.Threading.PortableThreadPool.WorkerThread.WorkerThreadStart()
+   at System.Threading.Thread.StartCallback()

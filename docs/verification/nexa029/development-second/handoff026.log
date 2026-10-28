@@ -1,0 +1,50 @@
+PASS: Fresh normal Home removes seasonal rendering and hit targets
+PASS: Normal Home leaves no tagline text run or layout gap
+PASS: Initial Home contains exactly six Spaces
+PASS: Space title uses symmetric whole-card centering independently of its icon
+PASS: Last-used label occupies the bottom-right corner
+PASS: Expansion preserves original card instances
+PASS: Delayed entrance stays invisible before its assigned start
+PASS: Additional cards enter visibly in sequence
+PASS: Expanded layout completes within a bounded deadline
+PASS: Mouse wheel bubbles from expanded Space cards to the page scroller
+PASS: Hide More retains visual children during exit
+PASS: Last added Space exits first
+PASS: Hide More restores exactly six Spaces after exit
+PASS: Live Home reveals seasonal artwork after toggling on
+PASS: Seasonal artwork cannot intercept controls during fade-out
+PASS: Live Home collapses all seasonal layers after fade
+PASS: Nexaween Off persists through the state store
+PASS: Experimental page marks all three unfinished providers Coming Soon
+PASS: Experimental tab is pinned through bottom docking
+PASS: Bottom tab remains anchored during resize
+PASS: Time zone selection field rejects arbitrary text entry
+PASS: Time zone selections render readable labels through the native ComboBox template
+PASS: Clock preview advances when its Settings page is initialized lazily
+PASS: Authoritative Central time aliases match CHIC
+PASS: Authoritative Central time aliases match Chicago
+PASS: Authoritative Central time aliases match Central Standard Time
+PASS: Authoritative Central time aliases match America Chicago
+PASS: Typing CHIC live-filters the real time zone dropdown
+PASS: Choosing a result synchronizes and persistently saves the real selection
+PASS: Selected authoritative Chicago zone retains daylight saving rules
+PASS: Sounds exposes five styles and five independent choices for each feedback direction
+PASS: Independent sound choices persist without being overwritten by the style selector
+PASS: All five positive and negative original PCM cues are distinct
+PASS: Reopening Home resets expansion and preserves normal appearance
+PASS: Independent Add Bugs survives Nexaween False with bugs False
+PASS: Candy collection gate follows current seasonal preference, including transition
+PASS: Independent Add Bugs survives Nexaween True with bugs False
+PASS: Candy collection gate follows current seasonal preference, including transition
+PASS: Independent Add Bugs survives Nexaween False with bugs True
+PASS: Candy collection gate follows current seasonal preference, including transition
+PASS: Independent Add Bugs survives Nexaween True with bugs True
+PASS: Candy collection gate follows current seasonal preference, including transition
+PASS: Dashboard seasonal layer leaves active rendering when Off
+PASS: Productivity lightning uses the shared golden yellow in normal mode
+PASS: Productivity lightning remains golden yellow in seasonal mode
+System.InvalidOperationException: FAIL: Productivity supports a compact 220 by 192 minimum
+   at Program.Assert(Boolean condition, String description) in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\Nexa024Runner.cs:line 63
+   at Program.CheckHandoffDashboard(StateStore store) in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\Nexa026HandoffChecks.cs:line 108
+   at Program.CheckHandoff026() in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\Nexa026HandoffChecks.cs:line 91
+   at Program.Main(String[] args) in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\Nexa024Runner.cs:line 37

@@ -1,0 +1,13 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\MainWindow.xaml.cs(677,18): error CS0136: A local or parameter named 'start' cannot be declared in this scope because that name is used in an enclosing local scope to define a local or parameter [C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\SessionDashboard_e1azao3n_wpftmp.csproj]
+C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\MainWindow.xaml.cs(677,25): error CS0136: A local or parameter named 'end' cannot be declared in this scope because that name is used in an enclosing local scope to define a local or parameter [C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\SessionDashboard_e1azao3n_wpftmp.csproj]
+
+Build FAILED.
+
+C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\MainWindow.xaml.cs(677,18): error CS0136: A local or parameter named 'start' cannot be declared in this scope because that name is used in an enclosing local scope to define a local or parameter [C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\SessionDashboard_e1azao3n_wpftmp.csproj]
+C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\MainWindow.xaml.cs(677,25): error CS0136: A local or parameter named 'end' cannot be declared in this scope because that name is used in an enclosing local scope to define a local or parameter [C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\SessionDashboard_e1azao3n_wpftmp.csproj]
+    0 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:08.40
