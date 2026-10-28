@@ -43,3 +43,15 @@ Final serial constructor measurements: `verification/20261027-223409/performance
 | Space | 284.60 | 155.95 | 154.85 |
 
 Lazy Settings construction improved in these samples. Home and Space construction did **not** demonstrate an overall speedup; Space construction remains a performance acceptance gap. These are three samples per revision on the same machine, not a full benchmark, and exclude first-frame/animation completion. Developer end-to-end, theme latency, FPS and extended memory measurements remain unmeasured.
+
+## Packaged testing candidate
+
+- Executable: `M:/Nexa/Builds/Testing/0.1.26-alpha/Nexa.exe`.
+- Source commit: `49b138123f249bb53dee08a6050b8f1c1fed0f24` on `codex/nexa-026-alpha`.
+- Informational version: `0.1.26-alpha+49b138123f249bb53dee08a6050b8f1c1fed0f24`.
+- SHA256: `D9D9C1D9CBA7868D2B36B62936C598A692BFA3AC90BD944B6FDF8A97DA325B22`.
+- Size: 145,195,830 bytes; self-contained Windows x64 single-file package, with adjacent checksum and candidate metadata files.
+- Isolated packaged health run: `verification/packaged026/startup.json`, exit 0. Correct alpha version, x64, PerMonitorV2, 759 square pixels, four presets, three embedded Bible datasets and zero initial bugs.
+- Final metadata/string-only rebuild: zero warnings/errors; alpha and menu follow-up checks passed again (27 and 9, repeated checks not added to the 471 distinct total).
+- The approved Latest, root executable and earlier Testing executable were checked against their pre-packaging SHA256 values and remain unchanged.
+- This is a **partial preview**. No claim of a complete v0.1.26 release, successful physical hibernation testing, live-user-data migration or improved overall Space loading is made.

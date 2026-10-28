@@ -79,3 +79,15 @@ See [testing](TESTING-0.1.26-alpha.md) and [release readiness](RELEASE-READINESS
 ?? SpaceIcons.cs
 ?? tests/Nexa026Checks.cs
 ```
+
+## Packaged testing candidate
+
+- Executable: `M:/Nexa/Builds/Testing/0.1.26-alpha/Nexa.exe`.
+- Source commit: `49b138123f249bb53dee08a6050b8f1c1fed0f24` on `codex/nexa-026-alpha`.
+- Informational version: `0.1.26-alpha+49b138123f249bb53dee08a6050b8f1c1fed0f24`.
+- SHA256: `D9D9C1D9CBA7868D2B36B62936C598A692BFA3AC90BD944B6FDF8A97DA325B22`.
+- Size: 145,195,830 bytes; self-contained Windows x64 single-file package, with adjacent checksum and candidate metadata files.
+- Isolated packaged health run: `verification/packaged026/startup.json`, exit 0. Correct alpha version, x64, PerMonitorV2, 759 square pixels, four presets, three embedded Bible datasets and zero initial bugs.
+- Final metadata/string-only rebuild: zero warnings/errors; alpha and menu follow-up checks passed again (27 and 9, repeated checks not added to the 471 distinct total).
+- The approved Latest, root executable and earlier Testing executable were checked against their pre-packaging SHA256 values and remain unchanged.
+- This is a **partial preview**. No claim of a complete v0.1.26 release, successful physical hibernation testing, live-user-data migration or improved overall Space loading is made.
