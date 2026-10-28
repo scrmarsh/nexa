@@ -34,8 +34,15 @@ foreach($name in @('nexa-logo-full-dark-seasonal.svg','nexa-logo-full-seasonal.s
  $path=Join-Path $repoRoot ('assets\'+$name)
  $svg=Get-Content -LiteralPath $path -Raw
  $svg=[regex]::Replace($svg,'(?s)(<g transform="translate\(40,40\) scale\(0\.546875\)">).*?(</g>)',{param($match) $match.Groups[1].Value+"`n"+$iconBody+"`n  "+$match.Groups[2].Value})
- $svg=[regex]::Replace($svg,'<path stroke="[^"]+" d="M875 112 L755 250"/>','<path stroke="#FDBA74" d="M875 112 L755 250"/>')
- $svg=[regex]::Replace($svg,'<path stroke="[^"]+" d="M755 112 L875 250"/>','<path stroke="#FFFFFF" d="M755 112 L875 250"/>')
+ # Keep the classic wordmark byte-for-byte in geometry, layering and base text
+ # colors. Only the originally purple X stroke receives the seasonal accent.
+ $classicName=if($name -eq 'nexa-logo-full-dark-seasonal.svg'){'nexa-logo-full-dark.svg'}else{'nexa-logo-full.svg'}
+ [xml]$classicSvg=Get-Content -LiteralPath (Join-Path $repoRoot ('assets\'+$classicName)) -Raw
+ $classicLetters=$classicSvg.DocumentElement.ChildNodes | Where-Object {$_.LocalName -eq 'g' -and -not $_.HasAttribute('transform')}
+ $wordmark=[regex]::Replace($classicLetters.OuterXml,'<path stroke="[^"]+" d="M875 112 L755 250"\s*/>','<path stroke="#FDBA74" d="M875 112 L755 250" />')
+ $wordmark=$wordmark.Replace(' xmlns="http://www.w3.org/2000/svg"','') -replace '><',">`n    <"
+ $wordmark=$wordmark.Replace(' />','/>').Replace("`n    </g>","`n  </g>")
+ $svg=[regex]::Replace($svg,'(?s)<g fill="none" stroke-width="30".*?</g>',{param($match) $wordmark})
  Set-Content -LiteralPath $path -Value (($svg -replace '\r\n',"`n").TrimEnd()+"`n") -Encoding utf8 -NoNewline
 }
 & (Join-Path $PSScriptRoot 'Export-SeasonalIcon.ps1')

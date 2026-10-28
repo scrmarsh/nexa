@@ -114,7 +114,11 @@ internal static partial class Program
             Assert(groups[0].Elements().Count(e => (string?)e.Attribute("stroke") == "#000000" && (string?)e.Attribute("stroke-width") == "24") == 2, name + " uses the selected quadruple black borders only on the icon perimeter and union silhouette");
             var letters = groups[1].Elements().ToArray();
             Assert(letters.All(e => (string?)e.Attribute("stroke") != "#000000") && letters.Length == 6, name + " keeps all wordmark letters borderless and geometry intact");
-            Assert(letters.Single(e => (string?)e.Attribute("d") == "M875 112 L755 250").Attribute("stroke")!.Value == "#FDBA74" && letters.Single(e => (string?)e.Attribute("d") == "M755 112 L875 250").Attribute("stroke")!.Value == "#FFFFFF", name + " X uses the requested white top-left-to-bottom-right stroke and light-orange opposite stroke");
+            var classicName = name == "nexa-logo-full-dark-seasonal.svg" ? "nexa-logo-full-dark.svg" : "nexa-logo-full.svg";
+            var classic = XDocument.Load(Path.Combine(assets,classicName)).Root!.Elements().Last(e => e.Name.LocalName == "g");
+            var expectedLetters = new XElement(classic);
+            expectedLetters.Elements().Single(e => (string?)e.Attribute("d") == "M875 112 L755 250").SetAttributeValue("stroke","#FDBA74");
+            Assert(XNode.DeepEquals(expectedLetters,groups[1]), name + " changes only the classic purple X stroke to light orange; every other letter, stroke and layer is unchanged");
         }
         Theme.SetSeasonalEnabled(true); Theme.Apply(Application.Current.Resources,SessionDashboard.ThemeMode.Dark,AppTheme.Nexa);
         var logo = new NexaLogo {Width=1140,Height=360}; logo.Measure(new Size(1140,360)); logo.Arrange(new Rect(0,0,1140,360));

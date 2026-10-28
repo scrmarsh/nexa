@@ -67,7 +67,11 @@ correction, the X's top-left-to-bottom-right stroke is white (#FFFFFF), and its
 opposite stroke is light orange (#FDBA74), following the classic logo's contrast.
 This supersedes the original two-orange wordmark requirement; the icon retains
 both original orange components. Combined Home/splash branding uses the same
-icon contours. Existing light-theme contrast adaptation remains in the renderer.
+icon contours. The generator now takes the whole wordmark group from the retained
+classic asset and changes only its purple X path to light orange. Tests compare
+the complete group against the classic source with that single substitution,
+preserving all other geometry, colors and layering in both dark/light variants.
+Existing light-theme contrast adaptation remains in the renderer.
 
 `tools/Prepare-SeasonalBranding.ps1` reconstructs these deterministic vector
 changes from the existing geometry and hash-checked reference.
@@ -95,7 +99,7 @@ are not added to these totals. Exact run scope:
 | --- | --- | --- |
 | Pre-implementation handoff route | 95 passed | `verification/baseline-027-handoff.log` |
 | Full sixteen inherited routes | 605 passed (604 inherited assertions + one splash-minimum assertion) | `verification/acceptance-20261028-130800/*.log` |
-| Final .27 route including selected quadruple borders and corrected X | 51 passed | `verification/nexaween027-final-branding-choice.log`, captures `verification/20261028-132949` |
+| Final .27 route including selected quadruple borders and classic-wordmark comparison | 51 passed | `verification/nexaween027-classic-logo-final.log`, captures `verification/20261028-133457` |
 | Final affected-route reruns | followup-design 31, ecosystem 48, handoff026 95 passed | `verification/nexaween027-final-<route>.log` |
 | Post-branding affected-route reruns | handoff026 95, alpha026 28, followup-design 31 passed | `verification/nexaween027-branding-<route>.log` |
 | Live discovery, final retry | 2 passed, no package download/install | `verification/nexaween027-public-updates-retry.log`, `verification/20261028-131305` |
