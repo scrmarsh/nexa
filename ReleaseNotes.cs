@@ -8,7 +8,7 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
-        new("0.1.26", "October 27, 2026", "Spaces in Motion · alpha preview", "Testing candidate: session recaps, cumulative productivity, guided setup and seasonal animation. Manual acceptance is still required.",
+        new("0.1.26", "October 28, 2026", "Spaces in Motion", "Published alpha: session recaps, cumulative productivity, guided setup and seasonal animation. Subsequent handoff corrections are described separately above. Manual acceptance remains incomplete.",
         [
             "Home has paired Create and Import actions, six initial Space cards, and Show More / Hide More controls.",
             "Portable vector Space icons, saved with layouts and exports, appear on Home and dashboard headers.",

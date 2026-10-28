@@ -4,6 +4,8 @@
 
 ## 0.1.26 alpha — Spaces in Motion (2026-10-28)
 
+Additional **unpublished handoff candidate** work: full seasonal visibility/hit-testing restoration; compact golden-lightning Productivity; centered Space cards and paced/reverse expansion with working mouse-wheel scrolling; bottom-pinned Experimental Features; Chicago zone aliases and selection-only dropdown; new-Space viewport reset; five sound styles; tagline-first splash and in-place preview; safer transitions; cumulative scores and recap snapshots in private exports; illustrated recaps and guide polish. This does not describe the bytes already published under v0.1.26-alpha. See [handoff evidence and remaining acceptance](docs/HANDOFF-COMPLETION-0.1.26-alpha.md).
+
 - Paired Create/Import actions, six initial Space cards, all/ six expansion controls and saved vector Space icons.
 - Black-backed navigation transitions, dispatcher-safe failure recovery and off-thread Space/DEV file preparation.
 - Existing DEV timers/layouts remain intact; Settings initializes pages on demand and groups experimental pages in an expander.
@@ -35,7 +37,7 @@
 
 This candidate is not the final Nexaween release. See [verification and outstanding acceptance](docs/FINAL-0.1.24-STATUS.md). No production release was overwritten.
 
-## Previously published baseline — nexa v0.1.24 Alpha — NEXAWEEN
+## Previously published baseline — nexa v0.1.24 Alpha — Getting Candy for Trick-or-Treaters
 
 A space for whatever haunts you next.
 

@@ -87,6 +87,8 @@ internal sealed partial class HomeWindow
     private void OpenChangelog()
     {
         var dialog = InfoDialog("Changelog", 800, 720); var body = new StackPanel { Margin = new Thickness(28) };
+        body.Children.Add(new TextBlock{Text="Unpublished handoff candidate · Nexa v0.1.26 alpha",FontSize=22,FontWeight=FontWeights.Bold,TextWrapping=TextWrapping.Wrap});
+        body.Children.Add(Copy("Additional development: corrected seasonal visibility, compact Productivity, centered Space cards, paced expansion, Chicago search, bottom-pinned Experimental Features, new-Space scroll reset, five sound styles, tagline-first startup, in-place splash preview, portable cumulative scores and illustrated recaps. These corrections do not replace the existing published package.",15));
         body.Children.Add(new TextBlock { Text = "What’s new in Nexa", FontSize = 27, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
         body.Children.Add(Copy("Release history · Windows desktop", 13));
         foreach (var release in ReleaseNotes.All)

@@ -1,5 +1,9 @@
 # Optional integrations
 
+## Handoff candidate interface, October 28, 2026
+
+General → Integrations offers Todoist, Hevy workout-account verification, and the separate Hedy recording settings. Stored authorizations display as unverified until a live request succeeds. Experimental Features lists Google Tasks, Google Calendar and Outlook Calendar as Coming Soon; existing encrypted provider authorizations remain available for disconnection. The older setup instructions below describe retained provider implementation and historical configuration, not newly offered connections in this acceptance candidate.
+
 Account and provider setup for Nexa. These services are optional; live provider and microphone acceptance is documented separately in the [implementation report](IMPLEMENTATION-0.1.24.md).
 
 All connections are optional. Local notes, timers, Focus Reset, Bible, layouts, themes, history and autosave work without an account or internet access. Add widgets from the usual widget catalog; manage accounts in Settings → Integrations.

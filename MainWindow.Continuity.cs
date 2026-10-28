@@ -197,7 +197,7 @@ public partial class MainWindow
         { ShowSaveStatus("Save failed", warning: true); Feedback.Text = "Space was not changed: " + ex.Message; return false; }
         finally { ready = true; }
     }
-    private void DashboardSelected(object sender, SelectionChangedEventArgs e)
+    private async void DashboardSelected(object sender, SelectionChangedEventArgs e)
     {
         if (!ready || updatingDashboardPicker || DashboardPicker.SelectedItem is not DashboardRecord selected || selected.DashboardId == state.Workspace!.ActiveDashboardId) return;
         if (!SaveNow()) { RefreshDashboardPicker(); return; }
@@ -205,20 +205,20 @@ public partial class MainWindow
         Continuity.Current(candidate, store.UserId).Current.ClosedAt = DateTimeOffset.Now;
         candidate.ActiveDashboardId = selected.DashboardId;
         Continuity.Access(Continuity.Current(candidate, store.UserId));
-        if (!CommitWorkspace(candidate)) RefreshDashboardPicker();
+        if (!await ChangeSpace(candidate)) RefreshDashboardPicker();
     }
     private NexaDialog Dialog(string title, double width = 720, double height = 650) => new NexaPanel()
     {
         Title = title, Width = width, Height = height, MinWidth = 420, MinHeight = 300, Owner = this,
         WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = Brush("BackgroundBrush"), Foreground = Brush("TextBrush")
     };
-    private void NewDashboardClick(object sender, RoutedEventArgs e)
+    private async void NewDashboardClick(object sender, RoutedEventArgs e)
     {
         var dialog = new DashboardCreation(this, store.UserId, store.LoadProfile());
         if (dialog.ShowDialog() != true || dialog.Result == null || !SaveNow()) return;
         var candidate = CopyWorkspaceState().Workspace!;
         candidate.Dashboards.Add(dialog.Result); candidate.ActiveDashboardId = dialog.Result.DashboardId;
-        CommitWorkspace(candidate);
+        await ChangeSpace(candidate);
     }
     private void ResetDashboardClick(object sender, RoutedEventArgs e)
     {
@@ -251,7 +251,7 @@ public partial class MainWindow
         };
         dialog.Content = panel; dialog.ShowDialog();
     }
-    private void ImportDashboardClick(object sender, RoutedEventArgs e)
+    private async void ImportDashboardClick(object sender, RoutedEventArgs e)
     {
         var picker = new OpenFileDialog { Filter = "Nexa Space (*.nexa)|*.nexa", CheckFileExists = true };
         if (picker.ShowDialog(this) != true) return;
@@ -263,7 +263,7 @@ public partial class MainWindow
             if (!SaveNow()) return;
             var candidate = CopyWorkspaceState().Workspace!;
             Continuity.Import(candidate, file, store.UserId, file.IncludesSessionData);
-            if (CommitWorkspace(candidate)) Feedback.Text = "Imported as a new Space.";
+            if (await ChangeSpace(candidate)) Feedback.Text = "Imported as a new Space.";
         }
         catch (Exception ex) when (SaveException(ex)) { MessageBox.Show(this, ex.Message, "Import failed", MessageBoxButton.OK, MessageBoxImage.Warning); }
     }

@@ -18,11 +18,13 @@ internal static class NexaMotion
     }
     internal static void Entrance(FrameworkElement element,NexaOptions options,int delay=0)
     {
-        animations.GetOrCreateValue(element).Generation++;
+        var state=animations.GetOrCreateValue(element);var generation=++state.Generation;
         element.BeginAnimation(UIElement.OpacityProperty,null);
         if(!Allowed(options)){element.Opacity=1;return;}
-        element.Opacity=1;
-        element.BeginAnimation(UIElement.OpacityProperty,new DoubleAnimation(0,1,TimeSpan.FromMilliseconds(280)){BeginTime=TimeSpan.FromMilliseconds(delay),FillBehavior=FillBehavior.Stop,EasingFunction=new CubicEase{EasingMode=EasingMode.EaseOut}});
+        element.Opacity=0;
+        var animation=new DoubleAnimation(0,1,TimeSpan.FromMilliseconds(280)){BeginTime=TimeSpan.FromMilliseconds(delay),FillBehavior=FillBehavior.HoldEnd,EasingFunction=new CubicEase{EasingMode=EasingMode.EaseOut}};
+        animation.Completed+=(_,_)=>{if(state.Generation!=generation)return;element.Opacity=1;element.BeginAnimation(UIElement.OpacityProperty,null);};
+        element.BeginAnimation(UIElement.OpacityProperty,animation);
     }
     internal static void Stagger(IEnumerable<FrameworkElement> children,NexaOptions options)
     {var index=0;foreach(var child in children)Entrance(child,options,Math.Min(index++,6)*70);}

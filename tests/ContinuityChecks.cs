@@ -88,6 +88,7 @@ internal static partial class Program
         Assert(window.CommitWorkspace(candidate) && window.NotesBox.Text == "", "Switching to a new dashboard starts with isolated content");
         window.NotesBox.Text = "Notes on dashboard B";
         window.DashboardPicker.SelectedItem = window.state.Workspace!.Dashboards.Single(d => d.DashboardId == activeId);
+        WaitHandoff(()=>window.state.Workspace!.ActiveDashboardId==activeId,"Animated dashboard switch reaches the selected saved Space");
         Assert(window.NotesBox.Text == "Notes on dashboard A" && window.TaskInput.Text == "Unsubmitted task draft" && window.TitleInput.Text == "Unstarted meeting title" && window.IntervalInput.Text == "7", "Dashboard switch saves outgoing state and restores notes and input drafts independently");
         candidate = window.CopyWorkspaceState().Workspace!;
         var dashboard = Continuity.Current(candidate, store.UserId);
