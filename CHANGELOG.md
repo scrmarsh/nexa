@@ -1,8 +1,8 @@
 # Changelog
 
-![NEXAWEEN — Nexa 0.1.24 Alpha](docs/media/nexaween-banner.svg)
+![NEXAWEEN — nexa 0.1.24 Alpha](docs/media/nexaween-banner.svg)
 
-## Nexa v0.1.24 Alpha — NEXAWEEN
+## nexa v0.1.24 Alpha — NEXAWEEN
 
 A space for whatever haunts you next.
 
@@ -18,4 +18,4 @@ See the [implementation report](docs/IMPLEMENTATION-0.1.24.md) for verification 
 
 [Download this Alpha release](https://github.com/scrmarsh/nexa/releases/tag/v0.1.24-alpha).
 
-Older Nexa entries and mixed Aevoria/development notes are preserved in the [historical changelog](LEGACY/notes/CHANGELOG-through-20261027.md). Those entries describe past versions, not current features.
+Older versions are preserved in the [historical changelog](LEGACY/notes/CHANGELOG-through-20261027.md).
