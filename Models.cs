@@ -227,7 +227,7 @@ public sealed partial class StateStore
             var values = ReadPreferenceValues();
             return new(values.GetValueOrDefault("AddBugs") == "True",
                 Enum.TryParse<BugSpecies>(values.GetValueOrDefault("BugSpecies"), out var species) && Enum.IsDefined(species) ? species==BugSpecies.AllThree ? BugSpecies.AllBugs : species : BugSpecies.Ants,
-                Enum.TryParse<BugDensity>(values.GetValueOrDefault("BugDensity"), out var density) && Enum.IsDefined(density) ? density : BugDensity.Normal,
+                values.GetValueOrDefault("BugDensity") == "Infestation" && values.GetValueOrDefault("BugDensitySchema") != "2" ? BugDensity.High : Enum.TryParse<BugDensity>(values.GetValueOrDefault("BugDensity"), out var density) && Enum.IsDefined(density) ? density : BugDensity.Normal,
                 values.TryGetValue("EcosystemSettings",out var eco) ? EcosystemOptions.Existing(JsonSerializer.Deserialize<EcosystemOptions>(eco,Options) ?? new()).Safe() : new());
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException) { return new(); }
@@ -236,7 +236,7 @@ public sealed partial class StateStore
     {
         var values = ReadPreferenceValues();
         values["EcosystemSettings"] = JsonSerializer.Serialize((bugs.Ecosystem ?? new()).Safe(),Options);
-        values["AddBugs"] = bugs.Enabled.ToString(); values["BugSpecies"] = bugs.Species.ToString(); values["BugDensity"] = bugs.Density.ToString();
+        values["BugDensitySchema"] = "2"; values["AddBugs"] = bugs.Enabled.ToString(); values["BugSpecies"] = bugs.Species.ToString(); values["BugDensity"] = bugs.Density.ToString();
         Directory.CreateDirectory(Path.GetDirectoryName(PreferencesPath)!);
         AtomicWrite(PreferencesPath, JsonSerializer.Serialize(values, Options), false);
     }

@@ -52,7 +52,7 @@ internal sealed partial class HomeWindow : NexaDialog
         homeLayout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         homeLayout.Children.Add(new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled });
         Grid.SetRow(footer, 1); homeLayout.Children.Add(footer);
-        Content = homeLayout;
+        Content = SeasonalBackdrop.Wrap(homeLayout,()=>Saved.Workspace?.Settings??new(),permanentCorners:true);
     }
 
     private void OpenSettingsOld()

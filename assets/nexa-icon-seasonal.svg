@@ -4,7 +4,7 @@
       <rect width="512" height="512" rx="116"/>
     </clipPath>
   </defs>
-  <rect width="512" height="512" rx="116" fill="#1C102A"/>
+  <rect width="512" height="512" rx="116" fill="#84CC16"/>
   <polygon points="512,0 512,512 0,512" fill="#A855F7" clip-path="url(#tile)"/>
   <line x1="128" y1="384" x2="384" y2="128" stroke="#A855F7" stroke-width="38" stroke-linecap="round"/>
   <polyline points="128,384 128,128 384,384 384,128" fill="none" stroke="#FFFFFF" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>

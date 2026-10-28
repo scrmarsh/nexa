@@ -21,7 +21,7 @@ internal sealed partial class BugManager
     internal bool SeasonalCostumes { get; set; }
     internal bool SeasonalCandy { get; set; }
     internal NexaOptions VisualOptions { get; set; } = new();
-    internal int EcosystemCap => Preferences.Density switch { BugDensity.Low => 12, BugDensity.Infestation => 96, _ => 36 };
+    internal int EcosystemCap => Preferences.Density switch { BugDensity.Low => 12, BugDensity.High => 96, BugDensity.Infestation => int.MaxValue, _ => 36 };
     internal double WorldSpawnDelay;
     internal void NewEcosystem(string user, EcosystemOptions options, int? seed = null)
     {
@@ -60,10 +60,43 @@ internal sealed partial class BugManager
             Activity = b.Activity, Personality = b.Personality, ResourceId = b.ResourceId, EnemyId = b.EnemyId, PartnerId = b.PartnerId, RaidTarget = b.RaidTarget, Carrying = b.Carrying, Decision = b.Decision, Phase = b.CrawlPhase
         }).ToList()
     };
+    internal double FrameCostAverage {get;private set;}
+    private double pressureUntil;
+    internal long PersistenceBytes {get;set;}
+    internal bool AdaptiveSpawnAllowed => Environment.TickCount64/1000d >= pressureUntil && PersistenceBytes < 6_000_000 && FrameCostAverage < 32 && Environment.WorkingSet < 768L*1024*1024 && GC.GetTotalMemory(false) < 384L*1024*1024;
+    internal void ObserveFrameCost(double milliseconds)
+    {
+        if(!double.IsFinite(milliseconds) || milliseconds<0)return;
+        FrameCostAverage=FrameCostAverage==0?milliseconds:FrameCostAverage*.9+milliseconds*.1;
+        if(milliseconds>45)pressureUntil=Environment.TickCount64/1000d+5;
+    }
+    internal void SeparateNearby(double dt)
+    {
+        const double cell=64;
+        var buckets=new Dictionary<(int,int),List<BugEntity>>();
+        foreach(var bug in Bugs.Where(b=>b.State is not (BugState.Squashed or BugState.Hiding or BugState.Flying)))
+        {var key=((int)(bug.Position.X/cell),(int)(bug.Position.Y/cell));if(!buckets.TryGetValue(key,out var list))buckets[key]=list=[];list.Add(bug);}
+        foreach(var pair in buckets)foreach(var bug in pair.Value)
+        {
+            var offset=new Vector();var examined=0;
+            for(var x=-1;x<=1;x++)for(var y=-1;y<=1;y++)if(buckets.TryGetValue((pair.Key.Item1+x,pair.Key.Item2+y),out var neighbors))
+            foreach(var other in neighbors)
+            {
+                if(examined++>32)break;
+                if(other==bug || other.InteractionId==bug.PartnerId || other.InteractionId==bug.EnemyId)continue;
+                var away=bug.Position-other.Position;var distance=away.Length;var space=14*Math.Min(3,EcosystemSettings.Size);
+                if(distance>=space)continue;
+                if(distance<.01)away=bug.InteractionId.CompareTo(other.InteractionId)<0?new Vector(1,0):new Vector(-1,0);else away/=distance;
+                offset+=away*(space-distance)/space;
+            }
+            if(offset.Length>1)offset.Normalize();var next=bug.Position+offset*(18*dt);
+            bug.Position=new(Math.Clamp(next.X,8,WorldWidth-8),Math.Clamp(next.Y,8,WorldHeight-8));
+        }
+    }
     private EcosystemNest Nest(BugSpecies species) => Nests.First(n => n.Species == species);
     private bool Edible(BugEntity bug, EcosystemResource resource) => resource.Amount > .1 && resource.Kind switch
     {
-        BugResourceKind.Candy => SeasonalCandy && bug.Species is BugSpecies.Ants or BugSpecies.Roaches,
+        BugResourceKind.Candy => SeasonalCandy && (!DecorationCandyActive || resource.Decoration) && bug.Species is BugSpecies.Ants or BugSpecies.Roaches,
         BugResourceKind.Fruit => bug.Species is BugSpecies.Ants or BugSpecies.Roaches or BugSpecies.Flies,
         BugResourceKind.Leaves => bug.Species == BugSpecies.Ladybugs,
         BugResourceKind.Water => bug.Species is BugSpecies.Flies or BugSpecies.Ladybugs,
@@ -76,17 +109,18 @@ internal sealed partial class BugManager
         dt = Math.Clamp(dt, 0, .1); SimulationAge += dt;
         foreach (var r in Resources)
         {
-            if (r.Amount < 12) { r.Regrowth += dt; if (r.Regrowth >= 90) { r.Amount = Math.Min(12, r.Amount + 1); r.Regrowth = 0; } }
+            if (!r.Decoration && r.Amount < 12) { r.Regrowth += dt; if (r.Regrowth >= 90) { r.Amount = Math.Min(12, r.Amount + 1); r.Regrowth = 0; } }
         }
         for (var i = Webs.Count - 1; i >= 0; i--) { Webs[i].Age += dt; if (Webs[i].Age > 86400 && !Bugs.Any(b=>b.InteractionId==Webs[i].Owner)) Webs.RemoveAt(i); }
+        SeparateNearby(dt);
         WorldSpawnDelay -= dt;
-        if (Bugs.Count < EcosystemCap && WorldSpawnDelay <= 0)
+        if (Bugs.Count < EcosystemCap && WorldSpawnDelay <= 0 && (Preferences.Density != BugDensity.Infestation || AdaptiveSpawnAllowed))
         {
             var bug = Spawn(); bug.Scale = EcosystemSettings.Size; bug.Personality = (BugPersonality)random.Next(4); bug.Decision = 0;
             if (Preferences.Species == BugSpecies.AllBugs) bug.Species = AllSpecies.OrderBy(species => Bugs.Count(other => !ReferenceEquals(other, bug) && other.Species == species)).First();
             bug.Speed = bug.Species switch { BugSpecies.Ants => Range(18,34), BugSpecies.Roaches => Range(75,125), BugSpecies.Ladybugs => Range(22,38), BugSpecies.Centipedes => Range(38,58), _ => Range(50,90) };
             var nest = Nest(bug.Species); bug.Position = nest.Position + new Vector(Range(-35, 35), Range(-35, 35)); bug.Surface = null;
-            WorldSpawnDelay = Bugs.Count < 12 ? .15 : nest.Food >= 1 ? 2 : 8;
+            WorldSpawnDelay = Preferences.Density == BugDensity.Infestation ? .4 : Bugs.Count < 12 ? .15 : nest.Food >= 1 ? 2 : 8;
             nest.Food = Math.Max(0, nest.Food - .2);
         }
         for (var i = Splats.Count - 1; i >= 0; i--) { Splats[i].Age += dt; if (Splats[i].Age > 4) Splats.RemoveAt(i); }
@@ -147,6 +181,12 @@ internal sealed partial class BugManager
                     {
                         resource.Amount = Math.Max(0, resource.Amount - .2); bug.Energy = Math.Min(1,bug.Energy+.2); bug.Health=Math.Min(100,bug.Health+3);
                         bug.Carrying=0;bug.Activity=BugActivity.Grooming;bug.State=BugState.Paused;bug.Decision=4;continue;
+                    }
+                    if(resource.Decoration)
+                    {
+                        if(bug.FeedingResource!=resource.Id){bug.FeedingResource=resource.Id;bug.FeedingUntil=SimulationAge+.7;}
+                        if(SimulationAge<bug.FeedingUntil){bug.State=BugState.Paused;bug.FlightHeight=0;continue;}
+                        bug.FeedingResource=null;
                     }
                     var partner = bug.Species==BugSpecies.Ants && resource.Kind==BugResourceKind.Candy ? Bugs.FirstOrDefault(b=>b!=bug && b.Species==BugSpecies.Ants && b.State!=BugState.Squashed && b.Health>0 && b.Carrying<=0 && (b.Position-bug.Position).Length<35) : null;
                     var amount=Math.Min(resource.Amount,partner!=null?2:.5);resource.Amount-=amount;

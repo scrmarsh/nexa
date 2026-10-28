@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Media;
 
 namespace SessionDashboard;
@@ -34,6 +34,8 @@ internal static partial class BugVisuals
             if (costume) dc.DrawDrawing(Costume(bug.Species, false));
             head = new(bug.Species == BugSpecies.Roaches ? 9 : 5, 0);
         }
+        if(bug.HitFlash>0 || bug.State==BugState.Squashed)
+        { dc.PushOpacity(Math.Clamp(bug.HitFlash/.35,.12,.55));dc.DrawEllipse(B("#EF4444"),null,new Point(-1,0),bug.Species==BugSpecies.Centipedes?17:9,4);dc.Pop(); }
         BugAnimation.DrawElytra(dc, bug);
         BugAnimation.DrawAppendages(dc, bug, options, time, head);
         if (options.Adorable)
@@ -52,6 +54,12 @@ internal static partial class BugVisuals
                 var pupil = center + bug.Gaze;
                 dc.DrawEllipse(B("#24152F"), null, pupil, bug.HitFlash > 0 ? .65 : .9, Math.Min(1.1, 1.4 * opening));
                 dc.DrawEllipse(B("#FFFFFF"), null, pupil + new Vector(.22, -.25), .27, .27);
+            }
+            if(bug.State==BugState.Squashed)
+            {
+                var age=Math.Clamp(bug.SquashAge/.4,0,1);dc.PushOpacity(1-age);
+                for(var side=-1;side<=1;side+=2)dc.DrawEllipse(B("#7DD3FC"),null,head+new Vector(-age*4,side*(3+age*5)),.6,.9);
+                dc.DrawGeometry(null,P("#573745",.5),Geometry.Parse(FormattableString.Invariant($"M{head.X+2},-2 Q{head.X},0 {head.X+2},2")));dc.Pop();
             }
             if (bug.HitFlash > 0) dc.DrawEllipse(null, P("#8C5C72", .35), head + new Vector(2.3, 0), .45, .65);
             else if (bug.Personality == BugPersonality.Curious && bug.Activity == BugActivity.Gathering)

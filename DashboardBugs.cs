@@ -3,7 +3,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 namespace SessionDashboard;
 internal enum BugSpecies { Ants, Roaches, Flies, AllThree, Spiders, AllBugs, Ladybugs, Centipedes }
-internal enum BugDensity { Low, Normal, Infestation }
+internal enum BugDensity { Low=0, Normal=1, High=2, Infestation=3 }
 internal enum BugVariant { None, QueenRoach, QueenFly, QueenLadybug, MamaSpider, KingCentipede }
 internal enum BugState { Edge, Crossing, Flying, Landed, Paused, Hiding, Squashed, Bursting, Trapped }
 internal sealed record BugPreferences(bool Enabled=false, BugSpecies Species=BugSpecies.Ants, BugDensity Density=BugDensity.Normal, EcosystemOptions? Ecosystem=null);
@@ -22,6 +22,8 @@ internal sealed class BugEntity
     internal BugVariant Variant;
     internal BugState State;
     internal Point Position, Target;
+    internal Guid? FeedingResource;
+    internal double FeedingUntil;
     internal double Angle,Speed,Decision,EdgeProgress,SquashAge,HitFlash,CrawlPhase,Age;
     internal int Direction=1,Hits;
     internal Vector BurstVelocity;
@@ -45,7 +47,7 @@ internal sealed partial class BugManager
     internal bool SpawnPressure;
     internal const int InfestationCap=600;
     internal int Cap=>Preferences.Species==BugSpecies.Centipedes ? Math.Max(1,BaseCap/12) : BaseCap;
-    private int BaseCap=>Preferences.Density switch {BugDensity.Low=>9,BugDensity.Infestation=>InfestationCap,_=>24};
+    private int BaseCap=>Preferences.Density switch {BugDensity.Low=>9,BugDensity.High=>96,BugDensity.Infestation=>int.MaxValue,_=>24};
     internal double SpawnInterval=>(Preferences.Density==BugDensity.Infestation?.08:.65)*(Preferences.Species==BugSpecies.Centipedes?6:1)*(Preferences.Density==BugDensity.Low?2:1)*(SpawnPressure?3:1);
     internal BugManager(int? seed=null) {random=seed is {} value ? new Random(value) : new Random();}
     internal void Configure(BugPreferences preferences)
@@ -62,7 +64,7 @@ internal sealed partial class BugManager
             else if (previousSpecies != BugSpecies.AllBugs && Bugs.All(b => b.Species == previousSpecies))
             {
                 // Free slots for newly enabled species without crediting removals as squashes.
-                var retainedPerSpecies = Math.Max(1, EcosystemCap / AllSpecies.Length);
+                var retainedPerSpecies = Math.Max(1, Math.Min(EcosystemCap, Bugs.Count) / AllSpecies.Length);
                 foreach (var group in Bugs.GroupBy(b => b.Species).ToArray())
                     foreach (var excess in group.Skip(retainedPerSpecies).ToArray()) Bugs.Remove(excess);
             }
@@ -185,7 +187,7 @@ internal BugEntity? Hit(Point point)
         if(EcosystemActive){AdvanceEcosystem(dt);return;}
         if(!Preferences.Enabled || Bounds.Width<30 || Bounds.Height<30)return;
         dt=Math.Clamp(dt,0,.08);replacementDelay=Math.Max(-.08,replacementDelay-dt);
-        for(var count=0;replacementDelay<=0 && Bugs.Count<Cap && count<2;count++){Spawn();replacementDelay+=SpawnInterval;}
+        for(var count=0;replacementDelay<=0 && Bugs.Count<Cap && count<2 && (Preferences.Density!=BugDensity.Infestation || AdaptiveSpawnAllowed);count++){Spawn();replacementDelay+=SpawnInterval;}
         for(var i=Splats.Count-1;i>=0;i--){Splats[i].Age+=dt;if(Splats[i].Age>=4)Splats.RemoveAt(i);}
         for(var i=Bugs.Count-1;i>=0;i--)
         {

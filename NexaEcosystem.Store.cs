@@ -118,6 +118,7 @@ internal sealed class NexaEcosystem : IDisposable
         var began = Stopwatch.GetTimestamp();
         if (!blocked) Manager.Advance(dt);
         LastStepMilliseconds = Stopwatch.GetElapsedTime(began).TotalMilliseconds;
+        Manager.ObserveFrameCost(LastStepMilliseconds);
         checkpoint += dt; if (checkpoint >= 30) { checkpoint = 0; Save(); }
         Changed?.Invoke();
     }
@@ -127,7 +128,8 @@ internal sealed class NexaEcosystem : IDisposable
         try
         {
             var doc = Manager.CaptureEcosystem(store.UserId); doc.PendingSquashes = Continuity.Clone(pendingSquashes); doc.Validate(store.UserId);
-            StateStore.AtomicWrite(FilePath, JsonSerializer.Serialize(doc, json), true); Status = scoreWarning; return true;
+            var payload=JsonSerializer.Serialize(doc,json);Manager.PersistenceBytes=System.Text.Encoding.UTF8.GetByteCount(payload);if(Manager.PersistenceBytes>8_000_000)throw new InvalidDataException("Resource safety limit reached; the previous save is preserved.");
+            StateStore.AtomicWrite(FilePath, payload, true); Status = scoreWarning; return true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException or JsonException)
         { Status = "The ecosystem could not be saved. Its latest live state is retained; saving will retry."; return false; }
@@ -196,8 +198,8 @@ internal sealed class NexaEcosystem : IDisposable
                     if(target==null) throw new IOException("The original session record is unavailable.");
                     var ledger = target.SessionId==current.SessionId ? state.Productivity : target.Data.Productivity;
                     var score=ledger.Score;
-                    if(ProductivityScoring.DirectSquash(ledger,squash.BugId.ToString(),squash.At,state.Workspace.Settings.StreakMultiplierCap))
-                    {state.Workspace.AllTimeSquashes++;if(target.SessionId!=current.SessionId)state.Workspace.AllTimeProductivityScore+=ledger.Score-score;}
+                    if(ProductivityScoring.DirectSquash(ledger,squash.BugId.ToString(),squash.At,state.Workspace.Settings.StreakMultiplierCap,squash.Species.ToString()))
+                    {state.Workspace.AllTimeSquashes++;var key=squash.Species.ToString();state.Workspace.AllTimeSquashesBySpecies[key]=state.Workspace.AllTimeSquashesBySpecies.GetValueOrDefault(key)+1;if(target.SessionId!=current.SessionId)state.Workspace.AllTimeProductivityScore+=ledger.Score-score;}
                     store.Save(state);
                 }
                 pendingSquashes.Remove(squash);

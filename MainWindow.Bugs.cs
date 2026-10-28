@@ -40,8 +40,8 @@ public partial class MainWindow
     private void DashboardSquashed(BugEntity bug) => ecosystem?.RecordSquash(bug, this);
     internal bool RecordEcosystemSquash(BugEntity bug, DateTimeOffset? at = null)
     {
-        if (ProductivityScoring.DirectSquash(state.Productivity, bug.InteractionId.ToString(), at ?? DateTimeOffset.UtcNow,Options.StreakMultiplierCap))
-        { state.Workspace!.AllTimeSquashes++; Changed(); }
+        if (ProductivityScoring.DirectSquash(state.Productivity, bug.InteractionId.ToString(), at ?? DateTimeOffset.UtcNow,Options.StreakMultiplierCap,bug.Species.ToString()))
+        { state.Workspace!.AllTimeSquashes++;RecordSpeciesTotal(bug.Species); Changed(); }
         return SaveNow();
     }
     private void UpdateBugActivity()
@@ -74,7 +74,7 @@ public partial class MainWindow
     private void EcosystemChanged()
     {
         if (bugsOverlay == null || ecosystem == null) return;
-        UpdateBugGeometry(); bugsOverlay.RefreshFrame(); BugFrameCount++;
+        ReconcileVisibleCandy();UpdateBugGeometry(); bugsOverlay.RefreshFrame(); BugFrameCount++;
         if (ecosystem.Status != ecosystemWarning)
         {
             ecosystemWarning = ecosystem.Status;

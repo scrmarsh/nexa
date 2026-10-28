@@ -123,6 +123,7 @@ internal static partial class BugVisuals
         if (options.EffectiveAppearance == BugAppearance.Normal) dc.DrawDrawing(BugArtwork.For(bug));
         else dc.DrawDrawing(Body(bug.Species, options.EffectiveAppearance));
         if (costume) dc.DrawDrawing(Costume(bug.Species));
+        if(bug.HitFlash>0){dc.PushOpacity(Math.Clamp(bug.HitFlash/.35,.1,.55));dc.DrawEllipse(B("#EF4444"),null,new Point(-1,0),bug.Species==BugSpecies.Centipedes?17:9,4);dc.Pop();}
         var head = bug.Species == BugSpecies.Centipedes ? 16 : bug.Species == BugSpecies.Roaches ? 9 : bug.Species == BugSpecies.Spiders ? 5 : 5;
         if (options.Adorable)
         {

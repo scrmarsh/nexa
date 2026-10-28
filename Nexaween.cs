@@ -96,12 +96,13 @@ internal sealed partial class NexaweenDecorations : FrameworkElement
         var next = hash.ToHashCode(); if (next == signature) return; signature = next;
         var collisionAreas=occupied.ToList();
         var result = new DrawingGroup(); actors.Clear();vineCorners.Clear();
-        var budget = density switch { "Off" => 0, "Low" => 8, "High" => 32, _ => 18 };
+        var budget = density switch { "Off" => 0, "Low" => 14, "High" => 52, _ => 30 };
         var random = new Random(102624);
         using (var dc = result.Open())
         {
-            var reserve=density=="High"?8:density=="Low"?2:4;
+            var reserve=density=="Low"?2:3;
             if(budget>0 && widgetTargets!=null)AddContextual(dc,widgetTargets,collisionAreas,Math.Min(reserve,budget));
+            backgroundAvoidance=collisionAreas.ToList();
             var count = 0;var candyBudget=budget-actors.Count;
             for (var attempt = 0; attempt < 300 && count < candyBudget; attempt++)
             {
@@ -111,7 +112,7 @@ internal sealed partial class NexaweenDecorations : FrameworkElement
                 var bounds = new Rect(x, y, size, size); var safe = bounds; safe.Inflate(28, 28);
                 if (collisionAreas.Any(r => r.IntersectsWith(safe))) continue;
                 dc.PushTransform(new TranslateTransform(x, y)); dc.PushTransform(new ScaleTransform(size / 64d, size / 64d));
-                var kind=CandyKinds[count%CandyKinds.Length];var asset=Asset(kind);dc.DrawDrawing(asset);actors.Add(new(bounds,kind,asset,count)); dc.Pop(); dc.Pop(); collisionAreas.Add(bounds); count++;
+                var kind=BackgroundKinds[count%BackgroundKinds.Length];var asset=Asset(kind);dc.DrawDrawing(asset);actors.Add(new(bounds,kind,asset,count)); dc.Pop(); dc.Pop(); collisionAreas.Add(bounds); count++;
             }
         }
         result.Freeze(); drawing = result; ReconcileAnimation(); InvalidateVisual();
@@ -124,13 +125,17 @@ internal sealed partial class NexaweenDecorations : FrameworkElement
         dc.DrawGeometry(B(color), stroke == null ? null : P(stroke), Geometry.Parse(path));
     private static void Draw(DrawingContext dc, int kind)
     {
+        if(kind>=20){DrawSeasonalExtra(dc,kind);return;}
         if(kind>=15){DrawExtraCandy(dc,kind);return;}
         switch (kind)
         {
             case 0: case 1: // Pumpkin / jack-o-lantern
-                dc.DrawEllipse(B("#C45115"), null, new(32,36), 27,23);
+                var pumpkin = new RadialGradientBrush((Color)ColorConverter.ConvertFromString("#FDBA74"),(Color)ColorConverter.ConvertFromString("#9A3412")){GradientOrigin=new Point(.35,.25),Center=new Point(.45,.45),RadiusX=.65,RadiusY=.65};pumpkin.Freeze();
+                dc.DrawEllipse(pumpkin, P("#9A3412",1), new(32,36), 27,23);
                 dc.DrawEllipse(B("#F97316"), P("#9A3412"), new(23,36), 16,22);
                 dc.DrawEllipse(B("#FB923C"), P("#C45115"), new(38,36), 15,22);
+                for(var groove=0;groove<5;groove++)
+                {var x=17+groove*7;var curve=new StreamGeometry();using(var g=curve.Open()){g.BeginFigure(new(x,15),false,false);g.BezierTo(new(x-10,27),new(x-9,48),new(x,57),true,false);}dc.DrawGeometry(null,P("#663B1C10",.8),curve);}
                 Shape(dc,"M29,17 L30,5 Q40,1 39,8 L35,18 Z","#567D36");
                 if (kind == 1) { Shape(dc,"M15,34 L22,24 L28,34 Z M36,34 L42,24 L49,34 Z","#D9F99D"); Shape(dc,"M16,43 L24,47 L30,43 L37,48 L48,42 Q35,60 16,43 Z","#84CC16"); }
                 break;

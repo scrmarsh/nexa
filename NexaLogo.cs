@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
 using System.Xml.Linq;
@@ -8,12 +8,12 @@ namespace SessionDashboard;
 // Render the supplied full SVG as vectors. The original file remains the source of truth.
 internal sealed class NexaLogo : FrameworkElement
 {
-    private readonly DrawingImage normalLogo,seasonalLogo;
+    private readonly DrawingImage normalLogo,seasonalLogo,normalLight,seasonalLight;
     internal NexaLogo()
     {
-        normalLogo=Load("nexa-logo-full-dark.svg");seasonalLogo=Load("nexa-logo-full-dark-seasonal.svg");System.Windows.Automation.AutomationProperties.SetName(this,"Nexa full logo");
+        normalLogo=Load("nexa-logo-full-dark.svg");seasonalLogo=Load("nexa-logo-full-dark-seasonal.svg");normalLight=Load("nexa-logo-full-dark.svg",true);seasonalLight=Load("nexa-logo-full-dark-seasonal.svg",true);System.Windows.Automation.AutomationProperties.SetName(this,"Nexa full logo");
     }
-    private static DrawingImage Load(string asset)
+    private static DrawingImage Load(string asset,bool light=false)
     {
         using var stream=Application.GetResourceStream(new Uri("pack://application:,,,/Nexa;component/assets/"+asset)).Stream;
         var svg = XDocument.Load(stream); var drawing = new DrawingGroup();
@@ -26,7 +26,7 @@ internal sealed class NexaLogo : FrameworkElement
                 foreach (var e in group.Elements())
                 {
                     double Number(string attr, double fallback = 0) => double.TryParse(e.Attribute(attr)?.Value ?? group.Attribute(attr)?.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var n) ? n : fallback;
-                    Brush? Color(string attr) { var value = e.Attribute(attr)?.Value ?? group.Attribute(attr)?.Value; return value == null || value == "none" ? null : (Brush)new BrushConverter().ConvertFromString(value)!; }
+                    Brush? Color(string attr) { var value = e.Attribute(attr)?.Value ?? group.Attribute(attr)?.Value; if(light && !icon && value=="#FFFFFF")value="#171B26"; return value == null || value == "none" ? null : (Brush)new BrushConverter().ConvertFromString(value)!; }
                     var stroke = Color("stroke"); var pen = stroke == null ? null : new Pen(stroke, Number("stroke-width", 1)) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round, LineJoin = PenLineJoin.Round };
                     Geometry? geometry = e.Name.LocalName switch
                     {
@@ -52,13 +52,8 @@ internal sealed class NexaLogo : FrameworkElement
         dc.PushTransform(new TranslateTransform((ActualWidth - 1140 * scale) / 2, (ActualHeight - 360 * scale) / 2)); dc.PushTransform(new ScaleTransform(scale, scale));
         var text = TryFindResource("TextBrush") as SolidColorBrush;
         var light = text != null && text.Color.R + text.Color.G + text.Color.B < 360;
-        if (light)
-        {
-            dc.PushOpacityMask(new ImageBrush(logo));
-            dc.DrawRectangle(text, null, logo.Drawing.Bounds);
-            dc.Pop();
-        }
-        else dc.DrawImage(logo, logo.Drawing.Bounds);
+        if (light) logo=Theme.SeasonalEnabled?seasonalLight:normalLight;
+        dc.DrawImage(logo, logo.Drawing.Bounds);
         dc.Pop(); dc.Pop();
     }
 }

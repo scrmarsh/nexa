@@ -6,13 +6,13 @@ internal sealed partial class SettingsDialog
 {
     private UIElement BuildBugs()
     {
-        var page = Page("Add Bugs", "Optional dashboard overlays. Low, Normal and High control density. Choose behavior, appearance and Adorable Mode independently.");
+        var page = Page("Add Bugs", "Optional dashboard overlays. Low, Normal and High have population limits. Infestation adapts spawning to available performance. Choose behavior, appearance and Adorable Mode independently.");
         var world=NexaEcosystem.For(store);world.ApplySeason(ReliabilityOptions);
         var preferences=world.Manager.Preferences;var options=world.Manager.EcosystemSettings.Safe();
         var enabled = new CheckBox { Content = "Add Bugs to the dashboard", IsChecked = preferences.Enabled, Margin = new Thickness(0, 10, 0, 14) }; page.Children.Add(enabled);
         var species = new ComboBox { ItemsSource = new[] { BugSpecies.AllBugs }.Concat(BugManager.AllSpecies).ToArray(), SelectedItem = preferences.Species };
         Field(page, "Bug type", species);
-        var density = new ComboBox { ItemsSource = new[] { "Low", "Normal", "High" }, SelectedIndex = preferences.Density == BugDensity.Low ? 0 : preferences.Density == BugDensity.Infestation ? 2 : 1 }; Field(page, "Density", density);
+        var density = new ComboBox { ItemsSource = new[] { "Low", "Normal", "High", "Infestation" }, SelectedIndex = (int)preferences.Density }; Field(page, "Density", density);
         var behavior = new ComboBox { ItemsSource = new[]{BugBehavior.Classic,BugBehavior.Cozy,BugBehavior.Combative}, SelectedItem = options.Behavior == BugBehavior.Creepy ? BugBehavior.Classic : options.Behavior }; Field(page, "Behavior", behavior);
         var appearance = new ComboBox { ItemsSource = new[] { "Classic", "Creepy", "Halloween" }, SelectedIndex = options.EffectiveAppearance == BugAppearance.Creepy ? 1 : options.EffectiveAppearance == BugAppearance.Halloween ? 2 : 0 };
         Field(page, "Appearance", appearance);
@@ -38,7 +38,7 @@ internal sealed partial class SettingsDialog
         {
             options = options.ChooseBehavior(behavior.SelectedItem is BugBehavior mode ? mode : BugBehavior.Classic,NexaSeason.Active(ReliabilityOptions,DateTimeOffset.UtcNow)) with {
                 MatchAppearance=false, Appearance=appearance.SelectedIndex==1?BugAppearance.Creepy:appearance.SelectedIndex==2?BugAppearance.Halloween:BugAppearance.Normal, Adorable=adorable.IsChecked==true, Size=size.Value, Quality=quality.SelectedItem is BugAnimationQuality chosen?chosen:BugAnimationQuality.Balanced, Costumes=appearance.SelectedIndex==2 };
-            preferences = new(enabled.IsChecked == true, species.SelectedItem is BugSpecies type ? type : BugSpecies.Ants, density.SelectedIndex == 0 ? BugDensity.Low : density.SelectedIndex == 2 ? BugDensity.Infestation : BugDensity.Normal, options.Safe());
+            preferences = new(enabled.IsChecked == true, species.SelectedItem is BugSpecies type ? type : BugSpecies.Ants, density.SelectedIndex is >=0 and <=3 ? (BugDensity)density.SelectedIndex : BugDensity.Normal, options.Safe());
             if (preferences.Enabled) world.Manager.WorldPaused = false;
             world.ApplyPreferences(preferences); world.ApplySeason(ReliabilityOptions);
             foreach (var window in Application.Current.Windows.OfType<MainWindow>().Where(w => w.SettingsStore.UserId == store.UserId && w.SettingsStore.FilePath == store.FilePath)) window.ApplyBugPreferences(preferences);

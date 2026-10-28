@@ -85,7 +85,7 @@ internal sealed class BugOverlay : FrameworkElement
             }
             else BugVisuals.Draw(dc, bug, options, Manager.SeasonalCostumes);
             dc.Pop();
-            if (bug.HitFlash > 0) dc.DrawEllipse(null, BugArtwork.HitRing, p, radius * .5, radius * .4);
+
         }
         foreach(var bug in VisibleBugs.Where(b=>b.PartnerId!=null && b.Carrying>0 && b.State!=BugState.Squashed))
         {
@@ -98,6 +98,7 @@ internal sealed class BugOverlay : FrameworkElement
         }
         if (protectedClip != null) dc.Pop();
         LastRenderMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(began).TotalMilliseconds;
+        Manager.ObserveFrameCost(LastRenderMilliseconds);
     }
     private void DrawFeatures(DrawingContext dc)
     {
@@ -114,6 +115,7 @@ internal sealed class BugOverlay : FrameworkElement
         }
         foreach (var resource in Manager.Resources)
         {
+            if (resource.Decoration || Manager.DecorationCandyActive && resource.Kind==BugResourceKind.Candy)continue;
             if (resource.Amount <= .1 || !DrawWorld && (resource.Kind != BugResourceKind.Candy || !Manager.SeasonalCandy)) continue;
             if (resource.Kind == BugResourceKind.Candy && !Manager.SeasonalCandy) continue;
             var p = WorldToScreen(resource.Position); if (p.X < -20 || p.Y < -20 || p.X > ActualWidth + 20 || p.Y > ActualHeight + 20) continue;
@@ -125,15 +127,16 @@ internal sealed class BugOverlay : FrameworkElement
         foreach(var web in Manager.Webs)
         {
             var center=WorldToScreen(new(web.X,web.Y));var radius=34d;var progress=Math.Clamp(web.Construction,0,1);
+            Point OnWeb(int i,double r) => center + (NexaWebGeometry.Spoke(web,i,r)-new Point(web.X,web.Y))*ViewScale;
             var spokes=(int)Math.Floor(Math.Min(1,progress*2)*8);
-            for(var i=0;i<spokes;i++)dc.DrawLine(BugVisuals.P("#9D8CAE",.45),center,WorldToScreen(NexaWebGeometry.Spoke(web,i,radius)));
+            for(var i=0;i<spokes;i++)dc.DrawLine(BugVisuals.P("#9D8CAE",.45),center,OnWeb(i,radius));
             for(var ring=1;ring<=4;ring++)for(var i=0;i<8;i++)
             {
                 if(progress<.35+(ring-1)*.14+i*.012)continue;
-                dc.DrawLine(BugVisuals.P(Manager.SeasonalCostumes?"#84CC16":"#9D8CAE",.4),WorldToScreen(NexaWebGeometry.Spoke(web,i,radius*ring/4)),WorldToScreen(NexaWebGeometry.Spoke(web,(i+1)%8,radius*ring/4)));
+                dc.DrawLine(BugVisuals.P(Manager.SeasonalCostumes?"#84CC16":"#9D8CAE",.4),OnWeb(i,radius*ring/4),OnWeb((i+1)%8,radius*ring/4));
             }
             if(progress<1 && Manager.Bugs.FirstOrDefault(b=>b.InteractionId==web.Owner && b.Activity==BugActivity.Nesting) is {} spinner && (spinner.Position-new Point(web.X,web.Y)).Length<45)
-                dc.DrawLine(BugVisuals.P("#AFD9CBE2",.35),WorldToScreen(spinner.Position),WorldToScreen(NexaWebGeometry.Spoke(web,(int)(progress*40)%8,radius)));
+                dc.DrawLine(BugVisuals.P("#AFD9CBE2",.35),WorldToScreen(spinner.Position),OnWeb((int)(progress*40)%8,radius));
         }
     }
 }

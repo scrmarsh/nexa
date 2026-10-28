@@ -6,7 +6,18 @@ using System.Windows.Threading;
 namespace SessionDashboard;
 internal sealed partial class NexaweenDecorations : IDisposable
 {
-    private sealed record Actor(Rect Bounds, int Kind, Drawing Art, int Seed);
+    private sealed record Actor(Rect Bounds, int Kind, Drawing Art, int Seed, bool Contextual=false)
+    {
+        internal Guid Id {get;init;}=Guid.NewGuid();
+        internal double CandyAmount {get;set;}=1;
+        internal double BusyUntil {get;set;}
+        internal double ConsumedAt {get;set;}=-1;
+        internal double Born {get;set;} = -Seed%7;
+        internal double Hold {get;set;} = 5+Seed%6;
+    }
+    private readonly Random lifecycleRandom = new(102725);
+    private List<Rect> backgroundAvoidance = [];
+    internal static readonly int[] BackgroundKinds=[5,6,8,13,16,5,6,8,16,6,0,4,20,2,21];
     private readonly List<Actor> actors = [];
     private static readonly Dictionary<int, Drawing> assets = [];
     private readonly DispatcherTimer animation = new(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(50) };
@@ -30,7 +41,7 @@ internal sealed partial class NexaweenDecorations : IDisposable
         Unloaded += (_, _) => { animation.Stop(); if (host != null) host.StateChanged -= HostStateChanged; host = null; };
     }
     private void HostStateChanged(object? sender, EventArgs e) => ReconcileAnimation();
-    private static Drawing Asset(int kind)
+    internal static Drawing Asset(int kind)
     {
         if (assets.TryGetValue(kind, out var art)) return art;
         var group = new DrawingGroup(); using (var dc = group.Open()) Draw(dc, kind); group.Freeze(); assets[kind] = group; return group;
@@ -52,25 +63,39 @@ internal sealed partial class NexaweenDecorations : IDisposable
             if (lastSurprise >= 0 && animationOptions.SeasonalSounds && host?.IsActive == true) InterfaceAudio.PreviewSeasonal(host is MainWindow main ? main.SettingsState.InterfaceSoundVolume : host is HomeWindow home ? home.Saved.InterfaceSoundVolume : .25);
             lastSurprise = surprise;
         }
+        RecycleCandyActors();
         InvalidateVisual();
+    }
+    private void RecycleCandyActors()
+    {
+        for(var i=0;i<actors.Count;i++)
+        {
+            var actor=actors[i];if(actor.ConsumedAt<0 && (!animationOptions.SeasonalAnimation || !NexaMotion.Allowed(animationOptions)))continue;if(actor.Contextual || elapsed.Elapsed.TotalSeconds<actor.BusyUntil || actor.ConsumedAt>=0 && elapsed.Elapsed.TotalSeconds-actor.ConsumedAt<3 || actor.ConsumedAt<0 && elapsed.Elapsed.TotalSeconds-actor.Born<actor.Hold+2)continue;
+            for(var attempt=0;attempt<30;attempt++)
+            {
+                var size=actor.Bounds.Width;var next=new Rect(lifecycleRandom.NextDouble()*Math.Max(0,Width-size),lifecycleRandom.NextDouble()*Math.Max(0,Height-size),size,size);var safe=next;safe.Inflate(20,20);
+                if(backgroundAvoidance.Any(r=>r.IntersectsWith(safe)) || actors.Where((_,index)=>index!=i).Any(other=>other.Bounds.IntersectsWith(safe)))continue;
+                actors[i]=actor with {Bounds=next,Id=Guid.NewGuid(),CandyAmount=1,ConsumedAt=-1,BusyUntil=0};actors[i].Born=elapsed.Elapsed.TotalSeconds;actors[i].Hold=5+lifecycleRandom.NextDouble()*5;break;
+            }
+        }
     }
     private void RenderAnimated(DrawingContext dc)
     {
-        var time = elapsed.Elapsed.TotalSeconds; var particles = 0;
+        var moving=animationOptions.SeasonalAnimation && NexaMotion.Allowed(animationOptions);var time = moving?elapsed.Elapsed.TotalSeconds:0; var particles = 0;
         foreach(var corner in vineCorners)DrawVine(dc,corner,time);
         foreach (var actor in actors)
         {
+            if(actor.ConsumedAt>=0)continue;
             var expanded = actor.Bounds; expanded.Inflate(18, 18); if (!visibleArea.IsEmpty && !expanded.IntersectsWith(visibleArea)) continue;
             var phase = time + actor.Seed * .7; var x = actor.Bounds.X; var y = actor.Bounds.Y;
-            if (actor.Kind == 2) { x += Math.Sin(phase * .4) * 3; y += Math.Sin(phase * .8) * 5; }
-            else if (actor.Kind == 3) { x += Math.Sin(phase * .35) * 11; y += Math.Cos(phase * .7) * 4; }
-            else if (actor.Kind == 10) { x += Math.Sin(phase * .3) * 6; y += Math.Cos(phase * .4) * 3; }
-            if(actor.Kind==2 && cursor is {} pointer){var away=new Point(x+actor.Bounds.Width/2,y+actor.Bounds.Height/2)-pointer;if(away.Length>1 && away.Length<110){away.Normalize();x+=away.X*5;y+=away.Y*5;}}
+            var lifecycleAge=time-actor.Born;
+            var opacity=!moving || actor.Contextual || elapsed.Elapsed.TotalSeconds<actor.BusyUntil?1:lifecycleAge<1?Math.Clamp(lifecycleAge,0,1):lifecycleAge<=actor.Hold+1?1:Math.Clamp(actor.Hold+2-lifecycleAge,0,1);
+            dc.PushOpacity(opacity);
             dc.PushTransform(new TranslateTransform(x, y)); dc.PushTransform(new ScaleTransform(actor.Bounds.Width / 64, actor.Bounds.Height / 64));
-            var rotation = actor.Kind is 0 or 1 ? Math.Sin(phase * .65) * 1.5 : actor.Kind == 10 ? Math.Sin(phase * .4) * 7 : 0;
+            var rotation = 0d;
             dc.PushTransform(new RotateTransform(rotation, 32, 42));
             if (actor.Kind == 2) dc.PushOpacity(.78 + Math.Sin(phase * .6) * .08);
-            dc.DrawDrawing(actor.Art);
+            dc.PushTransform(new ScaleTransform(Math.Max(.25,Math.Sqrt(actor.CandyAmount)),Math.Max(.25,Math.Sqrt(actor.CandyAmount)),32,32));dc.DrawDrawing(actor.Art);dc.Pop();
             if (actor.Kind == 2) dc.Pop();
             if (actor.Kind == 1)
             {
@@ -96,11 +121,11 @@ internal sealed partial class NexaweenDecorations : IDisposable
             {
                 dc.PushOpacity(.12 + (Math.Sin(phase * .7) + 1) * .06); dc.DrawEllipse(B("#D9F99D"), null, new(32, 31), 27, 27); dc.Pop();
             }
-            dc.Pop(); dc.Pop(); dc.Pop();
+            dc.Pop(); dc.Pop(); dc.Pop(); dc.Pop();
         }
     }
     protected override void OnRender(DrawingContext dc)
-    { if (animationOptions.SeasonalAnimation && NexaMotion.Allowed(animationOptions) && IsVisible) RenderAnimated(dc); else dc.DrawDrawing(drawing); }
+    { RenderAnimated(dc); }
     public void Dispose()
     { if (disposed) return; disposed = true; animation.Stop(); animation.Tick -= Animate; elapsed.Stop(); if (host != null) host.StateChanged -= HostStateChanged; host = null; actors.Clear(); }
 }

@@ -58,6 +58,7 @@ internal sealed class EcosystemNest
 }
 internal sealed class EcosystemResource
 {
+    public bool Decoration {get;set;}
     public Guid Id { get; set; } = Guid.NewGuid();
     public BugResourceKind Kind { get; set; }
     public double X { get; set; }
@@ -136,11 +137,11 @@ internal sealed class EcosystemDocument
         var species = BugManager.AllSpecies;
         if (Schema != 1 || WorldId == Guid.Empty || !double.IsFinite(SimulationAge) || SimulationAge < 0 || CombatDeaths < 0 || NaturalEncounters < 0 || Options == null || Options != Options.Safe() ||
             PendingSquashes == null || PendingSquashes.Count > 500 || PendingSquashes.Any(s=>s==null || s.BugId==Guid.Empty || !species.Contains(s.Species)) || PendingSquashes.Select(s=>s.BugId).Distinct().Count()!=PendingSquashes.Count ||
-            Bugs == null || Bugs.Count > 160 || Bugs.Any(b => b == null || b.Id == Guid.Empty || !species.Contains(b.Species) || !Coordinate(b.X, b.Y) || !Coordinate(b.TargetX, b.TargetY) ||
+            Bugs == null || Bugs.Any(b => b == null || b.Id == Guid.Empty || !species.Contains(b.Species) || !Coordinate(b.X, b.Y) || !Coordinate(b.TargetX, b.TargetY) ||
                 !double.IsFinite(b.FlightHeight) || b.FlightHeight is < 0 or > 1 || !double.IsFinite(b.Health) || b.Health is < 0 or > 100 || !double.IsFinite(b.Energy) || b.Energy is < 0 or > 1 || !double.IsFinite(b.Speed) || b.Speed is < 0 or > 300 ||
                 !double.IsFinite(b.Age) || b.Age < 0 || !double.IsFinite(b.Angle) || !double.IsFinite(b.Decision) || !double.IsFinite(b.Phase) || !double.IsFinite(b.Carrying) || b.Carrying is < 0 or > 10 || b.Hits < 0 || b.Kills < 0 || b.RaidTarget != null && !species.Contains(b.RaidTarget.Value) || !Enum.IsDefined(b.Activity) || !Enum.IsDefined(b.Personality) || !Enum.IsDefined(b.State)) ||
             Bugs.Select(b => b.Id).Distinct().Count() != Bugs.Count || Nests == null || Nests.Count != 6 || Nests.Any(n => n == null) || Nests.Select(n => n.Species).Distinct().Count() != 6 || Nests.Any(n => !species.Contains(n.Species) || !Coordinate(n.X, n.Y) || !double.IsFinite(n.Food) || n.Food is < 0 or > 10000 || !double.IsFinite(n.Construction) || n.Construction is < 0 or > 1 || n.Deliveries < 0) ||
-            Resources == null || Resources.Count > 64 || Resources.Any(r => r == null || r.Id == Guid.Empty || !Coordinate(r.X, r.Y) || !Enum.IsDefined(r.Kind) || !double.IsFinite(r.Amount) || r.Amount is < 0 or > 100 || !double.IsFinite(r.Regrowth) || r.Regrowth < 0) || Resources.Select(r => r.Id).Distinct().Count() != Resources.Count ||
+            Resources == null || Resources.Count > 128 || Resources.Any(r => r == null || r.Id == Guid.Empty || !Coordinate(r.X, r.Y) || !Enum.IsDefined(r.Kind) || !double.IsFinite(r.Amount) || r.Amount is < 0 or > 100 || !double.IsFinite(r.Regrowth) || r.Regrowth < 0) || Resources.Select(r => r.Id).Distinct().Count() != Resources.Count ||
             Webs == null || Webs.Count > 24 || Webs.Any(w => w == null || !Coordinate(w.X, w.Y) || w.AnchorId?.Length>128 || !double.IsFinite(w.AnchorOffsetX) || !double.IsFinite(w.AnchorOffsetY) || Math.Abs(w.AnchorOffsetX)>1600 || Math.Abs(w.AnchorOffsetY)>1000 || !double.IsFinite(w.Age) || w.Age < 0 || !double.IsFinite(w.Construction) || w.Construction is < 0 or > 1))
             throw new InvalidDataException("The ecosystem save contains invalid data. Its original files were preserved.");
     }
