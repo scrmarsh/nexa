@@ -12,7 +12,6 @@ internal sealed partial class SettingsDialog
         var profile=store.LoadProfile(); var page=Page("Profile","Your preferences stay on this PC. No Nexa account is needed.");
         var overview=new TextBlock { TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,12) };
         overview.Loaded+=(_,_)=> { var current=store.LoadProfile(); overview.Text=$"Theme: {current.Theme} / {current.ThemeMode}\nSounds: {(current.Sounds?"On":"Off")} / volume {current.Volume:P0}\nFocus reminders: {(current.FocusNudges?"On":"Off")}\nConnections: {(current.ConnectedIntegrations.Count==0?"None":string.Join(", ",current.ConnectedIntegrations))}"; }; page.Children.Add(overview);
-        var appearance=new Button { Content="Change theme, sounds or reminders",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,0,0,12) }; appearance.Click+=(_,_)=>SelectSection("Appearance"); page.Children.Add(appearance);
         var name=new TextBox { Text=profile.DisplayName,MaxLength=80 }; Field(page,"Display name (optional)",name);
         var uses=new WrapPanel();
         foreach(var use in GuidedSetup.UseCases) uses.Children.Add(new CheckBox { Content=use,IsChecked=profile.UseCases.Contains(use),Margin=new Thickness(0,8,12,8) }); Field(page,"I use Nexa for",uses);

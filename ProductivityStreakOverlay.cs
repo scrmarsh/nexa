@@ -24,7 +24,7 @@ internal sealed class ProductivityStreakOverlay : FrameworkElement, IDisposable
     internal static Rect LayoutFrame(Size size,Rect? workArea=null)
     {
         var safe=workArea??new Rect(size);safe.Intersect(new Rect(size));if(safe.IsEmpty)safe=new Rect(size);
-        var width=Math.Max(1,Math.Min(320,safe.Width-32));return new Rect(safe.Left+(safe.Width-width)/2,Math.Max(safe.Top+52,safe.Bottom-156-18),width,156);
+        var width=Math.Max(1,Math.Min(340,safe.Width-32));return new Rect(safe.Left+(safe.Width-width)/2,Math.Max(safe.Top+52,safe.Bottom-64-18),width,64);
     }
     protected override void OnRender(DrawingContext dc)
     {
@@ -33,24 +33,14 @@ internal sealed class ProductivityStreakOverlay : FrameworkElement, IDisposable
         var frame=LayoutFrame(RenderSize,NexaWindowBounds.TryWorkArea(this,out var work)?work:null);var width=frame.Width;var height=frame.Height;var x=frame.X;var y=frame.Y;var active=ledger.FrenzyUntil>now;
         if(!active)dc.PushOpacity(Math.Clamp(multiplier/Math.Max(1,ledger.FrenzyMultiplier),.08,1));
         dc.DrawRoundedRectangle(BugVisuals.B(Theme.SeasonalEnabled?"#F21C102A":"#F2171B26"),BugVisuals.P(Theme.SeasonalEnabled?"#A855F7":"#7C6CF0",1.5),frame,16,16);
-        void Text(string value,double size,double top,string color)
+        void Text(string value,double size,double left,double available,string color)
         {
-            var text=new FormattedText(value,CultureInfo.CurrentCulture,FlowDirection.LeftToRight,new Typeface("Segoe UI Semibold"),size,BugVisuals.B(color),VisualTreeHelper.GetDpi(this).PixelsPerDip){MaxTextWidth=width-24,Trimming=TextTrimming.CharacterEllipsis};
-            dc.DrawText(text,new(x+(width-text.WidthIncludingTrailingWhitespace)/2,y+top));
+            var text=new FormattedText(value,CultureInfo.CurrentCulture,FlowDirection.LeftToRight,new Typeface("Segoe UI Semibold"),size,BugVisuals.B(color),VisualTreeHelper.GetDpi(this).PixelsPerDip){MaxTextWidth=Math.Max(1,available),Trimming=TextTrimming.CharacterEllipsis};
+            dc.DrawText(text,new(x+left,y+(height-text.Height)/2));
         }
-        Text("PRODUCTIVITY",12,12,"#E9D5FF");Text(ledger.Score.ToString("N0"),32,31,"#FACC15");
-        dc.PushTransform(new TranslateTransform(x+width/2-66,y+38));dc.PushTransform(new ScaleTransform(.75,.75));dc.DrawGeometry(BugVisuals.B("#FACC15"),null,Geometry.Parse("M12,0 L2,14 L10,14 L7,27 L23,10 L14,10 L18,0 Z"));dc.Pop();dc.Pop();Text(multiplier.ToString("0.0")+"×"+(active?" streak":" cooling down"),19,76,Theme.SeasonalEnabled?"#84CC16":"#C4B5FD");
-        Text(string.Join(" · ",ledger.Events.TakeLast(2).Select(e=>$"{e.BasePoints+e.BonusPoints:+0;-0;0}")),12,112,"#E9D5FF");
-        if(NexaMotion.Allowed(Options) && Options.CelebrationEffects)
-        {
-            var time=now.ToUnixTimeMilliseconds()/1000d;
-            for(var i=0;i<10;i++)
-            {
-                var px=x+18+i*(width-36)/9;var bottom=y+height-4;var h=8+3*Math.Sin(time*3+i);
-                var g=new StreamGeometry();using(var c=g.Open()){c.BeginFigure(new(px-3,bottom),true,true);c.BezierTo(new(px-8,bottom-5),new(px+3,bottom-h-5),new(px,bottom-h),true,false);c.BezierTo(new(px+7,bottom-4),new(px+5,bottom),new(px-3,bottom),true,false);}g.Freeze();
-                dc.DrawGeometry(BugVisuals.B(Theme.SeasonalEnabled?"#84CC16":"#F97316"),null,g);
-            }
-        }
+        dc.PushTransform(new TranslateTransform(x+16,y+18));dc.DrawGeometry(BugVisuals.B("#FACC15"),null,Geometry.Parse("M12,0 L2,14 L10,14 L7,27 L23,10 L14,10 L18,0 Z"));dc.Pop();
+        Text(ledger.Score.ToString("N0"),26,50,width*.46-42,"#FACC15");
+        Text("Streak "+multiplier.ToString("0.0")+"×",17,width*.50,width*.50-14,Theme.SeasonalEnabled?"#84CC16":"#C4B5FD");
         if(!active)dc.Pop();
     }
     public void Dispose() { Ledger=null; }

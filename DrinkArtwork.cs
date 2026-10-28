@@ -18,6 +18,7 @@ internal sealed class DrinkArtwork : FrameworkElement
     internal static readonly Color BeerBottleBrown = Color.FromRgb(91,49,22);
     internal static readonly Color BeerLiquidYellow = Color.FromRgb(255,194,38);
     private static readonly Brush Water=Gradient("#75D4FF","#216BD0"), Ale=Gradient("#C084FC","#7E22CE"), Wine=Gradient("#BEF264","#65A30D"), Spirit=Gradient("#FDBA74","#EA580C");
+    private static readonly Brush NormalAle=Gradient("#FFE082","#D99917"),NormalWine=Gradient("#C95072","#7D1838"),NormalSpirit=Gradient("#FFF3C4","#D6B778");
     private static readonly Brush Brown=Gradient("#7E4820","#31180B"), Clear=new SolidColorBrush(Color.FromArgb(24,190,228,245));
     private static readonly Pen ClearEdge=new(new SolidColorBrush(Color.FromRgb(156,201,223)),1.5), BrownEdge=new(new SolidColorBrush(Color.FromRgb(55,27,12)),2);
     private static readonly Pen Shine=new(new SolidColorBrush(Color.FromArgb(145,227,249,255)),1.4);
@@ -44,7 +45,7 @@ internal sealed class DrinkArtwork : FrameworkElement
         dc.DrawGeometry(bottle ? Brown : Clear,null,shape);
         dc.PushClip(liquid);
         var bounds=liquid.Bounds; var top=bounds.Bottom-bounds.Height*Math.Clamp(FillFraction,0,1);
-        dc.DrawRectangle(!Beer ? WaterLiquid : bottle ? Ale : wine ? Wine : Spirit,null,new Rect(bounds.Left,top,bounds.Width,Math.Max(0,bounds.Bottom-top)));
+        dc.DrawRectangle(!Beer ? WaterLiquid : bottle ? (Theme.SeasonalEnabled?Ale:NormalAle) : wine ? (Theme.SeasonalEnabled?Wine:NormalWine) : (Theme.SeasonalEnabled?Spirit:NormalSpirit),null,new Rect(bounds.Left,top,bounds.Width,Math.Max(0,bounds.Bottom-top)));
         if(wine && FillFraction>.01)
         {foreach(var bubble in new[]{new Point(29,45),new Point(43,31),new Point(39,52),new Point(49,43)})if(bubble.Y>top)dc.DrawEllipse(null,Shine,bubble,2,2);}
         if(FillFraction>.01)dc.DrawLine(Shine,new Point(bounds.Left,top),new Point(bounds.Right,top));

@@ -16,7 +16,7 @@ public partial class App : Application
     internal static string ReleaseLabel(string version) => $"nexa v{version} alpha";
     private Mutex? workspaceMutex;
     internal bool SuppressNormalStartup { get; init; }
-    protected override void OnStartup(StartupEventArgs e)
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         if (SuppressNormalStartup) return;
@@ -40,14 +40,16 @@ public partial class App : Application
         try
         {
             var store = new StateStore(path);
-            Theme.Apply(Resources, store.LoadThemeMode(), store.LoadAppTheme());
-            var splash = new SplashWindow(); MainWindow = splash;
+            var loaded=await Task.Run(()=>(state:store.Load(),mode:store.LoadThemeMode(),theme:store.LoadAppTheme()));
+            var options=loaded.state.Workspace?.Settings??new NexaOptions{SeasonalMode="On"};
+            Theme.SetSeasonalEnabled(NexaSeason.Active(options,DateTimeOffset.UtcNow));Theme.Apply(Resources,loaded.mode,loaded.theme);
+            var splash = new SplashWindow(options); MainWindow = splash;
             splash.ContentRendered += async (_, _) =>
             {
                 try
                 {
                     var profile=await Task.Run(()=>store.LoadProfile());splash.Report(.2,"Profile settings loaded");
-                    if(profile.OnboardingCompleted) { var home = await splash.EnterHome(store); _ = CheckStartupUpdatesAsync(store, home); return; }
+                    if(profile.OnboardingCompleted) { var home = await splash.EnterHome(store,initialState:loaded.state); _ = CheckStartupUpdatesAsync(store, home); return; }
                     await splash.WaitForLogoAsync();
                     var welcome=new OnboardingWindow(store) { Owner=splash };
                     splash.Hide();
@@ -55,7 +57,7 @@ public partial class App : Application
                     Window next;
                     if(accepted==true && welcome.Result!=null)
                     {
-                        var workspace=new WorkspaceDocument { UserId=store.UserId, ActiveDashboardId=welcome.Result.DashboardId, Dashboards=[welcome.Result] };
+                        var workspace=new WorkspaceDocument { UserId=store.UserId, Settings=welcome.Options, ActiveDashboardId=welcome.Result.DashboardId, Dashboards=[welcome.Result] };
                         store.Save(Continuity.Activate(workspace,store.UserId)); store.SaveProfile(welcome.Profile); Theme.Apply(Resources,welcome.Profile.ThemeMode,welcome.Profile.Theme); next=new MainWindow(store);
                     }
                     else next=new HomeWindow(store);

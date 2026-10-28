@@ -1,4 +1,4 @@
-﻿<Window x:Class="SessionDashboard.MainWindow"
+<Window x:Class="SessionDashboard.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:SessionDashboard"
@@ -13,7 +13,7 @@
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Image x:Name="HeaderBrandIcon" Source="assets/nexa-icon-256.png" Width="24" Height="24" Margin="0,0,12,0"/>
-                    <ContentControl x:Name="SessionNameHost" MaxWidth="290" VerticalAlignment="Center"/>
+                    <ContentControl x:Name="SpaceIconHost" Margin="0,0,8,0" VerticalAlignment="Center"/><ContentControl x:Name="SessionNameHost" MaxWidth="290" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel x:Name="TopNavigation" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Button Content="Home" Click="HomeClick" Padding="14,5" Margin="0,0,8,0"/>

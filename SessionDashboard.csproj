@@ -10,9 +10,9 @@
     <RootNamespace>SessionDashboard</RootNamespace>
     <Product>Nexa</Product>
     <Title>Nexa</Title>
-    <Description>NEXAWEEN — A space for whatever haunts you next.</Description>
+    <Description>nexa — a space for whatever comes next</Description>
     <ApplicationIcon>assets\nexa-icon-seasonal.ico</ApplicationIcon>
-    <Version>0.1.25</Version><ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>0.1.26</Version><InformationalVersion>$(Version)-alpha</InformationalVersion><ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>

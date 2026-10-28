@@ -26,11 +26,15 @@ internal sealed partial class HomeWindow : NexaDialog
         var panel = new StackPanel { Margin = new Thickness(0, 36, 0, 20) };
         BuildHomeHeader(panel);
         var create = new Button { Content = "+ Create New Space", HorizontalAlignment = HorizontalAlignment.Center, MinWidth = 260, Margin = new Thickness(0, 28, 0, 20) };
-        create.Click += (_, _) => NewDashboard(); panel.Children.Add(create);
+        create.FontSize=17;create.FontWeight=FontWeights.Bold;create.MinHeight=48;
+        var primary=new StackPanel { Orientation=Orientation.Horizontal, HorizontalAlignment=HorizontalAlignment.Center };
+        create.Click += (_, _) => NewDashboard();primary.Children.Add(create);
+        var import=new Button {Content="↓ Import Space",FontSize=17,FontWeight=FontWeights.Bold,MinHeight=48,MinWidth=210,Margin=new Thickness(12,28,0,20)};
+        import.Click+=(_,_)=>ImportDashboard();primary.Children.Add(import);panel.Children.Add(primary);
         panel.Children.Add(new TextBlock { Text = "Recent Spaces", FontSize = 20, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 22, 0, 12) });
         recentChevron.MouseEnter += (_, _) => recentChevron.Opacity = 1;
         recentChevron.MouseLeave += (_, _) => recentChevron.Opacity = .55;
-        recentChevron.Click += (_, _) => { recentRows += 3; RefreshRecentSpaces(); };
+        recentChevron.Click += (_, _) => { recentRows = recentRows == 3 ? int.MaxValue : 3; RefreshRecentSpaces(); };
         panel.Children.Add(new ScrollViewer { Content = Recent, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled }); RefreshRecentSpaces();
         if (!string.IsNullOrWhiteSpace(store.Warning)) { feedback.Text = store.Warning; panel.Children.Add(feedback); var hide = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(6) }; hide.Tick += (_, _) => { hide.Stop(); feedback.Visibility = Visibility.Collapsed; }; Loaded += (_, _) => hide.Start(); Closed += (_, _) => hide.Stop(); }
         var footer = new Grid { Margin = new Thickness(0, 10, 0, 30) }; footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto }); footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
@@ -44,7 +48,7 @@ internal sealed partial class HomeWindow : NexaDialog
         footer.Children.Add(left);
         var utilities = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Right };
         Button Utility(string text, Action action) { var button = new Button { Content = text == "View History" ? NexaIcons.Label("History") : text, Padding = new Thickness(14, 9, 14, 9), Margin = new Thickness(8, 0, 0, 0) }; button.Click += (_, _) => action(); utilities.Children.Add(button); return button; }
-        Utility("View History", OpenHistory); Utility("Import Space", ImportDashboard); Utility("About Nexa", OpenAbout); var developer = Utility("DEV", OpenDeveloperDashboard); developer.Opacity = .7;
+        Utility("View History", OpenHistory); Utility("About Nexa", OpenAbout); var developer = Utility("DEV", OpenDeveloperDashboard); developer.Opacity = .7;
         Grid.SetColumn(utilities, 2); footer.Children.Add(utilities);
         var homeLayout = new Grid { Margin = new Thickness(60, 0, 60, 20), MaxWidth = 960 };
         homeLayout.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -135,22 +139,22 @@ internal sealed partial class HomeWindow : NexaDialog
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
         { feedback.Text = "Could not open preview: " + ex.Message; return null; }
     }
-    internal void OpenDashboard(Guid id)
+    internal async void OpenDashboard(Guid id)
     {
         if (!FlushSettingsForNavigation()) return;
-        try
+        await NavigateDashboard(()=>
         {
-            var workspace = Continuity.Clone(store.Load().Workspace!); workspace.ActiveDashboardId = id;
-            Continuity.Access(Continuity.Current(workspace, store.UserId));
-            var next = Continuity.Activate(workspace, store.UserId, Saved.HedyRegion, Saved.HedyProtectedKey); store.Save(next);
-            ShowDashboard();
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException) { feedback.Text = "Could not open Space: " + ex.Message; }
+            var latest=store.Load();var workspace=latest.Workspace??throw new InvalidOperationException("Missing workspace");workspace.ActiveDashboardId=id;
+            Continuity.Access(Continuity.Current(workspace,store.UserId));
+            var next=Continuity.Activate(workspace,store.UserId,latest.HedyRegion,latest.HedyProtectedKey);store.Save(next);return next;
+        });
     }
-    private void ShowDashboard()
+    private async void ShowDashboard()=>await NavigateDashboard(()=>store.Load());
+    private async Task NavigateDashboard(Func<AppState> prepare)
     {
-        var window = new MainWindow(store); NexaChrome.TransferBounds(this, window); Application.Current.MainWindow = window; window.Show();
-        NexaChrome.FadeOutAndClose(this);
+        try { await NexaNavigation.Change(this,async ()=>new MainWindow(store,loadedState:await Task.Run(prepare)),Saved.Workspace?.Settings??new()); }
+        catch(OperationCanceledException) when(Dispatcher.HasShutdownStarted) { }
+        catch(Exception ex) when(HistoryArchive.Recoverable(ex)) { await Dispatcher.InvokeAsync(()=>feedback.Text="Could not open Space: "+ex.Message); }
     }
     private void NewDashboard()
     {
@@ -165,13 +169,15 @@ internal sealed partial class HomeWindow : NexaDialog
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { feedback.Text = "Could not create Space: " + ex.Message; }
     }
-    private void OpenDeveloperDashboard()
+    private async void OpenDeveloperDashboard()
     {
         if (!FlushSettingsForNavigation()) return;
-        try
+        await NavigateDashboard(()=>
         {
-            var workspace = Saved.Workspace == null ? new WorkspaceDocument { UserId = store.UserId } : Continuity.Clone(Saved.Workspace);
+            var latest=store.Load();
+            var workspace = latest.Workspace ?? new WorkspaceDocument { UserId = store.UserId };
             var record = workspace.Dashboards.FirstOrDefault(d => d.PresetOrigin == "Developer mode");
+            var created=record==null;
             if (record == null)
             {
                 var initialData = new DashboardData
@@ -204,7 +210,9 @@ internal sealed partial class HomeWindow : NexaDialog
                 };
                 data.Widgets.Add(WidgetLibrary.Create(definition.Name, panelKey));
             }
-            WidgetLibrary.Arrange(data.Widgets, false);
+            if(created) WidgetLibrary.Arrange(data.Widgets, false);
+            if(created)
+            {
 
             var now = DateTimeOffset.Now.AddMinutes(-5);
             var end = now.AddMinutes(10);
@@ -230,16 +238,12 @@ internal sealed partial class HomeWindow : NexaDialog
                 StartMinutes = localStart.Hour * 60 + localStart.Minute,
                 EndMinutes = localEnd.Hour * 60 + localEnd.Minute
             };
+            }
             data.WidgetLayoutInitialized = true;
             workspace.ActiveDashboardId = record.DashboardId;
             Continuity.Access(record);
-            store.Save(Continuity.Activate(workspace, store.UserId, Saved.HedyRegion, Saved.HedyProtectedKey));
-            ShowDashboard();
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or InvalidDataException)
-        {
-            feedback.Text = "Could not open developer Space: " + ex.Message;
-        }
+            var next=Continuity.Activate(workspace, store.UserId, latest.HedyRegion, latest.HedyProtectedKey);store.Save(next);return next;
+        });
     }
     private void ImportDashboard()
     {

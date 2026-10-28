@@ -60,7 +60,7 @@ internal sealed class NexaNotifications : IDisposable
         Dismiss(key);
         var body = new Grid();body.ColumnDefinitions.Add(new(){Width=GridLength.Auto});body.ColumnDefinitions.Add(new(){Width=new GridLength(1,GridUnitType.Star)});body.ColumnDefinitions.Add(new(){Width=GridLength.Auto});
         var dismiss = new Button { Content = "×", Focusable = false, Padding = new Thickness(5, 1, 5, 1), VerticalAlignment = VerticalAlignment.Top, ToolTip = "Dismiss notification" };
-        dismiss.Click += (_, _) => Dismiss(key); Grid.SetColumn(dismiss,2); body.Children.Add(dismiss);
+        dismiss.Click += (_, _) => Dismiss(key); dismiss.Margin=new Thickness(12,0,0,0); Grid.SetColumn(dismiss,2); body.Children.Add(dismiss);
         var glyph = new TextBlock { Text = icon, Foreground = key == "tip" ? new SolidColorBrush(Color.FromRgb(250, 204, 21)) : priority >= 2 ? Brushes.Orange : Brushes.LightGreen, FontSize = key=="tip"?16:20, Margin = new Thickness(0, 0, key=="tip"?7:10, 0) };
         glyph.RenderTransformOrigin = new Point(.5, .5); glyph.RenderTransform = new RotateTransform();
         ConfigureGlyph(key,glyph,message);

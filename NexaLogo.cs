@@ -13,8 +13,10 @@ internal sealed class NexaLogo : FrameworkElement
     {
         normalLogo=Load("nexa-logo-full-dark.svg");seasonalLogo=Load("nexa-logo-full-dark-seasonal.svg");normalLight=Load("nexa-logo-full-dark.svg",true);seasonalLight=Load("nexa-logo-full-dark-seasonal.svg",true);System.Windows.Automation.AutomationProperties.SetName(this,"Nexa full logo");
     }
+    private static readonly Dictionary<(string,bool),DrawingImage> cached=[];
     private static DrawingImage Load(string asset,bool light=false)
     {
+        if(cached.TryGetValue((asset,light),out var existing))return existing;
         using var stream=Application.GetResourceStream(new Uri("pack://application:,,,/Nexa;component/assets/"+asset)).Stream;
         var svg = XDocument.Load(stream); var drawing = new DrawingGroup();
         using (var dc = drawing.Open())
@@ -42,7 +44,7 @@ internal sealed class NexaLogo : FrameworkElement
                 if (icon) { dc.Pop(); dc.Pop(); dc.Pop(); }
             }
         }
-        drawing.Freeze();return new DrawingImage(drawing);
+        drawing.Freeze();var image=new DrawingImage(drawing);image.Freeze();cached[(asset,light)]=image;return image;
 
     }
     protected override void OnRender(DrawingContext dc)

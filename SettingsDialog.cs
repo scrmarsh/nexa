@@ -14,6 +14,7 @@ internal sealed partial class SettingsDialog : NexaPanel
     private readonly MainWindow? space;
     private readonly ContentControl host = new();
     private readonly Dictionary<string, UIElement> pages = [];
+    private readonly Dictionary<string, Func<UIElement>> pageFactories = [];
     private readonly Dictionary<string, Button> tabs = [];
     private readonly System.Windows.Threading.DispatcherTimer sessionStatusTimer = new() { Interval = TimeSpan.FromSeconds(1) };
     private bool sessionWasActive;
@@ -43,14 +44,17 @@ internal sealed partial class SettingsDialog : NexaPanel
         else
         {
             nav.Children.Add(new TextBlock { Text = "General", FontWeight = FontWeights.Bold, Margin = new Thickness(10, 0, 0, 12) });
-            AddPage(nav,"Appearance",BuildAppearancePage());
-            AddPage(nav,"Sounds",BuildSounds());AddPage(nav,"Time Zone & Clock",BuildTimeZoneClock());
-            AddPage(nav,"Widgets",BuildWidgetPreferences());
-            nav.Children.Add(new TextBlock { Text = "Experimental Features", FontWeight = FontWeights.Bold, Margin = new Thickness(10, 18, 0, 12), TextWrapping = TextWrapping.Wrap });
-            AddPage(nav,"Profile",BuildProfile());
-            AddPage(nav,"Integrations",BuildIntegrations());AddPage(nav,"Updates",BuildUpdates());
-            AddPage(nav,"Account & Data",ComingSoon("Account & Data","Optional account tools are in development. Local import/export remains available."));
-            AddPage(nav,"Add Bugs",BuildBugs());
+            AddPage(nav,"Appearance",BuildAppearancePage);
+            AddPage(nav,"Profile",BuildProfile);
+            AddPage(nav,"Sounds",BuildSounds);AddPage(nav,"Time Zone & Clock",BuildTimeZoneClock);
+            AddPage(nav,"Widgets",BuildWidgetPreferences);
+            AddPage(nav,"Integrations",BuildIntegrations);AddPage(nav,"Updates",BuildUpdates);
+            AddPage(nav,"Add Bugs",BuildBugs);
+            var experimental = new StackPanel();
+            AddPage(experimental,"Account & Data",()=>ComingSoon("Account & Data","Optional account tools are in development. Local import/export remains available."));
+            AddPage(experimental,"Future Integrations",()=>ComingSoon("Future Integrations","Coming soon: Google Tasks, Google Calendar and Outlook Calendar."));
+            var group = new Expander { Header="Experimental Features", Content=experimental, Margin=new Thickness(0,18,0,0), IsExpanded=false };
+            group.Expanded+=(_,_)=>NexaMotion.Entrance(experimental,ReliabilityOptions);nav.Children.Add(group);
         }
         Content = root; SelectSection(initialSection);
         InitializeAutosave();
@@ -72,9 +76,9 @@ internal sealed partial class SettingsDialog : NexaPanel
     }
 
     private Brush Brush(string key) => (Brush)FindResource(key);
-    private void AddPage(Panel nav, string name, UIElement page)
+    private void AddPage(Panel nav, string name, Func<UIElement> factory)
     {
-        pages[name] = page; var tab = new Button { Content = name, HorizontalContentAlignment = HorizontalAlignment.Left, Padding = new Thickness(12, 10, 12, 10), Margin = new Thickness(0, 0, 0, 8), BorderThickness = new Thickness(0) };
+        pageFactories[name] = factory; var tab = new Button { Content = name, HorizontalContentAlignment = HorizontalAlignment.Left, Padding = new Thickness(12, 10, 12, 10), Margin = new Thickness(0, 0, 0, 8), BorderThickness = new Thickness(0) };
         tab.Click += (_, _) => SelectSection(name); tabs[name] = tab; nav.Children.Add(tab);
     }
     internal void SelectSection(string name)
@@ -82,9 +86,10 @@ internal sealed partial class SettingsDialog : NexaPanel
         if (!FlushPendingChanges()) return;
         var tips=name=="Tips";if(tips)name="Session";
         var hedy=name=="Hedy"; if(hedy) name="Integrations";
-        if(!pages.ContainsKey(name)) name=SessionInterface?"Session":"Appearance";
+        if(!pages.ContainsKey(name) && !pageFactories.ContainsKey(name)) name=SessionInterface?"Session":"Appearance";
+        if(!pages.ContainsKey(name) && pageFactories.TryGetValue(name,out var factory)) pages[name]=factory();
         if (!pages.TryGetValue(name, out var page)) return;
-        host.Content = page;
+        host.Content = page; NexaMotion.Entrance(host,ReliabilityOptions);
         if (name == "Session") sessionStatusPage = page;
         foreach (var pair in tabs) { pair.Value.SetResourceReference(Control.BackgroundProperty, pair.Key == name ? "AccentBrush" : "PanelBrush"); pair.Value.SetResourceReference(Control.ForegroundProperty, pair.Key == name ? "BackgroundBrush" : "TextBrush"); }
         if(tips)FocusTips();

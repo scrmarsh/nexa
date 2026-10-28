@@ -8,7 +8,17 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
-        new("0.1.24", "October 27, 2026", "NEXAWEEN", "A space for whatever haunts you next. Synchronized session progress, reliable saving, a consolidated interface and a seasonal bug ecosystem.",
+        new("0.1.26", "October 27, 2026", "Spaces in Motion · alpha preview", "Development candidate: navigation, Space identity and interface refinements. The complete update remains in progress.",
+        [
+            "Home has paired Create and Import actions, six initial Space cards, and Show More / Hide More controls.",
+            "Portable vector Space icons, saved with layouts and exports, appear on Home and dashboard headers.",
+            "Settings pages initialize on demand. DEV preserves existing timer state and widget positions; navigation file preparation runs off the dispatcher.",
+            "Tips use a 30-second interval and five-second lifetime. Productivity streak feedback is compact and flame-free. Normal beverage colors restore outside Nexaween.",
+            "The streamlined setup skips the redundant activity screen and offers Space icons and a seasonal toggle. Full tutorial, recap and scoring work is still pending."
+        ]),
+        new("0.1.25", "October 27, 2026", "Dashboard refinements · development", "Intermediate testing work, not a public release.",
+        ["Gradual bug arrivals, shared spider silk, compact tips, larger squash illustrations, widget jack-o’-lanterns and scrolling feedback refinements."]),
+        new("0.1.24", "October 27, 2026", "Getting Candy for Trick-or-Treaters", "A space for whatever haunts you next. Synchronized session progress, reliable saving, a consolidated interface and a seasonal bug ecosystem.",
         [
             "The Dashboard Has Been Haunted — Seasonal branding uses the checked-task accent. The animated Home tagline is retained; only haunts is orange. Candy backgrounds, contextual widget corners and curved vines stay clear of controls.",
             "Time Is Under a Spell — Session pixels fill from the top-left, clear in reverse between classes, and share timestamp-based progress with linked bars. Weekday/date/duration editing, time zones, three-decimal precision and controlled time-picker scrolling.",

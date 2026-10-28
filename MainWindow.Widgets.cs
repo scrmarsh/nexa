@@ -119,6 +119,7 @@ public partial class MainWindow
         ClearWidgetFocus(); stopwatchRefresh.Stop(); stopwatchTicks.Clear();
         if (WidgetLibrary.PrepareLayout(state)) Changed();
         foreach (var panel in legacyPanels.Values) { Detach(panel); parkedPanels.Children.Add(panel); }
+        var existingWidgetIds=widgetFrames.Keys.ToHashSet();
         WidgetCanvas.Children.Clear(); scoreAreas.Clear(); widgetFrames.Clear(); widgetResizeHandles.Clear(); widgetTicks.Clear(); expandedMicroWidgets.Clear(); collapseMicroWidgets.Clear();
         EditToolbar.Visibility = editingDashboard ? Visibility.Visible : Visibility.Collapsed;
         PixelBannerHost.Content = null;
@@ -240,6 +241,7 @@ public partial class MainWindow
                 widgetResizeHandles[widget.Id] = handles;
             }
             WidgetCanvas.Children.Add(frame); widgetFrames.Add(widget.Id, frame);
+            if(IsLoaded && !existingWidgetIds.Contains(widget.Id))NexaMotion.Entrance(frame,Options);
         }
         ArrangeWidgetFrames(); UpdateWidgetClocks(DateTimeOffset.Now);
     }
@@ -1088,10 +1090,15 @@ public partial class MainWindow
         if (fullscreen) { ToggleFullscreen(); WindowState = WindowState.Maximized; }
         else NexaChrome.ToggleMaximize(this);
     }
-    private void HomeClick(object sender, RoutedEventArgs e)
+    private async void HomeClick(object sender, RoutedEventArgs e)
     {
-        if (!SaveNow()) return;
-        var home = new HomeWindow(previewHomeStore ?? store); NexaChrome.TransferBounds(this, home); home.Show(); Application.Current.MainWindow = home;
-        NexaChrome.FadeOutAndClose(this);
+        if (NexaNavigation.Busy(this) || !SaveNow()) return;
+        try
+        {
+            var homeStore=previewHomeStore??store;
+            await NexaNavigation.Change(this,async()=>new HomeWindow(homeStore,await Task.Run(homeStore.Load)),Options);
+        }
+        catch(OperationCanceledException) when(Dispatcher.HasShutdownStarted) { }
+        catch(Exception ex) when(HistoryArchive.Recoverable(ex)){await Dispatcher.InvokeAsync(()=>Error("Could not return Home: "+ex.Message));}
     }
 }

@@ -64,6 +64,7 @@ public sealed class TaskItem
 // This allowlisted payload contains dashboard data only, never account credentials.
 public class DashboardData
 {
+    public string SpaceIcon { get; set; } = "";
     public ProductivityLedger Productivity { get; set; } = new();
     public List<Preset> Presets { get; set; } =
     [

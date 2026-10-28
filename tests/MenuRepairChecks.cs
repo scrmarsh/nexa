@@ -12,7 +12,8 @@ internal static partial class Program
         var store = new StateStore(Path.Combine(output, "menu-repair.json"));
         var legacyTasks = WidgetLibrary.Create("Tasks", "tasks"); legacyTasks.Kind = "Tasks";
         legacyTasks.Items.Add(new TaskItem { Text = "Keep developer task" });
-        var data = new DashboardData { WidgetLayoutInitialized = true, Widgets = [legacyTasks], Tasks = [new TaskItem { Text = "Keep developer task" }] };
+        var originalStart=DateTimeOffset.UtcNow.AddMinutes(-2);var originalEnd=originalStart.AddHours(1);
+        var data = new DashboardData { Session=new Session{Title="Existing DEV session",Start=originalStart,End=originalEnd}, WidgetLayoutInitialized = true, Widgets = [legacyTasks], Tasks = [new TaskItem { Text = "Keep developer task" }] };
         var developer = Continuity.NewDashboard("Developer mode", "Developer mode", data, store.UserId);
         var workspace = new WorkspaceDocument { UserId = store.UserId, ActiveDashboardId = developer.DashboardId, Dashboards = [developer] };
         store.Save(Continuity.Activate(workspace, store.UserId));
@@ -37,12 +38,15 @@ internal static partial class Program
         Assert(nestedClick.Handled && !child.IsVisible && parent.IsVisible, "Outside click closes only the topmost nested menu");
         home.RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) { RoutedEvent = UIElement.PreviewMouseLeftButtonDownEvent });
         Pump(TimeSpan.FromMilliseconds(230)); Assert(!parent.IsVisible, "Next outside click closes the remaining menu");
+        var originalBounds=new Rect(home.Left,home.Top,home.ActualWidth,home.ActualHeight);
         var dev = Descendants(home).OfType<Button>().Single(b => Equals(b.Content, "DEV"));
-        dev.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Pump(TimeSpan.FromMilliseconds(350));
+        dev.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); var navigationWatch=System.Diagnostics.Stopwatch.StartNew();while(Application.Current.MainWindow is not MainWindow && navigationWatch.Elapsed<TimeSpan.FromSeconds(10))Pump(TimeSpan.FromMilliseconds(20));
         var reloaded = store.Load();
         var savedDeveloper = reloaded.Workspace!.Dashboards.Single(d => d.DashboardId == developer.DashboardId);
         Assert(savedDeveloper.Current.Data.Widgets.Count(w => w.PanelKey == "tasks") == 1 && savedDeveloper.Current.Data.Widgets.Any(w => w.Kind == "Task List" && w.Items.Any(i => i.Text == "Keep developer task")), "DEV opens legacy Space without duplicate linked tasks or lost content");
         Assert(Application.Current.MainWindow is MainWindow { IsVisible: true }, "DEV opens its dashboard successfully");
+        Assert(savedDeveloper.Current.Data.Session?.Start==originalStart && savedDeveloper.Current.Data.Session?.End==originalEnd,"DEV navigation preserves its existing scheduled timer");
+        var opened=Application.Current.MainWindow!;Assert(Math.Abs(opened.ActualWidth-originalBounds.Width)<2 && Math.Abs(opened.ActualHeight-originalBounds.Height)<2 && Math.Abs(opened.Left-originalBounds.Left)<2 && Math.Abs(opened.Top-originalBounds.Top)<2,"DEV navigation preserves outer window bounds");
         Application.Current.MainWindow?.Close();
     }
 }

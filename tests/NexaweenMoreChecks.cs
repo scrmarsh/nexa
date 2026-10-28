@@ -69,6 +69,6 @@ internal static partial class Program
         options = window.state.Workspace!.Settings; options.SeasonalMode = "On"; options.DecorationDensity = "High"; window.ApplyReliabilityOptions(); window.RefreshSeasonalWorkspace();
         window.WidgetScroller.ScrollToEnd(); Pump(TimeSpan.FromMilliseconds(80));
         Snapshot(window, "nexaween-seasonal-workspace", 1450, 950);
-        Assert(App.AppVersion == "0.1.25" && App.VersionLabel == "nexa v0.1.25 alpha", "Development candidate identifies itself as Nexa v0.1.25 Alpha");
+        Assert(App.AppVersion == "0.1.26" && App.VersionLabel == "nexa v0.1.26 alpha", "Development candidate identifies itself as nexa v0.1.26 alpha");
     }
 }

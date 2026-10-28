@@ -29,8 +29,10 @@ internal static class NexaChrome
             var border = 0x00261B17; DwmSetWindowAttribute(hwnd, 34, ref border, sizeof(int));
         };
     }
+    private static bool MotionAllowed(Window window)=>NexaMotion.Allowed(window switch{HomeWindow home=>home.Saved?.Workspace?.Settings??new(),MainWindow main=>main.state?.Workspace?.Settings??new(),_=>new()});
     internal static void FadeIn(Window window)
     {
+        if(!MotionAllowed(window)){window.Opacity=1;return;}
         window.Opacity = 0;
         window.Loaded += (_, _) => window.BeginAnimation(Window.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(180)) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } });
     }
@@ -41,7 +43,7 @@ internal static class NexaChrome
     internal static void FadeOut(Window window, Action afterFade)
     {
         if (!FadingWindows.Add(window)) return;
-        if (!window.IsVisible) { FadingWindows.Remove(window); afterFade(); return; }
+        if (!window.IsVisible || !MotionAllowed(window)) { FadingWindows.Remove(window); afterFade(); return; }
         var fade = new DoubleAnimation(window.Opacity, 0, TimeSpan.FromMilliseconds(160)) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn } };
         // Occluded/throttled windows can delay composition completion. Closing is a
         // dispatcher operation and must not wait indefinitely for another GPU frame.

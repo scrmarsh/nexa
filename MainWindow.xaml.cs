@@ -47,11 +47,11 @@ public partial class MainWindow
 
     public MainWindow() : this(new StateStore(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SessionDashboard", "state.json"))) { }
 
-    internal MainWindow(StateStore store, StateStore? previewHomeStore = null)
+    internal MainWindow(StateStore store, StateStore? previewHomeStore = null,AppState? loadedState=null)
     {
         this.store = store;
         this.previewHomeStore = previewHomeStore;
-        state = store.Load(); store.LoadInteractionPreferences(state);
+        state = loadedState ?? store.Load(); store.LoadInteractionPreferences(state);
         InitializeComponent();
         DashboardHeader.SizeChanged += (_, _) => UpdateDashboardHeaderGeometry();
         TopNavigation.SizeChanged += (_, _) => UpdateDashboardHeaderGeometry();
@@ -107,6 +107,8 @@ public partial class MainWindow
         Closed += (_, _) => { interfacePlayer?.Stop(); interfacePlayer?.Dispose(); interfaceAudio?.Dispose(); };
         Closed+=(_,_)=>widgetToastTimer.Stop();
         InitializeInlineSession();
+        SpaceIconHost.Cursor=Cursors.Hand;SpaceIconHost.ToolTip="Choose Space icon";SpaceIconHost.MouseLeftButtonUp+=(_,_)=>EditSpaceIcon();
+        Loaded+=(_,_)=>NexaMotion.Stagger(widgetFrames.Values,Options);
         clock.Start();
         Closing += (_, e) =>
         {

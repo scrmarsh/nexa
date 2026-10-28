@@ -1,6 +1,22 @@
 # Changelog
 
-![NEXAWEEN — nexa 0.1.24 Alpha](docs/media/nexaween-banner.svg)
+![NEXAWEEN — nexa alpha development](docs/media/nexaween-banner.svg)
+
+## 0.1.26 alpha — Spaces in Motion (partial testing candidate)
+
+- Paired Create/Import actions, six initial Space cards, all/ six expansion controls and saved vector Space icons.
+- Black-backed navigation transitions, dispatcher-safe failure recovery and off-thread Space/DEV file preparation.
+- Existing DEV timers/layouts remain intact; Settings initializes pages on demand and groups experimental pages in an expander.
+- Streamlined setup skips the redundant activity step and adds rounded name inputs, Space icons and a preference-preserving Nexaween toggle.
+- Immediate splash-bar visibility with monotonic real milestones, visible version, no three-second hold, and frozen shared logo resources.
+- Thirty-second tips with five-second display, more close-button spacing, compact flame-free streak feedback and restored normal beverage colors.
+
+The interactive tutorial, cumulative scoring, candy scoring and session recap are **not implemented** in this candidate. See the [implementation report](docs/IMPLEMENTATION-0.1.26-alpha.md). No public release or approved Latest build was replaced.
+
+## 0.1.25 alpha — dashboard refinements (development only)
+
+- Gradual bug arrivals, shared spider silk, compact tips, larger squash illustrations, widget jack-o’-lanterns and scrolling feedback fixes.
+- See [recorded verification and limitations](docs/TWEAKS-0.1.25.md).
 
 ## 0.1.24 Alpha — final-prompt repair candidate (not released)
 
@@ -13,7 +29,7 @@
 
 This candidate is not the final Nexaween release. See [verification and outstanding acceptance](docs/FINAL-0.1.24-STATUS.md). No production release was overwritten.
 
-## Previously published baseline — nexa v0.1.24 Alpha — NEXAWEEN
+## Previously published baseline — nexa v0.1.24 Alpha — Getting Candy for Trick-or-Treaters
 
 A space for whatever haunts you next.
 

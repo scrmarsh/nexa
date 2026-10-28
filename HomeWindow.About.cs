@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -38,7 +38,7 @@ internal sealed partial class HomeWindow
             fade.Completed += (_, _) => { fading = false; restartDelay = 14; };
             tagline.BeginAnimation(OpacityProperty, fade);
         };
-        Loaded += (_, _) => typing.Start(); Closed += (_, _) => typing.Stop();
+        Loaded += (_, _) => {if(NexaMotion.Allowed(Saved.Workspace?.Settings??new()))typing.Start();else NexaBranding.ApplyTagline(tagline,NexaBranding.Tagline);}; Closed += (_, _) => typing.Stop();
     }
 
     private NexaDialog InfoDialog(string title, double width = 720, double height = 620) => new NexaPanel { Title = "Nexa · " + title, Owner = this, Width = width, Height = height, MinWidth = 540, MinHeight = 440, WindowStartupLocation = WindowStartupLocation.CenterOwner };
@@ -80,7 +80,7 @@ internal sealed partial class HomeWindow
                 row.Children.Add(new System.Windows.Shapes.Ellipse { Width = 5, Height = 5, Fill = (Brush)FindResource("AccentBrush"), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(2, 8, 0, 0) });
                 var text = Copy(update); text.Margin = new Thickness(0); Grid.SetColumn(text, 1); row.Children.Add(text); section.Children.Add(row);
             }
-            var seasonalEntry = release.Version == "0.1.24";
+            var seasonalEntry = release.Version is "0.1.24" or "0.1.26" && Theme.SeasonalEnabled;
             if (seasonalEntry)
             {
                 void Tint(DependencyObject element)

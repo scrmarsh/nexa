@@ -48,8 +48,8 @@ public partial class MainWindow
         page.Children.Insert(1, mode);
         var startDate=new DatePicker{SelectedDate=state.Session is {} original?NexaTime.Local(original.Start,zone).Date:NexaTime.Local(DateTimeOffset.UtcNow,zone).Date};
         var endDate=new DatePicker{SelectedDate=state.Session is {} ending?NexaTime.Local(ending.End,zone).Date:startDate.SelectedDate};
-        var dates=new StackPanel{Margin=new Thickness(0,8,0,8),IsEnabled=mode.SelectedIndex!=1};dates.Children.Add(new TextBlock{Text="One-time start date"});dates.Children.Add(startDate);dates.Children.Add(new TextBlock{Text="One-time end date"});dates.Children.Add(endDate);page.Children.Add(dates);
-        void RefreshMode() { dates.IsEnabled = mode.SelectedIndex != 1; days.IsEnabled = shortcuts.IsEnabled = mode.SelectedIndex == 1; }
+        var dates=new StackPanel{Margin=new Thickness(0,8,0,8),Visibility=mode.SelectedIndex!=1?Visibility.Visible:Visibility.Collapsed};dates.Children.Add(new TextBlock{Text="One-time start date"});dates.Children.Add(startDate);dates.Children.Add(new TextBlock{Text="One-time end date"});dates.Children.Add(endDate);page.Children.Add(dates);
+        void RefreshMode() { dates.Visibility = mode.SelectedIndex != 1 ? Visibility.Visible : Visibility.Collapsed; days.Visibility = shortcuts.Visibility = mode.SelectedIndex == 1 ? Visibility.Visible : Visibility.Collapsed; NexaMotion.Entrance(page,Options); }
         mode.SelectionChanged += (_, _) => RefreshMode(); RefreshMode();
         var durationInput=new TextBox{Text=state.Session?.ConfiguredDurationMinutes.ToString("0")??"75",Width=100,HorizontalAlignment=HorizontalAlignment.Left};page.Children.Add(new TextBlock{Text="Duration (minutes)"});page.Children.Add(durationInput);
         var setDuration=new Button{Content="Use duration",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,4,0,10)};page.Children.Add(setDuration);

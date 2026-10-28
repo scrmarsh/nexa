@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace SessionDashboard;
@@ -17,7 +17,7 @@ internal static class DashboardTips
 
 public partial class MainWindow
 {
-    private readonly DispatcherTimer tipRotation = new() { Interval = TimeSpan.FromSeconds(12) };
+    private readonly DispatcherTimer tipRotation = new() { Interval = TimeSpan.FromSeconds(30) };
     private int tipIndex;
     private void InitializeDashboardTips()
     {
@@ -29,6 +29,6 @@ public partial class MainWindow
         if (state.Compact || storyOpen || !Options.ShowQuickTips) return;
         tipIndex = (tipIndex + 1) % DashboardTips.Messages.Length;
         DashboardTip.Text = DashboardTips.Messages[tipIndex];
-        notifications?.Show("tip", DashboardTips.Messages[tipIndex], "💡", seconds:11,action:()=>OpenMainSettings("Tips"),actionLabel:"Tip settings");
+        notifications?.Show("tip", DashboardTips.Messages[tipIndex], "💡", seconds:5,action:()=>OpenMainSettings("Tips"),actionLabel:"Tip settings");
     }
 }

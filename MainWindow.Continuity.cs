@@ -135,6 +135,7 @@ public partial class MainWindow
     private void RefreshDashboardPicker()
     {
         updatingDashboardPicker = true;
+        SpaceIconHost.Content=SpaceIcons.Create(SpaceIcons.Resolve(state.SpaceIcon,Continuity.Current(state.Workspace!,store.UserId).PresetOrigin),20);
         DashboardPicker.ItemsSource = null;
         DashboardPicker.ItemsSource = state.Workspace!.Dashboards.Where(d => d.UserId == store.UserId).ToList();
         DashboardPicker.SelectedItem = Continuity.Current(state.Workspace, store.UserId);

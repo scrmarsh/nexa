@@ -27,6 +27,8 @@ internal static partial class Program
             if(args.Contains("--showcase"))GenerateShowcase(args[Array.IndexOf(args,"--showcase")+1]);
             else if(args.Contains("--existing-data"))CheckExistingData(args[Array.IndexOf(args,"--existing-data")+1]);
             else if(args.Contains("--public-updates"))CheckPublicUpdates025();
+            else if(args.Contains("--performance026"))Measure026();
+            else if(args.Contains("--alpha026"))Check026();
             else if(args.Contains("--arrivals"))CheckArrivalTweaks();
             else if(args.Contains("--audit025"))CheckAudit025();
             else if(args.Contains("--update-integration"))CheckUpdateIntegration(args[Array.IndexOf(args,"--update-integration")+1]);

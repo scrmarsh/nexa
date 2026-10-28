@@ -46,6 +46,7 @@ internal sealed class DashboardCreation : NexaPanel
 
         void Field(string label, UIElement control) { panel.Children.Add(new TextBlock { Text = label, Margin = new Thickness(0, 12, 0, 6) }); panel.Children.Add(control); }
         Field("Space name", NameInput);
+        var chosenIcon="";Field("Space icon",SpaceIcons.Picker("",icon=>chosenIcon=icon));
         Field("Accent color", AccentPicker);
         panel.Children.Add(Schedule);
         Field("Start time", Start); Field("End time", End);
@@ -97,6 +98,7 @@ internal sealed class DashboardCreation : NexaPanel
                 data.Draft.EndDate = end.Date;
             }
 
+            data.SpaceIcon=SpaceIcons.Resolve(chosenIcon,chosen.Name);
             Result = Continuity.NewDashboard(NameInput.Text.Trim(), chosen.Name, data, userId);
             CloseWithFade(true);
         };
