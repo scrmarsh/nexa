@@ -48,6 +48,7 @@ public partial class App : Application
                 {
                     var profile=await Task.Run(()=>store.LoadProfile());splash.Report(.2,"Profile settings loaded");
                     if(profile.OnboardingCompleted) { var home = await splash.EnterHome(store); _ = CheckStartupUpdatesAsync(store, home); return; }
+                    await splash.WaitForLogoAsync();
                     var welcome=new OnboardingWindow(store) { Owner=splash };
                     splash.Hide();
                     var accepted=welcome.ShowDialog();
@@ -72,7 +73,17 @@ public partial class App : Application
     }
     private async void ApplyUpdateHelper(string path)
     {
-        try { await UpdateTransaction.Apply(path, target => UpdateTransaction.Health(target, Path.Combine(Path.GetDirectoryName(path)!, "installed-health")), target => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(target) { UseShellExecute = true })?.Dispose()); Shutdown(0); }
+        try
+        {
+            var plan=System.Text.Json.JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(path))??throw new InvalidDataException("Missing update plan.");
+            await UpdateTransaction.Apply(path, target => UpdateTransaction.Health(target, Path.Combine(Path.GetDirectoryName(path)!, "installed-health")), target =>
+            {
+                var restart=new System.Diagnostics.ProcessStartInfo(target){UseShellExecute=false,CreateNoWindow=plan.VerificationOnly,WindowStyle=plan.VerificationOnly?System.Diagnostics.ProcessWindowStyle.Hidden:System.Diagnostics.ProcessWindowStyle.Normal};
+                // Verification transactions restart into a fresh isolated store, never the user's workspace.
+                if(plan.VerificationOnly){restart.ArgumentList.Add("--verify-startup");restart.ArgumentList.Add(Path.Combine(Path.GetDirectoryName(path)!,"restart-health"));}
+                System.Diagnostics.Process.Start(restart)?.Dispose();
+            });Shutdown(0);
+        }
         catch (Exception ex) when (HistoryArchive.Recoverable(ex) || ex is TimeoutException or System.ComponentModel.Win32Exception) { Shutdown(1); }
     }
     protected override void OnExit(ExitEventArgs e) { NexaEcosystem.FlushAll(); workspaceMutex?.Dispose(); base.OnExit(e); }

@@ -32,12 +32,27 @@ internal sealed partial class SettingsDialog
         CancellationTokenSource? downloadCancellation = null;
         cancel.Click += (_, _) => downloadCancellation?.Cancel();
         string? prepared = null;
-        restart.Click += (_, _) =>
+        restart.Click += async (_, _) =>
         {
             if (prepared == null || !FlushPendingChanges() || space != null && !space.SaveForClose()) { status.Text = "Save your current changes before restarting."; return; }
-            try { UpdateTransaction.StartHelper(prepared); Application.Current.Shutdown(); }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception) { status.Text = "Could not restart: " + ex.Message; }
+            try { restart.IsEnabled=false;await UpdateTransaction.BackupData(store,Path.GetDirectoryName(prepared)!);await Dispatcher.InvokeAsync(()=>{UpdateTransaction.StartHelper(prepared);Application.Current.Shutdown();}); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception) { status.Text = "Could not restart: " + ex.Message;restart.IsEnabled=true; }
         };
+        var transactions=Path.Combine(store.UserPreferencesDirectory,"updates");
+        try
+        {
+            if(Directory.Exists(transactions))foreach(var transaction in Directory.EnumerateDirectories(transactions).OrderByDescending(Directory.GetLastWriteTimeUtc))
+            {
+                var planPath=Path.Combine(transaction,"plan.json");if(!File.Exists(planPath))continue;
+                var pending=System.Text.Json.JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(planPath));
+                if(pending?.UserId!=store.UserId)continue;
+                if(pending.State is "RolledBack" or "Failed" or "RecoveryRequired") {status.Text="Previous update: "+pending.State+". "+pending.Error;continue;}
+                if(pending.State is not ("Prepared" or "Installing"))continue;
+                if(!string.Equals(pending.Target,Environment.ProcessPath,StringComparison.OrdinalIgnoreCase))continue;
+                prepared=planPath;status.Text="A prepared or interrupted update can be resumed after saving your current work.";restart.Visibility=Visibility.Visible;break;
+            }
+        }
+        catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException){status.Text="A previous update needs review: "+ex.Message;}
         AvailableUpdate? available = null;
         check.Click += async (_, _) =>
         {

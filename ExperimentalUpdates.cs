@@ -99,7 +99,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
         Directory.CreateDirectory(directory);
         var name = Path.GetFileName(release.Url.AbsolutePath);
         var final = Path.Combine(directory, name);
-        var temporary = final + ".download";
+        var temporary = final + "." + Guid.NewGuid().ToString("N") + ".download";
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Get, release.Url);

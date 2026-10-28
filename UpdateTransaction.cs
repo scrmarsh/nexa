@@ -13,6 +13,7 @@ internal sealed class UpdatePlan
     public string CandidateHash { get; set; } = "";
     public string PreviousHash { get; set; } = "";
     public string Version { get; set; } = "";
+    public bool VerificationOnly {get;set;}
     public int ParentPid { get; set; }
     public string State { get; set; } = "Prepared";
     public string Error { get; set; } = "";
