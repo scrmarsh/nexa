@@ -35,10 +35,11 @@ internal sealed class ProductivityStreakOverlay : FrameworkElement, IDisposable
         dc.DrawRoundedRectangle(BugVisuals.B(Theme.SeasonalEnabled?"#F21C102A":"#F2171B26"),BugVisuals.P(Theme.SeasonalEnabled?"#A855F7":"#7C6CF0",1.5),frame,16,16);
         void Text(string value,double size,double top,string color)
         {
-            var text=new FormattedText(value,CultureInfo.CurrentCulture,FlowDirection.LeftToRight,new Typeface("Segoe UI Semibold"),size,BugVisuals.B(color),VisualTreeHelper.GetDpi(this).PixelsPerDip){MaxTextWidth=width-24,TextAlignment=TextAlignment.Center,Trimming=TextTrimming.CharacterEllipsis};
-            dc.DrawText(text,new(x+12,y+top));
+            var text=new FormattedText(value,CultureInfo.CurrentCulture,FlowDirection.LeftToRight,new Typeface("Segoe UI Semibold"),size,BugVisuals.B(color),VisualTreeHelper.GetDpi(this).PixelsPerDip){MaxTextWidth=width-24,Trimming=TextTrimming.CharacterEllipsis};
+            dc.DrawText(text,new(x+(width-text.WidthIncludingTrailingWhitespace)/2,y+top));
         }
-        Text("PRODUCTIVITY",12,12,"#E9D5FF");Text("⚡ "+ledger.Score.ToString("N0"),32,31,"#FACC15");Text(multiplier.ToString("0.0")+"×"+(active?" streak":" cooling down"),19,76,Theme.SeasonalEnabled?"#84CC16":"#C4B5FD");
+        Text("PRODUCTIVITY",12,12,"#E9D5FF");Text(ledger.Score.ToString("N0"),32,31,"#FACC15");
+        dc.PushTransform(new TranslateTransform(x+width/2-66,y+38));dc.PushTransform(new ScaleTransform(.75,.75));dc.DrawGeometry(BugVisuals.B("#FACC15"),null,Geometry.Parse("M12,0 L2,14 L10,14 L7,27 L23,10 L14,10 L18,0 Z"));dc.Pop();dc.Pop();Text(multiplier.ToString("0.0")+"×"+(active?" streak":" cooling down"),19,76,Theme.SeasonalEnabled?"#84CC16":"#C4B5FD");
         Text(string.Join(" · ",ledger.Events.TakeLast(2).Select(e=>$"{e.BasePoints+e.BonusPoints:+0;-0;0}")),12,112,"#E9D5FF");
         if(NexaMotion.Allowed(Options) && Options.CelebrationEffects)
         {
