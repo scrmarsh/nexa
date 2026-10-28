@@ -536,6 +536,7 @@ public partial class MainWindow
         DashboardHeader.Height = fullscreen?44:needsTopInset?60:52;
         DashboardHeader.Padding = new Thickness(fullscreen?8:12,needsTopInset?16:4,fullscreen?8:12,4);
         WorkspaceOuter.Margin=fullscreen?new Thickness(8,4,8,8):new Thickness(24);
+        if(widgetToast!=null)widgetToast.Margin=fullscreen?new Thickness(8):new Thickness(24,0,0,36);
         foreach(var button in new[]{MinimizeButton,MaximizeButton,ExitButton})button.Visibility=fullscreen?Visibility.Collapsed:Visibility.Visible;
         SessionNameHost.Visibility=SpaceIconHost.Visibility=fullscreen && DashboardHeader.ActualWidth<1300?Visibility.Collapsed:Visibility.Visible;
         SessionNameHost.MaxWidth = Math.Clamp((DashboardHeader.ActualWidth - TopNavigation.ActualWidth) / 2 - 52, 60, 290);

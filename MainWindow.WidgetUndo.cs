@@ -24,7 +24,7 @@ public partial class MainWindow
         row.Children.Add(new TextBlock { Text="Widget removed",VerticalAlignment=VerticalAlignment.Center,Margin=new Thickness(0,0,16,0) });
         var undo=new Button { Content="Undo" }; undo.Click+=(_,_)=>UndoWidgetRemoval(); row.Children.Add(undo);
         var content=new StackPanel(); content.Children.Add(row); content.Children.Add(new TextBlock { Text="Ctrl+Z",FontSize=9,Opacity=.55,Margin=new Thickness(0,3,0,0) });
-        widgetToast=new Border { Child=content,Background=DashboardBrush("SurfaceBrush"),BorderBrush=DashboardBrush("LineBrush"),BorderThickness=new Thickness(1),CornerRadius=new CornerRadius(10),Padding=new Thickness(14,10,14,8),Margin=new Thickness(24,0,0,36),HorizontalAlignment=HorizontalAlignment.Left,VerticalAlignment=VerticalAlignment.Bottom };
+        widgetToast=new Border { Child=content,Background=DashboardBrush("SurfaceBrush"),BorderBrush=DashboardBrush("LineBrush"),BorderThickness=new Thickness(1),CornerRadius=new CornerRadius(10),Padding=new Thickness(14,10,14,8),Margin=fullscreen?new Thickness(8):new Thickness(24,0,0,36),HorizontalAlignment=HorizontalAlignment.Left,VerticalAlignment=VerticalAlignment.Bottom };
         root.Children.Add(widgetToast); Panel.SetZIndex(widgetToast,3500);
         widgetToastTimer.Tick-=FadeWidgetToast; widgetToastTimer.Tick+=FadeWidgetToast; widgetToastTimer.Start();
     }

@@ -13,6 +13,16 @@ internal static class NexaWindowBounds
     [DllImport("user32.dll")] private static extern nint MonitorFromWindow(nint window, uint flags);
     [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] private static extern bool GetMonitorInfo(nint monitor, ref MonitorInfo info);
 
+    internal static bool IsFullscreen(FrameworkElement element) => Window.GetWindow(element) is MainWindow { IsFullscreen: true };
+    internal static double NotificationInset(FrameworkElement element) => IsFullscreen(element) ? 8 : 18;
+    internal static bool TryNotificationArea(FrameworkElement element, out Rect area)
+    {
+        if (!IsFullscreen(element)) return TryWorkArea(element, out area);
+        // Fullscreen covers the taskbar, so its reserved work area is not an inset.
+        area = new Rect(0, 0, Math.Max(0, element.ActualWidth), Math.Max(0, element.ActualHeight));
+        return area.Width > 0 && area.Height > 0;
+    }
+
     internal static bool TryWorkArea(FrameworkElement element, out Rect area)
     {
         area = Rect.Empty;

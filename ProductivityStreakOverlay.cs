@@ -22,16 +22,16 @@ internal sealed class ProductivityStreakOverlay : FrameworkElement, IDisposable
         var active=Ledger is {} ledger && DisplayMultiplier(ledger,DateTimeOffset.UtcNow)>0;
         if(active || displayed)InvalidateVisual();displayed=active;
     }
-    internal static Rect LayoutFrame(Size size,Rect? workArea=null)
+    internal static Rect LayoutFrame(Size size,Rect? workArea=null,double inset=18)
     {
         var safe=workArea??new Rect(size);safe.Intersect(new Rect(size));if(safe.IsEmpty)safe=new Rect(size);
-        var width=Math.Max(1,Math.Min(340,safe.Width-32));return new Rect(safe.Left+(safe.Width-width)/2,Math.Max(safe.Top+52,safe.Bottom-64-18),width,64);
+        var width=Math.Max(1,Math.Min(340,safe.Width-inset*2));return new Rect(safe.Left+(safe.Width-width)/2,Math.Max(safe.Top+52,safe.Bottom-64-inset),width,64);
     }
     protected override void OnRender(DrawingContext dc)
     {
         if (Ledger is not {} ledger || !IsVisible || ActualWidth<80 || ActualHeight<140) return;
         var now=DateTimeOffset.UtcNow;var multiplier=DisplayMultiplier(ledger,now);if(multiplier<=0)return;
-        var frame=LayoutFrame(RenderSize,NexaWindowBounds.TryWorkArea(this,out var work)?work:null);var width=frame.Width;var height=frame.Height;var x=frame.X;var y=frame.Y;var active=ledger.FrenzyUntil>now;
+        var frame=LayoutFrame(RenderSize,NexaWindowBounds.TryNotificationArea(this,out var work)?work:null,NexaWindowBounds.NotificationInset(this));var width=frame.Width;var height=frame.Height;var x=frame.X;var y=frame.Y;var active=ledger.FrenzyUntil>now;
         var fadeIn=ledger.FrenzyStartedAt is {} began?Math.Clamp((now-began).TotalSeconds/.18,0,1):1;
         var fadeOut=!active && ledger.FrenzyUntil is {} until?Math.Clamp(1-(now-until).TotalSeconds/(Math.Max(1,ledger.FrenzyMultiplier)*.7),0,1):1;
         dc.PushOpacity(NexaMotion.Allowed(Options)?Math.Min(fadeIn,fadeOut):1);

@@ -83,7 +83,30 @@ internal static partial class Program
         Assert(main.IsFullscreen && main.DashboardHeader.Height==44 && main.WorkspaceOuter.Margin.Left==8 && main.ExitButton.Visibility==Visibility.Collapsed,"Fullscreen has compact flush-top navigation and removes caption controls");
         var headerPosition=main.DashboardHeader.TranslatePoint(new Point(),(UIElement)main.Content);
         Assert(headerPosition.Y==0 && Descendants(main).OfType<TextBlock>().Any(t=>t.Text=="Fullscreen mode — Press F11 to exit"),"Fullscreen notice overlays at top without shifting navigation");
+        var root=(Grid)main.Content;
+        var notices=(NexaNotifications)typeof(MainWindow).GetField("notifications",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(main)!;
+        notices.Dismiss("feedback");notices.Dismiss("autosave");notices.Dismiss("tip");
+        notices.Show("autosave","Fullscreen edge autosave",seconds:null);notices.Show("tip","Fullscreen edge tip",seconds:null);
+        main.UpdateLayout();
+        Rect NoticeBounds(string message)
+        {
+            var label=Descendants(root).OfType<TextBlock>().Single(t=>t.Text==message);
+            var card=(Border)((Grid)((StackPanel)label.Parent).Parent).Parent;
+            return card.TransformToVisual(root).TransformBounds(new Rect(card.RenderSize));
+        }
+        var saveBounds=NoticeBounds("Fullscreen edge autosave");var tipBounds=NoticeBounds("Fullscreen edge tip");
+        Assert(Math.Abs(saveBounds.Left-8)<.5 && Math.Abs(root.ActualHeight-saveBounds.Bottom-8)<.5,"Fullscreen autosave has matching tight eight-DIP side and bottom gaps");
+        Assert(Math.Abs(root.ActualWidth-tipBounds.Right-8)<.5 && Math.Abs(root.ActualHeight-tipBounds.Bottom-8)<.5,"Fullscreen tips use the same eight-DIP right and bottom gaps");
+        Assert(NexaWindowBounds.TryNotificationArea(root,out var notificationArea) && notificationArea==new Rect(root.RenderSize),"Fullscreen notification area includes the taskbar strip");
+        var scoreFrame=ProductivityStreakOverlay.LayoutFrame(root.RenderSize,notificationArea,NexaWindowBounds.NotificationInset(root));
+        Assert(Math.Abs(root.ActualHeight-scoreFrame.Bottom-8)<.5,"Productivity score banner shares the tight fullscreen bottom baseline");
+        SnapshotHome029(main,"nexa029-fullscreen-notification-edges");
+        notices.Dismiss("tip");notices.Show("edge-alert","Fullscreen edge alert",seconds:null);main.UpdateLayout();
+        var alertBounds=NoticeBounds("Fullscreen edge alert");
+        Assert(Math.Abs(root.ActualWidth-alertBounds.Right-8)<.5 && Math.Abs(root.ActualHeight-alertBounds.Bottom-8)<.5,"Other fullscreen notification cards share the same edge spacing");
+        notices.Dismiss("edge-alert");notices.Dismiss("autosave");
         SnapshotHome029(main,"nexa029-fullscreen");main.ToggleFullscreen();Pump(TimeSpan.FromMilliseconds(50));
+        Assert(NexaWindowBounds.NotificationInset(root)==18,"Leaving fullscreen restores the standard windowed notification inset");
         Assert(!main.IsFullscreen && Math.Abs(main.Width-before.Width)<1 && Math.Abs(main.Height-before.Height)<1 && main.ExitButton.Visibility==Visibility.Visible,"Fullscreen restores dimensions and caption controls");
         Assert(main.state.Notes==notes && Continuity.Current(main.state.Workspace!,store.UserId).Current.SessionId==sessionId,"Fullscreen leaves session identity/data intact");
         var transcript=Descendants(main).OfType<TextBox>().First(t=>t.IsReadOnly && t.TextWrapping==TextWrapping.Wrap && t.VerticalScrollBarVisibility==ScrollBarVisibility.Auto && t.Parent is Border{Tag:"ResizableTranscript"});

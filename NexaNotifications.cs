@@ -47,10 +47,11 @@ internal sealed class NexaNotifications : IDisposable
     private void Resize(object? sender, SizeChangedEventArgs? e)
     {
         if (disposed) return;
-        var safe = NexaWindowBounds.TryWorkArea(owner, out var work) ? work : new Rect(0, 0, Math.Max(0, owner.ActualWidth), Math.Max(0, owner.ActualHeight));
-        var margin = new Thickness(Math.Max(18, safe.Left + 18), Math.Max(18, safe.Top + 18), Math.Max(18, owner.ActualWidth - safe.Right + 18), Math.Max(18, owner.ActualHeight - safe.Bottom + 18));
+        var safe = NexaWindowBounds.TryNotificationArea(owner, out var work) ? work : new Rect(0, 0, Math.Max(0, owner.ActualWidth), Math.Max(0, owner.ActualHeight));
+        var inset = NexaWindowBounds.NotificationInset(owner);
+        var margin = new Thickness(Math.Max(inset, safe.Left + inset), Math.Max(inset, safe.Top + inset), Math.Max(inset, owner.ActualWidth - safe.Right + inset), Math.Max(inset, owner.ActualHeight - safe.Bottom + inset));
         stack.Margin = leftStack.Margin = margin;
-        stack.Width = leftStack.Width = Math.Max(120, Math.Min(350, (safe.Width - 54) / 2));
+        stack.Width = leftStack.Width = Math.Max(120, Math.Min(350, (safe.Width - inset * 3) / 2));
         viewport.MaxHeight = leftViewport.MaxHeight = Math.Max(100, owner.ActualHeight - margin.Top - margin.Bottom - 80);
     }
     internal void Dismiss(string key)

@@ -1,5 +1,7 @@
 # Nexa 0.0.29 Alpha — implementation status
 
+Latest follow-up: [tight, even fullscreen notification spacing](NEXA_029_NOTIFICATION_SPACING.md). The original development checkpoint and full-suite evidence are recorded below.
+
 October 28, 2026. Local unpublished Alpha. No push, release, tag, build promotion, desktop shortcut replacement or Beta transition occurred.
 
 ## Provenance and verification

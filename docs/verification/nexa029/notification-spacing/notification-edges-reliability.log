@@ -1,0 +1,20 @@
+PASS: Changing recurrence zone preserves factual current-session instants and recorded zone
+PASS: Future recurrence keeps the class wall clock in the newly selected zone
+PASS: A provider snapshot captures meaningful observed calendar state
+PASS: Unchanged provider refreshes do not duplicate historical snapshots
+PASS: Session reset keeps individual permanent Scripture pins and tasks
+PASS: Session reset clears live integration history only after preserving the original record
+PASS: Configuration-only export strips private provider snapshots
+PASS: Provider snapshots remain bounded to twelve changed observations per widget
+PASS: Study results enter meaningful history without farming productivity points
+PASS: Repeated observations do not duplicate a study result
+PASS: Readable history includes pin scope and observed provider contents
+PASS: Productivity statistic selections survive restart
+PASS: Native monitor work area is available for window-bound verification
+PASS: Maximized Nexa uses the monitor work area above the taskbar
+PASS: A notification key transitions without retaining the old save state
+PASS: An unresolved save error remains visible after routine success expires
+PASS: Save feedback does not take keyboard focus
+PASS: Error acknowledgement dismisses the warning
+PASS: Disabling tips immediately suppresses automatic tip notifications
+PASS: 19 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-161705
