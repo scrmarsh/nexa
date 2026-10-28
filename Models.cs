@@ -21,6 +21,7 @@ public sealed class Preset
 
 public sealed class Session
 {
+    public DateTimeOffset? FinalizedAt {get;set;}
     public string Title { get; set; } = "";
     public string TimeZoneId { get; set; } = "Automatic";
     public bool AutomaticScheduling { get; set; }
@@ -64,6 +65,9 @@ public sealed class TaskItem
 // This allowlisted payload contains dashboard data only, never account credentials.
 public class DashboardData
 {
+    public bool OfferQuickStart {get;set;}
+    public Session? ManualTimerDraft {get;set;}
+    public Session? ScheduleTimerDraft {get;set;}
     public string SpaceIcon { get; set; } = "";
     public ProductivityLedger Productivity { get; set; } = new();
     public List<Preset> Presets { get; set; } =

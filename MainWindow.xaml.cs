@@ -12,6 +12,7 @@ namespace SessionDashboard;
 public partial class MainWindow
 {
     private readonly StateStore store;
+    private readonly bool entryAlreadyPersisted;
     internal AppState state;
     private readonly DispatcherTimer clock = new() { Interval = TimeSpan.FromMilliseconds(250) };
     private readonly DispatcherTimer saveDelay = new() { Interval = TimeSpan.FromMilliseconds(600) };
@@ -47,9 +48,9 @@ public partial class MainWindow
 
     public MainWindow() : this(new StateStore(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SessionDashboard", "state.json"))) { }
 
-    internal MainWindow(StateStore store, StateStore? previewHomeStore = null,AppState? loadedState=null)
+    internal MainWindow(StateStore store, StateStore? previewHomeStore = null,AppState? loadedState=null,bool entryAlreadyPersisted=false)
     {
-        this.store = store;
+        this.store = store;this.entryAlreadyPersisted=entryAlreadyPersisted;
         this.previewHomeStore = previewHomeStore;
         state = loadedState ?? store.Load(); store.LoadInteractionPreferences(state);
         InitializeComponent();
@@ -105,8 +106,11 @@ public partial class MainWindow
         foreach (var button in TopNavigation.Children.OfType<Button>().Where(b => b.Content is string text && text == "Home")) button.Content = NexaIcons.Label("Home");
         SessionEditButton.Content = NexaIcons.Label("Edit");
         Closed += (_, _) => { interfacePlayer?.Stop(); interfacePlayer?.Dispose(); interfaceAudio?.Dispose(); };
-        Closed+=(_,_)=>widgetToastTimer.Stop();
+        Closed+=(_,_)=>{widgetToastTimer.Stop();completionFill.Stop();recapWindow?.Close();};
         InitializeInlineSession();
+        PreviewKeyDown+=(_,e)=>{if(TutorialActive && e.Key==Key.Escape){FinishQuickStart(true);e.Handled=true;}};
+        Loaded+=(_,_)=>{if(state.OfferQuickStart && !Options.QuickStartCompleted)StartQuickStart(false);};
+        Closed+=(_,_)=>RemoveQuickStart();
         SpaceIconHost.Cursor=Cursors.Hand;SpaceIconHost.ToolTip="Choose Space icon";SpaceIconHost.MouseLeftButtonUp+=(_,_)=>EditSpaceIcon();
         Loaded+=(_,_)=>NexaMotion.Stagger(widgetFrames.Values,Options);
         clock.Start();
@@ -372,9 +376,7 @@ public partial class MainWindow
 
     private void EndClick(object sender, RoutedEventArgs e)
     {
-        if (state.Session == null) return;
-        state.Session.StoppedAt = DateTimeOffset.Now;
-        UpdateClock(); Changed(); SaveNow();
+        FinalizeSession();
     }
 
     private void RefreshPresets(Guid? selected)
@@ -606,12 +608,14 @@ public partial class MainWindow
     private DateTimeOffset displayedClockInstant;
     internal void UpdateClock(DateTimeOffset? at = null)
     {
+        EndSessionToolbarButton.Content=state.Session?.FinalizedAt!=null?"View Recap":"End Session";
+        EndSessionToolbarButton.IsEnabled=state.Session!=null;
         SessionResetButton.Visibility = state.Session?.AutomaticScheduling == true ? Visibility.Collapsed : Visibility.Visible;
         var now = at ?? DateTimeOffset.UtcNow;displayedClockInstant=now;
         ReconcileSchedule(now);
         var session = state.Session;
         var reading = PixelTiming.Read(session, now);
-        var progress = reading.VisualFraction;
+        var progress = completionVisualProgress??reading.VisualFraction;
         UpdateWidgetClocks(now);
         UpdateFocusExperience(now); var complete = session != null && session.StoppedAt == null && now >= session.End;
         if (session != null)
@@ -650,7 +654,7 @@ public partial class MainWindow
         CountdownCaption.Text = reading.Caption; StatusLabel.Text = reading.Status;
         var remainingFraction = reading.VisualFraction;
         UpdateFrenzyFeedback();
-        var head = PixelTiming.CompletedPixels(reading, pixels.Count);
+        var head = completionVisualProgress is {} fill ? (int)Math.Floor(fill*pixels.Count) : PixelTiming.CompletedPixels(reading, pixels.Count);
         if (previousHead >= 0 && previousHead < pixels.Count)
         { pixels[previousHead].BeginAnimation(OpacityProperty, null); pixels[previousHead].Opacity = 1; }
         if (head != litPixels)

@@ -22,8 +22,8 @@ internal static partial class Program
         Assert(window.state.AccentColor == savedAccent && window.state.PixelColor == savedPixel, "Seasonal styling does not rewrite saved normal colors");
         var artwork = window.WidgetCanvas.Children.OfType<NexaweenDecorations>().Single();
         Assert(!artwork.IsHitTestVisible && artwork.Visibility == Visibility.Visible, "Seasonal artwork cannot intercept dashboard controls");
-        options.SeasonalDecorations = false; window.ApplyReliabilityOptions();
-        Assert(artwork.Visibility == Visibility.Collapsed, "Decoration toggle hides artwork immediately");
+        options.SeasonalDecorations = false; window.ApplyReliabilityOptions(); Pump(TimeSpan.FromMilliseconds(350));
+        Assert(artwork.Visibility == Visibility.Collapsed, "Decoration toggle hides artwork after its bounded fade");
         options.SeasonalDecorations = true; options.DecorationDensity = "High"; window.ApplyReliabilityOptions(); window.RefreshSeasonalWorkspace();
         Assert(window.WidgetCanvas.Children.OfType<Button>().Any(b => System.Windows.Automation.AutomationProperties.GetName(b) == "Add Widget in empty workspace" && System.Windows.Controls.Canvas.GetTop(b) > 0), "Contextual Add Widget appears below existing content");
         options.SeasonalMode = "Off"; window.ApplyReliabilityOptions();

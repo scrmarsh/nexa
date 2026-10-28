@@ -35,6 +35,9 @@ public sealed class WorkspaceDocument
 
 public sealed class DashboardRecord
 {
+    public bool SpaceScoreInitialized {get;set;}
+    public long SpaceProductivityScore {get;set;}
+    public HashSet<Guid> CreditedScoreEvents {get;set;} = [];
     public Guid DashboardId { get; set; } = Guid.NewGuid();
     public string UserId { get; set; } = "";
     public string Name { get; set; } = "My dashboard";
@@ -47,6 +50,9 @@ public sealed class DashboardRecord
 
 public sealed class DashboardSession
 {
+    public long? ScoreAtStart {get;set;}
+    public long? ScoreAtEnd {get;set;}
+    public SessionRecap? Recap {get;set;}
     public Guid? PresetId { get; set; }
     public string PresetName { get; set; } = "";
     public string TimeZoneId { get; set; } = "Automatic";
@@ -145,7 +151,7 @@ public static class Continuity
         }
         session.TimeZoneId = state.Session?.TimeZoneId ?? state.Workspace.Settings.TimeZoneId;
         session.ScheduledStart = state.Session?.Start; session.ScheduledEnd = state.Session?.End;
-        session.Data = Capture(state); session.UpdatedAt = now.ToUniversalTime();
+        session.Data = Capture(state); SpaceScores.Reconcile(Current(state.Workspace,userId)); session.UpdatedAt = now.ToUniversalTime();
         session.Title = state.Session?.Title ?? state.Draft.Title;
         // Only current sessions retain crash-recovery generations; history is a single immutable state.
         session.Snapshots.Add(new() { SavedAt = now, Data = Clone(session.Data) });
@@ -159,6 +165,7 @@ public static class Continuity
     }
     public static void Archive(DashboardRecord dashboard, bool reset = false)
     {
+        SpaceScores.Reconcile(dashboard);
         var archived = Clone(dashboard.Current);
         archived.IsActive = false; archived.WasReset = reset; archived.ClosedAt = DateTimeOffset.Now;
         archived.Snapshots.Clear();

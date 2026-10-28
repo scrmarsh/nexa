@@ -19,7 +19,7 @@ internal sealed class BugOverlay : FrameworkElement
     internal BugOverlay(BugManager? manager = null) { Manager = manager ?? new(); ClipToBounds = true; Focusable = false; }
     internal void SetViewOrigin(Point origin) { ContentOrigin = origin; RefreshFrame(); }
     internal void SetWorldMapping(Point origin, Size size)
-    { if(ContentOrigin==origin && Math.Abs(scaleX-size.Width/BugManager.WorldWidth)<.000001 && Math.Abs(scaleY-size.Height/BugManager.WorldHeight)<.000001)return; ContentOrigin = origin; scaleX = size.Width / BugManager.WorldWidth; scaleY = size.Height / BugManager.WorldHeight; RebuildProtectedClip(); RefreshFrame(); }
+    { if(ContentOrigin==origin && Math.Abs(scaleX-size.Width/BugManager.WorldWidth)<.000001 && Math.Abs(scaleY-size.Height/BugManager.WorldHeight)<.000001)return; ContentOrigin = origin; scaleX = size.Width / BugManager.WorldWidth; scaleY = size.Height / BugManager.WorldHeight;Manager.WebCoordinateAspect=scaleX/Math.Max(.001,scaleY); RebuildProtectedClip(); RefreshFrame(); }
     internal void SetProtectedWidgets(IEnumerable<Rect> rectangles) {var next=rectangles.ToArray();if(protectedWidgets.SequenceEqual(next))return;protectedWidgets=next;RebuildProtectedClip();}
     private Rect viewport = Rect.Empty;
     internal void SetViewport(Rect value) { if (viewport == value) return; viewport = value; RebuildProtectedClip(); RefreshFrame(); }
@@ -100,6 +100,9 @@ internal sealed class BugOverlay : FrameworkElement
         LastRenderMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(began).TotalMilliseconds;
         Manager.ObserveFrameCost(LastRenderMilliseconds);
     }
+    internal bool ReduceMotion {get;set;}
+    private readonly Dictionary<Guid,long> webReveals=[];
+    internal static double SilkReveal(long started,long now)=>Math.Clamp((now-started)/1500d,0,1);
     private void DrawFeatures(DrawingContext dc)
     {
         foreach (var nest in Manager.Nests)
@@ -126,14 +129,20 @@ internal sealed class BugOverlay : FrameworkElement
         }
         var silk=BugVisuals.P(Manager.SeasonalCostumes?"#7484CC16":"#809D8CAE",.65);
         var builders=Manager.Bugs.Where(b=>Manager.IsActive(b) && b.WeavingOwner!=null && b.WeavingSegment>=0 && b.SilkAttached && b.Activity==BugActivity.Nesting && b.State!=BugState.Squashed).GroupBy(b=>(b.WeavingOwner!.Value,b.WeavingSegment)).ToDictionary(g=>g.Key,g=>g.First());
+        foreach(var removed in webReveals.Keys.Where(id=>!Manager.Webs.Any(w=>w.Owner==id)).ToArray())webReveals.Remove(removed);
         foreach(var web in Manager.Webs)
         {
+            var owner=Manager.Bugs.FirstOrDefault(b=>b.InteractionId==web.Owner);
+            if(owner!=null && !Manager.IsActive(owner))continue;
+            if(!webReveals.TryGetValue(web.Owner,out var started))webReveals[web.Owner]=started=Environment.TickCount64;
+            var reveal=SystemParameters.ClientAreaAnimation && !ReduceMotion?SilkReveal(started,Environment.TickCount64):1;
+
             var box=Manager.WebBounds(web);var screenBox=new Rect(WorldToScreen(box.TopLeft),WorldToScreen(box.BottomRight));
             if(!viewport.IsEmpty && !screenBox.IntersectsWith(viewport))continue;
             BugManager.EnsureSilk(web);
             for(var index=0;index<web.Strands.Count;index++)
             {
-                var strand=web.Strands[index];if(strand.Progress<=0)continue;
+                var strand=web.Strands[index];if(strand.Progress<=0 || index>=web.Strands.Count*reveal)continue;
                 var from=WorldToScreen(Manager.SilkPoint(web,strand.FromX,strand.FromY));var to=WorldToScreen(Manager.SilkPoint(web,strand.ToX,strand.ToY));var end=from+(to-from)*strand.Progress;
                 if(builders.TryGetValue((web.Owner,index),out var builder))
                 {

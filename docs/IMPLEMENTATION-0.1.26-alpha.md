@@ -1,93 +1,108 @@
-# nexa v0.1.26 alpha — implementation status
+# nexa v0.1.26 alpha - implementation after three passes
 
-This is a **partial testing candidate**, not the complete master-prompt update, a beta, or a public release.
+Testing candidate on **codex/nexa-026-alpha**. No new version, beta promotion, public release, approved-executable replacement or live-user-data migration was performed. Recovery source: **codex/recovery-before-026-passes** (278bbfe).
 
-## Recovery and compatibility
+## Pass 1 - productivity and session completion
 
-- Development branch: `codex/nexa-026-alpha`.
-- Recovery branch: `codex/recovery-before-026`, created from clean `c9947e4` before implementation.
-- No separate Aevoria project, live workspace, credentials, approved Latest, root executable, or old Testing executable is intentionally modified by this work.
-- `DashboardData.SpaceIcon` is an additive string. Old data defaults to an empty identifier and resolves a preset-specific vector fallback. Export/import carries it through existing allowlisted dashboard data. No destructive migration is introduced.
+- Persistent per-Space cumulative totals credit each recorded event ID once, including across archives, repeated saves and continued/merged records. Older recorded events initialize the total once; unknown older activity is not invented. New sessions retain their starting total.
+- Candy has one base point. The shared streak increments by 0.5 before the current candy award, refreshes for two minutes, and uses the existing configurable cap. Integer bonuses round away from zero (first candy: 1 base + 1 bonus at 1.5x). Direct-squash scoring semantics remain intact. Duplicate claims and candy being eaten cannot score.
+- Collection reserves and removes the actual visible candy. A small independent lifecycle timer respawns it even with bugs and seasonal animation disabled. Failed persistence retains pending points and shows the existing save error.
+- The Productivity ring animates the cumulative score toward the next 500-point milestone and briefly pulses. View Details retains event/category information. The compact bottom streak popup uses the same cumulative score and multiplier without flames.
+- End Session is a dedicated toolbar action. Finalization saves current edits, creates a detached completed candidate, and commits it before showing any recap. Failures retain the current recoverable session. Repeated completion reopens the same recap.
+- Early completion has a roughly one-second sequential visual fill, respecting reduced motion. Actual timestamps and scheduled end remain distinct; visual completion does not falsify actual elapsed time or rewrite the class schedule.
+- Recaps use saved accomplishments, action counts and cumulative starting/ending scores. Negative changes are preserved. Dashboard/Home navigation retains the completed session; History can reopen saved recaps and older reports omit unavailable recap statistics.
+- Missed boundaries preserve the original recorded occurrence. The five-minute review checkpoint and pre-session reset still run safely after recovery.
 
-## Scope against the master prompt
+## Pass 2 - guide, onboarding and settings
 
-| Area | Status | Actual delivery and remaining work |
-| --- | --- | --- |
-| Safety, branch, recovery | COMPLETE AND VERIFIED | Clean starting source, recovery branch, isolated fixtures. |
-| Current version | COMPLETE AND VERIFIED | Assembly-driven 0.1.26 and lowercase alpha label; candidate metadata is alpha. Historical labels retained. |
-| Navigation / performance | PARTIALLY IMPLEMENTED | File/model preparation moves off the dispatcher; already-prepared state is reused; DEV retains existing session/layout instead of resetting them; frozen vector logos are cached. Full long-session profiling remains. |
-| Shared motion | PARTIALLY IMPLEMENTED | Black-backed view transitions, fades, staggered entrances, generation-based stale-fade protection, reduced-motion handling and navigation failure restoration. No complete color/border/crossfade library yet. |
-| Homepage | PARTIALLY IMPLEMENTED | Paired Create/Import actions, six cards in two columns, all/six toggle and original six control identities retained. Card removal and height/scroll collapse are not animated. |
-| Space icons | PARTIALLY IMPLEMENTED | Eleven vector identities, preset fallbacks, creation/setup picker, header picker, Home/header display and export/restart persistence. No searchable grid or recap integration yet. |
-| Onboarding | PARTIALLY IMPLEMENTED | Redundant activity page skipped, use-case recommendations retained, rounded large name fields, final tool cards, icon selection, seasonal toggle, new-install On default and saved-preference preservation. Full redesigned selectable tool cards, focus glow and new sound design remain. |
-| Interactive Quick Start | MISSING | No spotlight tutorial or new tutorial state has been added. |
-| Settings | PARTIALLY IMPLEMENTED | Lazy page construction, requested general category order, bottom Experimental expander and removal of redundant Profile shortcut. Hedy/Hevy provider distinction remains unresolved; existing working provider code/credentials retained. Future providers have not been fully separated from the existing Integrations page. |
-| Pixel Timer polish | PARTIALLY IMPLEMENTED | Irrelevant date/day controls collapse by mode instead of merely disabling them; existing timing regression retained. Separate remembered Manual/Schedule drafts and a complete editor transition are not delivered. |
-| Productivity widget | PARTIALLY IMPLEMENTED | Compact horizontal, flame-free streak popup uses current score and multiplier; existing consolidated Productivity entry retained. New activity ring/counting layout remains. |
-| Cumulative per-Space scoring | MISSING | Existing session/event scoring remains; no new cumulative baseline migration has been introduced. |
-| User candy collection / scoring | MISSING | Existing bug/candy consumption remains; no new collectible user hit targets or shared candy scoring. |
-| Bug initialization / separation | REQUIRES MANUAL TESTING | Existing paced arrival system retained and regression tested. No new population-distribution or web-proportion overhaul in this pass. |
-| Theme / drinks | PARTIALLY IMPLEMENTED | Normal wine/beer/spirits colors now restore when seasonal mode is off; water retains its existing blue/orange switch. Global animated palette changes and synchronized richer-purple assets remain. |
-| Pumpkins / vines / home spider | MISSING | No new v0.1.26 artwork or moving home spider; previous artwork remains. |
-| Splash | PARTIALLY IMPLEMENTED | Visible version and progress track, no deliberate logo hold, animated tagline, monotonic completed-work milestones and interpolation. Initial workspace appearance is loaded before showing the logo to avoid wrong-color flashing; time to first splash render still needs profiling. |
-| Tips | IMPLEMENTED BUT UNVERIFIED | 30-second rotation, five-second lifetime and close-button gap; clickable existing settings route retained. Timing/input still needs physical UI acceptance. |
-| End Session / persisted recap | MISSING | Existing end-session controls remain unchanged. No new toolbar finalizer, visual pixel completion, cached recap or recap navigation. |
-| Changelog | PARTIALLY IMPLEMENTED | New factual development entries and requested 0.1.24 display title. No incomplete tutorial/recap/candy features advertised as delivered. |
-| Reliability | REQUIRES MANUAL TESTING | Existing history/autosave/reset/update suites retained; no live hibernation or credential-provider validation performed. |
+- Optional Quick Start spotlights the real Add Widget control, newly added widget, actual resize handle and editable title. Adding, moving, resizing and renaming drive progression through real control paths.
+- Back, Skip step, Skip guide, keyboard-focused controls, restart recovery, completed/skipped state and replay from Settings are implemented. The spotlight follows layout/scroll changes, leaves the focused region interactive and places the callout opposite it. Removing the guide restores normal interaction. Periodic tips are suppressed while it is active.
+- Onboarding keeps recommendations, offers optional name input, rounded focus-aware fields, animated selection cards, final tool cards, icon selection, a seasonal toggle and independent sound controls. New installations default to Nexaween On; existing preferences remain intact.
+- General Settings contains Appearance, Profile, Sounds, Time Zone & Clock, Widgets, Integrations, Updates and Add Bugs. Experimental Features is a bottom expander.
+- General Integrations contains Todoist and a separate Hevy connection. Hedy recording notes remain distinct. Future integrations are clearly labeled; existing Google/Microsoft configuration is retained under an advanced expander to preserve prior connections.
+- Hevy verifies a read-only workout-count response before storing an API key in the existing Windows-protected vault. This follows the [official public API](https://api.hevyapp.com/docs/) and its published swagger-ui-init.js schema. Real Hevy/Todoist/Hedy accounts were not connected during testing.
+- Manual and Schedule Pixel Timer drafts are saved separately. Mode switching restores dates, times and selected weekdays without changing the active timer until Apply. Irrelevant controls collapse and dates use the existing dark control.
 
-## Testing and delivery
+## Pass 3 - artwork, transitions and profiling
 
-See [testing](TESTING-0.1.26-alpha.md) and [release readiness](RELEASE-READINESS-0.1.26-alpha.md). The master prompt is **not complete**. Missing tutorial, scoring and recap subsystems are release blockers against its acceptance criteria.
+- Home uses a larger corner web, constrained by available space, with a slowly moving, web-bound spider whose path stays clear of the version label. Static corner artwork is cached; only the spider requires regular redraw.
+- Shared pumpkins have layered shaded lobes, directional highlights, shadows and warm candlelight cutouts. Six varied major vines include two long edge-following branches, irregular curls and leaves.
+- Two or three available real widget rectangles receive pumpkins. Vines connect to the selected pumpkin corner and remain in Canvas coordinates during scrolling, moving and resizing. Reserved occupied regions still serve collision avoidance only.
+- Mutable resource-brush color/border transitions retain existing bindings. Logos crossfade; decoration visibility fades; reduced-motion preferences bypass animation. Richer purple logo SVG, PNG and ICO variants are synchronized. Normal logo assets are preserved.
+- Live web geometry compensates for tall Canvas projection. Restored webs appear with their arriving owners and a short strand reveal, without altering saved construction progress. Existing bounded spatial separation, species behavior, population pacing and quality controls remain.
+- Navigation performs one durable worker-thread entry save instead of repeating that checkpoint on the UI thread. A clean Home departure is saved before Home reads it. Input is disabled during the short transition so edits cannot race a detached load; failed navigation restores the source.
+- Unnecessary invalidation of every Pixel Timer cell during a theme change is removed. Navigation phase timings are available in memory without logging names, notes or credentials.
 
-## Changed files
+## Verification and remaining acceptance
 
-```
- M App.xaml.cs
- M CHANGELOG.md
- M DashboardCreation.cs
- M DrinkArtwork.cs
- M HomeWindow.About.cs
- M HomeWindow.Recent.cs
- M HomeWindow.cs
- M MainWindow.ClassSchedule.cs
- M MainWindow.Continuity.cs
- M MainWindow.Navigation.cs
- M MainWindow.Widgets.cs
- M MainWindow.xaml
- M MainWindow.xaml.cs
- M Models.cs
- M NexaChrome.cs
- M NexaLogo.cs
- M NexaMotion.cs
- M NexaNotifications.cs
- M OnboardingWindow.cs
- M ProductivityStreakOverlay.cs
- M ReleaseNotes.cs
- M SessionDashboard.csproj
- M SettingsDialog.Profile.cs
- M SettingsDialog.cs
- M SplashWindow.cs
- M tests/MenuRepairChecks.cs
- M tests/Nexa024Runner.cs
- M tests/Nexa025Checks.cs
- M tests/NexaFollowupDesignChecks.cs
- M tests/NexaweenMoreChecks.cs
- M tests/SessionDashboard.Checks.csproj
- M tools/Verify.ps1
-?? MainWindow.SpaceIcons.cs
-?? NexaNavigation.cs
-?? SpaceIcons.cs
-?? tests/Nexa026Checks.cs
-```
+Implementation is complete for the functional subsystems above; physical visual/interaction acceptance remains **REQUIRES MANUAL TESTING**. Automated completion is not a declaration that every physical machine, provider or long-running performance scenario is verified.
 
-## Packaged testing candidate
+See [testing](TESTING-0.1.26-alpha.md) and [release readiness](RELEASE-READINESS-0.1.26-alpha.md). Known performance limitation: a Space-load outlier remains in the measured sample. No live frame-rate or extended-memory improvement is claimed.
 
-- Executable: `M:/Nexa/Builds/Testing/0.1.26-alpha/Nexa.exe`.
-- Source commit: `49b138123f249bb53dee08a6050b8f1c1fed0f24` on `codex/nexa-026-alpha`.
-- Informational version: `0.1.26-alpha+49b138123f249bb53dee08a6050b8f1c1fed0f24`.
-- SHA256: `D9D9C1D9CBA7868D2B36B62936C598A692BFA3AC90BD944B6FDF8A97DA325B22`.
-- Size: 145,195,830 bytes; self-contained Windows x64 single-file package, with adjacent checksum and candidate metadata files.
-- Isolated packaged health run: `verification/packaged026/startup.json`, exit 0. Correct alpha version, x64, PerMonitorV2, 759 square pixels, four presets, three embedded Bible datasets and zero initial bugs.
-- Final metadata/string-only rebuild: zero warnings/errors; alpha and menu follow-up checks passed again (27 and 9, repeated checks not added to the 471 distinct total).
-- The approved Latest, root executable and earlier Testing executable were checked against their pre-packaging SHA256 values and remain unchanged.
-- This is a **partial preview**. No claim of a complete v0.1.26 release, successful physical hibernation testing, live-user-data migration or improved overall Space loading is made.
+## Files changed
+
+- BugOverlay.cs
+- DashboardContinuity.cs
+- HevyConnection.cs
+- HomeWindow.Recent.cs
+- HomeWindow.cs
+- InterfaceAudio.cs
+- MainWindow.Bugs.cs
+- MainWindow.ClassSchedule.cs
+- MainWindow.Completion.cs
+- MainWindow.Continuity.cs
+- MainWindow.Feedback.cs
+- MainWindow.Navigation.cs
+- MainWindow.QuickStart.cs
+- MainWindow.Reliability.cs
+- MainWindow.Session.cs
+- MainWindow.Widgets.cs
+- MainWindow.xaml
+- MainWindow.xaml.cs
+- Models.cs
+- NexaLogo.cs
+- NexaMotion.cs
+- NexaNavigation.cs
+- NexaReliability.cs
+- NexaSilk.cs
+- Nexaween.Animation.cs
+- Nexaween.Candy.cs
+- Nexaween.Placement.cs
+- Nexaween.cs
+- OnboardingWindow.cs
+- PixelTiming.cs
+- ProductivityRing.cs
+- ProductivityStreakOverlay.cs
+- ReleaseNotes.cs
+- SeasonalBackdrop.cs
+- SessionCompletion.cs
+- SessionHistoryWindow.cs
+- SessionRecapWindow.cs
+- SettingsDialog.Navigation.cs
+- SettingsDialog.Profile.cs
+- SettingsDialog.Widgets.cs
+- SettingsDialog.cs
+- Theme.cs
+- assets/nexa-icon-seasonal-256.png
+- assets/nexa-icon-seasonal.ico
+- assets/nexa-icon-seasonal.svg
+- assets/nexa-logo-full-dark-seasonal.svg
+- docs/IMPLEMENTATION-0.1.26-alpha.md
+- tests/Nexa024Runner.cs
+- tests/Nexa026PassChecks.cs
+- tests/Nexa026Profiles.cs
+- tests/NexaweenMoreChecks.cs
+- tests/SessionDashboard.Checks.csproj
+- tools/Verify.ps1
+
+## Preview images
+
+These are native WPF renders of the testing source with synthetic data.
+
+![Home preview](media/preview026/home.png)
+
+![Real resize spotlight](media/preview026/guide.png)
+
+![Saved recap preview](media/preview026/recap.png)
+
+Additional report assets: docs/media/preview026/home.png, docs/media/preview026/guide.png and docs/media/preview026/recap.png.

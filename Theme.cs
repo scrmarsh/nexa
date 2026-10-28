@@ -22,6 +22,19 @@ public enum AppTheme
 
 public static class Theme
 {
+    internal static bool AnimatePalette {get;private set;}
+    internal static void BeginTransition(NexaOptions options)
+    {
+        AnimatePalette=NexaMotion.Allowed(options);
+        var timer=new System.Windows.Threading.DispatcherTimer{Interval=TimeSpan.FromMilliseconds(400)};
+        timer.Tick+=(_,_)=>{timer.Stop();AnimatePalette=false;};timer.Start();
+    }
+    private static void SetColor(SolidColorBrush brush,Color color)
+    {
+        if((Color)brush.GetAnimationBaseValue(SolidColorBrush.ColorProperty)==color)return;
+        var from=brush.Color;brush.BeginAnimation(SolidColorBrush.ColorProperty,null);brush.Color=color;
+        if(AnimatePalette)brush.BeginAnimation(SolidColorBrush.ColorProperty,new System.Windows.Media.Animation.ColorAnimation(from,color,TimeSpan.FromMilliseconds(280)){FillBehavior=System.Windows.Media.Animation.FillBehavior.Stop,EasingFunction=new System.Windows.Media.Animation.CubicEase{EasingMode=System.Windows.Media.Animation.EasingMode.EaseInOut}});
+    }
     internal static bool SeasonalEnabled { get; private set; }
     internal static void SetSeasonalEnabled(bool enabled)
     {
@@ -75,7 +88,8 @@ public static class Theme
     }
     private static void Invalidate(DependencyObject root)
     {
-        if (root is UIElement element) element.InvalidateVisual();
+        if (root is FrameworkElement element && element.GetType().Namespace == typeof(Theme).Namespace) element.InvalidateVisual();
+        if(root is Canvas {Name:"PixelGrid"})return;
         var count = root is Visual or System.Windows.Media.Media3D.Visual3D ? VisualTreeHelper.GetChildrenCount(root) : 0;
         for (var i = 0; i < count; i++) Invalidate(VisualTreeHelper.GetChild(root, i));
     }
@@ -88,7 +102,7 @@ public static class Theme
         foreach (string key in palette.Keys)
         {
             var name = "Dashboard" + key;
-            if (resources[name] is SolidColorBrush existing && !existing.IsFrozen && palette[key] is SolidColorBrush next) existing.Color = next.Color;
+            if (resources[name] is SolidColorBrush existing && !existing.IsFrozen && palette[key] is SolidColorBrush next) SetColor(existing,next.Color);
             else resources[name] = palette[key];
         }
         if (Application.Current != null)
@@ -127,7 +141,7 @@ public static class Theme
     {
         void Set(string key, Color color)
         {
-            if (resources[key] is SolidColorBrush existing && !existing.IsFrozen) existing.Color = color;
+            if (resources[key] is SolidColorBrush existing && !existing.IsFrozen) SetColor(existing,color);
             else resources[key] = new SolidColorBrush(color);
         }
         if (SeasonalEnabled)

@@ -1,4 +1,4 @@
-﻿namespace SessionDashboard;
+namespace SessionDashboard;
 
 public sealed record PixelTimerReading(TimeSpan Time, string Caption, string Status, double RemainingFraction, bool CountUp)
 {
@@ -17,7 +17,8 @@ public static class PixelTiming
         PixelTimerReading Reading(TimeSpan time,string caption,string status,double remaining,bool countUp,double elapsed=0,DateTimeOffset? start=null,DateTimeOffset? end=null)
             =>new(time,caption,status,Math.Clamp(remaining,0,1),countUp){ClockInstant=now,SessionProgress=Math.Clamp(elapsed,0,1),PhaseStart=start,PhaseEnd=end};
         if(session==null)return Reading(TimeSpan.Zero,"READY WHEN YOU ARE","READY WHEN YOU ARE",0,false);
-        if(session.StoppedAt!=null)return Reading(TimeSpan.Zero,"SESSION ENDED","SESSION ENDED",0,false,session.Progress(now),session.Start,session.End);
+        if(session.FinalizedAt!=null && (!session.AutomaticScheduling || now<session.End))return Reading(TimeSpan.Zero,"SESSION COMPLETE","SESSION COMPLETE",0,false,1,session.Start,session.End);
+        if(session.StoppedAt!=null && session.FinalizedAt==null)return Reading(TimeSpan.Zero,"SESSION ENDED","SESSION ENDED",0,false,session.Progress(now),session.Start,session.End);
         var occurrence=WeeklySchedule.Latest(session,now);
         var from=occurrence?.Start ?? session.Start;var to=occurrence?.End ?? session.End;
         if(now>=from && now<to)

@@ -3,12 +3,20 @@ namespace SessionDashboard;
 internal sealed partial class NexaweenDecorations
 {
     internal IReadOnlyList<(Guid Id, Point Position)> AvailableCandy => actors.Where(a=>!a.Contextual && a.ConsumedAt<0 && CandyKinds.Contains(a.Kind) && (elapsed.Elapsed.TotalSeconds<a.BusyUntil || !animationOptions.SeasonalAnimation || !NexaMotion.Allowed(animationOptions) || elapsed.Elapsed.TotalSeconds-a.Born is >=1 && elapsed.Elapsed.TotalSeconds-a.Born<=a.Hold+1)).Select(a=>(a.Id,new Point(a.Bounds.X+a.Bounds.Width/2,a.Bounds.Y+a.Bounds.Height/2))).ToArray();
+    internal Guid? CandyAt(Point point)
+        =>actors.LastOrDefault(a=>AvailableCandy.Any(c=>c.Id==a.Id) && a.Bounds.Contains(point) && a.BusyUntil<=elapsed.Elapsed.TotalSeconds && a.CandyAmount>.1)?.Id;
+    internal bool TryCollect(Guid id)
+    {
+        var actor=actors.FirstOrDefault(a=>a.Id==id);
+        if(actor==null || actor.ConsumedAt>=0 || actor.BusyUntil>elapsed.Elapsed.TotalSeconds || actor.CandyAmount<=.1)return false;
+        actor.CandyAmount=0;actor.ConsumedAt=elapsed.Elapsed.TotalSeconds;candyRespawn.Start();InvalidateVisual();return true;
+    }
     internal void ObserveCandy(Guid id,double amount,bool eating)
     {
-        var actor=actors.FirstOrDefault(a=>a.Id==id);if(actor==null)return;
+        var actor=actors.FirstOrDefault(a=>a.Id==id);if(actor==null || actor.ConsumedAt>=0)return;
         actor.CandyAmount=Math.Clamp(amount,0,1);
         if(eating) {actor.BusyUntil=elapsed.Elapsed.TotalSeconds+2;actor.Born=elapsed.Elapsed.TotalSeconds-1;}
-        if(amount<=.1 && actor.ConsumedAt<0)actor.ConsumedAt=elapsed.Elapsed.TotalSeconds;
+        if(amount<=.1 && actor.ConsumedAt<0){actor.ConsumedAt=elapsed.Elapsed.TotalSeconds;candyRespawn.Start();}
         InvalidateVisual();
     }
     internal void ReconcileCandy() {RecycleCandyActors();InvalidateVisual();}

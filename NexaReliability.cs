@@ -7,6 +7,10 @@ namespace SessionDashboard;
 // Additive workspace settings: old version-2 files retain their content and identities.
 public sealed class NexaOptions
 {
+    public bool QuickStartCompleted {get;set;}
+    public bool QuickStartSkipped {get;set;}
+    public int QuickStartStep {get;set;}
+    public Guid? QuickStartWidget {get;set;}
     public double StreakMultiplierCap {get;set;} = 3;
     public double EffectiveStreakCap=>double.IsFinite(StreakMultiplierCap)?Math.Clamp(Math.Floor(StreakMultiplierCap*2)/2,1.5,10):3;
     public int DistractionPenalty {get;set;}
@@ -173,10 +177,22 @@ public static class ProductivityScoring
         }
         return true;
     }
+    public static bool CollectCandy(ProductivityLedger ledger,Guid identity,DateTimeOffset now,double maximum=3)
+    {
+        var key="candy:"+identity;
+        if(ledger.Events.Count>=10000 || ledger.Events.Any(e=>e.Key==key) || ledger.Events.Count(e=>now>=e.At && now-e.At<TimeSpan.FromSeconds(1))>=20)return false;
+        maximum=double.IsFinite(maximum)?Math.Clamp(Math.Floor(maximum*2)/2,1.5,10):3;
+        var active=ledger.FrenzyUntil>now;
+        ledger.FrenzyMultiplier=Math.Min(maximum,active?ledger.Multiplier(now)+.5:1.5);
+        if(!active){ledger.FrenzyStartedAt=now;ledger.FrenzyActivations++;}
+        ledger.LastDirectSquashAt=now;ledger.FrenzyUntil=now.AddMinutes(2);
+        return Add(ledger,key,"Candy","Candy collected",1,now);
+    }
     private static string Fingerprint(string value) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value)));
     public static void Observe(DashboardData before, DashboardData after, DateTimeOffset now, NexaOptions? options=null)
     {
         var ledger = after.Productivity;
+        if(before.Session?.FinalizedAt!=null)return;
         void Tasks(IEnumerable<TaskItem> old, IEnumerable<TaskItem> current, Guid? widgetId = null)
         {
             var previous = old.ToDictionary(t => t.Id);

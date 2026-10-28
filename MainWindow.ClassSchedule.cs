@@ -46,11 +46,27 @@ public partial class MainWindow
         var mode = new ComboBox { ItemsSource = new[] { "Manual Mode", "Schedule Mode" }, SelectedIndex = state.Session?.AutomaticScheduling == true ? 1 : 0, Margin = new Thickness(0, 8, 0, 8) };
         System.Windows.Automation.AutomationProperties.SetName(mode, "Pixel Timer operating mode");
         page.Children.Insert(1, mode);
-        var startDate=new DatePicker{SelectedDate=state.Session is {} original?NexaTime.Local(original.Start,zone).Date:NexaTime.Local(DateTimeOffset.UtcNow,zone).Date};
-        var endDate=new DatePicker{SelectedDate=state.Session is {} ending?NexaTime.Local(ending.End,zone).Date:startDate.SelectedDate};
+        var startDate=new DarkDatePicker{SelectedDate=state.Session is {} original?NexaTime.Local(original.Start,zone).Date:NexaTime.Local(DateTimeOffset.UtcNow,zone).Date};
+        var endDate=new DarkDatePicker{SelectedDate=state.Session is {} ending?NexaTime.Local(ending.End,zone).Date:startDate.SelectedDate};
         var dates=new StackPanel{Margin=new Thickness(0,8,0,8),Visibility=mode.SelectedIndex!=1?Visibility.Visible:Visibility.Collapsed};dates.Children.Add(new TextBlock{Text="One-time start date"});dates.Children.Add(startDate);dates.Children.Add(new TextBlock{Text="One-time end date"});dates.Children.Add(endDate);page.Children.Add(dates);
-        void RefreshMode() { dates.Visibility = mode.SelectedIndex != 1 ? Visibility.Visible : Visibility.Collapsed; days.Visibility = shortcuts.Visibility = mode.SelectedIndex == 1 ? Visibility.Visible : Visibility.Collapsed; NexaMotion.Entrance(page,Options); }
-        mode.SelectionChanged += (_, _) => RefreshMode(); RefreshMode();
+        var editingSchedule=mode.SelectedIndex==1;
+        void SaveDraft()
+        {
+            var draft=new Session{Title=name.Text,Start=NexaTime.Instant((startDate.SelectedDate??DateTime.Today)+start.Value,zone),End=NexaTime.Instant((endDate.SelectedDate??DateTime.Today)+end.Value,zone),ScheduledDays=days.Children.OfType<CheckBox>().Where(c=>c.IsChecked==true).Select(c=>(DayOfWeek)c.Tag).ToList(),AutomaticScheduling=editingSchedule,TimeZoneId=zone};
+            if(editingSchedule)state.ScheduleTimerDraft=draft;else state.ManualTimerDraft=draft;
+        }
+        void RefreshMode()
+        {
+            dates.Visibility = mode.SelectedIndex != 1 ? Visibility.Visible : Visibility.Collapsed;
+            days.Visibility = shortcuts.Visibility = mode.SelectedIndex == 1 ? Visibility.Visible : Visibility.Collapsed;
+            NexaMotion.Entrance(page,Options);
+        }
+        mode.SelectionChanged+=(_,_)=>{
+            SaveDraft();editingSchedule=mode.SelectedIndex==1;
+            var draft=editingSchedule?state.ScheduleTimerDraft:state.ManualTimerDraft;
+            if(draft!=null){name.Text=draft.Title;startDate.SelectedDate=NexaTime.Local(draft.Start,zone).Date;endDate.SelectedDate=NexaTime.Local(draft.End,zone).Date;start.Value=NexaTime.Local(draft.Start,zone).TimeOfDay;end.Value=NexaTime.Local(draft.End,zone).TimeOfDay;foreach(var check in days.Children.OfType<CheckBox>())check.IsChecked=draft.ScheduledDays.Contains((DayOfWeek)check.Tag);}
+            RefreshMode();Changed();SaveNow();
+        };RefreshMode();
         var durationInput=new TextBox{Text=state.Session?.ConfiguredDurationMinutes.ToString("0")??"75",Width=100,HorizontalAlignment=HorizontalAlignment.Left};page.Children.Add(new TextBlock{Text="Duration (minutes)"});page.Children.Add(durationInput);
         var setDuration=new Button{Content="Use duration",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,4,0,10)};page.Children.Add(setDuration);
         setDuration.Click+=(_,_)=>{if(int.TryParse(durationInput.Text,out var minutes) && minutes>0 && minutes<=(mode.SelectedIndex==1?1439:10080)){var finish=(startDate.SelectedDate??NexaTime.Local(DateTimeOffset.UtcNow,zone).Date)+start.Value+TimeSpan.FromMinutes(minutes);end.Value=finish.TimeOfDay;endDate.SelectedDate=finish.Date;}};
@@ -67,6 +83,7 @@ public partial class MainWindow
                 schedule.ConfiguredDurationMinutes=(schedule.End-schedule.Start).TotalMinutes;
                 schedule.IntervalMinutes=state.Session?.IntervalMinutes??10;
                 schedule.AutomaticScheduling = mode.SelectedIndex == 1;
+                SaveDraft();
                 if (ApplyClassSchedule(schedule, savePreset.IsChecked == true)) dialog.CloseWithFade();
                 else status.Text = "The schedule could not be saved. Your current dashboard is unchanged.";
             }
@@ -76,7 +93,7 @@ public partial class MainWindow
         var once = new Button { Content = "Edit a one-time end date instead", HorizontalAlignment = HorizontalAlignment.Left };
         once.Click += (_, _) => { dialog.Close(); EditOneTimeTarget(this, new RoutedEventArgs()); }; page.Children.Add(once);
         dialog.Content = new ScrollViewer { Content = page, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled };
-        dialog.Closed += (_, _) => sessionEditor = null; dialog.ShowDismissible();
+        dialog.Closed += (_, _) => {SaveDraft();Changed();SaveNow();sessionEditor = null;}; dialog.ShowDismissible();
     }
     internal bool ApplyClassSchedule(Session schedule, bool savePreset)
     {
@@ -90,7 +107,7 @@ public partial class MainWindow
         session.RecurringEndMinutes = schedule.RecurringEndMinutes; session.RecurringEndDayOffset = schedule.RecurringEndDayOffset;
         session.TimeZoneId = schedule.TimeZoneId; session.ScheduledDays = schedule.ScheduledDays;
         session.AutomaticScheduling = schedule.AutomaticScheduling; session.BeforeSessionCountdownFrom = schedule.BeforeSessionCountdownFrom;
-        session.ConfiguredDurationMinutes = schedule.ConfiguredDurationMinutes > 0 ? schedule.ConfiguredDurationMinutes : (schedule.End - schedule.Start).TotalMinutes; session.StoppedAt = null;
+        session.ConfiguredDurationMinutes = schedule.ConfiguredDurationMinutes > 0 ? schedule.ConfiguredDurationMinutes : (schedule.End - schedule.Start).TotalMinutes; session.StoppedAt = null; session.FinalizedAt=null;
         current.CompletedCheckpointAt = null; current.ResetDeferred = false; current.ResetPostponedFor = null;
         current.Data.Session = session;
         var from = NexaTime.Local(session.Start, session.TimeZoneId); var to = NexaTime.Local(session.End, session.TimeZoneId);

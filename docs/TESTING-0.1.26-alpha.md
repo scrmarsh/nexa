@@ -1,57 +1,54 @@
-# nexa v0.1.26 alpha — testing
+# nexa v0.1.26 alpha - testing after three passes
 
-## Evidence collected so far
+## Automated checks
 
-- Release build and tests project: initially passed with zero warnings/errors.
-- Fourteen-route regression: **469 checks passed**, `verification/acceptance-20261027-222553`.
-- New alpha route: 27 checks cover version, portable icons/fallbacks, six-card expansion and identity retention, lazy Settings/geometry, reduced motion, monotonic splash milestones, setup preference preservation and failed-navigation restoration.
-- Native WPF Home image inspected: `verification/20261027-222553/home-026.png`; a tight Show More label was noticed and widened in a final follow-up.
-- Initial new-regression run exposed changed-label expectations, a hardcoded 0.1.25 expectation and dispatcher context loss in synthetic async navigation. Corrected before the passing run. The runner now retains all route logs even after failures.
-- Physical mouse/keyboard, mixed-DPI, maximized/restore, hibernation, long-session memory, provider credentials and complete tutorial/recap acceptance were **not** tested.
+- Pass 1's first full run caught missed-boundary review/reset timing. Fixed in the implementation; core then passed 64 checks. The original expectations were retained.
+- Pass 2's fifteen-route regression passed at verification/acceptance-20261027-230410.
+- Pass 3's full regression passed 506 checks at verification/acceptance-20261027-232244.
+- Later tests cover independent candy respawning, save failure/retry, duplicate completion, original-occurrence recovery, actual guide gestures and restart, mode draft switching, signed scores, Hevy endpoint/header handling and encrypted storage.
+- The old immediate-decoration-hide assertion now waits for the explicitly requested bounded fade. No saving/history expectations were removed.
+- A candy-respawn test initially assumed exactly three timer ticks; it now waits for the observable result within a bounded deadline, accounting for a one-second lifecycle timer.
+- One verification build overlapped an active test process and failed on a locked test DLL. It was rerun sequentially. Final build/suite outcomes are recorded below.
 
-## Performance methodology
+Native WPF Home, guide and recap images were inspected. These are actual controls rendered with synthetic data, not physical mouse or mixed-DPI certification.
 
-Three isolated instances with twelve saved sample Spaces, using the same constructor workload. This measures synchronous construction, not full interactive frame latency. Warm and cold results are separated; do not infer broad Space-load improvements from Settings results.
+## Comparable navigation profiling
 
-Before changes: `verification/20261027-221334/performance.txt`:
+Recovery source 278bbfe was exported into an ignored isolated source tree. The same eight-Space fixture and four navigation cycles ran serially on both revisions, with reduced motion to isolate view preparation/layout rather than animation delay. Baseline adaptation removes only new diagnostic hooks absent from the older source.
 
-| Constructor | Cold ms | Warm 1 ms | Warm 2 ms |
-| --- | ---: | ---: | ---: |
-| Home | 524.72 | 14.99 | 33.04 |
-| Settings | 452.52 | 32.60 | 27.07 |
-| Space | 228.93 | 143.11 | 134.58 |
+Baseline: verification/baseline026-source/verification/20261027-232133/navigation-profile.txt.
+New source: verification/20261027-232236/navigation-profile.txt.
 
-Final serial measurement and package verification are recorded below when completed. No guessed FPS, memory or load-time percentages are reported.
+| Measurement (ms) | Baseline | New source |
+| --- | ---: | ---: |
+| First Space open | 680.26 | 421.15 |
+| Warm Space opens | 329.20 / 343.55 / 372.97 | 232.78 / 230.56 / 751.67 |
+| Return Home | 401.93 / 421.15 / 230.92 / 250.39 | 182.00 / 165.11 / 404.09 / 130.60 |
+| Developer first layout | 1107.37 | 932.32 |
+| Settings first layouts | 109.16 / 92.59 / 91.51 / 95.47 | 110.29 / 111.49 / 92.72 / 76.61 |
+| Theme updates, including 30ms diagnostic pump | 24.49 / 160.90 / 146.32 / 45.21 | 143.70 / 58.76 / 167.56 / 143.22 |
+| Infestation CPU workload, 90 simulated seconds | 118.22 | 100.32 |
 
-## Environment incident
+Typical navigation improved in this small sample, but the 751.67ms Space-open and 404.09ms Home-return outliers remain. Settings/theme measurements do not establish an improvement. Simulation ended with 59 bugs in each run; these timings are not real-world display FPS.
 
-A final build failed when C: ran out of free space (`MSB3883`). Temporary build files were redirected into `M:/Nexa/obj/temp026`, with a task-specific CLI home under obj. No disk cleanup or deletion of user files was performed. This was an environmental failure rather than a passed build.
+Working set increased from 143,691,776 to 219,111,424 bytes in the baseline, and from 144,052,224 to 223,088,640 bytes in the new short run. Cached resources and a Developer page were present. This does not establish a leak or certify extended memory stability.
 
-## Final source verification
+## Manual verification still required
 
-- Final redirected-temporary-directory Release build: **0 warnings / 0 errors**.
-- Final fourteen-route run: **471 checks passed**, `verification/acceptance-20261027-223122`. The menu route now additionally verifies DEV timer preservation and unchanged outer bounds.
-- New alpha Home render inspected at `verification/20261027-223123/home-026.png`. Seasonal tagline retains orange haunts; six sample cards and current alpha label are visible. This is native WPF rendering, not physical mouse testing.
-- Live-data copy verification was not performed: automatic approval review rejected copying the potentially sensitive live state into the repository. No such copy occurred. Existing synthetic history, migration, saving and export checks passed; actual-user migration acceptance remains unverified.
+- Physical mouse/keyboard guide use, rapid navigation and interruption, small windows, maximize/fullscreen, multiple monitors and mixed DPI.
+- Repeated animated theme toggles, normal branding restoration, beverage colors, sounds and subjective animation/art acceptance.
+- Real Windows sleep/hibernate, abrupt termination, live-data migration on an approved private fixture and lengthy classes.
+- Actual Todoist/Hevy/Hedy accounts, provider authorization/revocation and updater installation/restart against a genuinely newer signed/verified package.
+- Long-session memory, live rendering FPS with Infestation and investigation of the remaining load-time outlier.
 
-Final serial constructor measurements: `verification/20261027-223409/performance.txt`:
+Only synthetic data and isolated repositories/packages were used for this pass. No live user workspace was copied or rewritten.
 
-| Constructor | Cold ms | Warm 1 ms | Warm 2 ms |
-| --- | ---: | ---: | ---: |
-| Home | 582.11 | 18.63 | 16.35 |
-| Settings | 35.93 | 7.52 | 6.35 |
-| Space | 284.60 | 155.95 | 154.85 |
+## Final source results
 
-Lazy Settings construction improved in these samples. Home and Space construction did **not** demonstrate an overall speedup; Space construction remains a performance acceptance gap. These are three samples per revision on the same machine, not a full benchmark, and exclude first-frame/animation completion. Developer end-to-end, theme latency, FPS and extended memory measurements remain unmeasured.
+- Full fifteen-route suite: **507 checks passed**, verification/acceptance-20261027-233017.
+- Final artwork/reduced-motion follow-up: 36 pass checks, 27 alpha UI checks, 32 arrival checks and 30 layout/theme checks passed again (125 repeated checks, not added to the 507 distinct total). Artifacts: verification/20261027-233431 through verification/20261027-233449.
+- Final Release application/test build: **0 warnings, 0 errors**.
+- Native preview images, reviewed with synthetic data: [Home](media/preview026/home.png), [resize guide](media/preview026/guide.png), [recap](media/preview026/recap.png).
+- Final geometry review moved the spider clear of the version label and joined vines to the actual selected pumpkin corners. Previously completed saved webs are visually revealed after their owners arrive; saved strand state is unchanged.
 
-## Packaged testing candidate
-
-- Executable: `M:/Nexa/Builds/Testing/0.1.26-alpha/Nexa.exe`.
-- Source commit: `49b138123f249bb53dee08a6050b8f1c1fed0f24` on `codex/nexa-026-alpha`.
-- Informational version: `0.1.26-alpha+49b138123f249bb53dee08a6050b8f1c1fed0f24`.
-- SHA256: `D9D9C1D9CBA7868D2B36B62936C598A692BFA3AC90BD944B6FDF8A97DA325B22`.
-- Size: 145,195,830 bytes; self-contained Windows x64 single-file package, with adjacent checksum and candidate metadata files.
-- Isolated packaged health run: `verification/packaged026/startup.json`, exit 0. Correct alpha version, x64, PerMonitorV2, 759 square pixels, four presets, three embedded Bible datasets and zero initial bugs.
-- Final metadata/string-only rebuild: zero warnings/errors; alpha and menu follow-up checks passed again (27 and 9, repeated checks not added to the 471 distinct total).
-- The approved Latest, root executable and earlier Testing executable were checked against their pre-packaging SHA256 values and remain unchanged.
-- This is a **partial preview**. No claim of a complete v0.1.26 release, successful physical hibernation testing, live-user-data migration or improved overall Space loading is made.
+The testing candidate still requires the manual acceptance listed above. No physical UI, live integration account, live-data migration or real newer-release installation is claimed.

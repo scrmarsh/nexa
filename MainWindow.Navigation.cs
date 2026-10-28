@@ -26,7 +26,7 @@ public partial class MainWindow
     }
     internal void AdvanceDashboardTip()
     {
-        if (state.Compact || storyOpen || !Options.ShowQuickTips) return;
+        if (state.Compact || storyOpen || TutorialActive || !Options.ShowQuickTips) return;
         tipIndex = (tipIndex + 1) % DashboardTips.Messages.Length;
         DashboardTip.Text = DashboardTips.Messages[tipIndex];
         notifications?.Show("tip", DashboardTips.Messages[tipIndex], "💡", seconds:5,action:()=>OpenMainSettings("Tips"),actionLabel:"Tip settings");

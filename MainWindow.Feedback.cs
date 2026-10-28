@@ -11,7 +11,17 @@ public partial class MainWindow
         feedbackOverlay = new NexaFeedback(() => Options, FeedbackBounds, () => IsLoaded && IsVisible && WindowState != WindowState.Minimized && DashboardShell.IsVisible);
         Panel.SetZIndex(feedbackOverlay, 110); ((Grid)Content).Children.Add(feedbackOverlay);
         streakOverlay=new ProductivityStreakOverlay();Panel.SetZIndex(streakOverlay,111);((Grid)Content).Children.Add(streakOverlay);
-        streakRefresh.Tick+=(_,_)=>{if(IsVisible && WindowState!=WindowState.Minimized && DashboardShell.IsVisible){streakOverlay.Ledger=state.Productivity;streakOverlay.Options=Options;streakOverlay.Refresh();}};
+        streakRefresh.Tick+=(_,_)=>{if(IsVisible && WindowState!=WindowState.Minimized && DashboardShell.IsVisible){streakOverlay.SpaceScore=SpaceScores.Total(Continuity.Current(state.Workspace!,store.UserId),state.Productivity);streakOverlay.Ledger=state.Productivity;streakOverlay.Options=Options;streakOverlay.Refresh();}};
+        WidgetCanvas.PreviewMouseLeftButtonDown+=(_,e)=>
+        {
+            if(!ReferenceEquals(e.OriginalSource,WidgetCanvas) || state.Session?.FinalizedAt!=null || seasonalArtwork?.IsVisible!=true)return;
+            var id=seasonalArtwork.CandyAt(e.GetPosition(WidgetCanvas));if(id==null)return;
+            if(bugsOverlay?.Manager.Bugs.Any(b=>b.ResourceId==id && b.Activity==BugActivity.Gathering)==true)return;
+            var ledger=Continuity.Clone(state.Productivity);
+            if(!ProductivityScoring.CollectCandy(ledger,id.Value,DateTimeOffset.UtcNow,Options.StreakMultiplierCap))return;
+            if(!seasonalArtwork.TryCollect(id.Value))return;
+            state.Productivity=ledger;bugsOverlay?.Manager.BindCandy([]);Changed();SaveNow();e.Handled=true;
+        };
         Loaded+=(_,_)=>streakRefresh.Start();
         if (state.Workspace != null) feedbackOverlay.Observe(Continuity.Current(state.Workspace, store.UserId).Current, state.Productivity.Events);
         PreviewMouseMove += (_, e) =>
@@ -47,6 +57,6 @@ public partial class MainWindow
     private void UpdateFrenzyFeedback()
     {
         var score = state.Widgets.FirstOrDefault(w => w.Kind is "Productivity" or "Productivity Score");
-        if(streakOverlay!=null){streakOverlay.Ledger=state.Productivity;streakOverlay.Options=Options;streakOverlay.Refresh();}
+        if(streakOverlay!=null){streakOverlay.SpaceScore=SpaceScores.Total(Continuity.Current(state.Workspace!,store.UserId),state.Productivity);streakOverlay.Ledger=state.Productivity;streakOverlay.Options=Options;streakOverlay.Refresh();}
     }
 }

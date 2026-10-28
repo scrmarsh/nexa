@@ -165,7 +165,7 @@ public partial class MainWindow
             });
             var titleEditor = new TextBox { Text = widget.Title, FontSize = 14, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center, Background = Brushes.Transparent, BorderThickness = new Thickness(0), Padding = new Thickness(0), MaxLength = 100, ToolTip = "Edit widget title; drag the grip to move" };
             System.Windows.Automation.AutomationProperties.SetName(titleEditor, "Widget title " + widget.Title);
-            titleEditor.TextChanged += (_, _) => { if (!string.IsNullOrWhiteSpace(titleEditor.Text)) { widget.Title = titleEditor.Text.Trim(); Changed(); } };
+            titleEditor.TextChanged += (_, _) => { if (!string.IsNullOrWhiteSpace(titleEditor.Text)) { widget.Title = titleEditor.Text.Trim(); Changed(); TutorialAction("renamed",widget.Id); } };
             titleEditor.ToolTip="Click to rename; double-click or right-click for widget options";
             titleEditor.MouseDoubleClick+=(_,e)=> { ConfigureWidget(widget); e.Handled=true; };
             titleEditor.KeyDown+=(_,e)=> { if(e.Key==Key.F2) { ConfigureWidget(widget); e.Handled=true; } };
@@ -602,7 +602,7 @@ public partial class MainWindow
             if (widgetRenderDeferred) { widgetRenderDeferred = false; RenderWidgets(); } else ArrangeWidgetFrames();
             // A smaller card leaves its freed space available for a later placement.
             WidgetCanvas.UpdateLayout();
-            AnimateWidgetSettle(before);
+            AnimateWidgetSettle(before);TutorialAction("gesture",widget.Id);
         };
     }
     private static Rect FrameRect(Border frame) => new(Canvas.GetLeft(frame), Canvas.GetTop(frame), frame.Width, frame.Height);
@@ -899,6 +899,18 @@ public partial class MainWindow
         }
         search.TextChanged += (_, _) => Refresh(); Refresh(); dialog.Content = root; dialog.ShowDismissible();
     }
+    internal static FrameworkElement ToolPreview(string kind)
+    {
+        if(kind=="Pixel timer")
+        {
+            var grid=new Canvas{Width=28,Height=28};for(var i=0;i<16;i++){var cell=new System.Windows.Shapes.Rectangle{Width=5,Height=5};cell.SetResourceReference(System.Windows.Shapes.Shape.FillProperty,i<7?"PixelBrush":"LineBrush");Canvas.SetLeft(cell,i%4*7);Canvas.SetTop(cell,i/4*7);grid.Children.Add(cell);}return grid;
+        }
+        if(kind=="Focus Reset")return SpaceIcons.Create("Sparkle",25);
+        if(kind=="Water Bottle Counter")return new DrinkArtwork(false){Width=25,Height=32,FillFraction=.5};
+        if(kind=="Productivity")return SpaceIcons.Create("Lightning",25);
+        if(kind=="Calendar")return SpaceIcons.Create("Calendar",25);
+        var symbol=new TextBlock{Text=WidgetIcon(WidgetLibrary.Definition(kind).Editor),FontFamily=new FontFamily("Segoe MDL2 Assets"),FontSize=24,VerticalAlignment=VerticalAlignment.Center};symbol.SetResourceReference(TextBlock.ForegroundProperty,"AccentBrush");return symbol;
+    }
     private static string WidgetIcon(string editor) => editor switch
     {
         "timer" or "stopwatch" => "\uE916", "clock" => "\uE823", "bible" or "scripture" => "\uE736",
@@ -937,7 +949,7 @@ public partial class MainWindow
         widget.Column = Math.Clamp((int)Math.Round(target.X / GridUnit), 0, 20 - span);
         widget.Row = Math.Clamp((int)Math.Round(target.Y / RowUnit), 0, 30000);
         Changed(); RenderWidgets(); WidgetCanvas.UpdateLayout();
-        SaveNow(); return widget;
+        SaveNow(); TutorialAction("added",widget.Id); return widget;
     }
     internal WidgetInstance DuplicateWidget(WidgetInstance source)
     {
@@ -1092,7 +1104,7 @@ public partial class MainWindow
     }
     private async void HomeClick(object sender, RoutedEventArgs e)
     {
-        if (NexaNavigation.Busy(this) || !SaveNow()) return;
+        if (NexaNavigation.Busy(this) || !SaveForClose()) return;
         try
         {
             var homeStore=previewHomeStore??store;

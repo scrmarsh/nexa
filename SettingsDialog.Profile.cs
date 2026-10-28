@@ -34,12 +34,13 @@ internal sealed partial class SettingsDialog
         var setup=new Button { Content="Run welcome setup again",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,14,0,0) }; setup.Click+=(_,_)=> { if (!FlushPendingChanges()) return; var owner=Owner; Close(); try { SetupNavigation.Run(owner,store,space); } catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) { MessageBox.Show(owner,"Setup could not be saved. Existing spaces have been retained.","Nexa setup"); } }; page.Children.Add(setup);
         return new ScrollViewer { Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto };
     }
-    private UIElement BuildIntegrations()
+    private UIElement BuildIntegrations(bool future=false)
     {
         var page=Page("Integrations","Optional connections. Your local spaces always work without them.");
         var client=new IntegrationClient(store);
-        foreach(var service in new[] { "Todoist","Google Tasks","Google Calendar","Outlook Calendar" })
+        foreach(var service in (future?new[] { "Google Tasks","Google Calendar","Outlook Calendar" }:new[] { "Todoist","Hevy" }))
         {
+            if(service=="Hevy"){page.Children.Add(BuildHevyConnection());continue;}
             var section=new StackPanel { Margin=new Thickness(0,0,0,24) }; page.Children.Add(section);
             section.Children.Add(new TextBlock { Text=service,FontSize=20,FontWeight=FontWeights.SemiBold });
             var status=new TextBlock { Text=client.Vault.Connected(service)?"Connected":"Not connected",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,8,0,8) }; section.Children.Add(status);
@@ -65,6 +66,8 @@ internal sealed partial class SettingsDialog
             };
             disconnect.Click+=(_,_)=> { pending?.Cancel(); try { client.Vault.Disconnect(service); status.Text="Not connected"; disconnect.IsEnabled=false; space?.RenderWidgets(); } catch(IOException) { status.Text="Could not disconnect. Try again."; } };
         }
+        if(future)
+        {
         var googleSetup=new Button { Content="Set up Google connection...",HorizontalAlignment=HorizontalAlignment.Left };
         googleSetup.Click+=(_,_)=>
         {
@@ -81,7 +84,8 @@ internal sealed partial class SettingsDialog
             catch(Exception ex) when(ex is IntegrationException or IOException or UnauthorizedAccessException) { microsoftStatus.Text=ex is IntegrationException?ex.Message:"Could not save the Microsoft app ID."; } };
         page.Children.Add(microsoftSetup); page.Children.Add(microsoftStatus);
         page.Children.Add(new TextBlock { Text="Google and Microsoft require registered desktop/public apps. See docs/INTEGRATIONS.md. Calendar access is read-only. Disconnect removes locally saved authorization; revoke permission in the provider account if needed.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,0) });
-        hedySettingsSection=new Border { Child=BuildHedy(),Margin=new Thickness(0,28,0,0),Focusable=true }; page.Children.Add(hedySettingsSection);
+        }
+        hedySettingsSection=new Border { Child=BuildHedy(),Margin=new Thickness(0,28,0,0),Focusable=true }; if(!future)page.Children.Add(new Expander{Header="Hedy recording notes",Content=hedySettingsSection});
         return new ScrollViewer { Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto };
     }
 }

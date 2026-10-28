@@ -127,7 +127,7 @@ public partial class MainWindow
         if (state.Session == null) { BeginSession(proposed); return state.Session != null; }
         // Change timestamps in place: identity, transcripts and interval notes survive.
         state.Session.Title = proposed.Title; state.Session.Start = proposed.Start; state.Session.End = proposed.End;
-        state.Session.IntervalMinutes = interval; state.Session.StoppedAt = null; state.Session.ScheduledDays = selectedDays; state.Session.ConfiguredDurationMinutes = proposed.ConfiguredDurationMinutes;
+        state.Session.IntervalMinutes = interval; state.Session.StoppedAt = null; state.Session.FinalizedAt=null; state.Session.ScheduledDays = selectedDays; state.Session.ConfiguredDurationMinutes = proposed.ConfiguredDurationMinutes;
         state.Session.TimeZoneId = NexaTime.Zone(Options.TimeZoneId).Id; state.Session.ScheduleTimeZoneId = Options.TimeZoneId;
         state.Session.RecurringStartMinutes = (int)start.TimeOfDay.TotalMinutes; state.Session.RecurringEndMinutes = (int)end.TimeOfDay.TotalMinutes;
         state.Session.RecurringEndDayOffset = (end.Date - start.Date).Days;
@@ -151,7 +151,7 @@ public partial class MainWindow
         reset.Click += (_, _) =>
         {
             var minutes = session.ConfiguredDurationMinutes > 0 ? session.ConfiguredDurationMinutes : Math.Max(1, (session.End - session.Start).TotalMinutes);
-            var now = DateTimeOffset.Now; session.Start = now; session.End = now.AddMinutes(minutes); session.StoppedAt = null; session.ReachedMilestones.Clear();
+            var now = DateTimeOffset.Now; session.Start = now; session.End = now.AddMinutes(minutes); session.StoppedAt = null; session.FinalizedAt=null; session.ReachedMilestones.Clear();
             completionDismissed = false; flashUntil = DateTimeOffset.MinValue; BuildTimeline(); UpdateClock(); Changed("Timer reset."); SaveNow(); dialog.CloseWithFade();
         };
         actions.Children.Add(reset); panel.Children.Add(actions); dialog.Content = panel; dialog.ShowDismissible();

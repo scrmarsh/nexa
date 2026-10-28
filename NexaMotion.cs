@@ -4,7 +4,7 @@ using System.Windows.Media.Animation;
 namespace SessionDashboard;
 internal static class NexaMotion
 {
-    private sealed class AnimationState {internal int Generation;}
+    private sealed class AnimationState {internal int Generation;internal int VisibilityGeneration;internal bool? Shown;}
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<FrameworkElement,AnimationState> animations=new();
     internal static bool Allowed(NexaOptions options) => SystemParameters.ClientAreaAnimation && !options.ReduceMotion;
     internal static async Task Fade(FrameworkElement element,double opacity,NexaOptions options,int milliseconds=220)
@@ -26,6 +26,18 @@ internal static class NexaMotion
     }
     internal static void Stagger(IEnumerable<FrameworkElement> children,NexaOptions options)
     {var index=0;foreach(var child in children)Entrance(child,options,Math.Min(index++,6)*70);}
+    internal static async void SetShown(FrameworkElement element,bool shown,NexaOptions options,double opacity=1)
+    {
+        try{await SetShownCore(element,shown,options,opacity);}catch(TaskCanceledException){}
+    }
+    private static async Task SetShownCore(FrameworkElement element,bool shown,NexaOptions options,double opacity)
+    {
+        var state=animations.GetOrCreateValue(element);if(state.Shown==shown)return;state.Shown=shown;var generation=++state.VisibilityGeneration;
+        if(!Allowed(options)||!element.IsLoaded){element.BeginAnimation(UIElement.OpacityProperty,null);element.Opacity=opacity;element.Visibility=shown?Visibility.Visible:Visibility.Collapsed;return;}
+        if(shown){element.Visibility=Visibility.Visible;element.Opacity=0;}
+        await Fade(element,shown?opacity:0,options);
+        await element.Dispatcher.InvokeAsync(()=>{if(state.VisibilityGeneration==generation && !shown)element.Visibility=Visibility.Collapsed;});
+    }
     internal static void Pop(FrameworkElement element, NexaOptions options)
     {
         if (!Allowed(options) || !options.CelebrationEffects) return;

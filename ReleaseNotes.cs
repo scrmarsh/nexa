@@ -8,13 +8,15 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
-        new("0.1.26", "October 27, 2026", "Spaces in Motion · alpha preview", "Development candidate: navigation, Space identity and interface refinements. The complete update remains in progress.",
+        new("0.1.26", "October 27, 2026", "Spaces in Motion · alpha preview", "Testing candidate: session recaps, cumulative productivity, guided setup and seasonal animation. Manual acceptance is still required.",
         [
             "Home has paired Create and Import actions, six initial Space cards, and Show More / Hide More controls.",
             "Portable vector Space icons, saved with layouts and exports, appear on Home and dashboard headers.",
             "Settings pages initialize on demand. DEV preserves existing timer state and widget positions; navigation file preparation runs off the dispatcher.",
             "Tips use a 30-second interval and five-second lifetime. Productivity streak feedback is compact and flame-free. Normal beverage colors restore outside Nexaween.",
-            "The streamlined setup skips the redundant activity screen and offers Space icons and a seasonal toggle. Full tutorial, recap and scoring work is still pending."
+            "Productivity persists per Space. Candy and direct squashes share a bounded streak; saved End Session recaps retain actual elapsed duration and never duplicate completion.",
+            "A larger web-bound home spider, organic vines, warm dimensional pumpkins and animated palette resources complete the seasonal presentation.",
+            "The streamlined setup skips the redundant activity screen and offers Space icons and a seasonal toggle. The optional guide spotlights real widget actions and resumes after restart."
         ]),
         new("0.1.25", "October 27, 2026", "Dashboard refinements · development", "Intermediate testing work, not a public release.",
         ["Gradual bug arrivals, shared spider silk, compact tips, larger squash illustrations, widget jack-o’-lanterns and scrolling feedback refinements."]),

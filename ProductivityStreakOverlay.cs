@@ -12,6 +12,7 @@ internal sealed class ProductivityStreakOverlay : FrameworkElement, IDisposable
         if (now < until) return ledger.Multiplier(now);
         return Math.Max(0, Math.Clamp(ledger.FrenzyMultiplier, 1.5, 10) - .5 * (1 + Math.Floor((now-until).TotalSeconds/.35)));
     }
+    internal long? SpaceScore {get;set;}
     internal ProductivityLedger? Ledger {get;set;}
     internal NexaOptions Options {get;set;} = new();
     internal ProductivityStreakOverlay() { IsHitTestVisible=false; }
@@ -39,7 +40,7 @@ internal sealed class ProductivityStreakOverlay : FrameworkElement, IDisposable
             dc.DrawText(text,new(x+left,y+(height-text.Height)/2));
         }
         dc.PushTransform(new TranslateTransform(x+16,y+18));dc.DrawGeometry(BugVisuals.B("#FACC15"),null,Geometry.Parse("M12,0 L2,14 L10,14 L7,27 L23,10 L14,10 L18,0 Z"));dc.Pop();
-        Text(ledger.Score.ToString("N0"),26,50,width*.46-42,"#FACC15");
+        Text((SpaceScore??ledger.Score).ToString("N0"),26,50,width*.46-42,"#FACC15");
         Text("Streak "+multiplier.ToString("0.0")+"×",17,width*.50,width*.50-14,Theme.SeasonalEnabled?"#84CC16":"#C4B5FD");
         if(!active)dc.Pop();
     }

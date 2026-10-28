@@ -24,7 +24,7 @@ public partial class MainWindow
         Theme.SetSeasonalEnabled(active);
         NexaEcosystem.UpdateSeason(store, Options);
         seasonalArtwork?.ConfigureAnimation(Options,new Rect(WidgetScroller.HorizontalOffset,WidgetScroller.VerticalOffset,Math.Max(1,WidgetScroller.ViewportWidth),Math.Max(1,WidgetScroller.ViewportHeight)));
-        if (seasonalArtwork != null) seasonalArtwork.Visibility = active && Options.SeasonalDecorations && Options.DecorationDensity != "Off" ? Visibility.Visible : Visibility.Collapsed;
+        if (seasonalArtwork != null) NexaMotion.SetShown(seasonalArtwork,active && Options.SeasonalDecorations && Options.DecorationDensity != "Off",Options);
     }
     internal void RefreshSeasonalWorkspace()
     {
@@ -49,7 +49,7 @@ public partial class MainWindow
         occupied.Add(new Rect(Canvas.GetLeft(workspaceAdd), bottom + 20, Math.Max(150,workspaceAdd.ActualWidth), 90));
         seasonalArtwork.ConfigureAnimation(Options,new Rect(WidgetScroller.HorizontalOffset,WidgetScroller.VerticalOffset,Math.Max(1,WidgetScroller.ViewportWidth),Math.Max(1,WidgetScroller.ViewportHeight)));
         seasonalArtwork.Update(Math.Max(1, WidgetCanvas.ActualWidth), Math.Max(1, WidgetCanvas.Height), occupied, Options.DecorationDensity,widgetTargets:widgetTargets);
-        seasonalArtwork.Visibility = Theme.SeasonalEnabled && Options.SeasonalDecorations && Options.DecorationDensity != "Off" ? Visibility.Visible : Visibility.Collapsed;
+        NexaMotion.SetShown(seasonalArtwork,Theme.SeasonalEnabled && Options.SeasonalDecorations && Options.DecorationDensity != "Off",Options);
     }
 }
 internal sealed partial class SettingsDialog
@@ -130,15 +130,20 @@ internal sealed partial class NexaweenDecorations : FrameworkElement
         switch (kind)
         {
             case 0: case 1: // Pumpkin / jack-o-lantern
-                var pumpkin = new RadialGradientBrush((Color)ColorConverter.ConvertFromString("#FDBA74"),(Color)ColorConverter.ConvertFromString("#9A3412")){GradientOrigin=new Point(.35,.25),Center=new Point(.45,.45),RadiusX=.65,RadiusY=.65};pumpkin.Freeze();
-                dc.DrawEllipse(pumpkin, P("#9A3412",1), new(32,36), 27,23);
-                dc.DrawEllipse(B("#F97316"), P("#9A3412"), new(23,36), 16,22);
-                dc.DrawEllipse(B("#FB923C"), P("#C45115"), new(38,36), 15,22);
-                for(var groove=0;groove<5;groove++)
-                {var x=17+groove*7;var curve=new StreamGeometry();using(var g=curve.Open()){g.BeginFigure(new(x,15),false,false);g.BezierTo(new(x-10,27),new(x-9,48),new(x,57),true,false);}dc.DrawGeometry(null,P("#663B1C10",.8),curve);}
+                dc.DrawEllipse(B("#50000000"),null,new(33,58),27,4);
+                for(var lobe=0;lobe<5;lobe++)
+                {
+                    var colors=new[]{("#B84A0B","#6B250B"),("#EE7817","#99360D"),("#FFB04F","#C44D0C"),("#EF8B24","#87300C"),("#C35E10","#572009")};
+                    var pair=colors[lobe];var surface=new RadialGradientBrush((Color)ColorConverter.ConvertFromString(pair.Item1),(Color)ColorConverter.ConvertFromString(pair.Item2)){GradientOrigin=new Point(.28,.2),Center=new Point(.45,.45),RadiusX=.8,RadiusY=.7};surface.Freeze();
+                    dc.DrawEllipse(surface,P("#663B1C10",.65),new(13+lobe*9,36),lobe==2?15:12,19+Math.Sin(lobe*Math.PI/4)*5);
+                }
                 Shape(dc,"M28,18 C24,10 25,3 34,3 C41,3 46,7 48,2 C53,10 43,14 36,12 L36,19 Z","#4D7C0F","#365314");
                 dc.DrawGeometry(null,P("#84CC16",1.6),Geometry.Parse("M30,16 C27,8 30,5 35,6 C41,8 45,9 47,6"));
-                if (kind == 1) { Shape(dc,"M15,34 L22,24 L28,34 Z M36,34 L42,24 L49,34 Z","#D9F99D"); Shape(dc,"M16,43 L24,47 L30,43 L37,48 L48,42 Q35,60 16,43 Z","#84CC16"); }
+                if(kind==1)
+                {
+                    var candle=new RadialGradientBrush((Color)ColorConverter.ConvertFromString("#FFF9C4"),(Color)ColorConverter.ConvertFromString("#D97706")){GradientOrigin=new Point(.46,.65),RadiusX=.8,RadiusY=.8};candle.Freeze();
+                    dc.DrawGeometry(candle,P("#733809",.8),Geometry.Parse("M15,33 L22,25 L28,34 Z M36,34 L42,25 L49,34 Z M16,43 L24,47 L30,43 L37,48 L48,42 Q35,60 16,43 Z"));
+                }
                 break;
             case 2: // Ghost
                 Shape(dc,"M9,58 L10,25 Q13,3 32,5 Q53,4 55,26 L56,58 L47,51 L39,59 L31,52 L21,59 L16,52 Z","#D8D1F0");

@@ -48,11 +48,11 @@ internal sealed partial class SettingsDialog : NexaPanel
             AddPage(nav,"Profile",BuildProfile);
             AddPage(nav,"Sounds",BuildSounds);AddPage(nav,"Time Zone & Clock",BuildTimeZoneClock);
             AddPage(nav,"Widgets",BuildWidgetPreferences);
-            AddPage(nav,"Integrations",BuildIntegrations);AddPage(nav,"Updates",BuildUpdates);
+            AddPage(nav,"Integrations",()=>BuildIntegrations());AddPage(nav,"Updates",BuildUpdates);
             AddPage(nav,"Add Bugs",BuildBugs);
             var experimental = new StackPanel();
             AddPage(experimental,"Account & Data",()=>ComingSoon("Account & Data","Optional account tools are in development. Local import/export remains available."));
-            AddPage(experimental,"Future Integrations",()=>ComingSoon("Future Integrations","Coming soon: Google Tasks, Google Calendar and Outlook Calendar."));
+            AddPage(experimental,"Future Integrations",BuildFutureIntegrations);
             var group = new Expander { Header="Experimental Features", Content=experimental, Margin=new Thickness(0,18,0,0), IsExpanded=false };
             group.Expanded+=(_,_)=>NexaMotion.Entrance(experimental,ReliabilityOptions);nav.Children.Add(group);
         }

@@ -4,14 +4,14 @@
   </defs>
   <g transform="translate(40,40) scale(0.546875)">
     <rect width="512" height="512" rx="116" fill="#84CC16"/>
-    <polygon points="512,0 512,512 0,512" fill="#A855F7" clip-path="url(#tile)"/>
-    <line x1="128" y1="384" x2="384" y2="128" stroke="#A855F7" stroke-width="38" stroke-linecap="round"/>
+    <polygon points="512,0 512,512 0,512" fill="#9333EA" clip-path="url(#tile)"/>
+    <line x1="128" y1="384" x2="384" y2="128" stroke="#9333EA" stroke-width="38" stroke-linecap="round"/>
     <polyline points="128,384 128,128 384,384 384,128" fill="none" stroke="#FFFFFF" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
   <g fill="none" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
     <path stroke="#FFFFFF" d="M395 250 V112 M395 168 C395 130 420 112 452 112 C488 112 508 134 508 170 V250"/>
     <path stroke="#FFFFFF" d="M570 181 H700 C700 140 672 112 635 112 C597 112 570 140 570 181 C570 222 597 250 635 250 C663 250 683 238 695 218"/>
-    <path stroke="#A855F7" d="M875 112 L755 250"/>
+    <path stroke="#9333EA" d="M875 112 L755 250"/>
     <path stroke="#FFFFFF" d="M755 112 L875 250"/>
     <circle cx="1000" cy="181" r="69" stroke="#FFFFFF"/>
     <path stroke="#FFFFFF" d="M1069 112 V250"/>

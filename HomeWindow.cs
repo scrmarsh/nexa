@@ -34,7 +34,7 @@ internal sealed partial class HomeWindow : NexaDialog
         panel.Children.Add(new TextBlock { Text = "Recent Spaces", FontSize = 20, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 22, 0, 12) });
         recentChevron.MouseEnter += (_, _) => recentChevron.Opacity = 1;
         recentChevron.MouseLeave += (_, _) => recentChevron.Opacity = .55;
-        recentChevron.Click += (_, _) => { recentRows = recentRows == 3 ? int.MaxValue : 3; RefreshRecentSpaces(); };
+        recentChevron.Click += (_, _) => ToggleRecentSpaces();
         panel.Children.Add(new ScrollViewer { Content = Recent, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled }); RefreshRecentSpaces();
         if (!string.IsNullOrWhiteSpace(store.Warning)) { feedback.Text = store.Warning; panel.Children.Add(feedback); var hide = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(6) }; hide.Tick += (_, _) => { hide.Stop(); feedback.Visibility = Visibility.Collapsed; }; Loaded += (_, _) => hide.Start(); Closed += (_, _) => hide.Stop(); }
         var footer = new Grid { Margin = new Thickness(0, 10, 0, 30) }; footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto }); footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = GridLength.Auto });
@@ -146,13 +146,13 @@ internal sealed partial class HomeWindow : NexaDialog
         {
             var latest=store.Load();var workspace=latest.Workspace??throw new InvalidOperationException("Missing workspace");workspace.ActiveDashboardId=id;
             Continuity.Access(Continuity.Current(workspace,store.UserId));
-            var next=Continuity.Activate(workspace,store.UserId,latest.HedyRegion,latest.HedyProtectedKey);store.Save(next);return next;
+            var next=Continuity.Activate(workspace,store.UserId,latest.HedyRegion,latest.HedyProtectedKey);return next;
         });
     }
     private async void ShowDashboard()=>await NavigateDashboard(()=>store.Load());
     private async Task NavigateDashboard(Func<AppState> prepare)
     {
-        try { await NexaNavigation.Change(this,async ()=>new MainWindow(store,loadedState:await Task.Run(prepare)),Saved.Workspace?.Settings??new()); }
+        try { await NexaNavigation.Change(this,async ()=>new MainWindow(store,loadedState:await Task.Run(()=>{var next=prepare();next.Workspace!.CleanShutdown=false;store.Save(next);return next;}),entryAlreadyPersisted:true),Saved.Workspace?.Settings??new()); }
         catch(OperationCanceledException) when(Dispatcher.HasShutdownStarted) { }
         catch(Exception ex) when(HistoryArchive.Recoverable(ex)) { await Dispatcher.InvokeAsync(()=>feedback.Text="Could not open Space: "+ex.Message); }
     }
@@ -242,7 +242,7 @@ internal sealed partial class HomeWindow : NexaDialog
             data.WidgetLayoutInitialized = true;
             workspace.ActiveDashboardId = record.DashboardId;
             Continuity.Access(record);
-            var next=Continuity.Activate(workspace, store.UserId, latest.HedyRegion, latest.HedyProtectedKey);store.Save(next);return next;
+            var next=Continuity.Activate(workspace, store.UserId, latest.HedyRegion, latest.HedyProtectedKey);return next;
         });
     }
     private void ImportDashboard()

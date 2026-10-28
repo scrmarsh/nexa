@@ -46,6 +46,7 @@ internal sealed class SessionHistoryWindow : NexaPanel
             if (mutation) { mutationButtons.Add(button); button.IsEnabled = false; } actions.Children.Add(button); return button;
         }
         Action("Export summary", () => Export(false)); Action("Export recorded data", () => Export(true));
+        Action("View recap",()=>{if(list.SelectedItem is HistoryEntry {Session:{} entry})new SessionRecapWindow(this,entry.Title,entry.Data.SpaceIcon,entry,new NexaOptions()).Show();});
         Action("Edit archived notes", EditNotes, true);
         Action("Delete archived record", () =>
         {

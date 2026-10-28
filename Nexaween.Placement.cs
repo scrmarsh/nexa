@@ -3,14 +3,20 @@ using System.Windows.Media;
 namespace SessionDashboard;
 internal sealed partial class NexaweenDecorations
 {
-    private readonly List<Rect> vineCorners=[];
+    private readonly List<(Rect Widget,Rect Pumpkin)> vineCorners=[];
     internal static readonly int[] CandyKinds=[5,6,7,8,9,13,15,16,17,18];
     internal int CandyActorCount=>actors.Count(a=>CandyKinds.Contains(a.Kind));
     internal int ContextualActorCount=>actors.Count(a=>a.Contextual);
     internal IReadOnlyList<Rect> AttachmentBounds=>actors.Where(a=>a.Contextual).Select(a=>a.Bounds).ToArray();
-    private static void DrawVine(DrawingContext dc,Rect rect,double time=0)
+    private static void DrawVine(DrawingContext dc,Rect rect,double time=0,Rect? pumpkin=null)
     {
-        var x=rect.Right+3;var y=rect.Bottom+3;var sway=0d;
+        var x=pumpkin is {} attached && attached.Left+attached.Width/2<rect.Left+rect.Width/2?rect.Left:rect.Right+3;
+        var y=pumpkin is {} above && above.Top+above.Height/2<rect.Top+rect.Height/2?rect.Top:rect.Bottom+3;var sway=0d;
+        if(pumpkin is {} fruit)
+        {
+            var stem=new Point(fruit.Left+fruit.Width*.5,fruit.Top+fruit.Height*.2);
+            var connector=new StreamGeometry();using(var g=connector.Open()){g.BeginFigure(stem,false,false);g.BezierTo(new(stem.X+12,stem.Y-14),new(x+8,y-12),new(x,y),true,false);}dc.DrawGeometry(null,P("#99567D36",3),connector);
+        }
         var path=new StreamGeometry();using(var g=path.Open()){g.BeginFigure(new Point(x-68,y),false,false);g.BezierTo(new(x+15,y+9),new(x-8+sway,y-35),new(x+3,y-80),true,false);g.BezierTo(new(x+15,y-95),new(x+23,y-70),new(x+8,y-72),true,false);}path.Freeze();
         var growth=time<=0?1:Math.Clamp(time/20,.12,1);
         dc.PushClip(new RectangleGeometry(new Rect(x-80*growth,y-110*growth,115,115*growth)));
@@ -37,7 +43,7 @@ internal sealed partial class NexaweenDecorations
             }
             if(bounds.IsEmpty)continue;
             var kind=1;var asset=Asset(kind);dc.PushTransform(new TranslateTransform(bounds.X,bounds.Y));dc.PushTransform(new ScaleTransform(size/64,size/64));dc.DrawDrawing(asset);dc.Pop();dc.Pop();actors.Add(new(bounds,kind,asset,100+count,true));occupied.Add(bounds);
-            if(kind==1){vineCorners.Add(rect);DrawVine(dc,rect);}count++;
+            if(kind==1){vineCorners.Add((rect,bounds));DrawVine(dc,rect,0,bounds);}count++;
         }
     }
     private static void DrawSeasonalExtra(DrawingContext dc,int kind)

@@ -30,8 +30,8 @@ internal sealed class OnboardingWindow : NexaDialog
         var available=GuidedSetup.Recommendations(Profile.PreferredDashboard).Concat(new[] { "Tasks","Calendar","Focus Reset","Flashcards","Session timeline" }).ToHashSet();
         tools=Profile.PreferredWidgets.Count>0?Profile.PreferredWidgets.Where(available.Contains).ToHashSet():GuidedSetup.Recommendations(Profile.PreferredDashboard).ToHashSet();
         var inputStyle=new Style(typeof(TextBox),Application.Current.TryFindResource(typeof(TextBox)) as Style);
-        var template=new ControlTemplate(typeof(TextBox));var border=new FrameworkElementFactory(typeof(Border));border.SetValue(Border.CornerRadiusProperty,new CornerRadius(12));border.SetResourceReference(Border.BackgroundProperty,"PanelBrush");border.SetResourceReference(Border.BorderBrushProperty,"LineBrush");border.SetValue(Border.BorderThicknessProperty,new Thickness(1));
-        var content=new FrameworkElementFactory(typeof(ScrollViewer));content.Name="PART_ContentHost";content.SetValue(FrameworkElement.MarginProperty,new Thickness(12));border.AppendChild(content);template.VisualTree=border;
+        var template=new ControlTemplate(typeof(TextBox));var border=new FrameworkElementFactory(typeof(Border));border.Name="InputOutline";border.SetValue(Border.CornerRadiusProperty,new CornerRadius(12));border.SetResourceReference(Border.BackgroundProperty,"PanelBrush");border.SetResourceReference(Border.BorderBrushProperty,"LineBrush");border.SetValue(Border.BorderThicknessProperty,new Thickness(1));
+        var content=new FrameworkElementFactory(typeof(ScrollViewer));content.Name="PART_ContentHost";content.SetValue(FrameworkElement.MarginProperty,new Thickness(12));border.AppendChild(content);template.VisualTree=border;var focus=new Trigger{Property=UIElement.IsKeyboardFocusWithinProperty,Value=true};focus.Setters.Add(new Setter(Border.BorderBrushProperty,new DynamicResourceExtension("AccentBrush"),"InputOutline"));template.Triggers.Add(focus);
         inputStyle.Setters.Add(new Setter(Control.TemplateProperty,template));Resources[typeof(TextBox)]=inputStyle;
         Title="Welcome to Nexa"; Width=740; Height=640; MinWidth=620; MinHeight=540; WindowStartupLocation=WindowStartupLocation.CenterScreen;
         var root=new DockPanel { Margin=new Thickness(34) };
@@ -48,7 +48,12 @@ internal sealed class OnboardingWindow : NexaDialog
     private void Text(string text) => body.Children.Add(new TextBlock { Text=text, TextWrapping=TextWrapping.Wrap, Margin=new Thickness(0,0,0,18) });
     private void Choice(string text,bool selected,Action<bool> change)
     {
-        var box=new CheckBox { Content=text, IsChecked=selected, Margin=new Thickness(0,7,0,7) }; box.Click+=(_,_)=>change(box.IsChecked==true); body.Children.Add(box);
+        var box=new CheckBox { Content=text, IsChecked=selected, Margin=new Thickness(0,7,0,7),FontSize=16 };
+        if(WidgetLibrary.Definitions.Any(d=>d.Name==text)){var row=new StackPanel{Orientation=Orientation.Horizontal};row.Children.Add(MainWindow.ToolPreview(text));row.Children.Add(new TextBlock{Text=text,Margin=new Thickness(12,0,0,0),VerticalAlignment=VerticalAlignment.Center});box.Content=row;}
+        var card=new Border{Child=box,Padding=new Thickness(12),CornerRadius=new CornerRadius(12),BorderThickness=new Thickness(1),Margin=new Thickness(0,0,0,8)};
+        card.SetResourceReference(Border.BorderBrushProperty,selected?"AccentBrush":"LineBrush");
+        box.Click+=(_,_)=>{change(box.IsChecked==true);card.SetResourceReference(Border.BorderBrushProperty,box.IsChecked==true?"AccentBrush":"LineBrush");NexaMotion.Pop(card,Options);};
+        body.Children.Add(card);
     }
     internal void Advance()
     {
@@ -67,7 +72,7 @@ internal sealed class OnboardingWindow : NexaDialog
         try
         {
             Profile.PreferredWidgets=tools.ToList(); Profile.OnboardingCompleted=true;
-            Result=GuidedSetup.Create(Profile,name,tools,store.UserId);Result.Current.Data.SpaceIcon=SpaceIcons.Resolve(spaceIcon,Profile.PreferredDashboard);
+            Result=GuidedSetup.Create(Profile,name,tools,store.UserId);Result.Current.Data.OfferQuickStart=true;Result.Current.Data.SpaceIcon=SpaceIcons.Resolve(spaceIcon,Profile.PreferredDashboard);
             DialogResult=true;
         }
         catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or ArgumentException) { finishing=false; error.Text="Could not finish setup. Your existing spaces are safe. "+ex.Message; }

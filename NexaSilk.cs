@@ -2,9 +2,20 @@ using System.Windows;
 namespace SessionDashboard;
 internal sealed partial class BugManager
 {
+    internal double? WebCoordinateAspect {get;set;}
     internal Rect WebBounds(EcosystemWeb web)
     {
-        if(web.AnchorId is {} id && Surfaces.TryGetValue(id,out var card))return new Rect(card.X+card.Width*.06,card.Y+card.Height*.08,Math.Max(12,card.Width*.88),Math.Max(12,card.Height*.84));
+        if(web.AnchorId is {} id && Surfaces.TryGetValue(id,out var card))
+        {
+            var width=Math.Max(12,card.Width*.88);var height=Math.Max(12,card.Height*.84);
+            if(WebCoordinateAspect is {} aspect && aspect>0)
+            {
+                var ratio=width*aspect/height;
+                if(ratio>1.3)width=height*1.3/aspect;
+                else if(ratio<.8)height=width*aspect/.8;
+            }
+            return new Rect(card.X+(card.Width-width)/2,card.Y+(card.Height-height)/2,width,height);
+        }
         return new Rect(Math.Clamp(web.X-160,12,WorldWidth-332),Math.Clamp(web.Y-115,12,WorldHeight-242),320,230);
     }
     internal static void EnsureSilk(EcosystemWeb web)

@@ -3,6 +3,20 @@ using System.Windows.Controls;
 namespace SessionDashboard;
 internal sealed partial class HomeWindow
 {
+    private bool togglingRecent;
+    private async void ToggleRecentSpaces()
+    {
+        if(togglingRecent)return;
+        if(recentRows==3 || !NexaMotion.Allowed(Saved.Workspace?.Settings??new())){recentRows=recentRows==3?int.MaxValue:3;RefreshRecentSpaces();return;}
+        togglingRecent=true;recentChevron.IsEnabled=false;
+        try
+        {
+            await Task.WhenAll(DescendantsOfRecent().Skip(6).Select(card=>NexaMotion.Fade(card,0,Saved.Workspace?.Settings??new(),180)));
+            await Dispatcher.InvokeAsync(()=>{if(IsVisible){recentRows=3;RefreshRecentSpaces();}});
+        }
+        catch(TaskCanceledException){}
+        finally{togglingRecent=false;if(!Dispatcher.HasShutdownStarted)_ = Dispatcher.BeginInvoke(new Action(()=>recentChevron.IsEnabled=true));}
+    }
     private int recentRows = 3;
     private IEnumerable<Button> DescendantsOfRecent()=>Recent.Children.OfType<StackPanel>().SelectMany(c=>c.Children.OfType<System.Windows.Controls.Primitives.UniformGrid>()).SelectMany(c=>c.Children.OfType<Button>());
     private void RefreshRecentSpaces()

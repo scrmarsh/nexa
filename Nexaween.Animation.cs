@@ -21,6 +21,7 @@ internal sealed partial class NexaweenDecorations : IDisposable
     private readonly List<Actor> actors = [];
     private static readonly Dictionary<int, Drawing> assets = [];
     private readonly DispatcherTimer animation = new(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(50) };
+    private readonly DispatcherTimer candyRespawn=new(){Interval=TimeSpan.FromSeconds(1)};
     private readonly Stopwatch elapsed = Stopwatch.StartNew();
     private NexaOptions animationOptions = new();
     private Rect visibleArea;
@@ -35,6 +36,10 @@ internal sealed partial class NexaweenDecorations : IDisposable
     internal NexaweenDecorations()
     {
         IsHitTestVisible=false;
+        candyRespawn.Tick+=(_,_)=>{ReconcileCandy();if(!actors.Any(a=>a.ConsumedAt>=0))candyRespawn.Stop();};
+        IsVisibleChanged+=(_,_)=>{if(IsVisible && actors.Any(a=>a.ConsumedAt>=0))candyRespawn.Start();else if(!IsVisible)candyRespawn.Stop();};
+        Unloaded+=(_,_)=>candyRespawn.Stop();
+        Loaded+=(_,_)=>{if(actors.Any(a=>a.ConsumedAt>=0))candyRespawn.Start();};
         animation.Tick += Animate;
         IsVisibleChanged += (_, _) => ReconcileAnimation();
         Loaded += (_, _) => { host = Window.GetWindow(this); if (host != null) host.StateChanged += HostStateChanged; ReconcileAnimation(); };
@@ -82,10 +87,18 @@ internal sealed partial class NexaweenDecorations : IDisposable
     private void RenderAnimated(DrawingContext dc)
     {
         var moving=animationOptions.SeasonalAnimation && NexaMotion.Allowed(animationOptions);var time = moving?elapsed.Elapsed.TotalSeconds:0; var particles = 0;
-        foreach(var corner in vineCorners)DrawVine(dc,corner,time);
+        foreach(var corner in vineCorners)DrawVine(dc,corner.Widget,time,corner.Pumpkin);
         foreach (var actor in actors)
         {
-            if(actor.ConsumedAt>=0)continue;
+            if(actor.ConsumedAt>=0)
+            {
+                var age=elapsed.Elapsed.TotalSeconds-actor.ConsumedAt;
+                if(age<.3 && animationOptions.SeasonalAnimation && NexaMotion.Allowed(animationOptions))
+                {
+                    var factor=1-age/.3;dc.PushOpacity(factor);dc.PushTransform(new TranslateTransform(actor.Bounds.X,actor.Bounds.Y-age*24));dc.PushTransform(new ScaleTransform(actor.Bounds.Width/64*factor,actor.Bounds.Height/64*factor));dc.DrawDrawing(actor.Art);dc.Pop();dc.Pop();dc.Pop();
+                }
+                continue;
+            }
             var expanded = actor.Bounds; expanded.Inflate(18, 18); if (!visibleArea.IsEmpty && !expanded.IntersectsWith(visibleArea)) continue;
             var phase = time + actor.Seed * .7; var x = actor.Bounds.X; var y = actor.Bounds.Y;
             var lifecycleAge=time-actor.Born;
@@ -127,5 +140,5 @@ internal sealed partial class NexaweenDecorations : IDisposable
     protected override void OnRender(DrawingContext dc)
     { RenderAnimated(dc); }
     public void Dispose()
-    { if (disposed) return; disposed = true; animation.Stop(); animation.Tick -= Animate; elapsed.Stop(); if (host != null) host.StateChanged -= HostStateChanged; host = null; actors.Clear(); }
+    { if (disposed) return; disposed = true; candyRespawn.Stop(); animation.Stop(); animation.Tick -= Animate; elapsed.Stop(); if (host != null) host.StateChanged -= HostStateChanged; host = null; actors.Clear(); }
 }

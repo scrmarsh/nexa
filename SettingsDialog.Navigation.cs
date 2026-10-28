@@ -48,7 +48,7 @@ internal sealed partial class SettingsDialog
         var wasBugs=pages.TryGetValue("Add Bugs",out var oldBugs) && ReferenceEquals(host.Content,oldBugs);
         ReliabilityOptions.SeasonalMode=active?"On":"Off";
         foreach(var toggle in seasonalSwitches)toggle.IsChecked=active;
-        Theme.SetSeasonalEnabled(active);space?.ApplyReliabilityOptions();NexaEcosystem.UpdateSeason(store,ReliabilityOptions);
+        Theme.BeginTransition(ReliabilityOptions);Theme.SetSeasonalEnabled(active);space?.ApplyReliabilityOptions();NexaEcosystem.UpdateSeason(store,ReliabilityOptions);
         if(tabs.TryGetValue("Appearance",out var tab))tab.Opacity=1;
         if(pages.ContainsKey("Appearance"))pages["Appearance"]=BuildAppearancePage();
         if(wasAppearance)host.Content=pages["Appearance"];

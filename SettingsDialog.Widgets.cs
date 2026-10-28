@@ -9,6 +9,7 @@ internal sealed partial class SettingsDialog
     private UIElement BuildWidgetPreferences()
     {
         var page=Page("Widgets","Global widget behavior. Click widget titles or content to edit each Space directly.");
+        if(space!=null){var guide=new Button{Content="Replay Quick Start",HorizontalAlignment=HorizontalAlignment.Left};guide.Click+=(_,_)=>{Close();space.StartQuickStart();};page.Children.Add(guide);}
         page.Children.Add(new TextBlock { Text="Pixel Timer",FontSize=20,FontWeight=FontWeights.SemiBold });
         var shape=new ComboBox { ItemsSource=new[] { "Square","Circle" },SelectedItem=state.PixelShape,MinHeight=40 };
         Field(page,"Pixel shape",shape);

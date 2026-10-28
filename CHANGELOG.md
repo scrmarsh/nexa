@@ -2,7 +2,7 @@
 
 ![NEXAWEEN — nexa alpha development](docs/media/nexaween-banner.svg)
 
-## 0.1.26 alpha — Spaces in Motion (partial testing candidate)
+## 0.1.26 alpha — Spaces in Motion (testing candidate)
 
 - Paired Create/Import actions, six initial Space cards, all/ six expansion controls and saved vector Space icons.
 - Black-backed navigation transitions, dispatcher-safe failure recovery and off-thread Space/DEV file preparation.
@@ -11,7 +11,7 @@
 - Immediate splash-bar visibility with monotonic real milestones, visible version, no three-second hold, and frozen shared logo resources.
 - Thirty-second tips with five-second display, more close-button spacing, compact flame-free streak feedback and restored normal beverage colors.
 
-The interactive tutorial, cumulative scoring, candy scoring and session recap are **not implemented** in this candidate. See the [implementation report](docs/IMPLEMENTATION-0.1.26-alpha.md). No public release or approved Latest build was replaced.
+Cumulative per-Space productivity, collectible candy with a shared streak, circular Productivity rendering, save-first End Session recaps, an interactive guide, independent timer drafts and updated seasonal artwork are implemented in this candidate. Physical acceptance and long-session/provider testing remain pending. See the [implementation report](docs/IMPLEMENTATION-0.1.26-alpha.md). No public release or approved Latest build was replaced.
 
 ## 0.1.25 alpha — dashboard refinements (development only)
 

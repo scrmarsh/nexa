@@ -47,6 +47,7 @@ public partial class MainWindow
     }
     internal void ApplyReliabilityOptions()
     {
+        if(bugsOverlay!=null)bugsOverlay.ReduceMotion=Options.ReduceMotion;
         autosave.Interval = TimeSpan.FromSeconds(Options.EffectiveSaveSeconds);
         ApplySeasonalOptions();
         feedbackOverlay?.ReconcileOptions(); notifications?.ReconcileMotion();
@@ -78,6 +79,7 @@ public partial class MainWindow
             var current = Continuity.Current(state.Workspace, store.UserId).Current;
             if (session.StoppedAt == null && now >= session.End && current.CompletedCheckpointAt == null)
             {
+                if(session.FinalizedAt==null){if(!FinalizeSession(now,false))return;session=state.Session!;current=Continuity.Current(state.Workspace!,store.UserId).Current;}
                 current.CompletedCheckpointAt = session.End;
                 if (SaveNow()) notifications?.Show("session-complete", "Session complete. Your notes and widgets remain available for review.", "✓", 1, 8);
                 else current.CompletedCheckpointAt = null;
@@ -87,7 +89,7 @@ public partial class MainWindow
                 current.CompletedCheckpointAt = now;
                 if (!SaveNow()) current.CompletedCheckpointAt = checkpoint;
             }
-            if (session.StoppedAt != null || !session.AutomaticScheduling) return;
+            if (session.StoppedAt != null && session.FinalizedAt==null || !session.AutomaticScheduling) return;
             var latest = WeeklySchedule.Latest(session, now);
             var target = latest != null && latest.Start > session.Start && latest.End > now ? latest : WeeklySchedule.Next(session, now);
             if (target == null || target.Start <= session.Start || now < session.End) return;
@@ -125,7 +127,7 @@ public partial class MainWindow
         var seed = Continuity.Clone(dashboard.Current.Data.Session!);
         var data = WeeklySchedule.ResetSessionData(dashboard.Current.Data);
         seed.BeforeSessionCountdownFrom = seed.End;
-        seed.Start = occurrence.Start; seed.End = occurrence.End; seed.TimeZoneId = NexaTime.Zone(seed.ScheduleTimeZoneId ?? seed.TimeZoneId).Id; seed.StoppedAt = null;
+        seed.Start = occurrence.Start; seed.End = occurrence.End; seed.TimeZoneId = NexaTime.Zone(seed.ScheduleTimeZoneId ?? seed.TimeZoneId).Id; seed.StoppedAt = null; seed.FinalizedAt=null;
         seed.ReachedMilestones.Clear(); seed.IntervalNotes.Clear(); seed.HedyIntervalNotes.Clear(); seed.IntervalSummaries.Clear();
         seed.TimelineEntries.Clear(); seed.HedySessionId = ""; seed.HedyTranscript = ""; seed.HedyBaseline = ""; seed.LocalRecordingPath = ""; seed.LocalRecordingSeconds = 0;
         data.Session = seed; Continuity.Archive(dashboard, true);
@@ -139,20 +141,13 @@ public partial class MainWindow
     private readonly Dictionary<Guid,FrameworkElement> scoreAreas=[];
     private void BuildProductivityWidget(StackPanel panel, WidgetInstance widget, bool score)
     {
-        TextBlock? prominent=null,multiplier=null;
-        System.Windows.Shapes.Path? lightning=null;bool boltActive=false;
-        if(score)
-        {
-            var center=new StackPanel{HorizontalAlignment=HorizontalAlignment.Stretch,Margin=new Thickness(0,8,0,10)};
-            var bolt=new System.Windows.Shapes.Path{Data=System.Windows.Media.Geometry.Parse("M12,0 L2,14 L10,14 L7,27 L23,10 L14,10 L18,0 Z"),Width=30,Height=36,Stretch=System.Windows.Media.Stretch.Uniform,HorizontalAlignment=HorizontalAlignment.Center};bolt.SetResourceReference(System.Windows.Shapes.Shape.FillProperty,"PixelBrush");center.Children.Add(bolt);lightning=bolt;bolt.RenderTransformOrigin=new Point(.5,.5);bolt.RenderTransform=new System.Windows.Media.ScaleTransform(1,1);
-            bolt.Unloaded+=(_,_)=>{if(bolt.RenderTransform is System.Windows.Media.ScaleTransform scale){scale.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleXProperty,null);scale.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleYProperty,null);}};
-            prominent=new TextBlock{FontSize=42,FontWeight=FontWeights.Bold,HorizontalAlignment=HorizontalAlignment.Center};center.Children.Add(prominent);
-            multiplier=new TextBlock{FontSize=22,FontWeight=FontWeights.SemiBold,HorizontalAlignment=HorizontalAlignment.Center};center.Children.Add(multiplier);
-            var area=new Border{Child=center,Padding=new Thickness(12),CornerRadius=new CornerRadius(16),Margin=new Thickness(0,0,0,8)};area.SetResourceReference(Border.BackgroundProperty,"SurfaceBrush");panel.Children.Add(area);scoreAreas[widget.Id]=area;
-        }
+        var ring=new ProductivityRing();panel.Children.Add(ring);scoreAreas[widget.Id]=ring;
+        var multiplier=new TextBlock{FontSize=17,HorizontalAlignment=HorizontalAlignment.Center};
+        var milestone=new TextBlock{FontSize=12,HorizontalAlignment=HorizontalAlignment.Center,Margin=new Thickness(0,5,0,10)};
+        panel.Children.Add(multiplier);panel.Children.Add(milestone);
         var text = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 10) };
         panel.Children.Add(text);
-        var expanded = new CheckBox { Content = "Expanded statistics", IsChecked = widget.DisplayMode == "Expanded" };
+        var expanded = new CheckBox { Content = "View Details", IsChecked = widget.DisplayMode == "Expanded" };
         expanded.Click += (_, _) => { widget.DisplayMode = expanded.IsChecked == true ? "Expanded" : "Compact"; Changed(); };
         panel.Children.Add(expanded);
         var categories = new[] { "Task created", "Task completed", "Task reopened", "Notes", "Water", "Scripture", "Timer", "Timer activity", "Counter", "Widget", "Study", "Integrations", "Bug squash" };
@@ -163,21 +158,15 @@ public partial class MainWindow
             check.Click += (_, _) => { if (check.IsChecked == true) widget.HiddenProductivityCategories.Remove(category); else if (!widget.HiddenProductivityCategories.Contains(category)) widget.HiddenProductivityCategories.Add(category); Changed(); };
             filters.Children.Add(check);
         }
-        panel.Children.Add(new Expander { Header = "Statistics to show", Content = filters, Margin = new Thickness(0, 8, 0, 8) });
+        var filterExpander=new Expander { Header = "Statistics to show", Content = filters, Margin = new Thickness(0, 8, 0, 8) };panel.Children.Add(filterExpander);
         string previous = "";
         widgetTicks.Add(now =>
         {
             var ledger = state.Productivity;
-            if(prominent!=null)
-            {
-                prominent.Text=ledger.Score.ToString("N0");multiplier!.Text=ledger.Multiplier(now).ToString("0.0")+"×";
-                var active=ledger.Multiplier(now)>1 && NexaMotion.Allowed(Options) && Options.CelebrationEffects;
-                if(active!=boltActive && lightning?.RenderTransform is System.Windows.Media.ScaleTransform scale)
-                {
-                    boltActive=active;var pulse=active?new System.Windows.Media.Animation.DoubleAnimation(.96,1.06,TimeSpan.FromSeconds(1.2)){AutoReverse=true,RepeatBehavior=System.Windows.Media.Animation.RepeatBehavior.Forever}:null;
-                    scale.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleXProperty,pulse);scale.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleYProperty,pulse);
-                }
-            }
+            var total=SpaceScores.Total(Continuity.Current(state.Workspace!,store.UserId),ledger);
+            ring.Update(total,Options);multiplier.Text=ledger.Multiplier(now).ToString("0.0")+"x";
+            milestone.Text="Next milestone: "+((Math.Max(0,total)/500+1)*500).ToString("N0");
+            text.Visibility=filterExpander.Visibility=expanded.IsChecked==true?Visibility.Visible:Visibility.Collapsed;
             var visible = ledger.Events.Where(e => !widget.HiddenProductivityCategories.Contains(e.Category)).ToArray();
             var value = score ? $"Meaningful actions: {ledger.Events.Count:N0} · Completed tasks: {ledger.Events.Count(e => e.Category == "Task completed"):N0}\n" + $"Base: {ledger.Events.Sum(e => e.BasePoints):N0} · Bonus: {ledger.Events.Sum(e => e.BonusPoints):N0}\n" +
                 (ledger.FrenzyUntil > now ? $"Streak · {ledger.Multiplier(now):0.0}× · {(ledger.FrenzyUntil.Value - now).TotalSeconds:0}s\n" : "") +

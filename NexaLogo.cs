@@ -8,6 +8,8 @@ namespace SessionDashboard;
 // Render the supplied full SVG as vectors. The original file remains the source of truth.
 internal sealed class NexaLogo : FrameworkElement
 {
+    private static readonly DependencyProperty BlendProperty=DependencyProperty.Register("Blend",typeof(double),typeof(NexaLogo),new FrameworkPropertyMetadata(0d,FrameworkPropertyMetadataOptions.AffectsRender));
+    private bool? renderedSeason;
     private readonly DrawingImage normalLogo,seasonalLogo,normalLight,seasonalLight;
     internal NexaLogo()
     {
@@ -49,13 +51,20 @@ internal sealed class NexaLogo : FrameworkElement
     }
     protected override void OnRender(DrawingContext dc)
     {
-        var logo=Theme.SeasonalEnabled?seasonalLogo:normalLogo;
+        var target=Theme.SeasonalEnabled?1d:0d;
+        if(renderedSeason!=Theme.SeasonalEnabled)
+        {
+            var from=renderedSeason==null?target:(double)GetValue(BlendProperty);BeginAnimation(BlendProperty,null);SetValue(BlendProperty,target);
+            if(renderedSeason!=null && Theme.AnimatePalette)BeginAnimation(BlendProperty,new System.Windows.Media.Animation.DoubleAnimation(from,target,TimeSpan.FromMilliseconds(280)){FillBehavior=System.Windows.Media.Animation.FillBehavior.Stop});
+            renderedSeason=Theme.SeasonalEnabled;
+        }
         var scale = Math.Min(ActualWidth / 1140, ActualHeight / 360);
         dc.PushTransform(new TranslateTransform((ActualWidth - 1140 * scale) / 2, (ActualHeight - 360 * scale) / 2)); dc.PushTransform(new ScaleTransform(scale, scale));
         var text = TryFindResource("TextBrush") as SolidColorBrush;
         var light = text != null && text.Color.R + text.Color.G + text.Color.B < 360;
-        if (light) logo=Theme.SeasonalEnabled?seasonalLight:normalLight;
-        dc.DrawImage(logo, logo.Drawing.Bounds);
+        var normal=light?normalLight:normalLogo;var seasonal=light?seasonalLight:seasonalLogo;var blend=(double)GetValue(BlendProperty);
+        if(blend<1){dc.PushOpacity(1-blend);dc.DrawImage(normal,normal.Drawing.Bounds);dc.Pop();}
+        if(blend>0){dc.PushOpacity(blend);dc.DrawImage(seasonal,seasonal.Drawing.Bounds);dc.Pop();}
         dc.Pop(); dc.Pop();
     }
 }

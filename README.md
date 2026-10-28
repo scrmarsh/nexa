@@ -12,7 +12,7 @@
 
 </div>
 
-> **0.1.26 alpha partial testing candidate:** this branch contains initial navigation, Space identity and interface improvements. The full master prompt is not complete. See [implementation status](docs/IMPLEMENTATION-0.1.26-alpha.md), [testing](docs/TESTING-0.1.26-alpha.md), and [release readiness](docs/RELEASE-READINESS-0.1.26-alpha.md).
+> **0.1.26 alpha testing candidate:** this branch includes cumulative productivity, candy scoring, session recaps, guided onboarding and seasonal refinements. Manual release acceptance remains pending. See [implementation status](docs/IMPLEMENTATION-0.1.26-alpha.md), [testing](docs/TESTING-0.1.26-alpha.md), and [release readiness](docs/RELEASE-READINESS-0.1.26-alpha.md).
 
 
 nexa is a local Windows productivity dashboard for classes, study, meetings and everyday work. Arrange movable widgets into a Space, follow your recurring sessions, and keep your notes, tasks and progress together.
@@ -76,7 +76,7 @@ The historical project filename and save-data namespace remain for compatibility
 .\tools\Verify.ps1
 ```
 
-The fourteen-route suite checks timing, layout, scrolling, saving, history, controls, the ecosystem and animations using isolated data stores. Generated logs and captures stay in the ignored `verification/` directory. See [development notes](docs/DEVELOPMENT.md) and the [root audit](docs/ROOT-AUDIT.md).
+The fifteen-route suite checks timing, layout, scrolling, saving, history, controls, the ecosystem and animations using isolated data stores. Generated logs and captures stay in the ignored `verification/` directory. See [development notes](docs/DEVELOPMENT.md) and the [root audit](docs/ROOT-AUDIT.md).
 
 | Location | Purpose |
 | --- | --- |

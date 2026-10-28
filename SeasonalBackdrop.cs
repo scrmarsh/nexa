@@ -11,7 +11,7 @@ internal static class SeasonalBackdrop
         void Refresh()
         {
             var settings=options();var enabled=NexaSeason.Active(settings,DateTimeOffset.UtcNow) && settings.SeasonalDecorations && settings.DecorationDensity!="Off";
-            art.Visibility=corners.Visibility=enabled?Visibility.Visible:Visibility.Collapsed;
+            NexaMotion.SetShown(art,enabled,settings,.35);NexaMotion.SetShown(corners,enabled,settings);corners.Options=settings;
             var viewport=new Rect(0,0,Math.Max(1,root.ActualWidth),Math.Max(1,root.ActualHeight));art.ConfigureAnimation(settings,viewport);art.Update(viewport.Width,viewport.Height,[],settings.DecorationDensity);
         }
         root.SizeChanged+=(_,_)=>Refresh();root.Loaded+=(_,_)=>Refresh();root.IsVisibleChanged+=(_,_)=>Refresh();return root;
@@ -19,37 +19,57 @@ internal static class SeasonalBackdrop
 }
 internal sealed class SeasonalCorners:FrameworkElement
 {
+    internal NexaOptions Options {get;set;}=new();
+    private readonly System.Diagnostics.Stopwatch clock=System.Diagnostics.Stopwatch.StartNew();
+    private readonly System.Windows.Threading.DispatcherTimer motion=new(){Interval=TimeSpan.FromMilliseconds(100)};
+    private DrawingGroup? staticArt;private Size artSize;
+    internal static double WebSize(Size size)=>Math.Min(725,Math.Min(size.Width*.46,size.Height*.62));
+    internal static Point SpiderPoint(double time,double size)
+    {
+        var angle=time*.06+.4*Math.Sin(time*.15);return new(26+6*Math.Cos(angle),Math.Min(size*.24,120)+14*Math.Sin(angle));
+    }
+    internal SeasonalCorners()
+    {
+        motion.Tick+=(_,_)=>{if(IsVisible && Options.SeasonalAnimation && NexaMotion.Allowed(Options))InvalidateVisual();};
+        Loaded+=(_,_)=>motion.Start();Unloaded+=(_,_)=>motion.Stop();
+        IsVisibleChanged+=(_,_)=>{if(IsVisible && IsLoaded)motion.Start();else motion.Stop();};
+    }
     protected override void OnRender(DrawingContext dc)
     {
-        // This home-corner spider/web is entirely static and separate from both actors and live webs.
-        var pen=BugVisuals.P("#709D8CAE",.7);var origin=new Point(0,0);
-        for(var i=0;i<7;i++){var angle=i*Math.PI/12;dc.DrawLine(pen,origin,new(Math.Cos(angle)*145,Math.Sin(angle)*145));}
-        for(var ring=1;ring<=5;ring++)for(var i=0;i<6;i++){var a=i*Math.PI/12;var b=(i+1)*Math.PI/12;dc.DrawLine(pen,new(Math.Cos(a)*ring*27,Math.Sin(a)*ring*27),new(Math.Cos(b)*ring*27,Math.Sin(b)*ring*27));}
-        dc.PushTransform(new TranslateTransform(74,53));dc.PushTransform(new ScaleTransform(1.7,1.7));BugVisuals.Draw(dc,new BugEntity{Species=BugSpecies.Spiders},new EcosystemOptions{Appearance=BugAppearance.Halloween,MatchAppearance=false,Adorable=true},true);dc.Pop();dc.Pop();
-        var size=Math.Min(225,ActualWidth*.28);var x=ActualWidth-size;var y=ActualHeight-size;
-        // Long, looping vines stay behind the interactive content and follow the window edges.
-        var bottom=ActualHeight-14;var right=ActualWidth-14;var stem=new Point(x+size*.5,y+size*.2);
-        var vines=new StreamGeometry();using(var g=vines.Open())
-        {
-            g.BeginFigure(stem,false,false);g.BezierTo(new(right-80,bottom-140),new(right-140,bottom+5),new(right-210,bottom-8),true,false);
-            g.BezierTo(new(ActualWidth*.58,bottom-35),new(ActualWidth*.3,bottom+12),new(12,bottom-2),true,false);
-            g.BeginFigure(stem,false,false);g.BezierTo(new(right+20,bottom-170),new(right-30,ActualHeight*.55),new(right-5,ActualHeight*.38),true,false);
-            g.BezierTo(new(right+8,ActualHeight*.23),new(right-22,90),new(right-3,16),true,false);
-        }
-        vines.Freeze();dc.DrawGeometry(null,BugVisuals.P("#AD4D7C0F",6),vines);dc.DrawGeometry(null,BugVisuals.P("#8065A30D",2),vines);
-        for(var leafX=55d;leafX<right-80;leafX+=130)
-        {
-            var curl=new StreamGeometry();using(var g=curl.Open()){g.BeginFigure(new(leafX,bottom-9),false,false);g.BezierTo(new(leafX-28,bottom-75),new(leafX+50,bottom-75),new(leafX+23,bottom-35),true,false);g.BezierTo(new(leafX+3,bottom-18),new(leafX-4,bottom-53),new(leafX+15,bottom-47),true,false);}dc.DrawGeometry(null,BugVisuals.P("#8965A30D",2),curl);Leaf(dc,new(leafX+31,bottom-34),-35);
-        }
-        for(var leafY=70d;leafY<bottom-130;leafY+=130)
-        {
-            var curl=new StreamGeometry();using(var g=curl.Open()){g.BeginFigure(new(right-8,leafY+45),false,false);g.BezierTo(new(right-65,leafY+30),new(right-65,leafY-12),new(right-27,leafY),true,false);g.BezierTo(new(right-9,leafY+14),new(right-47,leafY+19),new(right-41,leafY+3),true,false);}dc.DrawGeometry(null,BugVisuals.P("#8965A30D",2),curl);Leaf(dc,new(right-29,leafY-8),-65);
-        }
-        dc.PushTransform(new TranslateTransform(x,y));dc.PushTransform(new ScaleTransform(size/64,size/64));dc.DrawDrawing(NexaweenDecorations.Asset(1));dc.Pop();dc.Pop();
+        if(ActualWidth<=0 || ActualHeight<=0)return;
+        if(staticArt==null || artSize!=RenderSize){artSize=RenderSize;staticArt=new DrawingGroup();using(var art=staticArt.Open())DrawStatic(art);staticArt.Freeze();}
+        dc.DrawDrawing(staticArt);
+        var time=Options.SeasonalAnimation && NexaMotion.Allowed(Options)?clock.Elapsed.TotalSeconds:0;
+        var point=SpiderPoint(time,WebSize(RenderSize));dc.PushTransform(new TranslateTransform(point.X,point.Y));dc.PushTransform(new ScaleTransform(1.7,1.7));dc.PushTransform(new RotateTransform(Math.Sin(time*.06)*35));
+        BugVisuals.Draw(dc,new BugEntity{Species=BugSpecies.Spiders},new EcosystemOptions{Appearance=BugAppearance.Halloween,MatchAppearance=false,Adorable=true},true);dc.Pop();dc.Pop();dc.Pop();
     }
-    private static void Leaf(DrawingContext dc,Point at,double angle)
+    private void DrawStatic(DrawingContext dc)
     {
-        dc.PushTransform(new TranslateTransform(at.X,at.Y));dc.PushTransform(new RotateTransform(angle));
-        dc.DrawGeometry(BugVisuals.B("#AA65A30D"),BugVisuals.P("#80365314",.6),Geometry.Parse("M-12,0 Q-3,-13 13,-5 Q8,10 -12,0 Z"));dc.DrawLine(BugVisuals.P("#B0A3C95C",.7),new(-10,0),new(10,-4));dc.Pop();dc.Pop();
+        var size=WebSize(RenderSize);var pen=BugVisuals.P("#609D8CAE",.75);
+        for(var i=0;i<9;i++){var a=i*Math.PI/16;dc.DrawLine(pen,new(0,0),new(Math.Cos(a)*size,Math.Sin(a)*size));}
+        for(var ring=1;ring<=9;ring++)for(var i=0;i<8;i++)
+        {
+            var a=i*Math.PI/16;var b=(i+1)*Math.PI/16;var radius=size*ring/10;
+            var line=new StreamGeometry();using(var g=line.Open()){g.BeginFigure(new(Math.Cos(a)*radius,Math.Sin(a)*radius),false,false);g.QuadraticBezierTo(new(Math.Cos((a+b)/2)*radius*.96,Math.Sin((a+b)/2)*radius*.96),new(Math.Cos(b)*radius,Math.Sin(b)*radius),true,false);}line.Freeze();dc.DrawGeometry(null,pen,line);
+        }
+        var pumpkin=Math.Min(225,ActualWidth*.28);var x=ActualWidth-pumpkin;var y=ActualHeight-pumpkin;var stem=new Point(x+pumpkin*.5,y+pumpkin*.2);
+        var ends=new[]{new Point(12,ActualHeight-16),new Point(ActualWidth-16,14),new Point(ActualWidth*.48,ActualHeight-65),new Point(ActualWidth-65,ActualHeight*.38),new Point(ActualWidth*.7,ActualHeight-100),new Point(ActualWidth-115,ActualHeight*.58)};
+        var random=new Random(102726);
+        for(var vine=0;vine<ends.Length;vine++)
+        {
+            var end=ends[vine];Point one,two;
+            if(vine==0){one=new(stem.X-60,ActualHeight+20);two=new(ActualWidth*.35,ActualHeight+5);}
+            else if(vine==1){one=new(ActualWidth+12,ActualHeight*.7);two=new(ActualWidth-42,ActualHeight*.25);}
+            else{one=new(stem.X-70-random.Next(60),stem.Y+random.Next(-70,110));two=new(end.X+random.Next(-75,76),end.Y+random.Next(-65,66));}
+            var curve=new StreamGeometry();using(var g=curve.Open()){g.BeginFigure(stem,false,false);g.BezierTo(one,two,end,true,false);}curve.Freeze();dc.DrawGeometry(null,BugVisuals.P(vine<2?"#AD4D7C0F":"#8565A30D",vine<2?5:3),curve);
+            for(var leaf=1;leaf<=5;leaf++)
+            {
+                var t=leaf/6d;var u=1-t;var at=new Point(u*u*u*stem.X+3*u*u*t*one.X+3*u*t*t*two.X+t*t*t*end.X,u*u*u*stem.Y+3*u*u*t*one.Y+3*u*t*t*two.Y+t*t*t*end.Y);
+                dc.PushTransform(new TranslateTransform(at.X,at.Y));dc.PushTransform(new RotateTransform(random.Next(-165,166)));
+                dc.DrawGeometry(null,BugVisuals.P("#9065A30D",1.4),Geometry.Parse("M0,0 C-18,-35 32,-40 23,-16 C18,-4 2,-20 15,-23"));
+                dc.DrawGeometry(BugVisuals.B("#A365A30D"),BugVisuals.P("#80365314",.6),Geometry.Parse("M4,-4 Q8,-23 25,-15 Q23,3 4,-4 Z"));dc.Pop();dc.Pop();
+            }
+        }
+        dc.PushTransform(new TranslateTransform(x,y));dc.PushTransform(new ScaleTransform(pumpkin/64,pumpkin/64));dc.DrawDrawing(NexaweenDecorations.Asset(1));dc.Pop();dc.Pop();
     }
 }

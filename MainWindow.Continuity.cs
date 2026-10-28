@@ -39,8 +39,8 @@ public partial class MainWindow
         SizeChanged += (_, _) => { if (!fullscreen && WindowState == WindowState.Normal) Changed(); };
         autosave.Tick += async (_, _) => await SaveInBackground();
         autosave.Start();
-        dirty = true;
-        SaveNow(); // Persist the unclean marker before the user starts editing.
+        dirty = !entryAlreadyPersisted;
+        if(dirty)SaveNow(); // Navigation already durably wrote the unclean marker before construction.
         if (recovery != null) Feedback.Text = recovery;
     }
     private void CaptureDraft()
