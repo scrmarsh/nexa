@@ -27,6 +27,7 @@ public sealed class WorkspaceDocument
     public long AllTimeProductivityScore { get; set; }
     public int FormatVersion { get; set; } = 2;
     public string UserId { get; set; } = "";
+    public Guid LiveEcosystemGeneration {get;set;}
     public Guid ActiveDashboardId { get; set; }
     public bool CleanShutdown { get; set; } = true;
     public DateTimeOffset SavedAt { get; set; }

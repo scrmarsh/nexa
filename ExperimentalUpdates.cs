@@ -9,6 +9,8 @@ namespace SessionDashboard;
 internal sealed class UpdatePreferences
 {
     public bool CheckOnStartup { get; set; }
+    public string Channel {get;set;}="Automatic";
+    public string LastCheckError {get;set;}="";
     public DateTimeOffset? LastSuccessfulCheckUtc { get; set; }
     public string LastOfferedVersion { get; set; } = "";
 }
@@ -30,43 +32,48 @@ public sealed partial class StateStore
 
 internal sealed record AvailableUpdate(Version Version, string Channel, string Name, string Notes, DateTimeOffset? PublishedAt, Uri Url, long Size, string Sha256)
 {
+    internal Version CanonicalVersion=>NexaReleaseIdentity.Canonicalize(Version,Channel);
+    internal string DisplayLabel=>new NexaReleaseIdentity(Version,Channel).Label;
     internal bool Portable => !Path.GetFileName(Url.AbsolutePath).EndsWith("-Setup.exe", StringComparison.OrdinalIgnoreCase);
 }
 
 internal sealed class ExperimentalUpdater(HttpClient client)
 {
     internal static readonly Uri ReleasesUri = new("https://api.github.com/repos/scrmarsh/nexa/releases?per_page=30");
-    private static readonly Regex Tag = new(@"^(?:v|Nexa[- ])?(?<version>\d+\.\d+\.\d+)(?:[-. ](?<channel>alpha|beta|stable))?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     private static readonly Regex Digest = new(@"^sha256:([a-fA-F0-9]{64})$", RegexOptions.CultureInvariant);
-    internal static int ChannelRank(string channel) => channel.ToLowerInvariant() switch { "alpha" => 0, "beta" => 1, "stable" => 2, _ => -1 };
-    // Legacy 0.1.X Alpha identities predate 0.0.X Alpha. Keep original versions
-    // on descriptors/asset URLs; normalize only ordering, never a Beta identity.
-    private static Version ComparisonVersion(Version version, string channel) =>
-        channel.Equals("Alpha", StringComparison.OrdinalIgnoreCase) && version.Major == 0 && version.Minor == 1
-            ? new Version(0, 0, version.Build) : version;
-    internal static bool IsNewer(Version candidate, string channel, Version current, string currentChannel = "Alpha")
+    internal static int ChannelRank(string channel)=>NexaReleaseIdentity.Rank(channel);
+    internal static bool IsNewer(Version candidate,string channel,Version current,string currentChannel="Alpha")=>NexaReleaseIdentity.Newer(candidate,channel,current,currentChannel);
+    private NexaReleaseIdentity? newestRejected;
+    internal bool HasEligiblePackage {get;private set;}
+    internal AvailableUpdate? LatestEligible {get;private set;}
+    internal static string DescribeFailure(Exception error)=>error switch
     {
-        var next = ComparisonVersion(candidate, channel);
-        var installed = ComparisonVersion(current, currentChannel);
-        return next > installed || next == installed && ChannelRank(channel) > ChannelRank(currentChannel);
-    }
-
-    internal async Task<AvailableUpdate?> CheckAsync(Version current, CancellationToken cancellationToken = default, string currentChannel = "Alpha")
+        HttpRequestException{StatusCode:System.Net.HttpStatusCode.NotFound}=>"GitHub release feed unavailable (404). This does not mean Nexa is up to date.",
+        HttpRequestException{StatusCode:System.Net.HttpStatusCode.Forbidden or (System.Net.HttpStatusCode)429}=>"GitHub rate limited or restricted this request. Try again later.",
+        HttpRequestException{StatusCode:null}=>"No internet connection, DNS failure or GitHub connection unavailable. "+error.Message,
+        HttpRequestException=>"GitHub is unavailable. "+error.Message,
+        TaskCanceledException=>"The update request timed out or was canceled. Try again.",
+        InvalidDataException=>"Invalid or incomplete release metadata: "+error.Message,
+        _=>error.Message
+    };
+    internal async Task<AvailableUpdate?> CheckAsync(Version current, CancellationToken cancellationToken = default, string currentChannel = "Alpha",string? channelPreference=null)
     {
-        var latest = await DiscoverAsync(cancellationToken, currentChannel);
+        var latest = await DiscoverAsync(cancellationToken, channelPreference is null or "Automatic"?currentChannel:channelPreference);
+        if(newestRejected is {} rejected && IsNewer(rejected.Version,rejected.Stage,current,currentChannel) && (latest==null || IsNewer(rejected.Version,rejected.Stage,latest.Version,latest.Channel)))throw new InvalidDataException("A newer published release is missing a verified compatible Nexa asset. Check Settings again after the release package is complete.");
+        LatestEligible=latest;
         return latest != null && IsNewer(latest.Version, latest.Channel, current, currentChannel) ? latest : null;
     }
     internal async Task<AvailableUpdate?> DiscoverAsync(CancellationToken cancellationToken = default, string currentChannel = "Alpha")
     {
-        AvailableUpdate? latest = null;
+        AvailableUpdate? latest = null;newestRejected=null;HasEligiblePackage=false;
         for (var page = 1; page <= 10; page++)
         {
         using var request = new HttpRequestMessage(HttpMethod.Get, page == 1 ? ReleasesUri : new Uri(ReleasesUri.AbsoluteUri + "&page=" + page));
         request.Headers.UserAgent.ParseAdd("Nexa-Desktop/"+App.AppVersion);
         request.Headers.Accept.ParseAdd("application/vnd.github+json");
         using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-        if ((int)response.StatusCode is 403 or 429) throw new HttpRequestException("GitHub rate limit or access restriction. Try again later; public release checks require no login.");
-        if (response.StatusCode == System.Net.HttpStatusCode.NotFound) throw new HttpRequestException("The public Nexa releases feed was not found. Check network access to api.github.com/repos/scrmarsh/nexa/releases.");
+        if ((int)response.StatusCode is 403 or 429) throw new HttpRequestException("GitHub rate limit or access restriction. Try again later; public release checks require no login.",null,response.StatusCode);
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound) throw new HttpRequestException("The public Nexa releases feed was not found. Check network access to api.github.com/repos/scrmarsh/nexa/releases.",null,response.StatusCode);
         response.EnsureSuccessStatusCode();
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
         using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
@@ -77,10 +84,11 @@ internal sealed class ExperimentalUpdater(HttpClient client)
             {
             if (release.TryGetProperty("draft", out var draft) && draft.GetBoolean()) continue;
             var tag = release.GetProperty("tag_name").GetString() ?? "";
-            var match = Tag.Match(tag);
-            if (!match.Success || !Version.TryParse(match.Groups["version"].Value, out var version)) continue;
-            var channel = match.Groups["channel"].Success ? System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(match.Groups["channel"].Value.ToLowerInvariant()) : release.TryGetProperty("prerelease", out var pre) && pre.GetBoolean() ? "Alpha" : "Stable";
-            if (ChannelRank(channel) < 0 || ChannelRank(channel) < ChannelRank(currentChannel) || latest != null && !IsNewer(version, channel, latest.Version, latest.Channel)) continue;
+            var identity=NexaReleaseIdentity.Parse(tag,release.TryGetProperty("prerelease",out var pre) && pre.GetBoolean());
+            if(identity==null)continue;var version=identity.Version;var channel=identity.Stage;
+            if(ChannelRank(channel)<ChannelRank(currentChannel))continue;
+            if(newestRejected==null || IsNewer(version,channel,newestRejected.Version,newestRejected.Stage))newestRejected=identity;
+            if(latest!=null && !IsNewer(version,channel,latest.Version,latest.Channel))continue;
             var exactName = $"Nexa-{version.ToString(3)}-{channel}-Setup.exe";
             if (!release.TryGetProperty("assets", out var assets) || assets.ValueKind != JsonValueKind.Array) continue;
             foreach (var asset in assets.EnumerateArray())
@@ -92,6 +100,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
                 if (!Uri.TryCreate(asset.GetProperty("browser_download_url").GetString(), UriKind.Absolute, out var url) || url.Scheme != "https" || url.Host != "github.com" || !url.AbsolutePath.StartsWith("/scrmarsh/nexa/releases/download/", StringComparison.OrdinalIgnoreCase) || !url.AbsolutePath.EndsWith("/" + assetName, StringComparison.Ordinal)) continue;
                 DateTimeOffset? published = release.TryGetProperty("published_at", out var date) && DateTimeOffset.TryParse(date.GetString(), out var parsed) ? parsed : null;
                 if (latest != null && latest.Version == version && latest.Channel == channel && latest.Portable && assetName.EndsWith("-Setup.exe", StringComparison.OrdinalIgnoreCase)) continue;
+                HasEligiblePackage=true;
                 latest = new(version, channel, release.GetProperty("name").GetString() ?? $"Nexa {version} {channel}", release.TryGetProperty("body", out var body) ? body.GetString() ?? "" : "", published, url, size, digest.Groups[1].Value.ToUpperInvariant());
             }
             }

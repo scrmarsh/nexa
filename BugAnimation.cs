@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Media;
 
 namespace SessionDashboard;
@@ -35,9 +35,9 @@ internal static class BugAnimation
         {
             var centipede = species == BugSpecies.Centipedes;
             var spider = species == BugSpecies.Spiders;
-            var x = centipede ? CentipedeSegment(index, phase, resting).X : spider ? 1 + index * 1.55 : species switch { BugSpecies.Roaches => 2 + index * 1.6, BugSpecies.Ladybugs => 2 + index * 1.2, _ => -1 + index };
+            var x = centipede ? CentipedeSegment(index, phase, resting).X : spider ? 1.3 + index * 1.4 : species switch { BugSpecies.Roaches => 2 + index * 1.6, BugSpecies.Ladybugs => 2 + index * 1.2, _ => -1 + index };
             var y = centipede ? CentipedeSegment(index, phase, resting).Y : 0;
-            var root = new Point(x, y + side * (centipede ? 2.1 : spider ? 2.2 : 1.5));
+            var root = spider?SpiderAnatomy.Root(index,side):new Point(x, y + side * (centipede ? 2.1 : 1.5));
             // Spider legs step in a staggered wave: four distinct phases per side,
             // with the opposite side offset so all eight feet have their own timing.
             var offset = centipede ? -index * .65 + (side == 1 ? Math.PI : 0)

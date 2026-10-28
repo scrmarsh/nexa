@@ -68,7 +68,12 @@ internal static class BugArtwork
         var group=new DrawingGroup();
         using(var dc=group.Open())
         {
-            if(species == BugSpecies.Centipedes)
+            if(species==BugSpecies.Spiders)
+            {
+                if(limbs)SpiderAnatomy.Legs(dc,Legs);
+                SpiderAnatomy.Body(dc,Solid("#312B38"),Solid("#51445E"),Shell);
+            }
+            else if(species == BugSpecies.Centipedes)
             {
                 for(var segment=0;segment<15;segment++)
                 {

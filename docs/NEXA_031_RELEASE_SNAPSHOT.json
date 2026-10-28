@@ -1,0 +1,86 @@
+[
+  {
+    "id": 426690043,
+    "tag": "v0.1.26-alpha",
+    "title": "nexa v0.0.26 alpha — Spaces in Motion",
+    "target": "a308076fba1264f4bb64e53f4610e52caced3eab",
+    "published": "2026-10-28T13:21:02Z",
+    "created": "2026-10-28T13:14:41Z",
+    "prerelease": true,
+    "body": "# nexa v0.0.26 alpha — Spaces in Motion\r\n\r\n**a space for whatever comes next**\r\n\r\nA more useful Space from first setup to the end of a session, with cumulative productivity, interactive guidance and refined optional Nexaween artwork.\r\n\r\n## Download\r\n\r\nDownload **Nexa.exe** from Assets and run it on Windows x64. This is a self-contained portable .NET 10/WPF build. Keep your existing saved data; do not remove the Windows LocalAppData SessionDashboard folder.\r\n\r\nThis alpha executable is not code-signed. SHA256SUMS.txt identifies the exact download; inspect it with Get-FileHash ./Nexa.exe -Algorithm SHA256.\r\n\r\n## Productivity and session completion\r\n\r\n- Persistent cumulative productivity totals per Space, with session starting/ending score snapshots and recorded-event deduplication.\r\n- Click collectible candy for one base point and a shared streak increase of 0.5x, subject to the existing cap and rate protection.\r\n- Circular Productivity widget with animated score/progress and a brief pulse.\r\n- Dedicated End Session action saves before finalization, prevents duplicate completion and provides approximately one second of visual Pixel Timer completion when ending early.\r\n- Animated recap with recorded accomplishments, score comparison and return-to-Dashboard/Home actions. Actual elapsed time stays distinct from the completion animation.\r\n- Automatic safe saving and recovery retain existing layouts, settings and records.\r\n\r\n## Getting comfortable\r\n\r\n- Interactive Quick Start spotlights teach adding, moving, resizing and renaming real widgets, with skip, replay and restart recovery.\r\n- Refined setup cards, optional integration introductions, independent appearance/sound controls and separate manual/schedule Pixel Timer drafts.\r\n- Six initial recent-Space cards, expandable older Spaces, saved Space icons, lazy Settings pages and safer navigation preparation.\r\n\r\n## Optional Nexaween details\r\n\r\n- A larger Home corner web and slowly moving web-bound spider.\r\n- One naturally rounded pumpkin body with carved candlelit features and internal rib shading.\r\n- Earthy green vines connected to the stalk, including long window-edge branches, curls and leaves.\r\n- Pumpkins attached to available widget corners, preserving world coordinates through scrolling and resizing.\r\n- Theme/border/logo transitions respect reduced-motion preferences. Seasonal artwork remains noninteractive around normal controls.\r\n\r\n![Fullscreen Home, sample Spaces](https://raw.githubusercontent.com/scrmarsh/nexa/e63ea704090b7299c2e07662a9411601a9ba66c4/docs/media/preview026/home-fullscreen.jpg)\r\n\r\n## Verified\r\n\r\n- Release application/test build: **0 warnings, 0 errors**.\r\n- **507 regression checks** across all fifteen routes, including layout/scrolling, scheduling, persistence, scoring, guide and animation.\r\n- **10 native updater checks** against this exact executable: rollback, data preservation, duplicate protection, interruption recovery, tamper rejection, separate helper installation and isolated restart.\r\n- Packaged x64 startup: PerMonitorV2, 759 square pixels, four presets and all three bundled Bible datasets.\r\n\r\nExecutable source: e63ea704090b7299c2e07662a9411601a9ba66c4. The release tag also includes documentation and main-branch documentation reconciliation; application source is unchanged from the verified build.\r\n\r\n**Nexa.exe SHA-256**\r\n1D08B896653932F0470BF09EEF5464887BC9ABB0C539E8E91AC549B227E0868C\r\n\r\n## Known alpha limitations\r\n\r\n- Physical mixed-DPI/multi-monitor interaction and all visual transitions are not fully certified.\r\n- Genuine Windows hibernate/crash recovery and migration of an approved private saved-data fixture still need manual testing.\r\n- Live Todoist, Hevy and Hedy accounts, and updating a real installed older release, were not exercised. Updater validation used isolated synthetic data.\r\n- Extended-session memory and live high-density rendering FPS remain unverified.\r\n- Navigation profiling showed a remaining Space-load latency outlier. These results do not establish universal performance improvements.\r\n\r\nNo previous GitHub release assets are replaced by this release.\r\n",
+    "assets": [
+      {
+        "id": 685055223,
+        "name": "Nexa.exe",
+        "size": 145244982,
+        "digest": "sha256:1d08b896653932f0470bf09eef5464887bc9abb0c539e8e91ac549b227e0868c",
+        "url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.26-alpha/Nexa.exe",
+        "created": "2026-10-28T13:15:51Z"
+      },
+      {
+        "id": 685065709,
+        "name": "SHA256SUMS.txt",
+        "size": 75,
+        "digest": "sha256:62bbdb790107d47860b9606761dd882b558e46fac2f67b0445c3cf421cdbd214",
+        "url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.26-alpha/SHA256SUMS.txt",
+        "created": "2026-10-28T13:19:53Z"
+      }
+    ]
+  },
+  {
+    "id": 427233210,
+    "tag": "v0.0.29-alpha",
+    "title": "Nexa v0.0.29 Alpha — NEXAWEEN: Interface Polish",
+    "target": "496dea2db01d4d59832febe5780dacebadd1e88f",
+    "published": "2026-10-28T22:01:16Z",
+    "created": "2026-10-28T21:56:42Z",
+    "prerelease": true,
+    "body": "# NEXAWEEN: Interface Polish — v0.0.29 Alpha\n\n**Nexaween prerelease · Windows x64 · Alpha**\n\nThis Nexaween update focuses on polishing the interface: clearer text, more consistent branding, better fullscreen spacing and more useful widget layouts. It remains an Alpha prerelease; v0.1.0 is reserved for the first approved Beta.\n\n## Interface polish highlights\n\n- **Cleaner typography and Space labels.** Larger, more readable Home titles; icons appear before names on Home and after Space names in the dashboard top bar, with theme-aware contrast.\n- **A more cohesive fullscreen workspace.** Compact navigation at the top edge, a temporary overlay hint, optional Windows battery/network/volume controls, and matching 12-DIP side/bottom padding for notifications, tips and the productivity banner.\n- **Refined Nexaween branding.** Lowercase version labels below the logo, a complete five-second splash, compact previews and seasonal in-app artwork. The Windows executable keeps the Classic Nexa icon.\n- **Independent wallpapers.** Home and individual Spaces have separate previews, fit/fill controls and restore-default actions. Space wallpaper lives in Session Settings.\n- **More readable widgets.** Growing Hedy/timeline text regions, expandable interval cards based on actual saved content, a compact recording-source selector, live productivity breakdowns and playful distraction messages.\n- **Consolidated Session Settings.** Manual/Scheduled timer configuration appears directly in the existing Session Settings interface.\n\n## Supporting reliability improvements\n\n- Manual End Session saves the original History snapshot before resetting session values, presents coordinated closing visuals and reuses the existing recap.\n- History offers explicit Resume Previous Session and Load as New Session choices, preserving the source record and preventing repeated score credit or automatic recording.\n- Tasks, layouts, Space preferences, all-time statistics, recordings and account connections are retained. Scheduled review/postponement behavior remains available.\n\n## Download and run\n\nDownload **Nexa.exe** from this release. It is a self-contained portable Windows x64 build; a separate .NET installation is not required. The executable uses the existing Windows LocalAppData save location.\n\n`SHA256SUMS.txt` records the executable's checksum. To compare it locally:\n\n```powershell\nGet-FileHash .\\Nexa.exe -Algorithm SHA256\n```\n\n## Validation and prerelease status\n\nRelease application/checks build and self-contained publish are verified before publication. The complete regression gate covers **19 routes / 786 assertions**. Packaged startup uses a disposable workspace and checks native WPF initialization and embedded Bible resources.\n\nPhysical multi-monitor/mixed-DPI/focus behavior, charging/device transitions, live Hedy/Hevy/Todoist authentication and extended-session performance remain open acceptance items. Local-audio transcription and semantic interval summaries require an available connected capability; Nexa does not invent summaries when source content or that capability is unavailable.\n\nThis is explicitly a **Nexaween Alpha prerelease focused on interface polish**, not a Beta or stable release.\r\n\n\nSource commit: `496dea2db01d4d59832febe5780dacebadd1e88f`.\nExecutable SHA-256: `badbdb24fc0345cc6ed00c27cc873bb92068f27194ca23f25452cba0f57cd9cd`.",
+    "assets": [
+      {
+        "id": 686467578,
+        "name": "Nexa.exe",
+        "size": 145433398,
+        "digest": "sha256:badbdb24fc0345cc6ed00c27cc873bb92068f27194ca23f25452cba0f57cd9cd",
+        "url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.29-alpha/Nexa.exe",
+        "created": "2026-10-28T21:56:51Z"
+      },
+      {
+        "id": 686479220,
+        "name": "SHA256SUMS.txt",
+        "size": 76,
+        "digest": "sha256:664d40e04c9109638938e4220bd370612dc21c3f666506e00274f48f2af71709",
+        "url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.29-alpha/SHA256SUMS.txt",
+        "created": "2026-10-28T22:01:14Z"
+      }
+    ]
+  },
+  {
+    "id": 425758058,
+    "tag": "v0.1.24-alpha",
+    "title": "nexa v0.0.24 alpha — NEXAWEEN",
+    "target": "4562d696f39e181e180d1b3b93fc4d060b941dce",
+    "published": "2026-10-27T17:14:22Z",
+    "created": "2026-10-27T17:08:34Z",
+    "prerelease": true,
+    "body": "![NEXAWEEN — nexa v0.1.24 alpha](https://github.com/scrmarsh/nexa/raw/refs/heads/main/docs/media/nexaween-banner.svg)\r\n\r\n**A space for whatever haunts you next.**\r\n\r\nNexa 0.1.24 Alpha brings the essentials together: recurring sessions, reliable saving, readable history and a dashboard with room to grow. NEXAWEEN adds a little candy, a little crawling and plenty of personality.\r\n\r\n## Download and run\r\n\r\nDownload **Nexa.exe** under **Assets**, place it in a folder you control, and run it on **Windows x64**. This self-contained executable includes .NET 10; no installer or separate runtime is required. Existing Spaces, presets, notes, history and settings remain in the established LocalAppData location.\r\n\r\n`SHA256SUMS.txt` contains the executable's SHA-256 checksum. Compare it with `Get-FileHash .\\Nexa.exe -Algorithm SHA256`. This Alpha executable is not code-signed.\r\n\r\n## The Archives Awaken\r\n\r\n- State reads wait for an in-flight checkpoint, preventing transient file replacement from loading empty defaults.\r\n- Searchable session history, continuous/event-driven saving and configurable autosave intervals.\r\n- Recovery records and save-before-reset safeguards preserve work and review time.\r\n- One Session entry brings together saving, history and tips; the Timeline retains its Hedy and recording purpose.\r\n\r\n## Time Is Under a Spell\r\n\r\n- The Pixel Timer fills from the top-left during class and clears in reverse while counting down to the next session.\r\n- Recurring weekdays, date/duration editing, selected time zones and three-decimal progress precision.\r\n- Linked progress bars share authoritative timestamps; independent bars retain their own ranges.\r\n\r\n## The Dashboard Has Been Haunted\r\n\r\n- Nexaween branding, the seasonal changelog palette and candy-only backgrounds.\r\n- Pumpkins and vines use actual widget targets, remain aligned during layout changes and stay clear of controls.\r\n- Classic, Cozy, Creepy and Combative modes, six seasonal costumes and species-specific movement.\r\n- Persistent spider-owned webs remain separate from seasonal decoration placement.\r\n- Productivity Meter, score breakdowns and bounded two-minute squash streaks.\r\n\r\n## A tidier home for Nexa\r\n\r\nRetired story code, old pre-naming-scheme material and mixed development logs are preserved in `LEGACY`, excluded from the current build. Source, development instructions and current release notes have clear homes; generated builds and personal data stay out of Git.\r\n\r\n## Verification and remaining checks\r\n\r\nThe release is built as a self-contained Windows x64 single-file application and receives an isolated packaged-startup check, including embedded offline resources. The ten-route automated suite covers core functionality, reliability, timing, scrolling/layout, menus, the ecosystem and animations.\r\n\r\nPhysical sleep/hibernation, live provider/microphone integrations and extended mixed-DPI/GPU sessions still need manual acceptance. Procedural creature movement is stylized; detailed cooperative choreography remains future polish.\r\n\r\n[Implementation and verification report](https://github.com/scrmarsh/nexa/blob/main/docs/IMPLEMENTATION-0.1.24.md) · [Root audit](https://github.com/scrmarsh/nexa/blob/main/docs/ROOT-AUDIT.md)\r\n\r\nSource commit: `4562d696f39e181e180d1b3b93fc4d060b941dce`\r\n\r\nAutomated regression: **335 checks passed** across ten routes; Release build: **0 warnings, 0 errors**.\r\n\r\n**Nexa.exe SHA-256**\r\n\r\n```text\r\nd836de09b79e873e232ed6e9fae67f9e1f73d5d6b2a62efcce1ab31c2e75b420\r\n```\r\n",
+    "assets": [
+      {
+        "id": 682280754,
+        "name": "Nexa.exe",
+        "size": 145085238,
+        "digest": "sha256:d836de09b79e873e232ed6e9fae67f9e1f73d5d6b2a62efcce1ab31c2e75b420",
+        "url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.24-alpha/Nexa.exe",
+        "created": "2026-10-27T17:09:56Z"
+      },
+      {
+        "id": 682289562,
+        "name": "SHA256SUMS.txt",
+        "size": 75,
+        "digest": "sha256:3933c13b3879c3b6db85d1ec991f6239e6f610deae829283d61bbad7d1ff3c40",
+        "url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.24-alpha/SHA256SUMS.txt",
+        "created": "2026-10-27T17:13:17Z"
+      }
+    ]
+  }
+]

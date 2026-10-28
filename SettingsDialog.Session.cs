@@ -21,6 +21,16 @@ internal sealed partial class SettingsDialog
         var spaceAppearance=new StackPanel();page.Children.Add(spaceAppearance);
         spaceAppearance.Children.Add(new Border { Height = 1, Background = Brush("LineBrush"), Margin = new Thickness(0, 22, 0, 12) });
         spaceAppearance.Children.Add(new TextBlock { Text = "Space appearance", FontSize = 20, FontWeight = FontWeights.SemiBold });
+        if(space!=null)
+        {
+            var iconRow=new StackPanel{Orientation=Orientation.Horizontal,Margin=new Thickness(0,12,0,12)};
+            var previewIcon=new ContentControl{Content=SpaceIcons.Create(SpaceIcons.Resolve(state.SpaceIcon,Continuity.Current(state.Workspace!,store.UserId).PresetOrigin),36),Margin=new Thickness(0,0,14,0)};
+            var changeIcon=new Button{Content="Change Icon",ToolTip="Space Icon",VerticalAlignment=VerticalAlignment.Center};
+            System.Windows.Automation.AutomationProperties.SetName(changeIcon,"Change Space Icon");
+            changeIcon.Click+=(_,_)=>space.EditSpaceIcon();
+            Activated+=(_,_)=>previewIcon.Content=SpaceIcons.Create(SpaceIcons.Resolve(state.SpaceIcon,Continuity.Current(state.Workspace!,store.UserId).PresetOrigin),36);
+            spaceAppearance.Children.Add(new TextBlock{Text="Space Icon"});iconRow.Children.Add(previewIcon);iconRow.Children.Add(changeIcon);spaceAppearance.Children.Add(iconRow);
+        }
         var mainColor = new ColorPickerButton { SelectedColor = state.AccentColor }; Field(spaceAppearance, "Space main color", mainColor);
         var accentColor = new ColorPickerButton { SelectedColor = state.PixelColor }; Field(spaceAppearance, "Space accent / pixel color", accentColor);
         mainColor.ColorChanged+=(_,_)=>QueueSave("space-colors",()=>{state.AccentColor=mainColor.SelectedColor;state.PixelColor=accentColor.SelectedColor;SaveState();});

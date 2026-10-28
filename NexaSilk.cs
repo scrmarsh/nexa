@@ -14,31 +14,23 @@ internal sealed partial class BugManager
                 if(ratio>1.3)width=height*1.3/aspect;
                 else if(ratio<.8)height=width*aspect/.8;
             }
-            return new Rect(card.X+(card.Width-width)/2,card.Y+(card.Height-height)/2,width,height);
+            return new Rect(Math.Clamp(card.Right-width*.25+web.AnchorOffsetX,12,WorldWidth-width-12),Math.Clamp(card.Top-height*.75+web.AnchorOffsetY,12,WorldHeight-height-12),width,height);
         }
         return new Rect(Math.Clamp(web.X-160,12,WorldWidth-332),Math.Clamp(web.Y-115,12,WorldHeight-242),320,230);
     }
     internal static void EnsureSilk(EcosystemWeb web)
     {
         if(web.Strands.Count>0)return;
+        web.Orb=true;
         var rng=new Random(web.Owner.GetHashCode());
         void Add(Point a,Point b)=>web.Strands.Add(new SilkStrand{FromX=a.X,FromY=a.Y,ToX=b.X,ToY=b.Y});
-        var center=new Point(.49,.48);
-        if((web.Owner.GetHashCode()&1)==0)
-        {
-            var rim=Enumerable.Range(0,12).Select(i=>{var angle=i*Math.PI/6;var radius=.43+rng.NextDouble()*.035;return new Point(center.X+Math.Cos(angle)*radius,center.Y+Math.Sin(angle)*radius);}).ToArray();
-            foreach(var anchor in rim)Add(center,anchor);
-            for(var ring=1;ring<=5;ring++)for(var i=0;i<rim.Length;i++)
-            {var fraction=ring/5.5;Add(center+(rim[i]-center)*fraction,center+(rim[(i+1)%rim.Length]-center)*fraction);}
-        }
-        else
-        {
-            var corner=new Point(.03,.04);
-            var anchors=Enumerable.Range(0,9).Select(i=>new Point(.15+rng.NextDouble()*.8,.15+rng.NextDouble()*.8)).ToArray();
-            foreach(var anchor in anchors)Add(corner,anchor);
-            for(var i=0;i<anchors.Length-1;i++)for(var level=1;level<=3;level++)
-            {var t=level/4d;Add(corner+(anchors[i]-corner)*t,corner+(anchors[i+1]-corner)*(t+.02*rng.NextDouble()));}
-        }
+        var center=new Point(.5,.5);
+        var rim=Enumerable.Range(0,12).Select(i=>{var angle=i*Math.PI/6;var radius=.44+rng.NextDouble()*.025;return center+new Vector(Math.Cos(angle)*radius,Math.Sin(angle)*radius);}).ToArray();
+        // Supports, then radials, then a continuous outward spiral. Every strand starts empty.
+        for(var i=0;i<12;i++)Add(rim[i],rim[(i+1)%12]);
+        foreach(var anchor in rim)Add(anchor,center);
+        Point Spiral(int i){var angle=i*Math.PI/6;var radius=.075+i/48d*.36;return center+new Vector(Math.Cos(angle)*radius,Math.Sin(angle)*radius);}
+        for(var i=0;i<48;i++)Add(Spiral(i),Spiral(i+1));
         var completed=Math.Clamp(web.Construction,0,1)*web.Strands.Count;
         for(var i=0;i<web.Strands.Count;i++)web.Strands[i].Progress=Math.Clamp(completed-i,0,1);
     }
@@ -75,14 +67,16 @@ internal sealed partial class BugManager
         }
         var strand=web.Strands[bug.WeavingSegment];var from=SilkPoint(web,strand.FromX,strand.FromY);var to=SilkPoint(web,strand.ToX,strand.ToY);var tip=from+(to-from)*strand.Progress;
         if(!bug.SilkAttached && (bug.Position-tip).Length<9)bug.SilkAttached=true;
-        bug.Target=bug.SilkAttached?to:tip;return true;
+        var direction=to-from;if(direction.Length>.001)direction.Normalize();
+        bug.Target=bug.SilkAttached?to+direction*(12*bug.SizeScale):tip;return true;
     }
     private void LaySilk(BugEntity bug)
     {
         if(!bug.SilkAttached || bug.WeavingSegment<0 || Webs.FirstOrDefault(w=>w.Owner==bug.WeavingOwner) is not {} web)return;
         var strand=web.Strands[bug.WeavingSegment];var from=SilkPoint(web,strand.FromX,strand.FromY);var to=SilkPoint(web,strand.ToX,strand.ToY);var direction=to-from;
-        var progress=direction.LengthSquared<.01?1:Math.Clamp(Vector.Multiply(bug.Position-from,direction)/direction.LengthSquared,0,1);
-        strand.Progress=Math.Max(strand.Progress,(bug.Position-to).Length<10?1:progress);web.Construction=web.Strands.Average(s=>s.Progress);
+        var spinneret=bug.Position-new Vector(Math.Cos(bug.Angle*Math.PI/180),Math.Sin(bug.Angle*Math.PI/180))*(12*bug.SizeScale);
+        var progress=direction.LengthSquared<.01?1:Math.Clamp(Vector.Multiply(spinneret-from,direction)/direction.LengthSquared,0,1);
+        strand.Progress=Math.Max(strand.Progress,(spinneret-to).Length<8?1:progress);web.Construction=web.Strands.Average(s=>s.Progress);
         if(strand.Progress>=1){bug.SilkAttached=false;bug.WeavingSegment=-1;}
     }
     private bool MarchAnt(BugEntity bug,double step)

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.0.31 Alpha — Release Integrity & Ecosystem Evolution (local, unpublished)
+
+- Centralize canonical release identities; explicitly map confirmed legacy Alpha records while retaining genuine Beta numbering and legacy asset provenance.
+- Improve update eligibility/error reporting and persisted channel selection. Older published comparators require a one-time verified portable bridge; no published tag or asset was changed.
+- Center Recent Space titles independently of larger left icons; add a preview/save/cancel Space icon grid and cap-and-gown option in Session Settings.
+- Keep the approved pumpkin and Home-only candlelight; improve Home header alignment, wrap Pixel Timer status, and place Test Sound directly below Sound Style.
+- Refine rounded eight-legged spiders and progressive orb silk. Explicit session loads reset live activity using a persistent generation marker, preserving permanent data and ordinary crash recovery.
+- Google/Microsoft account integration work is deferred by direct user request; existing integrations remain intact.
+
+Historical Alpha heading numbers below are canonicalized. Original release URLs, filenames and historical implementation reports retain legacy identifiers where needed for compatibility and provenance; see docs/NEXA_031_VERSION_MIGRATION.md.
+
 ## 0.0.30 Alpha — NEXAWEEN: Final Refinement (local, unpublished)
 
 - Share one transparent painterly pumpkin asset across Home and seasonal decorations, with larger Home art, attached dark green curls and gentle candlelight.
@@ -59,7 +70,7 @@ Physical/live-account acceptance remains open; automated branding checks and
 source-rendered previews are recorded in the .27 status.
 No Alpha release, tag or existing approved binary is changed by this work.
 
-## 0.1.26 alpha â€” Spaces in Motion (2026-10-28)
+## 0.0.26 alpha â€” Spaces in Motion (2026-10-28)
 
 Additional **unpublished handoff candidate** work: full seasonal visibility/hit-testing restoration; compact golden-lightning Productivity; centered Space cards and paced/reverse expansion with working mouse-wheel scrolling; bottom-pinned Experimental Features; Chicago zone aliases and selection-only dropdown; new-Space viewport reset; five sound styles; tagline-first splash and in-place preview; safer transitions; cumulative scores and recap snapshots in private exports; illustrated recaps and guide polish. This does not describe the bytes already published under v0.1.26-alpha. See [handoff evidence and remaining acceptance](docs/HANDOFF-COMPLETION-0.1.26-alpha.md).
 
@@ -78,12 +89,12 @@ Additional **unpublished handoff candidate** work: full seasonal visibility/hit-
 
 **Verification:** 507 regression checks, 10 native updater checks and packaged x64 startup passed. Physical mixed-DPI, genuine hibernation, live-provider and extended performance acceptance remain pending; a measured Space-loading latency outlier remains. See the [release notes](docs/releases/0.1.26-alpha.md).
 
-## 0.1.25 alpha â€” dashboard refinements (development only)
+## 0.0.25 alpha â€” dashboard refinements (development only)
 
 - Gradual bug arrivals, shared spider silk, compact tips, larger squash illustrations, widget jack-oâ€™-lanterns and scrolling feedback fixes.
 - See [recorded verification and limitations](docs/TWEAKS-0.1.25.md).
 
-## 0.1.24 Alpha â€” final-prompt repair candidate (not released)
+## 0.0.24 Alpha â€” final-prompt repair candidate (not released)
 
 - **The Archives Awaken:** catch historical validation failures, preserve damaged original records, protect unreadable files from fallback writes, and load/filter reports away from the UI thread with explicit dispatcher updates.
 - **Time Is Under a Spell:** explicit Manual/Schedule editing, persisted preset mode and schedule-only Reset protection.
@@ -94,7 +105,7 @@ Additional **unpublished handoff candidate** work: full seasonal visibility/hit-
 
 This candidate is not the final Nexaween release. See [verification and outstanding acceptance](docs/FINAL-0.1.24-STATUS.md). No production release was overwritten.
 
-## Previously published baseline â€” nexa v0.1.24 Alpha â€” Getting Candy for Trick-or-Treaters
+## Previously published baseline â€” nexa 0.0.24 Alpha â€” Getting Candy for Trick-or-Treaters
 
 A space for whatever haunts you next.
 

@@ -89,7 +89,7 @@
                             <ProgressBar x:Name="SessionProgressBar" Maximum="100" Height="4" Margin="0,5,0,12" Foreground="{DynamicResource DashboardPixelBrush}">
                                 <ProgressBar.Template><ControlTemplate TargetType="ProgressBar"><Grid><Border x:Name="PART_Track" Background="{DynamicResource DashboardLineBrush}" CornerRadius="2"/><Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" CornerRadius="2"/></Grid></ControlTemplate></ProgressBar.Template>
                             </ProgressBar>
-                            <TextBlock x:Name="ElapsedCaption" Text="ELAPSED" Style="{StaticResource Eyebrow}"/><TextBlock x:Name="ElapsedLabel" Text="00:00:00" FontSize="18" FontFamily="Consolas" Margin="0,3,0,12"/>
+                            <TextBlock x:Name="ElapsedCaption" Text="ELAPSED" Style="{StaticResource Eyebrow}"/><TextBlock x:Name="ElapsedLabel" TextWrapping="Wrap" TextAlignment="Center" Text="00:00:00" FontSize="18" FontFamily="Consolas" Margin="0,3,0,12"/>
                             <TextBlock x:Name="MilestoneLabel" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold" Margin="0,0,0,8" Visibility="Collapsed" TextWrapping="Wrap"/>
                             <Button x:Name="StoryButton" Content="I'm bored" Click="StoryClick" HorizontalAlignment="Left" Margin="0,8,0,0"/>
                             </StackPanel>

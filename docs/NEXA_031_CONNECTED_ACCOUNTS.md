@@ -1,0 +1,9 @@
+# Connected accounts — user-deferred scope
+
+The original .31 brief requested Google Calendar, Google Tasks, Outlook Calendar, MSAL, shared account consent and a Connected Accounts page. During audit, the user was asked whether app registrations/public client IDs existed and answered **“nope just skip for now.”** The assistant explicitly confirmed that Google/Microsoft integration work would be deferred.
+
+Accordingly, no new Google/Microsoft account flow, registration, client ID, token cache, provider scope, unified synchronization or account-settings migration is claimed for .31. Existing Todoist, Hedy, Hevy, local tasks and existing saved provider credentials remain intact. Existing dormant Google/Microsoft implementation and per-user setup are preserved. No secrets were inspected, fabricated, logged, exported or committed; no live account was connected or modified.
+
+Future work still needs developer-owned Google Desktop OAuth and Microsoft public-client app registrations, appropriate provider approval/test users, minimal delegated scopes, secure token caching, real consent/revocation testing and explicit provider acceptance. Google's [official desktop OAuth guide](https://developers.google.com/identity/protocols/oauth2/native-app) states installed apps do not support incremental authorization; a future shared-account design must respect that restriction instead of claiming a web-only incremental flow. Microsoft implementation should use [MSAL.NET system-browser authentication](https://learn.microsoft.com/en-us/entra/msal/dotnet/acquiring-tokens/using-web-browsers) and its supported secure token-cache mechanisms.
+
+These integrations are deferred by user choice and are not an outstanding source-code blocker for the accepted reduced scope. Public Beta availability for them remains a separate product decision.

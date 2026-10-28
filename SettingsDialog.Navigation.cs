@@ -95,9 +95,9 @@ internal sealed partial class SettingsDialog
         var enabled=new CheckBox{Content="Enable interface and timer completion sounds",IsChecked=state.InterfaceSoundsEnabled};page.Children.Add(enabled);
         var volume=new Slider{Minimum=0,Maximum=1,Value=state.InterfaceSoundVolume};Field(page,"Sound volume",volume);
         var preview = new Button { Content = "Test Sound", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 6, 0, 6) };
-        preview.Click += (_, _) => InterfaceAudio.Preview(volume.Value); page.Children.Insert(page.Children.IndexOf(volume), preview);
+        preview.Click += (_, _) => InterfaceAudio.PreviewCue(volume.Value,"positive",state.PositiveFeedbackSound);
         var styles=new ComboBox{ItemsSource=new[]{"Classic","Bell garden","Warm wood","Glass","Soft"},SelectedIndex=-1};
-        Field(page,"Sound style (sets both feedback choices)",styles);
+        Field(page,"Sound style (sets both feedback choices)",styles);page.Children.Add(preview);
         var positive=new ComboBox{ItemsSource=InterfaceAudio.PositiveChoices,SelectedItem=state.PositiveFeedbackSound};
         var negative=new ComboBox{ItemsSource=InterfaceAudio.NegativeChoices,SelectedItem=state.NegativeFeedbackSound};
         Field(page,"Positive feedback",positive);var positivePreview=new Button{Content="Preview positive",HorizontalAlignment=HorizontalAlignment.Left};positivePreview.Click+=(_,_)=>InterfaceAudio.PreviewCue(volume.Value,"positive",positive.SelectedItem?.ToString());page.Children.Add(positivePreview);

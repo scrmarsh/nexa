@@ -79,6 +79,7 @@ internal sealed class SilkStrand
 }
 internal sealed class EcosystemWeb
 {
+    public bool Orb {get;set;}
     public List<SilkStrand> Strands {get;set;}=[];
     public List<Guid> Helpers {get;set;}=[];
     public string? AnchorId {get;set;}
@@ -128,6 +129,7 @@ internal sealed class EcosystemDocument
 {
     public int Schema { get; set; } = 1;
     public string UserId { get; set; } = "";
+    public Guid SessionGeneration {get;set;}
     public Guid WorldId { get; set; } = Guid.NewGuid();
     public int Seed { get; set; } = Random.Shared.Next();
     public DateTimeOffset UpdatedAt { get; set; }

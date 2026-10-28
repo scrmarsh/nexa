@@ -3,6 +3,8 @@ namespace SessionDashboard;
 internal sealed partial class HomeWindow
 {
     private SettingsDialog? settingsWindow;
+    internal void RefreshSpaceCards(StateStore source)
+    {if(source.FilePath!=store.FilePath)return;Saved=store.Load();RefreshRecentSpaces();}
     private bool FlushSettingsForNavigation(bool refresh=true)
     {
         if (settingsWindow?.FlushPendingChanges() == false) return false;

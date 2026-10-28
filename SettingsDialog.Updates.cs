@@ -11,15 +11,19 @@ internal sealed partial class SettingsDialog
     private CancellationTokenSource usingCancellation = new();
     private UIElement BuildUpdates()
     {
-        var page = Page("Updates", "Experimental update checks use published Nexa releases. Checks never install anything automatically.");
+        var page = Page("Updates", "Check published Nexa releases and choose when to download and restart.");
         page.Children.Add(new TextBlock { Text = "Current version: " + App.VersionLabel, FontSize = 16, Margin = new Thickness(0, 2, 0, 14) });
         var preferences = store.LoadUpdatePreferences();
         var startup = new CheckBox { Content = "Check when Nexa starts", IsChecked = preferences.CheckOnStartup, Margin = new Thickness(0, 0, 0, 14) };
         startup.Click += (_, _) => { preferences.CheckOnStartup = startup.IsChecked == true; store.SaveUpdatePreferences(preferences); };
         page.Children.Add(startup);
+        var channel=new ComboBox{ItemsSource=new[]{"Automatic","Alpha","Beta","Stable"},SelectedItem=preferences.Channel};
+        if(channel.SelectedIndex<0)channel.SelectedIndex=0;
+        Field(page,"Update channel",channel);
+        channel.SelectionChanged+=(_,_)=>{preferences.Channel=channel.SelectedItem?.ToString()??"Automatic";store.SaveUpdatePreferences(preferences);};
         var check = new Button { Content = "Check for updates", HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(14, 8, 14, 8) };
         page.Children.Add(check);
-        var status = new TextBlock { Text = "Startup checks are off by default.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 14, 0, 10) };
+        var status = new TextBlock { Text = string.IsNullOrEmpty(preferences.LastCheckError)?"Checks use your selected release channel. Restart requires your action.":"Last startup check: "+preferences.LastCheckError, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 14, 0, 10) };
         page.Children.Add(status);
         var notes = new TextBox { IsReadOnly = true, TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Height = 180, Visibility = Visibility.Collapsed };
         page.Children.Add(notes);
@@ -61,17 +65,18 @@ internal sealed partial class SettingsDialog
             try
             {
                 using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
-                available = await new ExperimentalUpdater(client).CheckAsync(new Version(App.AppVersion), usingCancellation.Token);
-                preferences.LastSuccessfulCheckUtc = DateTimeOffset.UtcNow;
-                preferences.LastOfferedVersion = available == null ? "" : available.Version.ToString(3) + " " + available.Channel;
+                var updater=new ExperimentalUpdater(client);
+                available = await updater.CheckAsync(new Version(App.AppVersion), usingCancellation.Token,NexaReleaseIdentity.Current.Stage,preferences.Channel);
+                preferences.LastSuccessfulCheckUtc = DateTimeOffset.UtcNow;preferences.LastCheckError="";
+                preferences.LastOfferedVersion = available == null ? "" : available.CanonicalVersion.ToString(3) + " " + available.Channel;
                 store.SaveUpdatePreferences(preferences);
-                if (available == null) { status.Text = "You're up to date. No newer compatible release is available."; return; }
-                status.Text = $"Nexa {available.Version.ToString(3)} {available.Channel} is available ({available.Size / 1024d / 1024d:0.0} MB).";
+                if (available == null) { status.Text = updater.LatestEligible is {} latest?"You're up to date. Newest eligible release: "+latest.DisplayLabel:"No eligible published package was found for this channel. This is not confirmation that the installed version is current."; return; }
+                status.Text = $"{available.DisplayLabel} is available ({available.Size / 1024d / 1024d:0.0} MB).";
                 notes.Text = $"{available.Name}\nPublished: {(available.PublishedAt?.ToLocalTime().ToString("D") ?? "Date unavailable")}\n\n" + (string.IsNullOrWhiteSpace(available.Notes) ? "No release notes were provided." : available.Notes);
                 notes.Visibility = Visibility.Visible; download.Visibility = available.Portable ? Visibility.Visible : Visibility.Collapsed; if (!available.Portable) status.Text += " This release uses the legacy installer; install it from the official Releases page.";
             }
             catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or InvalidDataException or System.Text.Json.JsonException or UnauthorizedAccessException or IOException or KeyNotFoundException or InvalidOperationException or FormatException)
-            { available = null; status.Text = "Update check unavailable: " + ex.Message; }
+            { available = null;preferences.LastCheckError=ExperimentalUpdater.DescribeFailure(ex);status.Text = "Update check unavailable: " + preferences.LastCheckError; }
             finally { check.IsEnabled = true; }
         };
         download.Click += async (_, _) =>

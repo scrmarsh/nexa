@@ -11,9 +11,9 @@ public partial class App : Application
         UIElement.SnapsToDevicePixelsProperty.OverrideMetadata(typeof(Window),new FrameworkPropertyMetadata(true));
     }
     internal const string BrandWordmark = "nexa";
-    internal static string AppVersion => typeof(App).Assembly.GetName().Version?.ToString(3) ?? "Unknown";
+    internal static string AppVersion => NexaReleaseIdentity.Current.Canonical.ToString(3);
     internal static string VersionLabel => ReleaseLabel(AppVersion);
-    internal static string ReleaseLabel(string version) => $"nexa v{version} alpha";
+    internal static string ReleaseLabel(string version) => new NexaReleaseIdentity(new Version(version),NexaReleaseIdentity.Current.Stage).Label;
     private Mutex? workspaceMutex;
     internal bool SuppressNormalStartup { get; init; }
     protected override async void OnStartup(StartupEventArgs e)
@@ -96,16 +96,17 @@ public partial class App : Application
         try
         {
             using var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(12) };
-            var release = await new ExperimentalUpdater(client).CheckAsync(new Version(AppVersion));
+            var initialPreferences=store.LoadUpdatePreferences();
+            var release = await new ExperimentalUpdater(client).CheckAsync(new Version(AppVersion),currentChannel:NexaReleaseIdentity.Current.Stage,channelPreference:initialPreferences.Channel);
             var preferences = store.LoadUpdatePreferences();
             var offered = release == null ? "" : release.Version.ToString(3) + " " + release.Channel;
             var alreadyOffered = preferences.LastOfferedVersion == offered;
-            preferences.LastSuccessfulCheckUtc = DateTimeOffset.UtcNow;
+            preferences.LastSuccessfulCheckUtc = DateTimeOffset.UtcNow;preferences.LastCheckError="";
             preferences.LastOfferedVersion = offered;
             store.SaveUpdatePreferences(preferences);
             if (release != null && !alreadyOffered && home.IsVisible) home.Title += $" · {release.Name} available in Settings → Updates";
         }
-        catch (Exception ex) when (ex is System.Net.Http.HttpRequestException or TaskCanceledException or System.Text.Json.JsonException or InvalidDataException or UnauthorizedAccessException or IOException or KeyNotFoundException or InvalidOperationException or FormatException) { }
+        catch (Exception ex) when (ex is System.Net.Http.HttpRequestException or TaskCanceledException or System.Text.Json.JsonException or InvalidDataException or UnauthorizedAccessException or IOException or KeyNotFoundException or InvalidOperationException or FormatException) { try{var preferences=store.LoadUpdatePreferences();preferences.LastCheckError=ExperimentalUpdater.DescribeFailure(ex);store.SaveUpdatePreferences(preferences);}catch(Exception saved)when(saved is IOException or UnauthorizedAccessException){} }
     }
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
     {

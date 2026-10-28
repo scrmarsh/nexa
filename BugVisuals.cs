@@ -26,7 +26,8 @@ internal static partial class BugVisuals
             var body = cozy ? species switch { BugSpecies.Ants => "#B57A50", BugSpecies.Roaches => "#CC9760", BugSpecies.Spiders => "#A185B6", BugSpecies.Ladybugs => "#F18178", BugSpecies.Centipedes => "#C7A35E", _ => "#8BAAB5" } : species switch { BugSpecies.Ants => "#392922", BugSpecies.Roaches => "#33251C", BugSpecies.Spiders => "#241D2C", BugSpecies.Ladybugs => "#711B34", BugSpecies.Centipedes => "#3E3829", _ => "#334748" };
             var edge = cozy ? "#765547" : "#17141B"; var legColor = cozy ? "#B18970" : "#75615B";
             var pairs = species == BugSpecies.Spiders ? 4 : species == BugSpecies.Centipedes ? 15 : 3;
-            if(limbs) for (var leg = 0; leg < pairs; leg++) for (var side = -1; side <= 1; side += 2)
+            if(limbs && species==BugSpecies.Spiders)SpiderAnatomy.Legs(dc,P(legColor,cozy?1.3:.8));
+            if(limbs && species!=BugSpecies.Spiders) for (var leg = 0; leg < pairs; leg++) for (var side = -1; side <= 1; side += 2)
             {
                 var x = species == BugSpecies.Centipedes ? -15 + leg * 2.15 : species == BugSpecies.Spiders ? 1 + leg * 1.55 : (leg - (pairs - 1) / 2d) * 3;
                 var length = species == BugSpecies.Spiders ? cozy ? 10 : 16 : species == BugSpecies.Centipedes ? 7 : 6;
@@ -61,9 +62,7 @@ internal static partial class BugVisuals
             }
             else if (species == BugSpecies.Spiders)
             {
-                dc.DrawEllipse(B(body), P(edge, .7), new(-4, 0), cozy ? 6.2 : 7.5, cozy ? 5 : 5.7);
-                dc.DrawEllipse(B(cozy ? "#B69BCA" : "#372335"), P(edge, .6), new(4, 0), 3.8, 3.5);
-                if (!cozy) { Shape(dc, "M-8,-2 L-4,-4 L0,-2 L-4,0 Z M-8,2 L-4,4 L0,2 L-4,0 Z", "#72615F"); dc.DrawLine(P("#A3998F", .45), new(6, -1), new(10, -2)); dc.DrawLine(P("#A3998F", .45), new(6, 1), new(10, 2)); }
+                SpiderAnatomy.Body(dc,B(body),B(cozy?"#B69BCA":"#48394F"),P(edge,.7));
             }
             else if (species == BugSpecies.Ladybugs)
             {

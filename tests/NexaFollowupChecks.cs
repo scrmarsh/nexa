@@ -34,7 +34,8 @@ internal static partial class Program
         Assert(!NexaDialog.BlankPanelDragTarget(new ListBoxItem(),new Grid()),"Clicking a list item cannot initiate panel dragging");
         Assert(ExperimentalUpdater.ReleasesUri.AbsolutePath=="/repos/scrmarsh/nexa/releases","The optional updater uses the canonical Nexa GitHub repository");
         using(var client=new System.Net.Http.HttpClient(new FollowupReleaseHandler("scrmarsh/nexa")))Assert(new ExperimentalUpdater(client).CheckAsync(new Version(0,1,24)).GetAwaiter().GetResult()?.Version==new Version(0,1,25),"Release URL validation accepts the canonical Nexa repository");
-        using(var client=new System.Net.Http.HttpClient(new FollowupReleaseHandler("someone/else")))Assert(new ExperimentalUpdater(client).CheckAsync(new Version(0,1,24)).GetAwaiter().GetResult()==null,"Release URL validation still rejects unrelated repositories");
+        using(var client=new System.Net.Http.HttpClient(new FollowupReleaseHandler("someone/else")))
+        {var rejected=false;try{new ExperimentalUpdater(client).CheckAsync(new Version(0,1,24)).GetAwaiter().GetResult();}catch(InvalidDataException){rejected=true;}Assert(rejected,"Foreign repository assets are rejected with an explicit invalid-package result");}
         CheckFollowupScore(start);CheckFollowupBugs();CheckFollowupUi(classSchedule,start.AddMinutes(30));
     }
     private static void CheckFollowupScore(DateTimeOffset now)

@@ -149,7 +149,7 @@ public partial class MainWindow
         return Continuity.Activate(copy, store.UserId, state.HedyRegion, state.HedyProtectedKey);
     }
     // All destructive transitions commit a detached candidate before changing the live editor.
-    internal bool CommitWorkspace(WorkspaceDocument candidate, bool preserveWindow = true, bool preserveWidgetUndo = false)
+    internal bool CommitWorkspace(WorkspaceDocument candidate, bool preserveWindow = true, bool preserveWidgetUndo = false,bool sessionLoad=false)
     {
         if (settingsWindow?.FlushPendingChanges() == false) return false;
         try
@@ -163,6 +163,8 @@ public partial class MainWindow
                     foreach (var target in candidate.Dashboards.Where(d => d.DashboardId == state.Workspace!.ActiveDashboardId).SelectMany(d => d.History.Append(d.Current)).Select(s => s.Data.Session).Where(s => s != null && s.Start == recorded.Start && s.End == recorded.End && s.Title == recorded.Title))
                     { target!.LocalRecordingPath = recorded.LocalRecordingPath; target.LocalRecordingSeconds = recorded.LocalRecordingSeconds; foreach (var entry in recorded.TimelineEntries.Where(e => e.Source == "recorder")) if (!target.TimelineEntries.Any(e => e.Id == entry.Id)) target.TimelineEntries.Add(Continuity.Clone(entry)); }
             }
+            var transition=sessionLoad || candidate.ActiveDashboardId!=state.Workspace!.ActiveDashboardId || Continuity.Current(candidate,store.UserId).Current.SessionId!=Continuity.Current(state.Workspace,store.UserId).Current.SessionId;
+            if(transition)candidate.LiveEcosystemGeneration=Guid.NewGuid();
             var next = Continuity.Activate(candidate, store.UserId, state.HedyRegion, state.HedyProtectedKey);
             store.LoadInteractionPreferences(next);
             if (preserveWindow) { next.WindowWidth = fullWidth; next.WindowHeight = fullHeight; next.Compact = state.Compact; }
@@ -173,7 +175,9 @@ public partial class MainWindow
             if (storyOpen) ExitBoredomMode();
             CloseNoteEditors(); PauseHedySync();
             if(state.Workspace?.ActiveDashboardId!=next.Workspace?.ActiveDashboardId || !preserveWidgetUndo && Continuity.Current(state.Workspace!,store.UserId).Current.SessionId != Continuity.Current(next.Workspace!,store.UserId).Current.SessionId) { widgetUndo.Clear(); widgetRedo.Clear(); FadeWidgetToast(null,EventArgs.Empty); }
-            ready = false; state = next; revision++; saveTicket++; dirty = false; saveDelay.Stop();
+            ready = false; state = next;
+            if(transition){seasonalArtwork?.ResetSessionActivity();NexaEcosystem.For(store).ReconcileGeneration(candidate.LiveEcosystemGeneration);bugGeometryDirty=true;}
+            revision++; saveTicket++; dirty = false; saveDelay.Stop();
             InitializeInitialViewport();
             ApplyReliabilityOptions();
             if (keepRecording) recordingSession = state.Session;

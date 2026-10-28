@@ -6,7 +6,7 @@ using System.Windows;
 
 namespace SessionDashboard;
 
-internal sealed class NexaEcosystem : IDisposable
+internal sealed partial class NexaEcosystem : IDisposable
 {
     private static readonly Dictionary<string, NexaEcosystem> worlds = new(StringComparer.OrdinalIgnoreCase);
     private static readonly JsonSerializerOptions json = new() { WriteIndented = true };
@@ -72,6 +72,7 @@ internal sealed class NexaEcosystem : IDisposable
         var savedState = store.Load();
         if(savedState.Workspace != null) lastSessionId = Continuity.Current(savedState.Workspace,store.UserId).Current.SessionId;
         if(loaded != null) pendingSquashes.AddRange(Continuity.Clone(loaded.PendingSquashes));
+        ReconcileGeneration(savedState.Workspace?.LiveEcosystemGeneration??Guid.Empty);
         ApplySeason(savedState.Workspace?.Settings ?? new());
         SetCadence(); timer.Tick += Tick;
         if (!blocked && pendingSquashes.Count > 0) FlushScores();

@@ -48,6 +48,7 @@ internal sealed partial class NexaweenDecorations : IDisposable
         Loaded += (_, _) => { host = Window.GetWindow(this); if (host != null) host.StateChanged += HostStateChanged; ReconcileAnimation(); };
         Unloaded += (_, _) => { animation.Stop(); if (host != null) host.StateChanged -= HostStateChanged; host = null; };
     }
+    internal void ResetSessionActivity(){actors.Clear();vineCorners.Clear();signature=int.MinValue;candyRespawn.Stop();animation.Stop();}
     private void HostStateChanged(object? sender, EventArgs e) => ReconcileAnimation();
     internal static Drawing Asset(int kind)
     {

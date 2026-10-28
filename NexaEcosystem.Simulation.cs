@@ -12,6 +12,7 @@ internal sealed partial class BugManager
     internal readonly List<EcosystemNest> Nests = [];
     internal readonly List<EcosystemResource> Resources = [];
     internal readonly List<EcosystemWeb> Webs = [];
+    internal Guid SessionGeneration {get;private set;}
     internal Guid WorldId { get; private set; }
     internal int WorldSeed { get; private set; }
     internal double SimulationAge { get; private set; }
@@ -37,7 +38,7 @@ internal sealed partial class BugManager
     }
     internal void RestoreEcosystem(EcosystemDocument doc)
     {
-        EcosystemActive = true; WorldId = doc.WorldId; WorldSeed = doc.Seed; SimulationAge = doc.SimulationAge; WorldPaused = doc.Paused; CombatDeaths = doc.CombatDeaths; NaturalEncounters = doc.NaturalEncounters;
+        EcosystemActive = true;SessionGeneration=doc.SessionGeneration; WorldId = doc.WorldId; WorldSeed = doc.Seed; SimulationAge = doc.SimulationAge; WorldPaused = doc.Paused; CombatDeaths = doc.CombatDeaths; NaturalEncounters = doc.NaturalEncounters;
         Preferences = Preferences with { Ecosystem = doc.Options.Safe() };
         Bounds = new Size(WorldWidth, WorldHeight); VisibleBounds = new Rect(Bounds);
         arrivals.Clear();WorldSpawnDelay=1;
@@ -52,7 +53,7 @@ internal sealed partial class BugManager
     }
     internal EcosystemDocument CaptureEcosystem(string user) => new()
     {
-        UserId = user, WorldId = WorldId, Seed = WorldSeed, SimulationAge = SimulationAge, Paused = WorldPaused, CombatDeaths = CombatDeaths, NaturalEncounters = NaturalEncounters,
+        UserId = user, SessionGeneration=SessionGeneration, WorldId = WorldId, Seed = WorldSeed, SimulationAge = SimulationAge, Paused = WorldPaused, CombatDeaths = CombatDeaths, NaturalEncounters = NaturalEncounters,
         Options = EcosystemSettings, UpdatedAt = DateTimeOffset.UtcNow, Nests = Continuity.Clone(Nests), Resources = Continuity.Clone(Resources), Webs = Continuity.Clone(Webs),
         Bugs = Bugs.Select(b => new SavedEcosystemBug
         {
@@ -223,12 +224,15 @@ internal sealed partial class BugManager
             if (EcosystemSettings.Behavior == BugBehavior.Creepy && bug.Species == BugSpecies.Roaches && bug.Personality != BugPersonality.Social) speed *= 1.8;
             var navigationTarget=(bug.Species==BugSpecies.Spiders && bug.Activity==BugActivity.Nesting || bug.Species==BugSpecies.Roaches && bug.Activity==BugActivity.Hiding || bug.Species==BugSpecies.Flies)?bug.Target:VisibleWaypoint(bug.Position,bug.Target);
             // A moved/resized widget can engulf a creature; place it on a free edge once.
-            if(Surfaces.Values.Any(rect=>rect.Contains(bug.Position)) && !Surfaces.Values.Any(rect=>rect.Contains(navigationTarget)))bug.Position=navigationTarget;
+            if(!(bug.Species==BugSpecies.Spiders && bug.Activity==BugActivity.Nesting) && Surfaces.Values.Any(rect=>rect.Contains(bug.Position)) && !Surfaces.Values.Any(rect=>rect.Contains(navigationTarget)))bug.Position=navigationTarget;
             var delta = navigationTarget - bug.Position;
             if (delta.Length > 2)
             {
-                var movement = Math.Min(delta.Length, speed * step); delta.Normalize(); bug.Position += delta * movement;
-                bug.Angle = BugAnimation.SmoothAngle(bug.Angle,Math.Atan2(delta.Y,delta.X)*180/Math.PI,step,bug.Species==BugSpecies.Roaches?420:280); bug.CrawlPhase += movement * .35;
+                var movement = Math.Min(delta.Length, speed * step); delta.Normalize();
+                var direction=Math.Atan2(delta.Y,delta.X)*180/Math.PI;
+                bug.Angle = BugAnimation.SmoothAngle(bug.Angle,direction,step,bug.Species==BugSpecies.Roaches?420:280);
+                if(bug.Species==BugSpecies.Spiders)movement*=Math.Max(0,Math.Cos((direction-bug.Angle)*Math.PI/180));
+                bug.Position += delta * movement;bug.CrawlPhase += movement * .35;
             }
             else if (bug.Activity == BugActivity.Exploring) bug.Decision = 0;
             bug.Position = new(Math.Clamp(bug.Position.X, 12, WorldWidth - 12), Math.Clamp(bug.Position.Y, 12, WorldHeight - 12));

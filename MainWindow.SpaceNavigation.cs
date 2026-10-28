@@ -16,7 +16,7 @@ public partial class MainWindow
         try
         {
             await NexaMotion.Fade(root,0,Options);if(closed)return false;
-            if(!CommitWorkspace(candidate))return false;
+            if(!CommitWorkspace(candidate,sessionLoad:true))return false;
             root.UpdateLayout();await Dispatcher.Yield(DispatcherPriority.ContextIdle);if(closed)return false;
             AnimateWidgetEntrance();await NexaMotion.Fade(root,1,Options);return true;
         }

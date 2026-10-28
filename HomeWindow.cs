@@ -164,7 +164,7 @@ internal sealed partial class HomeWindow : NexaDialog
     private async Task NavigateDashboard(Func<AppState> prepare)
     {
         try { await NexaNavigation.Change(this,async ()=>{
-            var preparation=await Task.Run(()=>{var watch=System.Diagnostics.Stopwatch.StartNew();var next=prepare();var model=watch.Elapsed.TotalMilliseconds;var load=store.LastLoadMilliseconds;watch.Restart();next.Workspace!.CleanShutdown=false;store.Save(next);return(next,model,load,save:watch.Elapsed.TotalMilliseconds);});
+            var preparation=await Task.Run(()=>{var watch=System.Diagnostics.Stopwatch.StartNew();var next=prepare();var model=watch.Elapsed.TotalMilliseconds;var load=store.LastLoadMilliseconds;watch.Restart();next.Workspace!.CleanShutdown=false;next.Workspace.LiveEcosystemGeneration=Guid.NewGuid();store.Save(next);return(next,model,load,save:watch.Elapsed.TotalMilliseconds);});
             var window=new MainWindow(store,loadedState:preparation.next,entryAlreadyPersisted:true);
             window.ConstructionProfile["Data loading"]=preparation.load;window.ConstructionProfile["Space model preparation"]=Math.Max(0,preparation.model-preparation.load);window.ConstructionProfile["Entry persistence"]=preparation.save;return window;
         },Saved.Workspace?.Settings??new()); }

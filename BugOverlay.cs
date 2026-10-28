@@ -146,6 +146,8 @@ internal sealed class BugOverlay : FrameworkElement
     }
     internal bool ReduceMotion {get;set;}
     private readonly Dictionary<Guid,long> webReveals=[];
+    private readonly Dictionary<(Guid,int),(Point From,Point End,Geometry Curve)> silkCurves=[];
+    private Guid silkGeneration;
     internal static double SilkReveal(long started,long now)=>Math.Clamp((now-started)/1500d,0,1);
     private void DrawFeatures(DrawingContext dc)
     {
@@ -171,6 +173,7 @@ internal sealed class BugOverlay : FrameworkElement
             dc.DrawEllipse(BugVisuals.B(color), BugVisuals.P("#D9C9DD", .5), p, size, size * .7);
             if (resource.Kind == BugResourceKind.Candy) { dc.DrawLine(BugVisuals.P("#A855F7", 2 * ViewScale), p + new Vector(-size * 1.4, -size * .5), p + new Vector(size * 1.4, size * .5)); dc.DrawLine(BugVisuals.P("#FACC15", ViewScale), p + new Vector(0, -size * .6), p + new Vector(0, size * .6)); }
         }
+        if(silkGeneration!=Manager.SessionGeneration || silkCurves.Count>1920){silkCurves.Clear();silkGeneration=Manager.SessionGeneration;}
         var silk=BugVisuals.P("#80FFFFFF",.65);
         var builders=Manager.Bugs.Where(b=>Manager.IsActive(b) && b.WeavingOwner!=null && b.WeavingSegment>=0 && b.SilkAttached && b.Activity==BugActivity.Nesting && b.State!=BugState.Squashed).GroupBy(b=>(b.WeavingOwner!.Value,b.WeavingSegment)).ToDictionary(g=>g.Key,g=>g.First());
         foreach(var removed in webReveals.Keys.Where(id=>!Manager.Webs.Any(w=>w.Owner==id)).ToArray())webReveals.Remove(removed);
@@ -178,22 +181,30 @@ internal sealed class BugOverlay : FrameworkElement
         {
             var owner=Manager.Bugs.FirstOrDefault(b=>b.InteractionId==web.Owner);
             if(owner!=null && !Manager.IsActive(owner))continue;
-            if(!webReveals.TryGetValue(web.Owner,out var started))webReveals[web.Owner]=started=Environment.TickCount64;
-            var reveal=SystemParameters.ClientAreaAnimation && !ReduceMotion?SilkReveal(started,Environment.TickCount64):1;
 
             var box=Manager.WebBounds(web);var screenBox=new Rect(WorldToScreen(box.TopLeft),WorldToScreen(box.BottomRight));
             if(!viewport.IsEmpty && !screenBox.IntersectsWith(viewport))continue;
             BugManager.EnsureSilk(web);
             for(var index=0;index<web.Strands.Count;index++)
             {
-                var strand=web.Strands[index];if(strand.Progress<=0 || index>=web.Strands.Count*reveal)continue;
+                var strand=web.Strands[index];if(strand.Progress<=0)continue;
                 var from=WorldToScreen(Manager.SilkPoint(web,strand.FromX,strand.FromY));var to=WorldToScreen(Manager.SilkPoint(web,strand.ToX,strand.ToY));var end=from+(to-from)*strand.Progress;
                 if(builders.TryGetValue((web.Owner,index),out var builder))
                 {
                     var direction=builder.Angle*Math.PI/180;var heading=new Vector(Math.Cos(direction)*scaleX,Math.Sin(direction)*scaleY);if(heading.Length>.001)heading.Normalize();
-                    end=WorldToScreen(builder.Position)-heading*(9*builder.SizeScale*ViewScale);
+                    end=WorldToScreen(builder.Position)-heading*(12*builder.SizeScale*ViewScale);
                 }
-                dc.DrawLine(silk,from,end);
+                if(web.Orb && strand.Progress>=1)
+                {
+                    var key=(web.Owner,index);
+                    if(!silkCurves.TryGetValue(key,out var cached) || cached.From!=from || cached.End!=end)
+                    {
+                        var hub=WorldToScreen(Manager.SilkPoint(web,.5,.5));var middle=from+(end-from)*.5;
+                        var curve=new StreamGeometry();using(var g=curve.Open()){g.BeginFigure(from,false,false);g.QuadraticBezierTo(middle+(hub-middle)*.10,end,true,false);}curve.Freeze();cached=(from,end,curve);silkCurves[key]=cached;
+                    }
+                    dc.DrawGeometry(null,silk,cached.Curve);
+                }
+                else dc.DrawLine(silk,from,end);
             }
         }
     }
