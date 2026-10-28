@@ -14,17 +14,15 @@ internal sealed partial class NexaweenDecorations
         var left=fruit.Left+fruit.Width/2<rect.Left+rect.Width/2;var top=fruit.Top+fruit.Height/2<rect.Top+rect.Height/2;
         var x=left?rect.Left-4:rect.Right+4;var y=top?rect.Top-4:rect.Bottom+4;var dx=left?1d:-1d;var dy=top?1d:-1d;
         var growth=time<=0?1:Math.Clamp(time/20,.12,1);dc.PushClip(new RectangleGeometry(new Rect(stem.X-240*growth,stem.Y-240*growth,480*growth,480*growth)));
-        for(var branch=0;branch<5;branch++)
+        for(var branch=0;branch<2;branch++)
         {
-            var end=branch switch{0=>new Point(x+dx*Math.Min(180,rect.Width*.65),y),1=>new Point(x,y+dy*Math.Min(160,rect.Height*.65)),2=>new Point(x+dx*67,y+dy*12),3=>new Point(x+dx*12,y+dy*79),_=>new Point(x+dx*42,y+dy*38)};
-            var one=new Point(stem.X+dx*(14+branch*3),stem.Y-18+branch*2);var two=new Point(end.X-dx*(24+branch*5),end.Y-dy*(branch%2==0?24:10));
-            var path=new StreamGeometry();using(var g=path.Open()){g.BeginFigure(stem,false,false);g.BezierTo(one,two,end,true,false);}path.Freeze();dc.DrawGeometry(null,P(branch<2?"#C0536943":"#99536943",branch<2?3:1.7),path);
-            if(branch<2)for(var leaf=1;leaf<=2;leaf++)
-            {
-                var t=.45+leaf*.18;var u=1-t;var at=new Point(u*u*u*stem.X+3*u*u*t*one.X+3*u*t*t*two.X+t*t*t*end.X,u*u*u*stem.Y+3*u*u*t*one.Y+3*u*t*t*two.Y+t*t*t*end.Y);
-                dc.PushTransform(new TranslateTransform(at.X,at.Y));dc.PushTransform(new RotateTransform(branch*60+leaf*37));dc.DrawGeometry(B("#B04F6540"),P("#8033462D",.5),Geometry.Parse("M0,0 Q5,-13 16,-8 Q14,5 0,0 Z"));
-                dc.DrawGeometry(null,P("#99536943",1),Geometry.Parse("M0,0 C-12,-22 19,-26 16,-12 C12,-4 3,-16 10,-17"));dc.Pop();dc.Pop();
-            }
+            var sway=time>0?Math.Sin(time*.32+branch)*1.3:0;
+            var end=branch==0?new Point(x+dx*Math.Min(160,rect.Width*.55),y+sway):new Point(x+sway,y+dy*Math.Min(140,rect.Height*.55));
+            var one=new Point(stem.X+dx*24,stem.Y-22);var two=new Point(end.X-dx*36,end.Y-dy*26);
+            var path=new StreamGeometry();using(var g=path.Open()){g.BeginFigure(stem,false,false);g.BezierTo(one,two,end,true,false);g.BezierTo(new(end.X+dx*24,end.Y-dy*25),new(end.X+dx*43,end.Y+dy*20),new(end.X+dx*13,end.Y+dy*17),true,false);g.BezierTo(new(end.X-dx*2,end.Y+dy*14),new(end.X+dx*7,end.Y+dy*2),new(end.X+dx*14,end.Y+dy*8),true,false);}path.Freeze();
+            dc.DrawGeometry(null,BugVisuals.P("#C0354B2F",4),path);dc.DrawGeometry(null,BugVisuals.P("#704F6C39",1.3),path);
+            dc.PushTransform(new TranslateTransform(end.X,end.Y));dc.PushTransform(new RotateTransform(branch*65));
+            dc.DrawGeometry(B("#B04F6540"),P("#8033462D",.5),Geometry.Parse("M0,0 Q-15,-5 -18,-19 Q-5,-24 4,-12 Q12,-24 23,-16 Q18,-2 0,0 Z"));dc.Pop();dc.Pop();
         }
         dc.Pop();
     }
@@ -73,7 +71,7 @@ internal sealed partial class NexaweenDecorations
             case 17:
                 dc.DrawEllipse(B("#365314"),P("#D9F99D",2),new(32,32),23,23);dc.DrawEllipse(B("#84CC16"),null,new(29,29),19,20);Shape(dc,"M32,12 L36,25 L49,26 L39,34 L41,47 L31,40 L19,47 L23,34 L14,25 L27,25 Z","#D9F99D");break;
             case 18:
-                dc.DrawLine(P("#E9D5FF",4),new(33,39),new(42,63));dc.DrawEllipse(B("#F97316"),P("#9A3412",2),new(31,26),21,19);dc.DrawLine(P("#65A30D",5),new(31,8),new(35,3));Shape(dc,"M20,27 L25,20 L29,27 Z M35,27 L40,20 L44,27 Z M20,32 Q31,43 43,32 Z","#84CC16");break;
+                dc.DrawLine(P("#E9D5FF",4),new(33,39),new(42,63));NexaPumpkin.Draw(dc,new Rect(2,0,60,54));break;
         }
     }
 }

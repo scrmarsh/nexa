@@ -12,9 +12,9 @@
     <Title>Nexa</Title>
     <Description>nexa — a space for whatever comes next</Description>
     <ApplicationIcon>assets\nexa-icon.ico</ApplicationIcon>
-    <Version>0.0.29</Version>
-    <AssemblyVersion>0.0.29.0</AssemblyVersion>
-    <FileVersion>0.0.29.0</FileVersion>
+    <Version>0.0.30</Version>
+    <AssemblyVersion>0.0.30.0</AssemblyVersion>
+    <FileVersion>0.0.30.0</FileVersion>
     <InformationalVersion>$(Version)-alpha</InformationalVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
@@ -30,6 +30,7 @@
     <Compile Remove="obj\**\*.cs" />
     <EmbeddedResource Include="assets\Bible\*.json.gz" LogicalName="SessionDashboard.Bible.%(Filename)%(Extension)" />
     <Resource Include="assets\nexa-icon-seasonal.ico" /><Resource Include="assets\nexa-icon-seasonal-256.png" /><Resource Include="assets\nexa-logo-full-dark-seasonal.svg" />
+    <Resource Include="assets\nexaween-pumpkin-030.png" />
     <Resource Include="assets\nexa-icon.ico" />
     <Resource Include="assets\nexa-icon-256.png" />
     <Resource Include="assets\add.png" />

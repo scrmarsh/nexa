@@ -2,17 +2,17 @@
 
 ![nexa Â· latest â€” a space for whatever comes next](docs/media/nexa-banner.svg)
 
-![version: 0.0.29 Alpha](https://img.shields.io/badge/version-0.0.29%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
+![version: 0.0.30 Alpha](https://img.shields.io/badge/version-0.0.30%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
 ![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-185FA5?style=flat-square&labelColor=111827)
 ![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-7F77DD?style=flat-square&labelColor=111827)
 
 **a space for whatever comes next**
 
-[Nexaween prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.29-alpha) Â· [What's new](CHANGELOG.md) Â· [Build from source](#build-from-source) Â· [Development status](docs/NEXA_029_STATUS.md)
+[Nexaween prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.29-alpha) Â· [What's new](CHANGELOG.md) Â· [Build from source](#build-from-source) Â· [Development status](docs/NEXA_030_STATUS.md)
 
 </div>
 
-> **nexa v0.0.29 alpha — NEXAWEEN: Interface Polish (prerelease).** A cleaner, more consistent interface: refined typography and branding, corrected Space icon placement, compact fullscreen navigation, even notification padding, independent wallpapers and more readable widgets. Save-first session completion and History restoration support the polish update. See the [prerelease notes](docs/NEXA_029_PRERELEASE_NOTES.md), [audit](docs/NEXA_029_AUDIT.md), [status](docs/NEXA_029_STATUS.md) and [test results](docs/NEXA_029_TEST_RESULTS.md). Physical and provider acceptance remains open.
+> **nexa v0.0.30 alpha — NEXAWEEN: Final Refinement (local development).** Shared reference-inspired pumpkin artwork, refined bug input and persistence, fullscreen navigation across Home and Spaces, vector window controls and standalone compact splash previews. See the [audit](docs/NEXA_030_AUDIT.md), [status](docs/NEXA_030_STATUS.md) and [test results](docs/NEXA_030_TEST_RESULTS.md). The downloadable GitHub prerelease remains v0.0.29; v0.0.30 has not been published.
 
 Alpha development now uses **v0.0.X Alpha**, Beta will use **v0.1.X Beta**, and
 the first stable release is planned as **v1.0.0**. This Nexaween build is an

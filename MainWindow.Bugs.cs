@@ -38,12 +38,37 @@ public partial class MainWindow
         ecosystem.ApplyPreferences(preferences); ecosystem.ApplySeason(Options);
         bugGeometryDirty = true; UpdateBugActivity(); EcosystemChanged();
     }
-    private void DashboardSquashed(BugEntity bug) => ecosystem?.RecordSquash(bug, this);
-    internal bool RecordEcosystemSquash(BugEntity bug, DateTimeOffset? at = null)
+    private void DashboardSquashed(BugEntity bug) { if(ecosystem!=null)_=ecosystem.RecordSquashResponsive(bug,this); }
+    internal bool RecordEcosystemSquash(BugEntity bug, DateTimeOffset? at = null,bool persist=true)
     {
         if (ProductivityScoring.DirectSquash(state.Productivity, bug.InteractionId.ToString(), at ?? DateTimeOffset.UtcNow,Options.StreakMultiplierCap,bug.Species.ToString()))
         { state.Workspace!.AllTimeSquashes++;RecordSpeciesTotal(bug.Species); Changed(); }
-        return SaveNow();
+        return !persist || SaveNow();
+    }
+    internal bool ApplyPendingSquash(BugEntity bug,DateTimeOffset at,Guid sessionId)
+    {
+        if(closing || !IsLoaded || state.Workspace is not {} workspace)return false;
+        var current=Continuity.Current(workspace,store.UserId).Current;
+        if(sessionId==Guid.Empty || current.SessionId==sessionId)return RecordEcosystemSquash(bug,at,false);
+        var target=workspace.Dashboards.SelectMany(d=>d.History.Append(d.Current)).FirstOrDefault(s=>s.SessionId==sessionId);
+        if(target==null)return false;
+        var ledger=target.Data.Productivity;var score=ledger.Score;
+        if(ProductivityScoring.DirectSquash(ledger,bug.InteractionId.ToString(),at,Options.StreakMultiplierCap,bug.Species.ToString()))
+        {workspace.AllTimeSquashes++;RecordSpeciesTotal(bug.Species);workspace.AllTimeProductivityScore+=ledger.Score-score;Changed();}
+        return true;
+    }
+    internal async Task<bool> PersistSquashAsync()
+    {
+        try
+        {
+            try{if(pendingWrite!=null)await pendingWrite;}catch(Exception ex)when(SaveException(ex)){}
+            var write=await Dispatcher.InvokeAsync(()=>
+            {if(closing || !IsLoaded)throw new InvalidOperationException("The original window has closed; the durable event will replay in its saved session.");CaptureDraft();var payload=store.Prepare(state);return pendingWrite=Task.Run(()=>store.Write(payload));});
+            await write;
+            return true;
+        }
+        catch(Exception ex) when(SaveException(ex))
+        {await Dispatcher.InvokeAsync(()=>{dirty=true;Feedback.Text="A squash is awaiting its session-history save: "+ex.Message;});return false;}
     }
     private void UpdateBugActivity()
     {

@@ -56,7 +56,18 @@ internal sealed partial class HomeWindow : NexaDialog
         homeLayout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         homeLayout.Children.Add(new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled });
         Grid.SetRow(footer, 1); homeLayout.Children.Add(footer);
-        var backdrop=new Grid();backdrop.Children.Add(homeWallpaper);backdrop.Children.Add(homeWallpaperShade);backdrop.Children.Add(SeasonalBackdrop.Wrap(homeLayout,()=>Saved.Workspace?.Settings??new(),permanentCorners:true));Content=backdrop;RefreshWallpaper();
+        var backdrop=new Grid();backdrop.Children.Add(homeWallpaper);backdrop.Children.Add(homeWallpaperShade);backdrop.Children.Add(SeasonalBackdrop.Wrap(homeLayout,()=>Saved.Workspace?.Settings??new(),permanentCorners:true,advanced:()=>store.LoadBugPreferences().Ecosystem?.AdvancedAnimations??false));Content=backdrop;RefreshWallpaper();
+    }
+
+    internal void RefreshCompanionOptions(StateStore source,EcosystemOptions options)
+    {
+        if(source.FilePath!=store.FilePath)return;
+        void Visit(DependencyObject node)
+        {
+            if(node is SeasonalCorners corners){corners.AdvancedAnimations=options.AdvancedAnimations;corners.InvalidateVisual();}
+            for(var i=0;i<VisualTreeHelper.GetChildrenCount(node);i++)Visit(VisualTreeHelper.GetChild(node,i));
+        }
+        Visit(this);
     }
 
     private void OpenSettingsOld()

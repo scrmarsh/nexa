@@ -21,6 +21,7 @@ internal sealed record EcosystemOptions
     public bool MatchAppearance { get; init; } = true;
     public bool Adorable { get; init; } = true;
     public bool AdvancedAnimations { get; init; }
+    public double HitboxExpansion {get;init;}=1.5;
     public double Size { get; init; } = 2;
     public BugAnimationQuality Quality { get; init; } = BugAnimationQuality.Balanced;
     public bool Costumes { get; init; } = true;
@@ -43,6 +44,7 @@ internal sealed record EcosystemOptions
         SeasonalBehavior = SeasonalBehavior is {} seasonal && !Enum.IsDefined(seasonal) ? null : SeasonalBehavior,
         Appearance = Enum.IsDefined(Appearance) ? Appearance : BugAppearance.Normal,
         Quality = Enum.IsDefined(Quality) ? Quality : BugAnimationQuality.Balanced,
+        HitboxExpansion = double.IsFinite(HitboxExpansion)?Math.Clamp(HitboxExpansion,1.4,1.6):1.5,
         Size = double.IsFinite(Size) ? Math.Clamp(Size, .75, 4) : 2
     };
 }

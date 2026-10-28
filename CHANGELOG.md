@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.0.30 Alpha — NEXAWEEN: Final Refinement (local, unpublished)
+
+- Share one transparent painterly pumpkin asset across Home and seasonal decorations, with larger Home art, attached dark green curls and gentle candlelight.
+- Capture bug clicks through release using species-shaped expanded regions; keep widgets usable outside hits. Move fatal-click durable writes to background tasks while retaining event replay and duplicate-award protection.
+- Preserve fullscreen through Home and Space navigation, restore original window bounds, and use recognizable vector caption controls.
+- Restore the Classic splash tagline, remove the seasonal loading bar, and show compact standalone previews without changing their host.
+- Add a bounded decorative Home spider with wandering, pauses, grooming and physically collected candy; honor seasonal, animation and reduced-motion preferences.
+- Preserve .29 session/history/autosave, provider, notification spacing and Space icon-order behavior. Physical hardware and subjective visual acceptance remain open.
+
 ## 0.0.29 Alpha â€” NEXAWEEN: Final Polish & Workspace Evolution (unpublished)
 
 - Archive original completed session data before resetting; preserve tasks, configuration, recordings, all-time statistics and the existing recap.

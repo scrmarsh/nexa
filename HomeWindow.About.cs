@@ -25,7 +25,7 @@ internal sealed partial class HomeWindow
             header.ColumnDefinitions[1].Width=new GridLength(phrase.Length==0?0:32);
             header.ColumnDefinitions[2].Width=phrase.Length==0?new GridLength(0):new GridLength(1,GridUnitType.Star);
             NexaBranding.ApplyTagline(tagline,NexaMotion.Allowed(Saved.Workspace?.Settings??new())?"":phrase);
-            if(IsLoaded && phrase.Length>0 && NexaMotion.Allowed(Saved.Workspace?.Settings??new()))typing.Start();else typing.Stop();
+            if(IsLoaded && IsVisible && WindowState!=WindowState.Minimized && phrase.Length>0 && NexaMotion.Allowed(Saved.Workspace?.Settings??new()))typing.Start();else typing.Stop();
         };refreshBranding();
         typing.Tick += (_, _) =>
         {
@@ -44,7 +44,13 @@ internal sealed partial class HomeWindow
             fade.Completed += (_, _) => { fading = false; restartDelay = 14; };
             tagline.BeginAnimation(OpacityProperty, fade);
         };
-        Loaded += (_, _) => {if(NexaMotion.Allowed(Saved.Workspace?.Settings??new()))typing.Start();else NexaBranding.ApplyTagline(tagline,NexaBranding.Tagline);}; Closed += (_, _) => typing.Stop();
+        void ReconcileTyping()
+        {
+            if(IsLoaded && IsVisible && WindowState!=WindowState.Minimized && NexaBranding.Tagline.Length>0 && NexaMotion.Allowed(Saved.Workspace?.Settings??new()))typing.Start();
+            else{typing.Stop();tagline.BeginAnimation(OpacityProperty,null);tagline.Opacity=1;}
+        }
+        Loaded+=(_,_)=>{refreshBranding?.Invoke();ReconcileTyping();};
+        IsVisibleChanged+=(_,_)=>ReconcileTyping();StateChanged+=(_,_)=>ReconcileTyping();Closed+=(_,_)=>typing.Stop();
     }
 
     private NexaDialog InfoDialog(string title, double width = 720, double height = 620) => new NexaPanel { Title = "Nexa · " + title, Owner = this, Width = width, Height = height, MinWidth = 540, MinHeight = 440, WindowStartupLocation = WindowStartupLocation.CenterOwner };

@@ -18,10 +18,10 @@ internal static partial class Program
     private static void Check027()
     {
         CheckBranding027();
-        Assert(App.AppVersion == "0.0.29" && App.VersionLabel == "nexa v0.0.29 alpha", "Shared current identity uses the Alpha convention");
-        Assert(typeof(App).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version == "0.0.29.0", "Windows file version is numeric and current");
-        Assert(typeof(App).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.StartsWith("0.0.29-alpha") == true, "Product version retains the Alpha stage");
-        Assert(ReleaseNotes.All[0].Version == "0.0.29" && ReleaseNotes.All[0].Title == "NEXAWEEN: Interface Polish" && ReleaseNotes.All.Single(r=>r.Version=="0.0.27").Title=="NEXAWEEN" && ReleaseNotes.All.Single(r => r.Version == "0.1.26").Title == "Spaces in Motion", "New changelog retains historical release identity");
+        Assert(App.AppVersion == "0.0.30" && App.VersionLabel == "nexa v0.0.30 alpha", "Shared current identity uses the Alpha convention");
+        Assert(typeof(App).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version == "0.0.30.0", "Windows file version is numeric and current");
+        Assert(typeof(App).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.StartsWith("0.0.30-alpha") == true, "Product version retains the Alpha stage");
+        Assert(ReleaseNotes.All[0].Version == "0.0.30" && ReleaseNotes.All[0].Title == "NEXAWEEN: Final Refinement" && ReleaseNotes.All.Single(r=>r.Version=="0.0.27").Title=="NEXAWEEN" && ReleaseNotes.All.Single(r => r.Version == "0.1.26").Title == "Spaces in Motion", "New changelog retains historical release identity");
         Assert(ExperimentalUpdater.IsNewer(new(0,0,27), "Alpha", new(0,1,26)), "New Alpha can update the legacy Alpha revision");
         Assert(!ExperimentalUpdater.IsNewer(new(0,1,26), "Alpha", new(0,0,27)), "Legacy Alpha cannot downgrade new Alpha");
         Assert(!ExperimentalUpdater.IsNewer(new(0,1,27), "alpha", new(0,0,27)), "Equivalent legacy identity is not a new package");
@@ -73,8 +73,8 @@ internal static partial class Program
         var watch = Stopwatch.StartNew(); var splash = new SplashWindow(new NexaOptions { ReduceMotion = true });
         var preview = splash.PreviewIn((Grid)main.Content);
         Pump(TimeSpan.FromMilliseconds(100));
-        Assert(!preview.IsCompleted && splash.TaglineComplete && splash.ReportedProgress == 1, "Reduced-motion preview completes stages but remains for minimum display");
-        Capture026(main,"nexaween027-splash-preview");
+        Assert(!preview.IsCompleted && splash.TaglineComplete && splash.IsVisible && splash.Width == 620 && splash.Height == 350, "Reduced-motion standalone preview stays compact through minimum display");
+        Capture026(splash,"nexaween027-splash-preview");
         WaitHandoff(() => preview.IsCompleted,"Five-second compact in-window preview completes"); preview.GetAwaiter().GetResult();
         Assert(watch.ElapsedMilliseconds >= 5000 && splash.DisplayedMilliseconds >= 5000, "Splash minimum duration is measured from display and applies with reduced motion");
         main.Close();

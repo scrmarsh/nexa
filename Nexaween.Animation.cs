@@ -22,9 +22,7 @@ internal sealed partial class NexaweenDecorations : IDisposable
     private static readonly Dictionary<int, Drawing> assets = [];
     internal static void DrawPumpkinLight(DrawingContext dc,Rect bounds,double time)
     {
-        dc.PushTransform(new TranslateTransform(bounds.X,bounds.Y));dc.PushTransform(new ScaleTransform(bounds.Width/64,bounds.Height/64));
-        dc.PushOpacity(.07+Math.Sin(time*1.7)*.018+Math.Sin(time*3.1)*.009);
-        dc.DrawGeometry(B("#FFE6A0"),null,Geometry.Parse("M8,27 Q14,26 22,32 L19,37 Z M25,31 Q32,24 39,26 L34,34 L26,36 Z M8,42 Q20,48 40,40 L29,52 L19,53 Z"));dc.Pop();dc.Pop();dc.Pop();
+        NexaPumpkin.DrawLight(dc,bounds,time,bounds.X*.013+bounds.Y*.019);
     }
     private readonly DispatcherTimer animation = new(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(50) };
     private readonly DispatcherTimer candyRespawn=new(){Interval=TimeSpan.FromSeconds(1)};
@@ -84,7 +82,7 @@ internal sealed partial class NexaweenDecorations : IDisposable
     {
         for(var i=0;i<actors.Count;i++)
         {
-            var actor=actors[i];if(actor.ConsumedAt<0 && (!animationOptions.SeasonalAnimation || !NexaMotion.Allowed(animationOptions)))continue;if(actor.Contextual || elapsed.Elapsed.TotalSeconds<actor.BusyUntil || actor.ConsumedAt>=0 && elapsed.Elapsed.TotalSeconds-actor.ConsumedAt<3 || actor.ConsumedAt<0 && elapsed.Elapsed.TotalSeconds-actor.Born<actor.Hold+2)continue;
+            var actor=actors[i];if(actor.Kind is 0 or 1)continue;if(actor.ConsumedAt<0 && (!animationOptions.SeasonalAnimation || !NexaMotion.Allowed(animationOptions)))continue;if(actor.Contextual || elapsed.Elapsed.TotalSeconds<actor.BusyUntil || actor.ConsumedAt>=0 && elapsed.Elapsed.TotalSeconds-actor.ConsumedAt<3 || actor.ConsumedAt<0 && elapsed.Elapsed.TotalSeconds-actor.Born<actor.Hold+2)continue;
             for(var attempt=0;attempt<30;attempt++)
             {
                 var size=actor.Bounds.Width;var next=new Rect(lifecycleRandom.NextDouble()*Math.Max(0,Width-size),lifecycleRandom.NextDouble()*Math.Max(0,Height-size),size,size);var safe=next;safe.Inflate(20,20);
@@ -111,7 +109,7 @@ internal sealed partial class NexaweenDecorations : IDisposable
             var expanded = actor.Bounds; expanded.Inflate(18, 18); if (!visibleArea.IsEmpty && !expanded.IntersectsWith(visibleArea)) continue;
             var phase = time + actor.Seed * .7; var x = actor.Bounds.X; var y = actor.Bounds.Y;
             var lifecycleAge=time-actor.Born;
-            var opacity=!moving || actor.Contextual || elapsed.Elapsed.TotalSeconds<actor.BusyUntil?1:lifecycleAge<1?Math.Clamp(lifecycleAge,0,1):lifecycleAge<=actor.Hold+1?1:Math.Clamp(actor.Hold+2-lifecycleAge,0,1);
+            var opacity=!moving || actor.Contextual || actor.Kind is 0 or 1 || elapsed.Elapsed.TotalSeconds<actor.BusyUntil?1:lifecycleAge<1?Math.Clamp(lifecycleAge,0,1):lifecycleAge<=actor.Hold+1?1:Math.Clamp(actor.Hold+2-lifecycleAge,0,1);
             dc.PushOpacity(opacity*RevealOpacity(actor));
             dc.PushTransform(new TranslateTransform(x, y)); dc.PushTransform(new ScaleTransform(actor.Bounds.Width / 64, actor.Bounds.Height / 64));
             var rotation = 0d;
@@ -121,8 +119,7 @@ internal sealed partial class NexaweenDecorations : IDisposable
             if (actor.Kind == 2) dc.Pop();
             if (actor.Kind == 1)
             {
-                var flicker=moving?.10+Math.Sin(phase*1.7)*.025+Math.Sin(phase*3.1)*.012:.10;
-                dc.PushOpacity(flicker);dc.DrawGeometry(B("#FFD878"),null,Geometry.Parse("M8,27 Q14,26 22,32 L19,37 Z M25,31 Q32,24 39,26 L34,34 L26,36 Z M8,42 Q20,48 40,40 L29,52 L19,53 Z"));dc.Pop();
+                NexaPumpkin.DrawLight(dc,new Rect(0,0,64,64),moving?time:0,actor.Seed*.73);
             }
             if (actor.Kind is 4 or 14)
             {

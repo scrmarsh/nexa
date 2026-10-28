@@ -39,11 +39,8 @@ public partial class MainWindow
     private int previousHead = -1;
 
     private double fullWidth = 1220, fullHeight = 880;
-    private bool fullscreen;
-    private bool restoreFullscreenTopmost;
+    private bool fullscreen => NexaFullscreen.IsFullscreen(this);
     internal bool IsFullscreen => fullscreen;
-    private Rect restoreBounds;
-    private WindowState restoreWindowState;
     private DateTimeOffset flashUntil;
     private bool completionDismissed;
 
@@ -62,10 +59,11 @@ public partial class MainWindow
         PreviewBanner.Visibility = IsPreview ? Visibility.Visible : Visibility.Collapsed;
         if (IsPreview) Title = App.VersionLabel + " · Preview";
         NexaChrome.Apply(this);
+        NexaCaptionIcon.Set(MinimizeButton,"Minimize");NexaCaptionIcon.Set(MaximizeButton,"Maximize");NexaCaptionIcon.Set(ExitButton,"Close");
         StateChanged += (_, _) =>
         {
             UpdateDashboardHeaderGeometry();
-            MaximizeButton.Content = WindowState == WindowState.Maximized && !fullscreen ? "\uE923" : "\uE922";
+            NexaCaptionIcon.Set(MaximizeButton,WindowState == WindowState.Maximized && !fullscreen ? "Restore" : "Maximize");
             MaximizeButton.ToolTip = WindowState == WindowState.Maximized && !fullscreen ? "Restore" : "Maximize";
         };
         PixelArea.SizeChanged += (_, _) => QueuePixelLayout();
@@ -487,7 +485,7 @@ public partial class MainWindow
     }
     private void ApplySettings()
     {
-        if (fullscreen) restoreFullscreenTopmost = state.AlwaysOnTop;
+        if (fullscreen) NexaFullscreen.SetRestoredTopmost(this,state.AlwaysOnTop);
         Topmost = fullscreen || state.AlwaysOnTop;
         NotesPanel.Visibility = state.ShowNotes ? Visibility.Visible : Visibility.Collapsed;
         ChecklistPanel.Visibility = state.ShowChecklist ? Visibility.Visible : Visibility.Collapsed;
@@ -541,31 +539,15 @@ public partial class MainWindow
         SessionNameHost.Visibility=SpaceIconHost.Visibility=fullscreen && DashboardHeader.ActualWidth<1300?Visibility.Collapsed:Visibility.Visible;
         SessionNameHost.MaxWidth = Math.Clamp((DashboardHeader.ActualWidth - TopNavigation.ActualWidth) / 2 - 52, 60, 290);
     }
-    private System.Windows.Shell.WindowChrome? savedFullscreenChrome;
     internal void ToggleFullscreen()
     {
-        if (!fullscreen)
-        {
-            if (state.Compact) { SetCompact(false); Changed(); }
-            restoreWindowState = WindowState;
-            restoreBounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
-            restoreFullscreenTopmost = Topmost;
-            savedFullscreenChrome=System.Windows.Shell.WindowChrome.GetWindowChrome(this);
-            fullscreen = true;WindowState = WindowState.Normal;
-            System.Windows.Shell.WindowChrome.SetWindowChrome(this,null);
-            ResizeMode = ResizeMode.NoResize;Topmost=true;WindowState = WindowState.Maximized;
-        }
-        else
-        {
-            fullscreen=false;WindowState = WindowState.Normal;
-            System.Windows.Shell.WindowChrome.SetWindowChrome(this,savedFullscreenChrome);
-            ResizeMode = ResizeMode.CanResize;
-            Left=restoreBounds.Left;Top=restoreBounds.Top;Width=restoreBounds.Width;Height=restoreBounds.Height;
-            Topmost = restoreFullscreenTopmost;WindowState = restoreWindowState;
-        }
+        if(!fullscreen && state.Compact){SetCompact(false);Changed();}
+        NexaFullscreen.Toggle(this);
+    }
+    internal void FullscreenChanged()
+    {
         UpdateDashboardHeaderGeometry();ReconcileFullscreenStatus();
-        if(fullscreen && Options.FullscreenNotification)ShowFullscreenNotice();
-        else DismissFullscreenNotice();
+        if(fullscreen && Options.FullscreenNotification)ShowFullscreenNotice();else DismissFullscreenNotice();
     }
     private void WindowKeyDown(object sender, KeyEventArgs e)
     {

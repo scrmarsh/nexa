@@ -12,6 +12,7 @@ internal sealed class SplashWindow:Window
     private readonly TaskCompletionSource taglineReady=new(TaskCreationOptions.RunContinuationsAsynchronously);
     private double reported;
     private readonly Stopwatch displayClock = new();
+    private readonly CancellationTokenSource lifetime=new();
     internal static readonly TimeSpan MinimumDisplay = TimeSpan.FromSeconds(5);
     internal bool TaglineComplete=>taglineReady.Task.IsCompletedSuccessfully;
     internal double ReportedProgress=>reported;
@@ -29,16 +30,17 @@ internal sealed class SplashWindow:Window
         panel.Children.Add(new NexaWordmark(480){HorizontalAlignment=HorizontalAlignment.Center});panel.Children.Add(tagline);panel.Children.Add(Loading);panel.Children.Add(Stage);
         Content=new Border{BorderBrush=BugVisuals.B("#2A3145"),BorderThickness=new Thickness(1),Child=panel};
         Loading.Foreground=BugVisuals.B(Theme.SeasonalEnabled?"#84CC16":"#60A5FA");
-        var phrase=NexaBranding.Tagline;var position=0;
+        var phrase=Theme.SeasonalEnabled?NexaBranding.Tagline:"a space for whatever comes next";var position=0;
+        if(!Theme.SeasonalEnabled)tagline.Foreground=BugVisuals.B("#A5B4FC");
         void CompleteTagline()
         {
             typing.Stop();NexaBranding.ApplyTagline(tagline,phrase);tagline.Visibility=phrase.Length==0?Visibility.Collapsed:Visibility.Visible;
-            taglineReady.TrySetResult();Loading.Visibility=Stage.Visibility=Visibility.Visible;ShowProgress();
+            taglineReady.TrySetResult();Loading.Visibility=Stage.Visibility=Theme.SeasonalEnabled?Visibility.Collapsed:Visibility.Visible;ShowProgress();
         }
         typing.Tick+=(_,_)=>{if(position<phrase.Length)NexaBranding.ApplyTagline(tagline,phrase[..++position]);if(position>=phrase.Length)CompleteTagline();};
         beginSequence=()=>{if(!NexaMotion.Allowed(this.options)||phrase.Length==0)CompleteTagline();else typing.Start();};
         ContentRendered+=(_,_)=>{displayClock.Start();beginSequence();};
-        Closed+=(_,_)=>{typing.Stop();if(!TaglineComplete)taglineReady.TrySetCanceled();};
+        Closed+=(_,_)=>{typing.Stop();displayClock.Stop();lifetime.Cancel();if(!TaglineComplete)taglineReady.TrySetCanceled();};
         System.Windows.Automation.AutomationProperties.SetName(Loading,"Completed startup stages");Report(.05,"Configuration location ready");
     }
     internal Task WaitForLogoAsync()=>taglineReady.Task;
@@ -47,27 +49,24 @@ internal sealed class SplashWindow:Window
         // TimeSpan delays may truncate fractional milliseconds. Recheck the
         // monotonic clock so reduced motion cannot finish just before 3,000ms.
         while (displayClock.Elapsed < MinimumDisplay)
-            await Task.Delay(Math.Max(1, (int)Math.Ceiling((MinimumDisplay - displayClock.Elapsed).TotalMilliseconds)));
+            await Task.Delay(Math.Max(1, (int)Math.Ceiling((MinimumDisplay - displayClock.Elapsed).TotalMilliseconds)),lifetime.Token);
         DisplayedMilliseconds = displayClock.Elapsed.TotalMilliseconds;
     }
     internal async Task PreviewIn(Grid host)
     {
-        var renderer=(FrameworkElement)Content;Content=null;
-        renderer.Width=620;renderer.Height=350;renderer.HorizontalAlignment=HorizontalAlignment.Center;renderer.VerticalAlignment=VerticalAlignment.Center;
-        var overlay=new Grid{Background=TryFindResource("BackgroundBrush") as Brush??Brushes.Black};overlay.Children.Add(renderer);
-        Panel.SetZIndex(overlay,2000);host.Children.Add(overlay);
+        var owner=Window.GetWindow(host);
+        Owner=owner;ShowInTaskbar=false;WindowStartupLocation=owner==null?WindowStartupLocation.CenterScreen:WindowStartupLocation.CenterOwner;
+        var closed=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        Closed+=(_,_)=>closed.TrySetResult();
+        Show();
         try
         {
-            await host.Dispatcher.InvokeAsync(()=>
-            {
-                host.UpdateLayout();displayClock.Start();beginSequence();Report(.6,"Current workspace loaded");
-            },DispatcherPriority.Render);
-            await WaitForLogoAsync();
-            await host.Dispatcher.InvokeAsync(()=>{Report(.9,"Dashboard controls initialized");host.UpdateLayout();Report(1,"Dashboard ready");});
-            await WaitForMinimumDisplayAsync();
-            await host.Dispatcher.InvokeAsync(()=>NexaMotion.Fade(overlay,0,options)).Task.Unwrap();
+            var presentation=Present();
+            await Task.WhenAny(presentation,closed.Task);
+            if(!closed.Task.IsCompleted){await presentation;await Dispatcher.InvokeAsync(()=>NexaMotion.Fade(this,0,options)).Task.Unwrap();await Dispatcher.InvokeAsync(Close);}
         }
-        finally{await host.Dispatcher.InvokeAsync(()=>{host.Children.Remove(overlay);Close();});}
+        catch(TaskCanceledException) when(closed.Task.IsCompleted){}
+        async Task Present(){await WaitForLogoAsync();await WaitForMinimumDisplayAsync();}
     }
     internal void Report(double progress,string completed)
     {

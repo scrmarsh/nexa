@@ -72,7 +72,7 @@ internal static partial class Program
         using(var locked=new FileStream(blockedStore.FilePath,FileMode.Open,FileAccess.Read,FileShare.None))
             Assert(!blocked.FinalizeSession(now,false) && blocked.state.Session!.FinalizedAt==null && blocked.HasUnsavedChanges,"Persistence failure prevents completion and retains pending data");
         Assert(blocked.FinalizeSession(now,false),"Completion succeeds after the persistence error resolves");blocked.Close();
-        var point=SeasonalCorners.SpiderPoint(100,500);Assert(point.X>=20 && point.X<=32 && point.Y>=106 && point.Y<=134,"Home spider remains bounded inside the larger web");
+        var companion=new HomeSpider();companion.Configure(new Size(1440,940),[]);for(var i=0;i<2000;i++)companion.Step(.05);Assert(companion.Valid(companion.Bug.Position),"Living Home spider remains bounded inside its web territory");
         var world=CreateWorld(BugBehavior.Cozy);world.SetSurfaces([new BugSurface("square",new Rect(100,100,700,500))],new Size(1600,1000));world.WebCoordinateAspect=.25;var bounds=world.WebBounds(new EcosystemWeb{AnchorId="square"});
         Assert(bounds.Width*.25/bounds.Height>=.799 && bounds.Width*.25/bounds.Height<=1.301,"Web geometry compensates for tall Canvas projection");
         using var hevyHttp=new System.Net.Http.HttpClient(new HevyFixtureHandler());

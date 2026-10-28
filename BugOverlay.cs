@@ -39,15 +39,49 @@ internal sealed class BugOverlay : FrameworkElement
     private IEnumerable<BugEntity> VisibleBugs => Manager.Bugs.Where(b => Manager.IsActive(b)).Where(b => Manager.Preferences.Species is BugSpecies.AllBugs or BugSpecies.AllThree || b.Species == Manager.Preferences.Species).Take(Manager.EcosystemActive ? Manager.EcosystemCap : 600);
     internal BugEntity? HitAt(Point point)
     {
-        if (Protected(point)) return null;
-        return VisibleBugs.Reverse().FirstOrDefault(b => b.State is not (BugState.Hiding or BugState.Squashed) && b.Health > 0 && (point - WorldToScreen(b.Position)).Length <= BugVisuals.HitRadius(b) * b.SizeScale * ViewScale);
+        if (!viewport.IsEmpty && !viewport.Contains(point)) return null;
+        return VisibleBugs.Reverse().FirstOrDefault(b => HitContains(b,point));
+    }
+    internal double HitExpansion=>Manager.EcosystemSettings.HitboxExpansion;
+    internal bool HitContains(BugEntity bug,Point point)
+    {
+        if(bug.State is BugState.Hiding or BugState.Squashed || bug.Health<=0)return false;
+        var center=WorldToScreen(bug.Position);
+        if(Manager.EcosystemSettings.AdvancedAnimations && NexaMotion.Allowed(Manager.VisualOptions) && bug.FlightHeight>0)
+            center.Y-=Math.Sin(Manager.SimulationAge*3+bug.Age)*1.2*bug.FlightHeight+bug.FlightHeight*12;
+        var world=bug.Angle*Math.PI/180;
+        var angle=Math.Atan2(Math.Sin(world)*scaleY,Math.Cos(world)*scaleX);
+        var d=point-center;var x=d.X*Math.Cos(angle)+d.Y*Math.Sin(angle);var y=-d.X*Math.Sin(angle)+d.Y*Math.Cos(angle);
+        // Species silhouette includes legs; a modest expansion follows orientation, never a widget-sized box.
+        var extent=bug.Species switch {BugSpecies.Centipedes=>new Size(26,10),BugSpecies.Spiders=>new Size(19,19),BugSpecies.Ladybugs=>new Size(14,12),BugSpecies.Roaches=>new Size(19,10),_=>new Size(14,9)};
+        var scale=bug.SizeScale*ViewScale;var tolerance=Math.Clamp(HitExpansion,1.4,1.6);
+        var rx=extent.Width*scale*tolerance+3;var ry=extent.Height*scale*tolerance+3;
+        return x*x/(rx*rx)+y*y/(ry*ry)<=1;
     }
     protected override HitTestResult? HitTestCore(PointHitTestParameters p) => DrawWorld || HitAt(p.HitPoint) != null ? new PointHitTestResult(this, p.HitPoint) : null;
+    private bool consumingPointer;
+    internal bool ConsumingPointer=>consumingPointer;
+    internal double LastPointerMilliseconds {get;private set;}
+    internal bool BeginPointer(Point point)
+    {
+        var started=System.Diagnostics.Stopwatch.GetTimestamp();
+        if(HitAt(point) is not {} bug)return false;
+        consumingPointer=true;CaptureMouse();ShowHealth(bug);
+        var killed=Manager.Squash(bug);RefreshFrame();
+        // Register the recovery event in memory before navigation or shutdown can run.
+        // The subscriber queues snapshots and disk work after this input turn.
+        if(killed)DirectSquashed?.Invoke(bug);
+        LastPointerMilliseconds=System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds;return true;
+    }
+    internal void EndPointer(){consumingPointer=false;ReleaseMouseCapture();}
     protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
     {
-        if (HitAt(e.GetPosition(this)) is { } bug) { ShowHealth(bug);if (Manager.Squash(bug)) DirectSquashed?.Invoke(bug); e.Handled = true; RefreshFrame(); }
+        if(BeginPointer(e.GetPosition(this)))e.Handled=true;
     }
-    protected override void OnMouseMove(MouseEventArgs e){base.OnMouseMove(e);cursor=e.GetPosition(this);}
+    protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+    {if(consumingPointer){e.Handled=true;EndPointer();}}
+    protected override void OnLostMouseCapture(MouseEventArgs e){consumingPointer=false;base.OnLostMouseCapture(e);}
+    protected override void OnMouseMove(MouseEventArgs e){base.OnMouseMove(e);cursor=e.GetPosition(this);if(consumingPointer)e.Handled=true;}
     private readonly Dictionary<Guid,long> healthClicks=[];
     internal void ShowHealth(BugEntity bug){healthClicks[bug.InteractionId]=Environment.TickCount64;RefreshFrame();}
     internal void RefreshFrame() => InvalidateVisual();

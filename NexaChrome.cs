@@ -15,13 +15,15 @@ namespace SessionDashboard;
 internal static class NexaChrome
 {
     private static readonly HashSet<Window> FadingWindows = [];
-    internal static ImageSource Icon => new BitmapImage(new Uri("pack://application:,,,/Nexa;component/assets/nexa-icon-256.png"));
-    internal static ImageSource BrandIcon => new BitmapImage(new Uri("pack://application:,,,/Nexa;component/assets/"+(Theme.SeasonalEnabled?"nexa-icon-seasonal-256.png":"nexa-icon-256.png")));
+    private static readonly BitmapImage classicIcon=LoadIcon("nexa-icon-256.png"),seasonalIcon=LoadIcon("nexa-icon-seasonal-256.png");
+    private static BitmapImage LoadIcon(string name){var image=new BitmapImage(new Uri("pack://application:,,,/Nexa;component/assets/"+name));image.Freeze();return image;}
+    internal static ImageSource Icon=>classicIcon;
+    internal static ImageSource BrandIcon=>Theme.SeasonalEnabled?seasonalIcon:classicIcon;
     internal static void Apply(Window window)
     {
         window.UseLayoutRounding = true; window.SnapsToDevicePixels = true; window.Icon = Icon; window.WindowStyle = WindowStyle.None; window.ResizeMode = ResizeMode.CanResize;
         WindowChrome.SetWindowChrome(window, new WindowChrome { CaptionHeight = 44, ResizeBorderThickness = new Thickness(10), GlassFrameThickness = new Thickness(0), CornerRadius = new CornerRadius(8), UseAeroCaptionButtons = false });
-        NexaWindowBounds.Attach(window);
+        NexaWindowBounds.Attach(window);NexaFullscreen.Attach(window);
         FadeIn(window);
         window.SourceInitialized += (_, _) =>
         {
@@ -61,19 +63,23 @@ internal static class NexaChrome
         var buttons = new StackPanel { Orientation = Orientation.Horizontal }; DockPanel.SetDock(buttons, Dock.Right); dock.Children.Add(buttons);
         void Add(string glyph, string label, Action action)
         {
-            var button = new Button { Content = glyph, ToolTip = label, Style = (Style)Application.Current.FindResource(label == "Close" ? "CaptionCloseButton" : "CaptionControlButton") };
+            var button = new Button { Content = new NexaCaptionIcon(label == "Maximize or restore" ? "Maximize" : label), ToolTip = label, Style = (Style)Application.Current.FindResource(label == "Close" ? "CaptionCloseButton" : "CaptionControlButton") };
             System.Windows.Automation.AutomationProperties.SetName(button, label); WindowChrome.SetIsHitTestVisibleInChrome(button, true);
             button.Click += (_, _) => action(); buttons.Children.Add(button);
         }
         Add("\uE921", "Minimize", () => SystemCommands.MinimizeWindow(window));
-        if (window.ResizeMode != ResizeMode.NoResize) { Add("\uE922", "Maximize or restore", () => ToggleMaximize(window)); var maximize = (Button)buttons.Children[^1]; window.StateChanged += (_, _) => maximize.Content = window.WindowState == WindowState.Maximized ? "\uE923" : "\uE922"; }
+        if (window.ResizeMode != ResizeMode.NoResize) { Add("\uE922", "Maximize or restore", () => ToggleMaximize(window)); var maximize = (Button)buttons.Children[^1]; window.StateChanged += (_, _) => maximize.Content = new NexaCaptionIcon(window.WindowState == WindowState.Maximized ? "Restore" : "Maximize"); }
         Add("\uE8BB", "Close", () =>
         {
             if (window is MainWindow mainWindow) mainWindow.CloseWithFade();
             else FadeOutAndClose(window);
         });
         var brand = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(14, 0, 8, 0) };
-        brand.Children.Add(new Image { Source = Icon, Width = 22, Height = 22, Margin = new Thickness(0, 0, 10, 0) });
+        var brandImage=new Image { Source = BrandIcon, Width = 22, Height = 22, Margin = new Thickness(0, 0, 10, 0) };
+        brand.Children.Add(brandImage);
+        void RefreshBrand(object? sender,EventArgs args)=>brandImage.Source=BrandIcon;
+        brandImage.Loaded+=(_,_)=>{Theme.SeasonalChanged-=RefreshBrand;Theme.SeasonalChanged+=RefreshBrand;RefreshBrand(null,EventArgs.Empty);};
+        brandImage.Unloaded+=(_,_)=>Theme.SeasonalChanged-=RefreshBrand;
         brand.Children.Add(new TextBlock { Text = window.Title, VerticalAlignment = VerticalAlignment.Center, FontWeight = FontWeights.SemiBold }); dock.Children.Add(brand);
         var caption = new Border { Tag = "WindowCaption", Height = 44, BorderThickness = new Thickness(0, 0, 0, 1), Child = dock }; caption.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); caption.SetResourceReference(Border.BorderBrushProperty, "LineBrush"); return caption;
     }
@@ -83,6 +89,7 @@ internal static class NexaChrome
         target.WindowStartupLocation = WindowStartupLocation.Manual; target.MinWidth = Math.Min(target.MinWidth, bounds.Width); target.MinHeight = Math.Min(target.MinHeight, bounds.Height);
         target.Width = bounds.Width; target.Height = bounds.Height; target.Left = bounds.Left; target.Top = bounds.Top;
         target.WindowState = source.WindowState == WindowState.Maximized ? WindowState.Maximized : WindowState.Normal;
+        NexaFullscreen.Transfer(source,target);
     }
     [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
 }
@@ -118,7 +125,7 @@ internal class NexaDialog : Window
         PreviewKeyDown += (_, e) => NexaPanels.HandleEscape(this, e);
         PreviewMouseLeftButtonDown += (_, e) =>
         {
-            if (e.ClickCount != 1 || Mouse.LeftButton != MouseButtonState.Pressed ||
+            if (NexaFullscreen.IsFullscreen(this) || e.ClickCount != 1 || Mouse.LeftButton != MouseButtonState.Pressed ||
                 !BlankPanelDragTarget(e.OriginalSource as DependencyObject, this)) return;
             DragMove(); e.Handled = true;
         };

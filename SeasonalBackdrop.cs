@@ -4,7 +4,7 @@ using System.Windows.Media;
 namespace SessionDashboard;
 internal static class SeasonalBackdrop
 {
-    internal static Grid Wrap(UIElement content,Func<NexaOptions> options,bool permanentCorners=false)
+    internal static Grid Wrap(UIElement content,Func<NexaOptions> options,bool permanentCorners=false,Func<bool>? advanced=null)
     {
         var root=new Grid{ClipToBounds=true};var art=new NexaweenDecorations{Opacity=.35};root.Children.Add(art);
         var corners=new SeasonalCorners{IsHitTestVisible=false};if(permanentCorners)root.Children.Add(corners);root.Children.Add(content);
@@ -18,69 +18,10 @@ internal static class SeasonalBackdrop
             art.Update(viewport.Width,viewport.Height,reserved,settings.DecorationDensity);
             if(enabled && wasEnabled!=true)art.BeginReveal();wasEnabled=enabled;
         }
-        void Changed(object? sender,EventArgs e)=>Refresh();
+        void Changed(object? sender,EventArgs e){corners.AdvancedAnimations=advanced?.Invoke()??true;Refresh();}
         root.SizeChanged+=(_,_)=>Refresh();
-        root.Loaded+=(_,_)=>{Theme.SeasonalChanged-=Changed;Theme.SeasonalChanged+=Changed;Refresh();};
+        root.Loaded+=(_,_)=>{corners.AdvancedAnimations=advanced?.Invoke()??true;Theme.SeasonalChanged-=Changed;Theme.SeasonalChanged+=Changed;Refresh();};
         root.Unloaded+=(_,_)=>Theme.SeasonalChanged-=Changed;
         root.IsVisibleChanged+=(_,_)=>Refresh();return root;
-    }
-}
-internal sealed class SeasonalCorners:FrameworkElement
-{
-    internal NexaOptions Options {get;set;}=new();
-    private readonly System.Diagnostics.Stopwatch clock=System.Diagnostics.Stopwatch.StartNew();
-    private readonly System.Windows.Threading.DispatcherTimer motion=new(){Interval=TimeSpan.FromMilliseconds(100)};
-    private DrawingGroup? staticArt;private Size artSize;
-    internal static double WebSize(Size size)=>Math.Min(725,Math.Min(size.Width*.46,size.Height*.62));
-    internal static Point SpiderPoint(double time,double size)
-    {
-        var cycle=time%4;var travel=cycle<.5?cycle/.5:cycle<2?1:cycle<2.5?1-(cycle-2)/.5:0;
-        var eased=travel*travel*(3-2*travel);return new(25+8*eased,Math.Min(size*.24,120)+18*eased);
-    }
-    internal SeasonalCorners()
-    {
-        motion.Tick+=(_,_)=>{if(IsVisible && Options.SeasonalAnimation && NexaMotion.Allowed(Options))InvalidateVisual();};
-        Loaded+=(_,_)=>motion.Start();Unloaded+=(_,_)=>motion.Stop();
-        IsVisibleChanged+=(_,_)=>{if(IsVisible && IsLoaded)motion.Start();else motion.Stop();};
-    }
-    protected override void OnRender(DrawingContext dc)
-    {
-        if(ActualWidth<=0 || ActualHeight<=0)return;
-        if(staticArt==null || artSize!=RenderSize){artSize=RenderSize;staticArt=new DrawingGroup();using(var art=staticArt.Open())DrawStatic(art);staticArt.Freeze();}
-        dc.DrawDrawing(staticArt);
-        var time=Options.SeasonalAnimation && NexaMotion.Allowed(Options)?clock.Elapsed.TotalSeconds:0;
-        var pumpkin=Math.Min(275,ActualWidth*.33);
-        NexaweenDecorations.DrawPumpkinLight(dc,new Rect(ActualWidth-pumpkin,ActualHeight-pumpkin,pumpkin,pumpkin),time);
-        var point=SpiderPoint(time,WebSize(RenderSize));dc.PushTransform(new TranslateTransform(point.X,point.Y));dc.PushTransform(new ScaleTransform(2.2,2.2));dc.PushTransform(new RotateTransform(Math.Sin(time*.06)*35));
-        BugVisuals.Draw(dc,new BugEntity{Species=BugSpecies.Spiders},new EcosystemOptions{Appearance=BugAppearance.Halloween,MatchAppearance=false,Adorable=true},true);dc.Pop();dc.Pop();dc.Pop();
-    }
-    private void DrawStatic(DrawingContext dc)
-    {
-        var size=WebSize(RenderSize);var pen=BugVisuals.P("#70FFFFFF",.65);
-        for(var i=0;i<9;i++){var a=i*Math.PI/16;dc.DrawLine(pen,new(0,0),new(Math.Cos(a)*size,Math.Sin(a)*size));}
-        for(var ring=1;ring<=9;ring++)for(var i=0;i<8;i++)
-        {
-            var a=i*Math.PI/16;var b=(i+1)*Math.PI/16;var radius=size*ring/10;
-            var line=new StreamGeometry();using(var g=line.Open()){g.BeginFigure(new(Math.Cos(a)*radius,Math.Sin(a)*radius),false,false);g.QuadraticBezierTo(new(Math.Cos((a+b)/2)*radius*.96,Math.Sin((a+b)/2)*radius*.96),new(Math.Cos(b)*radius,Math.Sin(b)*radius),true,false);}line.Freeze();dc.DrawGeometry(null,pen,line);
-        }
-        var pumpkin=Math.Min(275,ActualWidth*.33);var x=ActualWidth-pumpkin;var y=ActualHeight-pumpkin;var stem=NexaweenDecorations.PumpkinStalk(new Rect(x,y,pumpkin,pumpkin));
-        var ends=new[]{new Point(12,ActualHeight-16),new Point(ActualWidth-16,14),new Point(ActualWidth*.48,ActualHeight-65),new Point(ActualWidth-65,ActualHeight*.38),new Point(ActualWidth*.7,ActualHeight-100),new Point(ActualWidth-115,ActualHeight*.58)};
-        var random=new Random(102726);
-        for(var vine=0;vine<ends.Length;vine++)
-        {
-            var end=ends[vine];Point one,two;
-            if(vine==0){one=new(stem.X-60,ActualHeight+20);two=new(ActualWidth*.35,ActualHeight+5);}
-            else if(vine==1){one=new(ActualWidth+12,ActualHeight*.7);two=new(ActualWidth-42,ActualHeight*.25);}
-            else{one=new(stem.X-70-random.Next(60),stem.Y+random.Next(-70,110));two=new(end.X+random.Next(-75,76),end.Y+random.Next(-65,66));}
-            var curve=new StreamGeometry();using(var g=curve.Open()){g.BeginFigure(stem,false,false);g.BezierTo(one,two,end,true,false);}curve.Freeze();dc.DrawGeometry(null,BugVisuals.P(vine<2?"#D0536943":"#A0536943",vine<2?5:3),curve);
-            for(var leaf=1;leaf<=5;leaf++)
-            {
-                var t=leaf/6d;var u=1-t;var at=new Point(u*u*u*stem.X+3*u*u*t*one.X+3*u*t*t*two.X+t*t*t*end.X,u*u*u*stem.Y+3*u*u*t*one.Y+3*u*t*t*two.Y+t*t*t*end.Y);
-                dc.PushTransform(new TranslateTransform(at.X,at.Y));dc.PushTransform(new RotateTransform(random.Next(-165,166)));
-                dc.DrawGeometry(null,BugVisuals.P("#A0536943",1.4),Geometry.Parse(leaf%3==0?"M0,0 C-12,-18 19,-34 24,-18 C29,-6 6,-2 10,-16":leaf%3==1?"M0,0 C-18,-35 32,-40 23,-16 C18,-4 2,-20 15,-23":"M0,0 C-22,-9 -24,23 -6,25 C7,27 10,10 -2,12"));
-                dc.DrawGeometry(BugVisuals.B("#C04F6540"),BugVisuals.P("#A02F422D",.6),Geometry.Parse("M4,-4 Q8,-23 25,-15 Q23,3 4,-4 Z"));dc.Pop();dc.Pop();
-            }
-        }
-        dc.PushTransform(new TranslateTransform(x,y));dc.PushTransform(new ScaleTransform(pumpkin/64,pumpkin/64));dc.DrawDrawing(NexaweenDecorations.Asset(1));dc.Pop();dc.Pop();
     }
 }

@@ -115,13 +115,20 @@ internal sealed class NexaEcosystem : IDisposable
     {
         var current = clock.Elapsed.TotalSeconds; var dt = Math.Clamp(current - previous, 0, .1); previous = current;
         scoreRetry += dt;
-        if(pendingSquashes.Count > 0 && scoreRetry >= 5) {scoreRetry = 0; FlushScores(); Save();}
+        if(!responsiveSaving && pendingSquashes.Count > 0 && scoreRetry >= 5)
+        {
+            scoreRetry=0;
+            var owner=Application.Current?.Windows.OfType<MainWindow>().FirstOrDefault(w=>w.IsLoaded && w.SettingsStore.FilePath==store.FilePath);
+            if(owner!=null)
+                foreach(var squash in pendingSquashes.ToArray())
+                    _=RecordSquashResponsive(new BugEntity{InteractionId=squash.BugId,Species=squash.Species},owner);
+        }
         if (!views.Values.Any(v => v()) || blocked || Manager.WorldPaused) return;
         var began = Stopwatch.GetTimestamp();
         if (!blocked) Manager.Advance(dt);
         LastStepMilliseconds = Stopwatch.GetElapsedTime(began).TotalMilliseconds;
         Manager.ObserveFrameCost(LastStepMilliseconds);
-        checkpoint += dt; if (checkpoint >= 30) { checkpoint = 0; Save(); }
+        checkpoint += dt; if (checkpoint >= 30 && !responsiveSaving) { checkpoint = 0; Save(); }
         Changed?.Invoke();
     }
     internal bool Save()
@@ -129,6 +136,7 @@ internal sealed class NexaEcosystem : IDisposable
         if (!CanSave) return false;
         try
         {
+            try{diskWrite.GetAwaiter().GetResult();}catch(Exception ex)when(ex is IOException or UnauthorizedAccessException){}
             var doc = Manager.CaptureEcosystem(store.UserId); doc.PendingSquashes = Continuity.Clone(pendingSquashes); doc.Validate(store.UserId);
             var payload=JsonSerializer.Serialize(doc,json);Manager.PersistenceBytes=System.Text.Encoding.UTF8.GetByteCount(payload);if(Manager.PersistenceBytes>8_000_000)throw new InvalidDataException("Resource safety limit reached; the previous save is preserved.");
             StateStore.AtomicWrite(FilePath, payload, true); Status = scoreWarning; return true;
@@ -178,6 +186,64 @@ internal sealed class NexaEcosystem : IDisposable
         if(pendingSquashes.Any(s=>s.BugId==bug.InteractionId)) {FlushScores(owner);Interaction();return;}
         pendingSquashes.Add(new(){BugId=bug.InteractionId,Species=bug.Species,SessionId=id,At=DateTimeOffset.UtcNow});
         FlushScores(owner); Interaction();
+    }
+    private Task diskWrite=Task.CompletedTask;
+    private Task responsiveTail=Task.CompletedTask;
+    private bool responsiveSaving;
+    internal double LastSquashPersistenceMilliseconds {get;private set;}
+    internal Task RecordSquashResponsive(BugEntity bug,MainWindow? owner)
+        =>timer.Dispatcher.CheckAccess()?QueueSquashResponsive(bug,owner):timer.Dispatcher.InvokeAsync(()=>QueueSquashResponsive(bug,owner)).Task.Unwrap();
+    private Task QueueSquashResponsive(BugEntity bug,MainWindow? owner)
+    {
+        if(!CanSave)return Task.CompletedTask;
+        var session=owner?.state.Workspace is {} workspace?Continuity.Current(workspace,store.UserId).Current.SessionId:lastSessionId;
+        var squash=pendingSquashes.FirstOrDefault(s=>s.BugId==bug.InteractionId);
+        if(squash==null)
+        {
+            if(pendingSquashes.Count>=500){Status="The pending squash history is full. Resolve the save error before squashing more creatures.";Changed?.Invoke();return Task.CompletedTask;}
+            squash=new(){BugId=bug.InteractionId,Species=bug.Species,SessionId=session,At=DateTimeOffset.UtcNow};pendingSquashes.Add(squash);
+        }
+        var previous=responsiveTail;
+        return responsiveTail=Run();
+        async Task Run()
+        {
+            await previous;
+            var operation=await timer.Dispatcher.InvokeAsync(()=>RunOnDispatcher(),DispatcherPriority.Background);
+            await operation;
+        }
+        async Task RunOnDispatcher()
+        {
+            responsiveSaving=true;var watch=Stopwatch.StartNew();
+            try
+            {
+                if(!CanSave)return;
+                // Write-ahead event survives interruption; ledger event IDs make replay idempotent.
+                await SaveSnapshotAsync();
+                if(owner!=null)
+                {
+                    if(!await timer.Dispatcher.InvokeAsync(()=>owner.ApplyPendingSquash(bug,squash.At,squash.SessionId)))return;
+                    if(!await owner.PersistSquashAsync())return;
+                    await timer.Dispatcher.InvokeAsync(()=>pendingSquashes.Remove(squash));await SaveSnapshotAsync();
+                }
+                // Ownerless ecosystem view retains the durable event for existing history recovery.
+                await timer.Dispatcher.InvokeAsync(()=>Changed?.Invoke());
+            }
+            catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or InvalidDataException or JsonException or InvalidOperationException)
+            {await timer.Dispatcher.InvokeAsync(()=>{scoreWarning="A squash is awaiting its session-history save. It is kept with the ecosystem and will retry.";Status=scoreWarning;});}
+            finally{await timer.Dispatcher.InvokeAsync(()=>{responsiveSaving=false;LastSquashPersistenceMilliseconds=watch.Elapsed.TotalMilliseconds;});}
+        }
+    }
+    private async Task SaveSnapshotAsync()
+    {
+        try{await diskWrite;}catch(Exception ex)when(ex is IOException or UnauthorizedAccessException){}
+        var write=await timer.Dispatcher.InvokeAsync(()=>
+        {
+            var doc=Manager.CaptureEcosystem(store.UserId);doc.PendingSquashes=Continuity.Clone(pendingSquashes);doc.Validate(store.UserId);
+            var payload=JsonSerializer.Serialize(doc,json);Manager.PersistenceBytes=System.Text.Encoding.UTF8.GetByteCount(payload);
+            if(Manager.PersistenceBytes>8_000_000)throw new InvalidDataException("Resource safety limit reached; the previous save is preserved.");
+            return diskWrite=Task.Run(()=>StateStore.AtomicWrite(FilePath,payload,true));
+        });
+        await write;
     }
     private void FlushScores(MainWindow? owner = null)
     {

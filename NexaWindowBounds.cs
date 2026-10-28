@@ -13,7 +13,7 @@ internal static class NexaWindowBounds
     [DllImport("user32.dll")] private static extern nint MonitorFromWindow(nint window, uint flags);
     [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] private static extern bool GetMonitorInfo(nint monitor, ref MonitorInfo info);
 
-    internal static bool IsFullscreen(FrameworkElement element) => Window.GetWindow(element) is MainWindow { IsFullscreen: true };
+    internal static bool IsFullscreen(FrameworkElement element) => NexaFullscreen.IsFullscreen(Window.GetWindow(element));
     internal static double NotificationInset(FrameworkElement element) => IsFullscreen(element) ? 12 : 18;
     internal static bool TryNotificationArea(FrameworkElement element, out Rect area)
     {
@@ -49,7 +49,7 @@ internal static class NexaWindowBounds
             if (message != 0x0024) return nint.Zero; // WM_GETMINMAXINFO uses physical monitor pixels.
             var info = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
             if (!GetMonitorInfo(MonitorFromWindow(hwnd, 2), ref info)) return nint.Zero;
-            var full = window is MainWindow main && main.IsFullscreen;
+            var full = NexaFullscreen.IsFullscreen(window);
             var area = full ? info.Monitor : info.Work;
             var size = Marshal.PtrToStructure<MinMax>(lParam);
             size.MaxPosition = new Point { X = area.Left - info.Monitor.Left, Y = area.Top - info.Monitor.Top };

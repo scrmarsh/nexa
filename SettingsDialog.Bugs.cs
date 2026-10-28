@@ -26,6 +26,8 @@ internal sealed partial class SettingsDialog
         var costumes = new CheckBox { Content = "Halloween costumes", IsChecked = options.Costumes, Margin = new Thickness(0, 0, 0, 10) }; page.Children.Add(costumes);
         var size = new Slider { Minimum = .75, Maximum = 4, Value = options.Size, TickFrequency = .25, IsSnapToTickEnabled = true, IsMoveToPointEnabled = true };
         var sizeLabel = new TextBlock(); Field(page, "Bug size", size); page.Children.Add(sizeLabel);
+        var clickPadding=new Slider{Minimum=1.4,Maximum=1.6,Value=options.HitboxExpansion,TickFrequency=.05,IsSnapToTickEnabled=true};
+        Field(page,"Bug click tolerance",clickPadding);
         var quality = new ComboBox { ItemsSource = Enum.GetValues<BugAnimationQuality>(), SelectedItem = options.Quality }; Field(page, "Animation quality", quality);
         var status = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 12) }; page.Children.Add(status);
         void Refresh()
@@ -49,16 +51,17 @@ internal sealed partial class SettingsDialog
         void Changed(bool appearanceChanged = false)
         {
             options = options.ChooseBehavior(behavior.SelectedItem is BugBehavior mode ? mode : BugBehavior.Classic,NexaSeason.Active(ReliabilityOptions,DateTimeOffset.UtcNow)) with {
-                MatchAppearance=appearanceChanged?false:options.MatchAppearance, Appearance=appearanceChanged?(appearance.SelectedIndex==1?BugAppearance.Creepy:appearance.SelectedIndex==2?BugAppearance.Halloween:BugAppearance.Normal):options.Appearance, Adorable=adorable.IsChecked==true, AdvancedAnimations=advanced.IsChecked==true, Size=size.Value, Quality=quality.SelectedItem is BugAnimationQuality chosen?chosen:BugAnimationQuality.Balanced, Costumes=costumes.IsChecked==true };
+                MatchAppearance=appearanceChanged?false:options.MatchAppearance, Appearance=appearanceChanged?(appearance.SelectedIndex==1?BugAppearance.Creepy:appearance.SelectedIndex==2?BugAppearance.Halloween:BugAppearance.Normal):options.Appearance, Adorable=adorable.IsChecked==true, AdvancedAnimations=advanced.IsChecked==true, Size=size.Value, HitboxExpansion=clickPadding.Value, Quality=quality.SelectedItem is BugAnimationQuality chosen?chosen:BugAnimationQuality.Balanced, Costumes=costumes.IsChecked==true };
             preferences = new(enabled.IsChecked == true, species.SelectedItem is BugSpecies type ? type : BugSpecies.Ants, density.SelectedIndex is >=0 and <=3 ? (BugDensity)density.SelectedIndex : BugDensity.Normal, options.Safe());
             if (preferences.Enabled) world.Manager.WorldPaused = false;
             world.ApplyPreferences(preferences); world.ApplySeason(ReliabilityOptions);
             foreach (var window in Application.Current.Windows.OfType<MainWindow>().Where(w => w.SettingsStore.UserId == store.UserId && w.SettingsStore.FilePath == store.FilePath)) window.ApplyBugPreferences(preferences);
+            foreach(var home in Application.Current.Windows.OfType<HomeWindow>())home.RefreshCompanionOptions(store,options);
             QueueSave("bugs", () => { store.SaveBugPreferences(preferences); if (!world.Save()) throw new System.IO.IOException(world.Status ?? "Ecosystem could not be saved."); });
             Refresh();
         }
         enabled.Click += (_, _) => Changed(); species.SelectionChanged += (_, _) => Changed(); density.SelectionChanged += (_, _) => Changed(); behavior.SelectionChanged += (_, _) => Changed(); appearance.SelectionChanged += (_, _) => {if(!updatingAppearance)Changed(true);};
-        adorable.Click += (_, _) => Changed(); advanced.Click += (_, _) => Changed(); costumes.Click += (_, _) => Changed(); size.ValueChanged += (_, _) => Changed(); quality.SelectionChanged += (_, _) => Changed();
+        adorable.Click += (_, _) => Changed(); advanced.Click += (_, _) => Changed(); costumes.Click += (_, _) => Changed(); size.ValueChanged += (_, _) => Changed();clickPadding.ValueChanged+=(_,_)=>Changed(); quality.SelectionChanged += (_, _) => Changed();
         if (space != null)
         {
             var totals = new Button { Content = "Add Bugs Squashed widget", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 12, 0, 8) };

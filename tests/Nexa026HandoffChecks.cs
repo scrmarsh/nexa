@@ -128,7 +128,7 @@ internal static partial class Program
         Theme.SetSeasonalEnabled(true);var splash=OffscreenHandoff(new SplashWindow(new NexaOptions{ReduceMotion=false}));splash.Show();
         if(NexaMotion.Allowed(new()))Assert(!splash.TaglineComplete && splash.Loading.Visibility==Visibility.Collapsed,"Animated startup hides progress until the complete tagline is typed");
         splash.Report(.8,"Synthetic initialization complete");WaitHandoff(()=>splash.TaglineComplete,"Full seasonal tagline finishes before progress is revealed");
-        Assert(splash.Loading.Visibility==Visibility.Visible && splash.ReportedProgress==.8,"Real initialization milestones accumulate while tagline types");
+        Assert(splash.Loading.Visibility==Visibility.Collapsed && splash.ReportedProgress==.8,"Real initialization milestones accumulate while tagline types");
         Assert(Descendants(splash).OfType<TextBlock>().SelectMany(t=>t.Inlines.OfType<Run>()).Any(r=>r.Text=="haunts" && r.Foreground is SolidColorBrush b && b.Color==Color.FromRgb(249,115,22)),"Splash colors only haunts orange after typing");Capture026(splash,"handoff-splash");splash.Close();
     }
     private static void CheckHandoffScores()
