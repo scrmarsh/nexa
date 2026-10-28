@@ -21,12 +21,16 @@ internal sealed class ProductivityStreakOverlay : FrameworkElement, IDisposable
         var active=Ledger is {} ledger && DisplayMultiplier(ledger,DateTimeOffset.UtcNow)>0;
         if(active || displayed)InvalidateVisual();displayed=active;
     }
+    internal static Rect LayoutFrame(Size size,Rect? workArea=null)
+    {
+        var safe=workArea??new Rect(size);safe.Intersect(new Rect(size));if(safe.IsEmpty)safe=new Rect(size);
+        var width=Math.Max(1,Math.Min(320,safe.Width-32));return new Rect(safe.Left+(safe.Width-width)/2,Math.Max(safe.Top+52,safe.Bottom-156-18),width,156);
+    }
     protected override void OnRender(DrawingContext dc)
     {
         if (Ledger is not {} ledger || !IsVisible || ActualWidth<80 || ActualHeight<140) return;
         var now=DateTimeOffset.UtcNow;var multiplier=DisplayMultiplier(ledger,now);if(multiplier<=0)return;
-        var width=Math.Min(320,ActualWidth-32);var height=156d;var x=(ActualWidth-width)/2;var y=Math.Max(60,(ActualHeight-height)/2);
-        var frame=new Rect(x,y,width,height);var active=ledger.FrenzyUntil>now;
+        var frame=LayoutFrame(RenderSize,NexaWindowBounds.TryWorkArea(this,out var work)?work:null);var width=frame.Width;var height=frame.Height;var x=frame.X;var y=frame.Y;var active=ledger.FrenzyUntil>now;
         if(!active)dc.PushOpacity(Math.Clamp(multiplier/Math.Max(1,ledger.FrenzyMultiplier),.08,1));
         dc.DrawRoundedRectangle(BugVisuals.B(Theme.SeasonalEnabled?"#F21C102A":"#F2171B26"),BugVisuals.P(Theme.SeasonalEnabled?"#A855F7":"#7C6CF0",1.5),frame,16,16);
         void Text(string value,double size,double top,string color)

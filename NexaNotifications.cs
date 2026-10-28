@@ -61,24 +61,36 @@ internal sealed class NexaNotifications : IDisposable
         var body = new Grid();body.ColumnDefinitions.Add(new(){Width=GridLength.Auto});body.ColumnDefinitions.Add(new(){Width=new GridLength(1,GridUnitType.Star)});body.ColumnDefinitions.Add(new(){Width=GridLength.Auto});
         var dismiss = new Button { Content = "×", Focusable = false, Padding = new Thickness(5, 1, 5, 1), VerticalAlignment = VerticalAlignment.Top, ToolTip = "Dismiss notification" };
         dismiss.Click += (_, _) => Dismiss(key); Grid.SetColumn(dismiss,2); body.Children.Add(dismiss);
-        var glyph = new TextBlock { Text = icon, Foreground = key == "tip" ? new SolidColorBrush(Color.FromRgb(250, 204, 21)) : priority >= 2 ? Brushes.Orange : Brushes.LightGreen, FontSize = 20, Margin = new Thickness(0, 0, 10, 0) };
+        var glyph = new TextBlock { Text = icon, Foreground = key == "tip" ? new SolidColorBrush(Color.FromRgb(250, 204, 21)) : priority >= 2 ? Brushes.Orange : Brushes.LightGreen, FontSize = key=="tip"?16:20, Margin = new Thickness(0, 0, key=="tip"?7:10, 0) };
         glyph.RenderTransformOrigin = new Point(.5, .5); glyph.RenderTransform = new RotateTransform();
         ConfigureGlyph(key,glyph,message);
         Grid.SetColumn(glyph,0); body.Children.Add(glyph);
         var content = new StackPanel();
-        var text = new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap };
+        var text = new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap, FontSize=key=="tip"?11.5:12 };
         text.SetResourceReference(TextBlock.ForegroundProperty, "TextBrush");
         System.Windows.Automation.AutomationProperties.SetLiveSetting(text, System.Windows.Automation.AutomationLiveSetting.Polite);
         content.Children.Add(text);
-        if (action != null)
+        if (action != null && key!="tip")
         {
             var button = new Button { Content = actionLabel ?? "Review", Focusable = false, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 0) };
             button.Click += (_, _) => action(); content.Children.Add(button);
         }
         Grid.SetColumn(content,1);body.Children.Add(content);
-        var card = new Border { Child = body, Padding = new Thickness(13), Margin = new Thickness(0, 6, 0, 0), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10) };
+        var card = new Border { Child = body, Padding = new Thickness(key=="tip"?10:13), MaxWidth=key=="tip"?270:double.PositiveInfinity, HorizontalAlignment=key=="tip"?HorizontalAlignment.Right:HorizontalAlignment.Stretch, Margin = new Thickness(0, 6, 0, 0), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10) };
         card.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); card.SetResourceReference(Border.BorderBrushProperty, "LineBrush");
-        if(key=="tip" && action!=null)card.MouseLeftButtonUp+=(_,e)=>{if(e.OriginalSource is not Button){action();e.Handled=true;}};
+        if(key=="tip" && action!=null)
+        {
+            card.Cursor=System.Windows.Input.Cursors.Hand;card.Focusable=true;
+            System.Windows.Automation.AutomationProperties.SetName(card,"Quick tip. "+message);
+            System.Windows.Automation.AutomationProperties.SetHelpText(card,"Select this tip to open tip settings.");
+            card.MouseLeftButtonUp+=(_,e)=>
+            {
+                for(var node=e.OriginalSource as DependencyObject;node!=null && node!=card;node=node is Visual?VisualTreeHelper.GetParent(node):LogicalTreeHelper.GetParent(node))
+                    if(node is System.Windows.Controls.Primitives.ButtonBase)return;
+                action();e.Handled=true;
+            };
+            card.KeyDown+=(_,e)=>{if(e.Key is System.Windows.Input.Key.Enter or System.Windows.Input.Key.Space){action();e.Handled=true;}};
+        }
         entries[key] = new(card, glyph, message, seconds is { } duration ? DateTimeOffset.UtcNow.AddSeconds(duration) : null, priority);
         while (entries.Count > 5)
         {

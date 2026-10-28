@@ -91,7 +91,7 @@ public static class WidgetLibrary
 {
     public static IReadOnlyList<WidgetDefinition> Definitions { get; } =
     [
-        new("Bugs Squashed", "Bugs", "Direct user squashes in this session and across all sessions.", "squashes", DefaultHeight: 200),
+        new("Bugs Squashed", "Bugs", "Direct user squashes in this session and across all sessions.", "squashes", MinHeight:480, DefaultHeight:528, MinWidth:400),
         new("Productivity", "Session", "Session score, meaningful actions, recent activity, milestones and streaks.", "productivity", DefaultHeight: 384),
         new("Timer", "Session", "Independent countdown or elapsed timer.", "timer", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
         new("Stopwatch", "Session", "Digital and analog elapsed time with pause and resume.", "stopwatch", MinHeight: 360, DefaultSpan: 6, DefaultHeight: 384, MinWidth: 280, CanMinimize: false),

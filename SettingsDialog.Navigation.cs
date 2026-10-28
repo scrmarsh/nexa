@@ -101,10 +101,7 @@ internal sealed class NexaSeasonArt(bool ghost):FrameworkElement
         }
         else
         {
-            dc.DrawGeometry(null,BugVisuals.P("#4D7C0F",2),Geometry.Parse("M90,66 C45,62 98,42 76,38 C61,34 67,50 80,44 M95,65 C72,40 98,17 86,12"));
-            dc.DrawEllipse(BugVisuals.B("#C2410C"),null,new(49,39),37,24);dc.DrawEllipse(BugVisuals.B("#F97316"),BugVisuals.P("#EA580C",1),new(36,38),19,24);dc.DrawEllipse(BugVisuals.B("#FB923C"),BugVisuals.P("#EA580C",1),new(58,38),18,25);
-            dc.DrawGeometry(null,BugVisuals.P("#65A30D",5),Geometry.Parse("M49,16 Q43,5 56,8"));
-            var text=new FormattedText("Nexaween",System.Globalization.CultureInfo.CurrentCulture,FlowDirection.LeftToRight,new Typeface("Segoe UI Semibold"),11,BugVisuals.B("#661C102A"),1);dc.DrawText(text,new(23,34));
+            dc.PushTransform(new TranslateTransform(18,2));dc.DrawDrawing(NexaweenDecorations.Asset(1));dc.Pop();
         }
         dc.Pop();
     }

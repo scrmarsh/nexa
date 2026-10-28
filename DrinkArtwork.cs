@@ -25,6 +25,7 @@ internal sealed class DrinkArtwork : FrameworkElement
     { var brush=new LinearGradientBrush((Color)ColorConverter.ConvertFromString(a),(Color)ColorConverter.ConvertFromString(b),90); brush.Freeze(); return brush; }
     public static readonly DependencyProperty FillFractionProperty=DependencyProperty.Register(nameof(FillFraction),typeof(double),typeof(DrinkArtwork),new FrameworkPropertyMetadata(0d,FrameworkPropertyMetadataOptions.AffectsRender));
     public double FillFraction { get=>(double)GetValue(FillFractionProperty); set=>SetValue(FillFractionProperty,value); }
+    internal static Brush WaterLiquid => Theme.SeasonalEnabled?Spirit:Water;
     internal DrinkArtwork(bool beer,bool animate=true) { Beer=beer; IsHitTestVisible=false; }
     internal void SetFill(double fraction)
     {
@@ -43,7 +44,7 @@ internal sealed class DrinkArtwork : FrameworkElement
         dc.DrawGeometry(bottle ? Brown : Clear,null,shape);
         dc.PushClip(liquid);
         var bounds=liquid.Bounds; var top=bounds.Bottom-bounds.Height*Math.Clamp(FillFraction,0,1);
-        dc.DrawRectangle(!Beer ? Water : bottle ? Ale : wine ? Wine : Spirit,null,new Rect(bounds.Left,top,bounds.Width,Math.Max(0,bounds.Bottom-top)));
+        dc.DrawRectangle(!Beer ? WaterLiquid : bottle ? Ale : wine ? Wine : Spirit,null,new Rect(bounds.Left,top,bounds.Width,Math.Max(0,bounds.Bottom-top)));
         if(wine && FillFraction>.01)
         {foreach(var bubble in new[]{new Point(29,45),new Point(43,31),new Point(39,52),new Point(49,43)})if(bubble.Y>top)dc.DrawEllipse(null,Shine,bubble,2,2);}
         if(FillFraction>.01)dc.DrawLine(Shine,new Point(bounds.Left,top),new Point(bounds.Right,top));
@@ -52,7 +53,7 @@ internal sealed class DrinkArtwork : FrameworkElement
         if(!Beer)
         {
             for(var y=44;y<=88;y+=11)dc.DrawLine(Shine,new Point(21,y),new Point(55,y));
-            dc.DrawRoundedRectangle(new SolidColorBrush(Color.FromRgb(178,212,230)),ClearEdge,new Rect(28,3,20,7),1,1);
+            dc.DrawRoundedRectangle(Theme.SeasonalEnabled?Spirit:new SolidColorBrush(Color.FromRgb(178,212,230)),ClearEdge,new Rect(28,3,20,7),1,1);
         }
         else if(bottle)dc.DrawRoundedRectangle(Brown,BrownEdge,new Rect(31,3,14,6),1,1);
         else if(wine)

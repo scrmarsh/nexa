@@ -26,13 +26,18 @@ internal sealed partial class NexaweenDecorations
         var selection=new Random(102725);
         foreach(var rect in widgets.OrderBy(_=>selection.Next()))
         {
-            if(count>=limit)break;var size=42d;var bounds=new Rect(Math.Clamp(rect.Right-size*.4,0,Math.Max(0,Width-size)),rect.Bottom-size*.18,size,size);
-            var safe=bounds;safe.Inflate(14,14);
-            // The target's own body is exempt; every other occupied/reserved region is a collision.
-            safe.Union(new Rect(rect.Right-70,rect.Bottom-100,102,116));
-            if(bounds.X<0 || bounds.Y<0 || bounds.Right>Width || bounds.Bottom>Height || occupied.Any(other=>other!=rect && other.IntersectsWith(safe)))continue;
-            var kind=0;var asset=Asset(kind);dc.PushTransform(new TranslateTransform(bounds.X,bounds.Y));dc.PushTransform(new ScaleTransform(size/64,size/64));dc.DrawDrawing(asset);dc.Pop();dc.Pop();actors.Add(new(bounds,kind,asset,100+count,true));occupied.Add(bounds);
-            if(kind==0){vineCorners.Add(rect);DrawVine(dc,rect);}count++;
+            if(count>=limit)break;var size=76d;
+            var candidates=new[]{new Rect(Math.Clamp(rect.Right-size*.4,0,Math.Max(0,Width-size)),rect.Bottom-size*.18,size,size),new Rect(Math.Clamp(rect.Left-size*.6,0,Math.Max(0,Width-size)),rect.Bottom-size*.18,size,size),new Rect(Math.Clamp(rect.Left-size*.3,0,Math.Max(0,Width-size)),rect.Top-size*.85,size,size)};
+            var bounds=Rect.Empty;
+            foreach(var candidate in candidates)
+            {
+                var safe=candidate;safe.Inflate(5,5);
+                if(candidate.Top<0 || candidate.Bottom>Height || occupied.Any(other=>other!=rect && other.IntersectsWith(safe)))continue;
+                bounds=candidate;break;
+            }
+            if(bounds.IsEmpty)continue;
+            var kind=1;var asset=Asset(kind);dc.PushTransform(new TranslateTransform(bounds.X,bounds.Y));dc.PushTransform(new ScaleTransform(size/64,size/64));dc.DrawDrawing(asset);dc.Pop();dc.Pop();actors.Add(new(bounds,kind,asset,100+count,true));occupied.Add(bounds);
+            if(kind==1){vineCorners.Add(rect);DrawVine(dc,rect);}count++;
         }
     }
     private static void DrawSeasonalExtra(DrawingContext dc,int kind)

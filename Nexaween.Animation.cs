@@ -17,7 +17,7 @@ internal sealed partial class NexaweenDecorations : IDisposable
     }
     private readonly Random lifecycleRandom = new(102725);
     private List<Rect> backgroundAvoidance = [];
-    internal static readonly int[] BackgroundKinds=[5,6,8,13,16,5,6,8,16,6,0,4,20,2,21];
+    internal static readonly int[] BackgroundKinds=[5,6,8,13,16,5,6,8,16,6,1,4,20,2,21];
     private readonly List<Actor> actors = [];
     private static readonly Dictionary<int, Drawing> assets = [];
     private readonly DispatcherTimer animation = new(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(50) };

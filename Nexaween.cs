@@ -44,9 +44,9 @@ public partial class MainWindow
         if (seasonalArtwork == null) seasonalArtwork = new NexaweenDecorations { IsHitTestVisible = false };
         if (!WidgetCanvas.Children.Contains(seasonalArtwork)) { Panel.SetZIndex(seasonalArtwork, -1); WidgetCanvas.Children.Add(seasonalArtwork); }
         var widgetTargets=widgetFrames.Values.Select(f=>f.TransformToVisual(WidgetCanvas).TransformBounds(new Rect(0,0,f.Width,f.Height))).ToArray();
+        if(PixelObstacle is {} pixelTarget)widgetTargets=widgetTargets.Append(pixelTarget).ToArray();
         var occupied=widgetTargets.ToList();
-        if (PixelObstacle is { } pixels) occupied.Add(pixels);
-        occupied.Add(new Rect(0, bottom + 20, 190, 60));
+        occupied.Add(new Rect(Canvas.GetLeft(workspaceAdd), bottom + 20, Math.Max(150,workspaceAdd.ActualWidth), 90));
         seasonalArtwork.ConfigureAnimation(Options,new Rect(WidgetScroller.HorizontalOffset,WidgetScroller.VerticalOffset,Math.Max(1,WidgetScroller.ViewportWidth),Math.Max(1,WidgetScroller.ViewportHeight)));
         seasonalArtwork.Update(Math.Max(1, WidgetCanvas.ActualWidth), Math.Max(1, WidgetCanvas.Height), occupied, Options.DecorationDensity,widgetTargets:widgetTargets);
         seasonalArtwork.Visibility = Theme.SeasonalEnabled && Options.SeasonalDecorations && Options.DecorationDensity != "Off" ? Visibility.Visible : Visibility.Collapsed;
@@ -136,7 +136,8 @@ internal sealed partial class NexaweenDecorations : FrameworkElement
                 dc.DrawEllipse(B("#FB923C"), P("#C45115"), new(38,36), 15,22);
                 for(var groove=0;groove<5;groove++)
                 {var x=17+groove*7;var curve=new StreamGeometry();using(var g=curve.Open()){g.BeginFigure(new(x,15),false,false);g.BezierTo(new(x-10,27),new(x-9,48),new(x,57),true,false);}dc.DrawGeometry(null,P("#663B1C10",.8),curve);}
-                Shape(dc,"M29,17 L30,5 Q40,1 39,8 L35,18 Z","#567D36");
+                Shape(dc,"M28,18 C24,10 25,3 34,3 C41,3 46,7 48,2 C53,10 43,14 36,12 L36,19 Z","#4D7C0F","#365314");
+                dc.DrawGeometry(null,P("#84CC16",1.6),Geometry.Parse("M30,16 C27,8 30,5 35,6 C41,8 45,9 47,6"));
                 if (kind == 1) { Shape(dc,"M15,34 L22,24 L28,34 Z M36,34 L42,24 L49,34 Z","#D9F99D"); Shape(dc,"M16,43 L24,47 L30,43 L37,48 L48,42 Q35,60 16,43 Z","#84CC16"); }
                 break;
             case 2: // Ghost
