@@ -34,3 +34,6 @@ desktop.ini
 
 /LEGACY/builds/
 !LEGACY/assets/desktop.ini
+
+# Authoritative local build delivery, never source/user data
+/Builds/

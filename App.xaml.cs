@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 
 namespace SessionDashboard;
@@ -24,6 +24,10 @@ public partial class App : Application
         {
             StartupVerification.Run(this, Path.GetFullPath(e.Args[1]));
             return;
+        }
+        if (e.Args.Length == 2 && e.Args[0] == "--apply-update")
+        {
+            ApplyUpdateHelper(Path.GetFullPath(e.Args[1])); return;
         }
         var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SessionDashboard", "state.json");
         var userId = System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value;
@@ -65,6 +69,11 @@ public partial class App : Application
             MessageBox.Show("Your saved workspace could not be opened. No data was overwritten.\n\n" + ex.Message, "Nexa", MessageBoxButton.OK, MessageBoxImage.Warning);
             Shutdown(1);
         }
+    }
+    private async void ApplyUpdateHelper(string path)
+    {
+        try { await UpdateTransaction.Apply(path, target => UpdateTransaction.Health(target, Path.Combine(Path.GetDirectoryName(path)!, "installed-health")), target => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(target) { UseShellExecute = true })?.Dispose()); Shutdown(0); }
+        catch (Exception ex) when (HistoryArchive.Recoverable(ex) || ex is TimeoutException or System.ComponentModel.Win32Exception) { Shutdown(1); }
     }
     protected override void OnExit(ExitEventArgs e) { NexaEcosystem.FlushAll(); workspaceMutex?.Dispose(); base.OnExit(e); }
     private static async Task CheckStartupUpdatesAsync(StateStore store, Window home)

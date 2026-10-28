@@ -12,13 +12,14 @@
     <Title>Nexa</Title>
     <Description>NEXAWEEN — A space for whatever haunts you next.</Description>
     <ApplicationIcon>assets\nexa-icon-seasonal.ico</ApplicationIcon>
-    <Version>0.1.24</Version><ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>0.1.25</Version><ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
     <RuntimeHostConfigurationOption Include="Switch.System.Windows.DoNotScaleForDpiChanges" Value="false" />
     <Compile Remove="LEGACY\**\*.cs" /><Page Remove="LEGACY\**\*.xaml" /><ApplicationDefinition Remove="LEGACY\**\*.xaml" />
     <Compile Remove="verification\**\*.cs" /><Page Remove="verification\**\*.xaml" /><ApplicationDefinition Remove="verification\**\*.xaml" />
+    <Compile Remove="Builds\**\*.cs" /><Page Remove="Builds\**\*.xaml" /><ApplicationDefinition Remove="Builds\**\*.xaml" />
     <Compile Remove="tests\**\*.cs" />
     <Compile Remove="test-output\**\*.cs" />
     <Page Remove="test-output\**\*.xaml" />

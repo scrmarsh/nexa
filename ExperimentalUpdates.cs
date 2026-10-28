@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -28,7 +28,10 @@ public sealed partial class StateStore
     }
 }
 
-internal sealed record AvailableUpdate(Version Version, string Channel, string Name, string Notes, DateTimeOffset? PublishedAt, Uri Url, long Size, string Sha256);
+internal sealed record AvailableUpdate(Version Version, string Channel, string Name, string Notes, DateTimeOffset? PublishedAt, Uri Url, long Size, string Sha256)
+{
+    internal bool Portable => !Path.GetFileName(Url.AbsolutePath).EndsWith("-Setup.exe", StringComparison.OrdinalIgnoreCase);
+}
 
 internal sealed class ExperimentalUpdater(HttpClient client)
 {
@@ -41,40 +44,58 @@ internal sealed class ExperimentalUpdater(HttpClient client)
 
     internal async Task<AvailableUpdate?> CheckAsync(Version current, CancellationToken cancellationToken = default, string currentChannel = "Alpha")
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, ReleasesUri);
+        var latest = await DiscoverAsync(cancellationToken, currentChannel);
+        return latest != null && IsNewer(latest.Version, latest.Channel, current, currentChannel) ? latest : null;
+    }
+    internal async Task<AvailableUpdate?> DiscoverAsync(CancellationToken cancellationToken = default, string currentChannel = "Alpha")
+    {
+        AvailableUpdate? latest = null;
+        for (var page = 1; page <= 10; page++)
+        {
+        using var request = new HttpRequestMessage(HttpMethod.Get, page == 1 ? ReleasesUri : new Uri(ReleasesUri.AbsoluteUri + "&page=" + page));
         request.Headers.UserAgent.ParseAdd("Nexa-Desktop/0.1");
         request.Headers.Accept.ParseAdd("application/vnd.github+json");
         using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        if ((int)response.StatusCode is 403 or 429) throw new HttpRequestException("GitHub rate limit or access restriction. Try again later; public release checks require no login.");
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound) throw new HttpRequestException("The public Nexa releases feed was not found. Check network access to api.github.com/repos/scrmarsh/nexa/releases.");
         response.EnsureSuccessStatusCode();
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
         using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
         if (document.RootElement.ValueKind != JsonValueKind.Array) throw new InvalidDataException("Unexpected release response.");
-        AvailableUpdate? latest = null;
         foreach (var release in document.RootElement.EnumerateArray())
         {
+            try
+            {
             if (release.TryGetProperty("draft", out var draft) && draft.GetBoolean()) continue;
             var tag = release.GetProperty("tag_name").GetString() ?? "";
             var match = Tag.Match(tag);
             if (!match.Success || !Version.TryParse(match.Groups["version"].Value, out var version)) continue;
             var channel = match.Groups["channel"].Success ? System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(match.Groups["channel"].Value.ToLowerInvariant()) : release.TryGetProperty("prerelease", out var pre) && pre.GetBoolean() ? "Alpha" : "Stable";
-            if (ChannelRank(channel) < 0 || ChannelRank(channel) > ChannelRank(currentChannel) || !IsNewer(version, channel, current, currentChannel) || latest != null && !IsNewer(version, channel, latest.Version, latest.Channel)) continue;
+            if (ChannelRank(channel) < 0 || ChannelRank(channel) < ChannelRank(currentChannel) || latest != null && !IsNewer(version, channel, latest.Version, latest.Channel)) continue;
             var exactName = $"Nexa-{version.ToString(3)}-{channel}-Setup.exe";
             if (!release.TryGetProperty("assets", out var assets) || assets.ValueKind != JsonValueKind.Array) continue;
             foreach (var asset in assets.EnumerateArray())
             {
-                if (asset.GetProperty("name").GetString() != exactName) continue;
+                var assetName = asset.GetProperty("name").GetString() ?? "";
+                if (assetName != exactName && !assetName.Equals("Nexa.exe", StringComparison.OrdinalIgnoreCase) && !assetName.Equals($"Nexa-{version.ToString(3)}-{channel}.exe", StringComparison.OrdinalIgnoreCase)) continue;
                 var digest = Digest.Match(asset.TryGetProperty("digest", out var hash) ? hash.GetString() ?? "" : "");
                 if (!digest.Success || !asset.TryGetProperty("size", out var length) || !length.TryGetInt64(out var size) || size is < 1 or > 500_000_000) continue;
-                if (!Uri.TryCreate(asset.GetProperty("browser_download_url").GetString(), UriKind.Absolute, out var url) || url.Scheme != "https" || url.Host != "github.com" || !url.AbsolutePath.StartsWith("/scrmarsh/nexa/releases/download/", StringComparison.OrdinalIgnoreCase) || !url.AbsolutePath.EndsWith("/" + exactName, StringComparison.Ordinal)) continue;
+                if (!Uri.TryCreate(asset.GetProperty("browser_download_url").GetString(), UriKind.Absolute, out var url) || url.Scheme != "https" || url.Host != "github.com" || !url.AbsolutePath.StartsWith("/scrmarsh/nexa/releases/download/", StringComparison.OrdinalIgnoreCase) || !url.AbsolutePath.EndsWith("/" + assetName, StringComparison.Ordinal)) continue;
                 DateTimeOffset? published = release.TryGetProperty("published_at", out var date) && DateTimeOffset.TryParse(date.GetString(), out var parsed) ? parsed : null;
+                if (latest != null && latest.Version == version && latest.Channel == channel && latest.Portable && assetName.EndsWith("-Setup.exe", StringComparison.OrdinalIgnoreCase)) continue;
                 latest = new(version, channel, release.GetProperty("name").GetString() ?? $"Nexa {version} {channel}", release.TryGetProperty("body", out var body) ? body.GetString() ?? "" : "", published, url, size, digest.Groups[1].Value.ToUpperInvariant());
             }
+            }
+            catch (Exception ex) when (ex is KeyNotFoundException or InvalidOperationException or FormatException) { /* Ignore one malformed release without hiding valid older releases. */ }
+        }
+        if (!response.Headers.TryGetValues("Link", out var links) || !links.Any(value => value.Contains("rel=\"next\"", StringComparison.Ordinal))) break;
         }
         return latest;
     }
 
     internal async Task<string> DownloadAsync(AvailableUpdate release, string directory, IProgress<double>? progress = null, CancellationToken cancellationToken = default)
     {
+        if (!Regex.IsMatch(release.Sha256, "^[a-fA-F0-9]{64}$") || release.Size is < 1 or > 500_000_000 || release.Url.Scheme != "https" || release.Url.Host != "github.com" || !release.Url.AbsolutePath.StartsWith("/scrmarsh/nexa/releases/download/", StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Untrusted update descriptor.");
         Directory.CreateDirectory(directory);
         var name = Path.GetFileName(release.Url.AbsolutePath);
         var final = Path.Combine(directory, name);

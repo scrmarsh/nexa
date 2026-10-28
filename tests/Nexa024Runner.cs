@@ -25,6 +25,8 @@ internal static partial class Program
                 settings.Closed+=(_,_)=>{main.Close();lifetime.Stop();app.Shutdown();};main.Closed+=(_,_)=>app.Shutdown();app.Run();return 0;
             }
             if(args.Contains("--existing-data"))CheckExistingData(args[Array.IndexOf(args,"--existing-data")+1]);
+            else if(args.Contains("--audit025"))CheckAudit025();
+            else if(args.Contains("--update-integration"))CheckUpdateIntegration(args[Array.IndexOf(args,"--update-integration")+1]);
             else if(args.Contains("--final"))CheckFinalRelease();
             else if(args.Contains("--followup-design"))CheckFollowupDesign();
             else if(args.Contains("--followup"))CheckFollowup();
