@@ -43,3 +43,7 @@ This is an implementation audit, not a completion claim. **The development candi
 ## Public-history review
 
 Tracked text and all reachable Git history were scanned without logging matched values. This is a heuristic review, not proof that no secret ever existed. Binary Bible/branding/build assets are not treated as text credentials. See the final repair report for findings and remediation; no history rewriting or visibility change is authorized/performed.
+
+## Subsequent dashboard follow-up
+
+See [TWEAKS-0.1.25](TWEAKS-0.1.25.md) for the newer candidate. It adds staggered arrivals, compact clickable tips, bottom-centered productivity feedback, triple-size squash portraits, persistent collaborative irregular webs, species-specific edge/hiding/landing behavior, seasonal orange water and shared jack-o’-lantern artwork with extended vines. The initial table above predates these follow-ups; newer evidence in the linked report supersedes its web-return, pumpkin/menu-art and popup-position findings. Dedicated decorative crawl surfaces and the other explicit broader gaps remain unfinished.
