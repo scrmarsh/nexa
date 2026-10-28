@@ -17,6 +17,14 @@
 
 nexa is a local Windows productivity dashboard for classes, study, meetings and everyday work. Arrange movable widgets into a Space, follow your recurring sessions, and keep your notes, tasks and progress together.
 
+## Dashboard examples
+
+Real screenshots of the published Windows build, using sample notes and tasks. Select an image to view it at full size.
+
+| Study space · dark | Meeting space · dark |
+| --- | --- |
+| [![Study dashboard with a Pixel Timer, notes, checklist, clock and water counter](docs/media/screenshots/study-space-dark.png)](docs/media/screenshots/study-space-dark.png) | [![Meeting dashboard with a session timer, meeting notes, action items, clock and decision counter](docs/media/screenshots/meeting-space-dark.png)](docs/media/screenshots/meeting-space-dark.png) |
+
 ## Get nexa
 
 1. Open the [releases page](https://github.com/scrmarsh/nexa/releases).
