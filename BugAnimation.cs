@@ -38,9 +38,13 @@ internal static class BugAnimation
             var x = centipede ? CentipedeSegment(index, phase, resting).X : spider ? 1 + index * 1.55 : species switch { BugSpecies.Roaches => 2 + index * 1.6, BugSpecies.Ladybugs => 2 + index * 1.2, _ => -1 + index };
             var y = centipede ? CentipedeSegment(index, phase, resting).Y : 0;
             var root = new Point(x, y + side * (centipede ? 2.1 : spider ? 2.2 : 1.5));
-            var offset = centipede ? -index * .65 + (side == 1 ? Math.PI : 0) : (index % 2) * Math.PI + (side == 1 ? Math.PI : 0);
+            // Spider legs step in a staggered wave: four distinct phases per side,
+            // with the opposite side offset so all eight feet have their own timing.
+            var offset = centipede ? -index * .65 + (side == 1 ? Math.PI : 0)
+                : spider ? index * Math.PI / 2 + (side == 1 ? Math.PI * .875 : 0)
+                : (index % 2) * Math.PI + (side == 1 ? Math.PI : 0);
             var cycle = ((phase + offset) / (2 * Math.PI) % 1 + 1) % 1;
-            var duty = spider ? .68 : .62;
+            var duty = spider ? .75 : .62;
             var stance = cycle < duty;
             var swing = stance ? 0 : (cycle - duty) / (1 - duty);
             var stride = centipede ? 3.2 : spider ? 6.5 : 4.2;

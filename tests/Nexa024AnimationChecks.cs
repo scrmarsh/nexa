@@ -27,6 +27,19 @@ internal static partial class Program
         Assert(a[0].Stance == a[3].Stance && a[3].Stance == a[4].Stance && a[1].Stance == a[2].Stance && a[2].Stance == a[5].Stance && a[0].Stance != a[1].Stance, "Insect gait alternates coordinated tripods");
         BugAnimation.FillLegs(BugSpecies.Spiders, .7, false, a);
         Assert(a.Take(8).All(p => p.Root.X >= 1 && p.Root.X <= 5.7), "All eight spider legs attach to the cephalothorax");
+        var spiderSteps = new string[8];
+        var supported = true;
+        for (var frame = 0; frame < 64; frame++)
+        {
+            BugAnimation.FillLegs(BugSpecies.Spiders, frame * Math.PI / 32, false, a);
+            supported &= a.Take(8).Count(p => p.Stance) >= 5;
+            for (var leg = 0; leg < 8; leg++) spiderSteps[leg] += a[leg].Stance ? "1" : "0";
+        }
+        Assert(spiderSteps.Distinct().Count() == 8 && spiderSteps.All(s => s.Contains('0') && s.Contains('1')), "Every spider leg lifts and plants on its own distinct walking schedule");
+        Assert(supported, "Staggered spider steps retain at least five planted feet throughout a walking cycle");
+        BugAnimation.FillLegs(BugSpecies.Spiders, .7, true, a);
+        BugAnimation.FillLegs(BugSpecies.Spiders, 2.1, true, b);
+        Assert(a.Take(8).Select(p => p.Foot).SequenceEqual(b.Take(8).Select(p => p.Foot)), "Sleeping spider feet stay still despite independent walking phases");
         BugAnimation.FillLegs(BugSpecies.Centipedes, .7, false, a);
         Assert((a[0].Foot-a[0].Root).Length > (a[4].Foot-a[4].Root).Length && !a[0].Stance, "Centipede ultimate legs trail as specialized appendages");
         Assert(Math.Abs(BugAnimation.SmoothAngle(179,-179,.1)+179)<.001, "Turning crosses the angle boundary by the shortest route");
