@@ -1,5 +1,7 @@
 # Shared Nexaween pumpkin artwork
 
+Latest follow-up: [Home-only visible candle flicker](NEXA_030_HOME_CANDLE.md) supersedes the earlier shared flicker behavior described below.
+
 The supplied `Whimsical Glowing Pumpkin at Midnight.png` is the visual reference for the shared pumpkin. Its SHA256 is `7CE0AE9F161CC79331B4C6AAE4FC0EDD9D61A1B131CD4D7B3C808076A638277B`.
 
 The built-in imagegen tool produced the project asset [nexaween-pumpkin-030.png](../assets/nexaween-pumpkin-030.png), copied from the generated output into the repository. No CLI/API fallback was used. SHA256: `464D53F45E8164DBDA68DA78A9AB69F17B203086D8E983C32697802AA63DAE52`. The 1536×1024 RGBA PNG is 2,020,773 bytes. Alpha was inspected: transparent corner pixels, retained partial-alpha edges/glow. It contains the isolated pumpkin, stem, leaves and attached curls; the reference forest/floor are absent.

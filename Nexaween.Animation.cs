@@ -20,10 +20,6 @@ internal sealed partial class NexaweenDecorations : IDisposable
     internal static readonly int[] BackgroundKinds=[5,6,8,13,16,5,6,8,16,6,1,4,20,2,21];
     private readonly List<Actor> actors = [];
     private static readonly Dictionary<int, Drawing> assets = [];
-    internal static void DrawPumpkinLight(DrawingContext dc,Rect bounds,double time)
-    {
-        NexaPumpkin.DrawLight(dc,bounds,time,bounds.X*.013+bounds.Y*.019);
-    }
     private readonly DispatcherTimer animation = new(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(50) };
     private readonly DispatcherTimer candyRespawn=new(){Interval=TimeSpan.FromSeconds(1)};
     private readonly Stopwatch elapsed = Stopwatch.StartNew();
@@ -117,10 +113,6 @@ internal sealed partial class NexaweenDecorations : IDisposable
             if (actor.Kind == 2) dc.PushOpacity(.78 + Math.Sin(phase * .6) * .08);
             dc.PushTransform(new ScaleTransform(Math.Max(.25,Math.Sqrt(actor.CandyAmount)),Math.Max(.25,Math.Sqrt(actor.CandyAmount)),32,32));dc.DrawDrawing(actor.Art);dc.Pop();
             if (actor.Kind == 2) dc.Pop();
-            if (actor.Kind == 1)
-            {
-                NexaPumpkin.DrawLight(dc,new Rect(0,0,64,64),moving?time:0,actor.Seed*.73);
-            }
             if (actor.Kind is 4 or 14)
             {
                 dc.PushOpacity(.12 + Math.Sin(phase * 1.4) * .025); dc.DrawEllipse(B("#84CC16"), null, new(32, actor.Kind == 4 ? 25 : 51), 28, 11); dc.Pop();

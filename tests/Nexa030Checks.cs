@@ -117,7 +117,7 @@ internal static partial class Program
         Console.WriteLine($"MEASURE Home companion simulation: {spider.Pickups} decorative pickups across 1,200 simulated seconds; no persistent rewards.");
         var min=double.MaxValue;var max=double.MinValue;var jump=0d;var last=NexaPumpkin.Candle(0,1);
         for(var i=0;i<10000;i++){var v=NexaPumpkin.Candle(i*.05,1);min=Math.Min(min,v);max=Math.Max(max,v);jump=Math.Max(jump,Math.Abs(v-last));last=v;}
-        Assert(min>0 && max<.1 && jump<.004,"Candle overlay remains subtle with smooth irregular brightness changes");
+        Assert(min>.05 && max<.4 && max-min>.2 && jump<.035,"Home candlelight visibly varies smoothly without flashing");
         Assert(NexaPumpkin.Candle(2,1)!=NexaPumpkin.Candle(2,3),"Multiple pumpkins have independent flicker phase");
     }
     private static void Save030(Window window,string name)

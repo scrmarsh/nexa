@@ -1,5 +1,7 @@
 # Nexa 0.0.30 Alpha — implementation status
 
+Latest follow-up: [Home-only visible candle flicker](NEXA_030_HOME_CANDLE.md) supersedes the earlier shared flicker behavior described below.
+
 October 28, 2026. Local Alpha development on `codex/nexa-030-nexaween-refinement`. Starting HEAD: `095c635f56e9f18d45793d5547518c23ec955360`. Application/test implementation checkpoint: **`1c15c39975c0d74a0e0995e329c7cbe06a6dcc3e`**. This report and captured evidence follow in a documentation-only commit.
 
 The actual repository is `continuation-source`, inside the parent Nexa workspace. The existing .29 prerelease, remote branches/tags, approved binaries and desktop shortcut were not changed. Nothing from .30 has been pushed or published.
