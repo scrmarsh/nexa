@@ -26,7 +26,7 @@ Testing candidate on **codex/nexa-026-alpha**. No new version, beta promotion, p
 ## Pass 3 - artwork, transitions and profiling
 
 - Home uses a larger corner web, constrained by available space, with a slowly moving, web-bound spider whose path stays clear of the version label. Static corner artwork is cached; only the spider requires regular redraw.
-- Shared pumpkins have layered shaded lobes, directional highlights, shadows and warm candlelight cutouts. Six varied major vines include two long edge-following branches, irregular curls and leaves.
+- Shared pumpkins have a continuous natural silhouette with clipped rib shading, directional highlights, shadows and warm candlelight cutouts. Six varied major vines include two long edge-following branches, irregular curls and leaves.
 - Two or three available real widget rectangles receive pumpkins. Vines connect to the selected pumpkin corner and remain in Canvas coordinates during scrolling, moving and resizing. Reserved occupied regions still serve collision avoidance only.
 - Mutable resource-brush color/border transitions retain existing bindings. Logos crossfade; decoration visibility fades; reduced-motion preferences bypass animation. Richer purple logo SVG, PNG and ICO variants are synchronized. Normal logo assets are preserved.
 - Live web geometry compensates for tall Canvas projection. Restored webs appear with their arriving owners and a short strand reveal, without altering saved construction progress. Existing bounded spatial separation, species behavior, population pacing and quality controls remain.

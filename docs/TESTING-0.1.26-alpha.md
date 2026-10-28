@@ -62,3 +62,8 @@ The testing candidate still requires the manual acceptance listed above. No phys
 - The native update test now uses App.AppVersion instead of a stale 0.1.25 expectation.
 
 - Full post-art regression: **507 checks passed across all fifteen routes**, verification/acceptance-20261028-080105. This includes widget layout/scrolling, persistence, scheduling, guide, score, ecosystem and animation checks.
+
+- Packaged Windows x64 startup passed: verification/packaged026-20261028-confirmed/startup.json. The first shell invocation returned before the GUI process exited; rerunning with an explicit process wait confirmed a zero exit code and successful health report.
+- Approved/root and both earlier candidate executable hashes remain unchanged.
+
+- Exact packaged candidate native updater regression: **10 checks passed**, verification/20261028-080527. Rollback, isolated replacement/data preservation, idempotence, interrupted state reconciliation, staged tamper rejection, external helper installation, isolated restart and real-process startup all passed.
