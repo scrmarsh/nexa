@@ -54,10 +54,10 @@ internal static partial class Program
         candy.Update(1600,1500,reserved,"High",widgetTargets:[target]);var originalAttachment=candy.AttachmentBounds.Single();
         Assert(reserved.SequenceEqual(occupiedCopy),"Decoration placement does not modify the caller's occupied collision list");
         var resized=new Rect(100,520,500,280);candy.Update(1600,1500,reserved,"High",widgetTargets:[resized]);
-        Assert(candy.AttachmentBounds.Single()!=originalAttachment && Math.Abs(candy.AttachmentBounds.Single().X-(resized.Right-16.8))<.001,"Only widget target changes are enough to reposition attached art on resize/move");
+        Assert(candy.AttachmentBounds.Single()!=originalAttachment && Math.Abs(candy.AttachmentBounds.Single().X-(resized.Right-76*.4))<.001,"Only widget target changes are enough to reposition attached art on resize/move");
         var beforeScroll=candy.AttachmentBounds.Single();candy.SetViewport(new Rect(0,400,1200,800));Assert(candy.AttachmentBounds.Single()==beforeScroll,"Viewport scrolling preserves the decoration's canvas attachment coordinates");
         candy.Update(1600,1500,reserved,"High");Assert(candy.ContextualActorCount==0 && !candy.IsHitTestVisible,"Missing optional targets clear contextual art gracefully and never intercept controls");
-        candy.Update(1600,1500,[new Rect(target.Right,target.Bottom,100,100)],"High",widgetTargets:[target]);Assert(candy.ContextualActorCount==0,"Reserved UI collision regions prevent corner attachments even for a real widget target");
+        candy.Update(1600,1500,[new Rect(target.Right,target.Bottom,100,100)],"High",widgetTargets:[target]);Assert(candy.AttachmentBounds.All(r=>!r.IntersectsWith(new Rect(target.Right,target.Bottom,100,100))),"Reserved UI regions are avoided when choosing a safe alternative widget corner");
         Theme.SetSeasonalEnabled(true);var tagline=new TextBlock();NexaBranding.ApplyTagline(tagline,NexaBranding.Tagline);
         var orange=tagline.Inlines.OfType<Run>().Where(r=>r.Foreground is SolidColorBrush b && b.Color==(Color)ColorConverter.ConvertFromString("#F97316")).ToArray();
         Assert(orange.Length==1 && orange[0].Text=="haunts" && new TextRange(tagline.ContentStart,tagline.ContentEnd).Text=="a space for whatever haunts you next","Only haunts receives Halloween orange in the new seasonal tagline");

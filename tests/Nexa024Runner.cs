@@ -26,6 +26,7 @@ internal static partial class Program
             }
             if(args.Contains("--existing-data"))CheckExistingData(args[Array.IndexOf(args,"--existing-data")+1]);
             else if(args.Contains("--public-updates"))CheckPublicUpdates025();
+            else if(args.Contains("--arrivals"))CheckArrivalTweaks();
             else if(args.Contains("--audit025"))CheckAudit025();
             else if(args.Contains("--update-integration"))CheckUpdateIntegration(args[Array.IndexOf(args,"--update-integration")+1]);
             else if(args.Contains("--final"))CheckFinalRelease();
