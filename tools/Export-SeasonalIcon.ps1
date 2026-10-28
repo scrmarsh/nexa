@@ -3,7 +3,7 @@ Add-Type -AssemblyName PresentationCore,PresentationFramework,WindowsBase
 $repoRoot=Split-Path -Parent $PSScriptRoot
 [xml]$svg=Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'assets\nexa-icon-seasonal.svg')
 $frames=@()
-foreach($size in @(64,128,256)) {
+foreach($size in @(16,32,48,64,128,256,1024)) {
  $visual=[System.Windows.Media.DrawingVisual]::new()
  $dc=$visual.RenderOpen()
  $dc.PushTransform([System.Windows.Media.ScaleTransform]::new($size/512.0,$size/512.0))
@@ -11,7 +11,8 @@ foreach($size in @(64,128,256)) {
  foreach($element in $svg.DocumentElement.ChildNodes) {
   $geometry=$null
   switch($element.LocalName) {
-   'rect' {$geometry=[System.Windows.Media.RectangleGeometry]::new([System.Windows.Rect]::new(0,0,512,512),116,116)}
+   'rect' {$geometry=[System.Windows.Media.RectangleGeometry]::new([System.Windows.Rect]::new([double]$element.x,[double]$element.y,[double]$element.width,[double]$element.height),[double]$element.rx,[double]$element.rx)}
+   'path' {$geometry=[System.Windows.Media.Geometry]::Parse($element.d)}
    'polygon' {$geometry=[System.Windows.Media.Geometry]::Parse('M'+$element.points+' Z')}
    'line' {$geometry=[System.Windows.Media.LineGeometry]::new([System.Windows.Point]::new([double]$element.x1,[double]$element.y1),[System.Windows.Point]::new([double]$element.x2,[double]$element.y2))}
    'polyline' {$geometry=[System.Windows.Media.Geometry]::Parse('M'+$element.points)}
@@ -26,8 +27,8 @@ foreach($size in @(64,128,256)) {
  $bitmap=[System.Windows.Media.Imaging.RenderTargetBitmap]::new($size,$size,96,96,[System.Windows.Media.PixelFormats]::Pbgra32);$bitmap.Render($visual)
  $encoder=[System.Windows.Media.Imaging.PngBitmapEncoder]::new();$encoder.Frames.Add([System.Windows.Media.Imaging.BitmapFrame]::Create($bitmap))
  $memory=[System.IO.MemoryStream]::new();$encoder.Save($memory);$bytes=$memory.ToArray();$memory.Dispose()
- $frames+=,@{Size=$size;Bytes=$bytes}
- if($size -eq 256){[System.IO.File]::WriteAllBytes((Join-Path $repoRoot 'assets\nexa-icon-seasonal-256.png'),$bytes)}
+ if($size -le 256){$frames+=,@{Size=$size;Bytes=$bytes}}
+ [System.IO.File]::WriteAllBytes((Join-Path $repoRoot "assets\nexa-icon-seasonal-$size.png"),$bytes)
 }
 $stream=[System.IO.File]::Create((Join-Path $repoRoot 'assets\nexa-icon-seasonal.ico'))
 $writer=[System.IO.BinaryWriter]::new($stream)

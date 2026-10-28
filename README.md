@@ -2,17 +2,24 @@
 
 ![nexa · latest — a space for whatever comes next](docs/media/nexa-banner.svg)
 
-![version: latest](https://img.shields.io/badge/version-latest-7F77DD?style=flat-square&labelColor=111827)
+![version: 0.0.27 Alpha](https://img.shields.io/badge/version-0.0.27%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
 ![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-185FA5?style=flat-square&labelColor=111827)
 ![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-7F77DD?style=flat-square&labelColor=111827)
 
 **a space for whatever comes next**
 
-[Download nexa](https://github.com/scrmarsh/nexa/releases) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Verification report](docs/TESTING-0.1.26-alpha.md)
+[Release history](https://github.com/scrmarsh/nexa/releases) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Development status](docs/NEXAWEEN_027_STATUS.md)
 
 </div>
 
-> **Latest alpha: [v0.1.26 — Spaces in Motion](https://github.com/scrmarsh/nexa/releases/tag/v0.1.26-alpha).** Cumulative productivity, collectible candy, session recaps, guided setup and seasonal artwork. See the [release notes](docs/releases/0.1.26-alpha.md) for verification and known alpha limitations.
+> **Current development: Nexa v0.0.27 Alpha — NEXAWEEN (unpublished).** Continues the October 28 handoff with the supplied orange icon, bold black icon outlines and matching borderless wordmark. Manual acceptance remains open; see the [audit](docs/NEXAWEEN_027_AUDIT.md) and [status](docs/NEXAWEEN_027_STATUS.md).
+
+Alpha development now uses **v0.0.X Alpha**, Beta will use **v0.1.X Beta**, and
+the first stable release is planned as **v1.0.0**. The first intended retained
+public release is **v0.1.0 Beta**, pending explicit approval and acceptance; it has
+not been released. Historical 0.1.X Alpha identities and **0.1.26 — Spaces in
+Motion** remain in the release history. Updater comparison recognizes legacy
+Alpha revisions without changing their tags or download URLs.
 
 
 nexa is a local Windows productivity dashboard for classes, study, meetings and everyday work. Arrange movable widgets into a Space, follow your recurring sessions, and keep your notes, tasks and progress together.
@@ -25,13 +32,15 @@ Real screenshots of the published Windows build, using sample notes and tasks. S
 | --- | --- |
 | [![Study dashboard with a Pixel Timer, notes, checklist, clock and water counter](docs/media/screenshots/study-space-dark.png)](docs/media/screenshots/study-space-dark.png) | [![Meeting dashboard with a session timer, meeting notes, action items, clock and decision counter](docs/media/screenshots/meeting-space-dark.png)](docs/media/screenshots/meeting-space-dark.png) |
 
-## Get nexa
+## Development builds and historical downloads
 
-1. Open the [releases page](https://github.com/scrmarsh/nexa/releases).
-2. Download **Nexa.exe** from **Assets** and place it in a folder you control.
-3. Run it. The self-contained Windows x64 build includes its .NET runtime; no installer or separate .NET installation is required.
+Build the current Alpha from source using the instructions below. No .27 public
+release is published. The [releases page](https://github.com/scrmarsh/nexa/releases)
+may contain historical experimental packages; those are not this source candidate.
+Self-contained Windows x64 packages include their .NET runtime; framework-dependent
+builds require the .NET 10 Desktop Runtime.
 
-Release assets also include `SHA256SUMS.txt`. To inspect your download's checksum:
+For a downloaded package with a published `SHA256SUMS.txt`, inspect its checksum:
 
 ```powershell
 Get-FileHash .\Nexa.exe -Algorithm SHA256
@@ -76,7 +85,17 @@ The historical project filename and save-data namespace remain for compatibility
 .\tools\Verify.ps1
 ```
 
-The fifteen-route suite checks timing, layout, scrolling, saving, history, controls, the ecosystem and animations using isolated data stores. Generated logs and captures stay in the ignored `verification/` directory. See [development notes](docs/DEVELOPMENT.md) and the [root audit](docs/ROOT-AUDIT.md).
+The seventeen-route suite checks version compatibility, settings, splash timing,
+layout, scrolling, saving, history, controls, the ecosystem and animations using
+isolated data stores. To run only the .27 route after building the checks project:
+
+```powershell
+dotnet build .\tests\SessionDashboard.Checks.csproj -c Release
+.\tests\bin\Nexa024\Release\net10.0-windows\SessionDashboard.Checks.exe --nexaween027
+```
+
+Generated logs and captures stay in the ignored `verification/` directory. See
+[development notes](docs/DEVELOPMENT.md) and the [root audit](docs/ROOT-AUDIT.md).
 
 | Location | Purpose |
 | --- | --- |

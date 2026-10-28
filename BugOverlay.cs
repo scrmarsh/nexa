@@ -66,7 +66,7 @@ internal sealed class BugOverlay : FrameworkElement
             var sy = bug.SizeScale * ViewScale * (bug.State == BugState.Squashed ? Math.Max(.15, 1 - bug.SquashAge * 5) : 1);
             var worldAngle=bug.Angle*Math.PI/180;
             var angle = Math.Atan2(Math.Sin(worldAngle)*scaleY,Math.Cos(worldAngle)*scaleX);
-            var animated=NexaMotion.Allowed(Manager.VisualOptions);
+            var animated=options.AdvancedAnimations && NexaMotion.Allowed(Manager.VisualOptions);
             if(animated)
             {
                 dc.PushTransform(new MatrixTransform(new Matrix(sx,0,0,sy,0,0)*new Matrix(Math.Cos(angle),Math.Sin(angle),-Math.Sin(angle),Math.Cos(angle),p.X,p.Y)));

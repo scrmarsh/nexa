@@ -56,10 +56,11 @@ public partial class MainWindow
         void Measure(string name,Action action){var watch=System.Diagnostics.Stopwatch.StartNew();action();ConstructionProfile[name]=watch.Elapsed.TotalMilliseconds;}
         state = loadedState ?? store.Load(); store.LoadInteractionPreferences(state);
         Measure("InitializeComponent",InitializeComponent);
+        Title = App.VersionLabel;
         DashboardHeader.SizeChanged += (_, _) => UpdateDashboardHeaderGeometry();
         TopNavigation.SizeChanged += (_, _) => UpdateDashboardHeaderGeometry();
         PreviewBanner.Visibility = IsPreview ? Visibility.Visible : Visibility.Collapsed;
-        if (IsPreview) Title = App.BrandWordmark + " · Preview";
+        if (IsPreview) Title = App.VersionLabel + " · Preview";
         NexaChrome.Apply(this);
         StateChanged += (_, _) =>
         {

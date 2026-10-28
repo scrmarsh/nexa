@@ -87,8 +87,8 @@ internal sealed partial class HomeWindow
     private void OpenChangelog()
     {
         var dialog = InfoDialog("Changelog", 800, 720); var body = new StackPanel { Margin = new Thickness(28) };
-        body.Children.Add(new TextBlock{Text="Unpublished handoff candidate · Nexa v0.1.26 alpha",FontSize=22,FontWeight=FontWeights.Bold,TextWrapping=TextWrapping.Wrap});
-        body.Children.Add(Copy("Additional development: corrected seasonal visibility, compact Productivity, centered Space cards, paced expansion, Chicago search, bottom-pinned Experimental Features, new-Space scroll reset, five sound styles, tagline-first startup, in-place splash preview, portable cumulative scores and illustrated recaps. These corrections do not replace the existing published package.",15));
+        body.Children.Add(new TextBlock{Text=App.VersionLabel+" — NEXAWEEN · unpublished development",FontSize=22,FontWeight=FontWeights.Bold,TextWrapping=TextWrapping.Wrap});
+        body.Children.Add(Copy("Continues the October 28 handoff. Manual acceptance remains open; the first planned public release under the new stage convention is v0.1.0 Beta.",15));
         body.Children.Add(new TextBlock { Text = "What’s new in Nexa", FontSize = 27, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
         body.Children.Add(Copy("Release history · Windows desktop", 13));
         foreach (var release in ReleaseNotes.All)
@@ -104,7 +104,7 @@ internal sealed partial class HomeWindow
                 row.Children.Add(new System.Windows.Shapes.Ellipse { Width = 5, Height = 5, Fill = (Brush)FindResource("AccentBrush"), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(2, 8, 0, 0) });
                 var text = Copy(update); text.Margin = new Thickness(0); Grid.SetColumn(text, 1); row.Children.Add(text); section.Children.Add(row);
             }
-            var seasonalEntry = release.Version is "0.1.24" or "0.1.26" && Theme.SeasonalEnabled;
+            var seasonalEntry = release.Version is "0.1.24" or "0.0.27" && Theme.SeasonalEnabled;
             if (seasonalEntry)
             {
                 void Tint(DependencyObject element)
@@ -113,7 +113,8 @@ internal sealed partial class HomeWindow
                     for (var i=0; i<VisualTreeHelper.GetChildrenCount(element); i++) Tint(VisualTreeHelper.GetChild(element,i));
                 }
                 Tint(section);
-                section.Children.Insert(0, new TextBlock { Text = "🎃  NEXAWEEN  👻", FontSize = 15, FontWeight = FontWeights.Bold, Foreground = (Brush)new BrushConverter().ConvertFromString("#D9F99D")!, Margin = new Thickness(0,0,0,12) });
+                date.Foreground = (Brush)new BrushConverter().ConvertFromString("#D9F99D")!;
+                section.Children.Insert(0, new TextBlock { Text = "🎃  NEXAWEEN  👻", FontSize = 15, FontWeight = FontWeights.Bold, Foreground = (Brush)new BrushConverter().ConvertFromString("#A855F7")!, Margin = new Thickness(0,0,0,12) });
             }
             body.Children.Add(new Border { Child = section, Background = seasonalEntry ? (Brush)new BrushConverter().ConvertFromString("#1C102A")! : (Brush)FindResource("PanelBrush"), BorderBrush = seasonalEntry ? (Brush)new BrushConverter().ConvertFromString("#F97316")! : (Brush)FindResource("LineBrush"), BorderThickness = new Thickness(seasonalEntry ? 2 : 1), CornerRadius = new CornerRadius(12), Padding = new Thickness(22), Margin = new Thickness(0, 8, 0, 16) });
         }

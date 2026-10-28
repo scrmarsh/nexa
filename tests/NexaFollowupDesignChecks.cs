@@ -78,6 +78,7 @@ internal static partial class Program
         var home=task.GetAwaiter().GetResult();
         Assert(splash.Loading.Value==1 && home.IsLoaded && splash.CompletedStages.Last()=="Home ready","Real splash stages reach 100% only after the home window renders");
         Assert(splash.CompletedStages.Contains("Workspace loaded and validated") && splash.CompletedStages.IndexOf("Workspace loaded and validated")<splash.CompletedStages.IndexOf("Home ready"),"Startup progress records actual completed data and UI initialization stages");
-        File.WriteAllText(Path.Combine(output,"startup-stages.txt"),string.Join(Environment.NewLine,splash.CompletedStages)+$"\nMeasured startup {splash.DisplayedMilliseconds:0} ms; no deliberate logo hold.");app.MainWindow=prior;home.Close();
+        Assert(splash.DisplayedMilliseconds>=3000,"Shared startup preserves the three-second minimum display");
+        File.WriteAllText(Path.Combine(output,"startup-stages.txt"),string.Join(Environment.NewLine,splash.CompletedStages)+$"\nMeasured splash display {splash.DisplayedMilliseconds:0} ms; three-second minimum.");app.MainWindow=prior;home.Close();
     }
 }

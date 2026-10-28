@@ -2,6 +2,26 @@
 
 ![NEXAWEEN — nexa alpha development](docs/media/nexaween-banner.svg)
 
+## 0.0.27 Alpha — NEXAWEEN (2026-10-28, unpublished)
+
+- Adopt the stage convention v0.0.X Alpha, v0.1.X Beta, then v1.0.0 stable.
+  Update current assembly/file/manifest metadata and shared visible labels.
+- Compare legacy 0.1.X Alpha revisions safely against the new Alpha convention,
+  retaining original release tags, asset URLs and Beta numbering.
+- Add adjacent Adorable Mode / Advanced Animations controls, with advanced
+  rendering opt-in by default; preserve the existing renderer and reduced motion.
+- Separate costume choice from appearance and honor costume-off with explicitly
+  selected Halloween appearance.
+- Keep shared splash stages and preview with a minimum three-second display.
+- Match the supplied seasonal icon geometry and exact orange palette; outline
+  only the icon perimeter/hourglass silhouette. Keep wordmark letters borderless
+  and use the requested classic white/light-orange X contrast. Export 16–1024px PNGs and a six-size Windows ICO.
+- Preserve the completed October 28 handoff and document .28 carry-forward work.
+
+Physical/live-account acceptance remains open; automated branding checks and
+source-rendered previews are recorded in the .27 status.
+No Alpha release, tag or existing approved binary is changed by this work.
+
 ## 0.1.26 alpha — Spaces in Motion (2026-10-28)
 
 Additional **unpublished handoff candidate** work: full seasonal visibility/hit-testing restoration; compact golden-lightning Productivity; centered Space cards and paced/reverse expansion with working mouse-wheel scrolling; bottom-pinned Experimental Features; Chicago zone aliases and selection-only dropdown; new-Space viewport reset; five sound styles; tagline-first splash and in-place preview; safer transitions; cumulative scores and recap snapshots in private exports; illustrated recaps and guide polish. This does not describe the bytes already published under v0.1.26-alpha. See [handoff evidence and remaining acceptance](docs/HANDOFF-COMPLETION-0.1.26-alpha.md).

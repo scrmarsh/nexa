@@ -34,7 +34,7 @@ internal sealed class NexaLogo : FrameworkElement
                     var stroke = Color("stroke"); var pen = stroke == null ? null : new Pen(stroke, Number("stroke-width", 1)) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round, LineJoin = PenLineJoin.Round };
                     Geometry? geometry = e.Name.LocalName switch
                     {
-                        "rect" => new RectangleGeometry(new Rect(0, 0, Number("width"), Number("height")), Number("rx"), Number("rx")),
+                        "rect" => new RectangleGeometry(new Rect(Number("x"), Number("y"), Number("width"), Number("height")), Number("rx"), Number("rx")),
                         "circle" => new EllipseGeometry(new Point(Number("cx"), Number("cy")), Number("r"), Number("r")),
                         "line" => new LineGeometry(new Point(Number("x1"), Number("y1")), new Point(Number("x2"), Number("y2"))),
                         "path" => Geometry.Parse(e.Attribute("d")!.Value),

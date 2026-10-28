@@ -11,6 +11,8 @@ internal sealed class SplashWindow:Window
     private readonly DispatcherTimer typing=new(){Interval=TimeSpan.FromMilliseconds(45)};
     private readonly TaskCompletionSource taglineReady=new(TaskCreationOptions.RunContinuationsAsynchronously);
     private double reported;
+    private readonly Stopwatch displayClock = new();
+    internal static readonly TimeSpan MinimumDisplay = TimeSpan.FromSeconds(3);
     internal bool TaglineComplete=>taglineReady.Task.IsCompletedSuccessfully;
     internal double ReportedProgress=>reported;
     internal double DisplayedMilliseconds {get;private set;}
@@ -21,7 +23,7 @@ internal sealed class SplashWindow:Window
     private Action beginSequence=()=>{};
     internal SplashWindow(NexaOptions? options=null)
     {
-        this.options=options??new();Title="nexa";Icon=NexaChrome.Icon;WindowStyle=WindowStyle.None;ResizeMode=ResizeMode.NoResize;Width=620;Height=350;WindowStartupLocation=WindowStartupLocation.CenterScreen;
+        this.options=options??new();Title=App.VersionLabel;Icon=NexaChrome.Icon;WindowStyle=WindowStyle.None;ResizeMode=ResizeMode.NoResize;Width=620;Height=350;WindowStartupLocation=WindowStartupLocation.CenterScreen;
         SetResourceReference(BackgroundProperty,"BackgroundBrush");
         var panel=new StackPanel{VerticalAlignment=VerticalAlignment.Center};
         panel.Children.Add(new NexaWordmark(480){HorizontalAlignment=HorizontalAlignment.Center});panel.Children.Add(tagline);panel.Children.Add(Loading);panel.Children.Add(Stage);
@@ -35,11 +37,19 @@ internal sealed class SplashWindow:Window
         }
         typing.Tick+=(_,_)=>{if(position<phrase.Length)NexaBranding.ApplyTagline(tagline,phrase[..++position]);if(position>=phrase.Length)CompleteTagline();};
         beginSequence=()=>{if(!NexaMotion.Allowed(this.options)||phrase.Length==0)CompleteTagline();else typing.Start();};
-        Loaded+=(_,_)=>beginSequence();
+        ContentRendered+=(_,_)=>{displayClock.Start();beginSequence();};
         Closed+=(_,_)=>{typing.Stop();if(!TaglineComplete)taglineReady.TrySetCanceled();};
         System.Windows.Automation.AutomationProperties.SetName(Loading,"Completed startup stages");Report(.05,"Configuration location ready");
     }
     internal Task WaitForLogoAsync()=>taglineReady.Task;
+    internal async Task WaitForMinimumDisplayAsync()
+    {
+        // TimeSpan delays may truncate fractional milliseconds. Recheck the
+        // monotonic clock so reduced motion cannot finish just before 3,000ms.
+        while (displayClock.Elapsed < MinimumDisplay)
+            await Task.Delay(Math.Max(1, (int)Math.Ceiling((MinimumDisplay - displayClock.Elapsed).TotalMilliseconds)));
+        DisplayedMilliseconds = displayClock.Elapsed.TotalMilliseconds;
+    }
     internal async Task PreviewIn(Grid host)
     {
         var renderer=(FrameworkElement)Content;Content=null;
@@ -47,10 +57,13 @@ internal sealed class SplashWindow:Window
         Panel.SetZIndex(overlay,2000);host.Children.Add(overlay);
         try
         {
-            beginSequence();Report(.6,"Current workspace loaded");
+            await host.Dispatcher.InvokeAsync(()=>
+            {
+                host.UpdateLayout();displayClock.Start();beginSequence();Report(.6,"Current workspace loaded");
+            },DispatcherPriority.Render);
             await WaitForLogoAsync();
             await host.Dispatcher.InvokeAsync(()=>{Report(.9,"Dashboard controls initialized");host.UpdateLayout();Report(1,"Dashboard ready");});
-            if(NexaMotion.Allowed(options))await Task.Delay(260);
+            await WaitForMinimumDisplayAsync();
             await host.Dispatcher.InvokeAsync(()=>NexaMotion.Fade(overlay,0,options)).Task.Unwrap();
         }
         finally{await host.Dispatcher.InvokeAsync(()=>{host.Children.Remove(overlay);Close();});}
@@ -69,7 +82,6 @@ internal sealed class SplashWindow:Window
         =>Dispatcher.InvokeAsync(()=>EnterHomeCore(store,diagnostic,initialState)).Task.Unwrap();
     private async Task<HomeWindow> EnterHomeCore(StateStore store,bool diagnostic,AppState? initialState)
     {
-        var watch=Stopwatch.StartNew();
         var loaded=await Task.Run(()=>{var state=initialState??store.Load();return(state,mode:store.LoadThemeMode(),theme:store.LoadAppTheme());});
         Report(.6,"Workspace loaded and validated");
         await WaitForLogoAsync();
@@ -82,7 +94,7 @@ internal sealed class SplashWindow:Window
         home.ContentRendered+=(_,_)=>ready.TrySetResult();Application.Current.MainWindow=home;home.Show();
         if(await Task.WhenAny(ready.Task,Task.Delay(TimeSpan.FromSeconds(15)))!=ready.Task){home.Close();throw new TimeoutException("nexa's home window did not finish rendering.");}
         Report(1,"Home ready");
-        if(NexaMotion.Allowed(options))await Task.Delay(180);
-        home.Opacity=1;await NexaMotion.Fade(this,0,options);DisplayedMilliseconds=watch.Elapsed.TotalMilliseconds;Close();return home;
+        await WaitForMinimumDisplayAsync();
+        home.Opacity=1;await NexaMotion.Fade(this,0,options);Close();return home;
     }
 }

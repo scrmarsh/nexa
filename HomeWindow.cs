@@ -22,7 +22,7 @@ internal sealed partial class HomeWindow : NexaDialog
         Closing += (_, e) => { if (settingsWindow?.FlushPendingChanges() == false) e.Cancel = true; };
         Theme.Apply(Application.Current.Resources, store.LoadThemeMode(), store.LoadAppTheme());
         if (Saved.Workspace == null && File.Exists(store.FilePath)) Saved.Workspace = Continuity.Migrate(Saved, store.UserId);
-        Title = App.BrandWordmark; Width = Saved.WindowWidth; Height = Saved.WindowHeight; MinWidth = 740; MinHeight = 550; WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        Title = App.VersionLabel; Width = Saved.WindowWidth; Height = Saved.WindowHeight; MinWidth = 740; MinHeight = 550; WindowStartupLocation = WindowStartupLocation.CenterScreen;
         var panel = new StackPanel { Margin = new Thickness(0, 36, 0, 20) };
         BuildHomeHeader(panel);
         var create = new Button { Content = "+ Create New Space", HorizontalAlignment = HorizontalAlignment.Center, MinWidth = 260, Margin = new Thickness(0, 28, 0, 20) };

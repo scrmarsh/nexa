@@ -39,8 +39,17 @@ internal sealed class ExperimentalUpdater(HttpClient client)
     private static readonly Regex Tag = new(@"^(?:v|Nexa[- ])?(?<version>\d+\.\d+\.\d+)(?:[-. ](?<channel>alpha|beta|stable))?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     private static readonly Regex Digest = new(@"^sha256:([a-fA-F0-9]{64})$", RegexOptions.CultureInvariant);
     internal static int ChannelRank(string channel) => channel.ToLowerInvariant() switch { "alpha" => 0, "beta" => 1, "stable" => 2, _ => -1 };
-    internal static bool IsNewer(Version candidate, string channel, Version current, string currentChannel = "Alpha") =>
-        candidate > current || candidate == current && ChannelRank(channel) > ChannelRank(currentChannel);
+    // Legacy 0.1.X Alpha identities predate 0.0.X Alpha. Keep original versions
+    // on descriptors/asset URLs; normalize only ordering, never a Beta identity.
+    private static Version ComparisonVersion(Version version, string channel) =>
+        channel.Equals("Alpha", StringComparison.OrdinalIgnoreCase) && version.Major == 0 && version.Minor == 1
+            ? new Version(0, 0, version.Build) : version;
+    internal static bool IsNewer(Version candidate, string channel, Version current, string currentChannel = "Alpha")
+    {
+        var next = ComparisonVersion(candidate, channel);
+        var installed = ComparisonVersion(current, currentChannel);
+        return next > installed || next == installed && ChannelRank(channel) > ChannelRank(currentChannel);
+    }
 
     internal async Task<AvailableUpdate?> CheckAsync(Version current, CancellationToken cancellationToken = default, string currentChannel = "Alpha")
     {

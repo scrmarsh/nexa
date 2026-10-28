@@ -102,7 +102,8 @@ internal sealed class NexaEcosystem : IDisposable
             var preferences=Manager.Preferences with {Ecosystem=mapped};Manager.Configure(preferences);
             try{store.SaveBugPreferences(preferences);}catch(Exception ex)when(ex is IOException or UnauthorizedAccessException){Status="Bug preferences could not be saved. Your previous settings are preserved.";}
         }
-        Manager.SeasonalCostumes = (!Manager.EcosystemSettings.MatchAppearance && Manager.EcosystemSettings.Appearance == BugAppearance.Halloween) || active && options.HalloweenBugCostumes && Manager.EcosystemSettings.Costumes;
+        Manager.SeasonalCostumes = Manager.EcosystemSettings.Costumes &&
+            ((!Manager.EcosystemSettings.MatchAppearance && Manager.EcosystemSettings.Appearance == BugAppearance.Halloween) || active && options.HalloweenBugCostumes);
         Manager.SeasonalCandy = active;
     }
     private void SetCadence()

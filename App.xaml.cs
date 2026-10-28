@@ -13,7 +13,7 @@ public partial class App : Application
     internal const string BrandWordmark = "nexa";
     internal static string AppVersion => typeof(App).Assembly.GetName().Version?.ToString(3) ?? "Unknown";
     internal static string VersionLabel => ReleaseLabel(AppVersion);
-    internal static string ReleaseLabel(string version) => $"Nexa v{version} alpha";
+    internal static string ReleaseLabel(string version) => $"Nexa v{version} Alpha";
     private Mutex? workspaceMutex;
     internal bool SuppressNormalStartup { get; init; }
     protected override async void OnStartup(StartupEventArgs e)
@@ -51,6 +51,7 @@ public partial class App : Application
                     var profile=await Task.Run(()=>store.LoadProfile());splash.Report(.2,"Profile settings loaded");
                     if(profile.OnboardingCompleted) { var home = await splash.EnterHome(store,initialState:loaded.state); _ = CheckStartupUpdatesAsync(store, home); return; }
                     await splash.WaitForLogoAsync();
+                    await splash.WaitForMinimumDisplayAsync();
                     var welcome=new OnboardingWindow(store) { Owner=splash };
                     splash.Hide();
                     var accepted=welcome.ShowDialog();

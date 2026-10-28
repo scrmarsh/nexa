@@ -8,6 +8,14 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
+        new("0.0.27", "October 28, 2026", "NEXAWEEN", "Unpublished Alpha development. Continues the verified October 28 handoff; physical and live-account acceptance remains open.",
+        [
+            "Alpha development uses v0.0.X; the first planned public Beta is v0.1.0. Legacy 0.1.X Alpha packages compare by their development revision without changing package provenance.",
+            "Adorable Mode and Advanced Animations sit together under Add Bugs. Advanced Animations defaults off; the existing animation renderer remains opt-in and respects reduced motion. Costume selection is independent of appearance.",
+            "Startup and in-window Splash Preview retain shared branding, tagline ordering and real progress with a minimum three-second display.",
+            "The supplied green/purple seasonal icon keeps its orange and light-orange hourglass with the selected bold black perimeter/silhouette outlines. Borderless wordmark letters retain their geometry; the X follows the classic contrast with a white top-left-to-bottom-right stroke and light-orange opposite stroke. Windows icon sizes are synchronized.",
+            "Existing Home, seasonal decorations, six species costumes, scoring, timer drafts and save/history behavior are retained. The audit and next-version handoff record verification and outstanding acceptance."
+        ]),
         new("0.1.26", "October 28, 2026", "Spaces in Motion", "Published alpha: session recaps, cumulative productivity, guided setup and seasonal animation. Subsequent handoff corrections are described separately above. Manual acceptance remains incomplete.",
         [
             "Home has paired Create and Import actions, six initial Space cards, and Show More / Hide More controls.",

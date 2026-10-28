@@ -20,6 +20,7 @@ internal sealed record EcosystemOptions
     public BugAppearance Appearance { get; init; } = BugAppearance.Normal;
     public bool MatchAppearance { get; init; } = true;
     public bool Adorable { get; init; } = true;
+    public bool AdvancedAnimations { get; init; }
     public double Size { get; init; } = 2;
     public BugAnimationQuality Quality { get; init; } = BugAnimationQuality.Balanced;
     public bool Costumes { get; init; } = true;
