@@ -11,6 +11,11 @@ internal readonly record struct BugSurface(string Id, Rect Bounds);
 internal sealed class BugEntity
 {
     internal Guid InteractionId=Guid.NewGuid();
+    internal Guid? WeavingOwner;
+    internal int WeavingSegment=-1;
+    internal bool SilkAttached;
+    internal bool ArrivalPending;
+    internal double ExploreUntil;
     internal double Scale=2, Health=100, Energy=1, Carrying, OffscreenTime, LastEyeTime, FlightHeight;
     internal Vector Gaze;
     internal int Kills;

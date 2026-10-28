@@ -36,7 +36,7 @@ internal sealed class BugOverlay : FrameworkElement
     internal Point WorldToScreen(Point point) => new(point.X * scaleX + ContentOrigin.X, point.Y * scaleY + ContentOrigin.Y);
     private double ViewScale => DrawWorld ? Math.Min(scaleX, scaleY) : 1;
     private bool Protected(Point point) => (!viewport.IsEmpty && !viewport.Contains(point)) || protectedWidgets.Any(r => r.Contains(new Point(point.X - ContentOrigin.X, point.Y - ContentOrigin.Y)));
-    private IEnumerable<BugEntity> VisibleBugs => Manager.Bugs.Where(b => Manager.Preferences.Species is BugSpecies.AllBugs or BugSpecies.AllThree || b.Species == Manager.Preferences.Species).Take(Manager.EcosystemActive ? Manager.EcosystemCap : 600);
+    private IEnumerable<BugEntity> VisibleBugs => Manager.Bugs.Where(b => Manager.IsActive(b)).Where(b => Manager.Preferences.Species is BugSpecies.AllBugs or BugSpecies.AllThree || b.Species == Manager.Preferences.Species).Take(Manager.EcosystemActive ? Manager.EcosystemCap : 600);
     internal BugEntity? HitAt(Point point)
     {
         if (Protected(point)) return null;
@@ -90,7 +90,7 @@ internal sealed class BugOverlay : FrameworkElement
         foreach(var bug in VisibleBugs.Where(b=>b.PartnerId!=null && b.Carrying>0 && b.State!=BugState.Squashed))
         {
             if(bug.InteractionId.CompareTo(bug.PartnerId!.Value)>=0)continue;
-            var partner=Manager.Bugs.FirstOrDefault(b=>b.InteractionId==bug.PartnerId && b.Carrying>0 && b.State!=BugState.Squashed);if(partner==null)continue;
+            var partner=Manager.Bugs.FirstOrDefault(b=>Manager.IsActive(b) && b.InteractionId==bug.PartnerId && b.Carrying>0 && b.State!=BugState.Squashed);if(partner==null)continue;
             var a=WorldToScreen(bug.Position);var b=WorldToScreen(partner.Position);if((a-b).Length>100)continue;
             var center=a+(b-a)*.5;var size=3*ViewScale*options.Size;
             dc.DrawLine(BugVisuals.P("#B98D54",.6),a,center);dc.DrawLine(BugVisuals.P("#B98D54",.6),b,center);
@@ -124,19 +124,24 @@ internal sealed class BugOverlay : FrameworkElement
             dc.DrawEllipse(BugVisuals.B(color), BugVisuals.P("#D9C9DD", .5), p, size, size * .7);
             if (resource.Kind == BugResourceKind.Candy) { dc.DrawLine(BugVisuals.P("#A855F7", 2 * ViewScale), p + new Vector(-size * 1.4, -size * .5), p + new Vector(size * 1.4, size * .5)); dc.DrawLine(BugVisuals.P("#FACC15", ViewScale), p + new Vector(0, -size * .6), p + new Vector(0, size * .6)); }
         }
+        var silk=BugVisuals.P(Manager.SeasonalCostumes?"#7484CC16":"#809D8CAE",.65);
+        var builders=Manager.Bugs.Where(b=>Manager.IsActive(b) && b.WeavingOwner!=null && b.WeavingSegment>=0 && b.SilkAttached && b.Activity==BugActivity.Nesting && b.State!=BugState.Squashed).GroupBy(b=>(b.WeavingOwner!.Value,b.WeavingSegment)).ToDictionary(g=>g.Key,g=>g.First());
         foreach(var web in Manager.Webs)
         {
-            var center=WorldToScreen(new(web.X,web.Y));var radius=34d;var progress=Math.Clamp(web.Construction,0,1);
-            Point OnWeb(int i,double r) => center + (NexaWebGeometry.Spoke(web,i,r)-new Point(web.X,web.Y))*ViewScale;
-            var spokes=(int)Math.Floor(Math.Min(1,progress*2)*8);
-            for(var i=0;i<spokes;i++)dc.DrawLine(BugVisuals.P("#9D8CAE",.45),center,OnWeb(i,radius));
-            for(var ring=1;ring<=4;ring++)for(var i=0;i<8;i++)
+            var box=Manager.WebBounds(web);var screenBox=new Rect(WorldToScreen(box.TopLeft),WorldToScreen(box.BottomRight));
+            if(!viewport.IsEmpty && !screenBox.IntersectsWith(viewport))continue;
+            BugManager.EnsureSilk(web);
+            for(var index=0;index<web.Strands.Count;index++)
             {
-                if(progress<.35+(ring-1)*.14+i*.012)continue;
-                dc.DrawLine(BugVisuals.P(Manager.SeasonalCostumes?"#84CC16":"#9D8CAE",.4),OnWeb(i,radius*ring/4),OnWeb((i+1)%8,radius*ring/4));
+                var strand=web.Strands[index];if(strand.Progress<=0)continue;
+                var from=WorldToScreen(Manager.SilkPoint(web,strand.FromX,strand.FromY));var to=WorldToScreen(Manager.SilkPoint(web,strand.ToX,strand.ToY));var end=from+(to-from)*strand.Progress;
+                if(builders.TryGetValue((web.Owner,index),out var builder))
+                {
+                    var direction=builder.Angle*Math.PI/180;var heading=new Vector(Math.Cos(direction)*scaleX,Math.Sin(direction)*scaleY);if(heading.Length>.001)heading.Normalize();
+                    end=WorldToScreen(builder.Position)-heading*(9*builder.SizeScale*ViewScale);
+                }
+                dc.DrawLine(silk,from,end);
             }
-            if(progress<1 && Manager.Bugs.FirstOrDefault(b=>b.InteractionId==web.Owner && b.Activity==BugActivity.Nesting) is {} spinner && (spinner.Position-new Point(web.X,web.Y)).Length<45)
-                dc.DrawLine(BugVisuals.P("#AFD9CBE2",.35),WorldToScreen(spinner.Position),OnWeb((int)(progress*40)%8,radius));
         }
     }
 }

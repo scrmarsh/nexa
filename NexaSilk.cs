@@ -1,0 +1,83 @@
+using System.Windows;
+namespace SessionDashboard;
+internal sealed partial class BugManager
+{
+    internal Rect WebBounds(EcosystemWeb web)
+    {
+        if(web.AnchorId is {} id && Surfaces.TryGetValue(id,out var card))return new Rect(card.X+card.Width*.06,card.Y+card.Height*.08,Math.Max(12,card.Width*.88),Math.Max(12,card.Height*.84));
+        return new Rect(Math.Clamp(web.X-160,12,WorldWidth-332),Math.Clamp(web.Y-115,12,WorldHeight-242),320,230);
+    }
+    internal static void EnsureSilk(EcosystemWeb web)
+    {
+        if(web.Strands.Count>0)return;
+        var rng=new Random(web.Owner.GetHashCode());
+        var nodes=new List<Point>{new(.02,.08),new(.45,.02),new(.97,.12),new(.99,.6),new(.83,.97),new(.38,.98),new(.02,.79),new(.01,.36)};
+        void Add(Point a,Point b)=>web.Strands.Add(new SilkStrand{FromX=a.X,FromY=a.Y,ToX=b.X,ToY=b.Y});
+        for(var i=0;i<8;i++)Add(nodes[i],nodes[(i+1)%8]);
+        Add(nodes[0],nodes[4]);Add(nodes[2],nodes[6]);Add(nodes[1],nodes[5]);
+        for(var i=0;i<18;i++)
+        {
+            var point=new Point(.08+rng.NextDouble()*.84,.08+rng.NextDouble()*.84);
+            foreach(var other in nodes.OrderBy(n=>(n-point).LengthSquared).Take(i%3==0?3:2))Add(other,point);
+            nodes.Add(point);
+        }
+        var completed=Math.Clamp(web.Construction,0,1)*web.Strands.Count;
+        for(var i=0;i<web.Strands.Count;i++)web.Strands[i].Progress=Math.Clamp(completed-i,0,1);
+    }
+    internal Point SilkPoint(EcosystemWeb web,double x,double y){var box=WebBounds(web);return new(box.Left+x*box.Width,box.Top+y*box.Height);}
+    private bool ChooseWebActivity(BugEntity bug)
+    {
+        var home=Webs.FirstOrDefault(w=>w.Owner==bug.InteractionId || w.Helpers.Contains(bug.InteractionId));
+        if(home!=null && (home.Construction<1 || random.NextDouble()<.78))
+        {bug.Activity=BugActivity.Nesting;bug.Target=WebBounds(home).Location;bug.Decision=Range(5,10);return true;}
+        if(home!=null)return false;
+        var shared=Webs.Where(w=>w.Construction<1 && w.Helpers.Count<8).OrderBy(w=>(WebBounds(w).Location-bug.Position).LengthSquared).FirstOrDefault();
+        if(shared!=null && (WebBounds(shared).Location-bug.Position).Length<600)
+        {shared.Helpers.Add(bug.InteractionId);bug.Activity=BugActivity.Nesting;bug.Target=WebBounds(shared).Location;bug.Decision=8;return true;}
+        if(Webs.Count>=24 || random.NextDouble()>.45)return false;
+        var anchor=Surfaces.Count>0?Surfaces.MinBy(p=>(p.Value.Location-bug.Position).LengthSquared):default;
+        var web=new EcosystemWeb{Owner=bug.InteractionId,X=Math.Clamp(Surfaces.Count>0?anchor.Value.Right+12:bug.Position.X,12,WorldWidth-12),Y=Math.Clamp(Surfaces.Count>0?anchor.Value.Top-12:bug.Position.Y,12,WorldHeight-12),AnchorId=Surfaces.Count>0?anchor.Key:null,AnchorOffsetX=12,AnchorOffsetY=-12};
+        EnsureSilk(web);Webs.Add(web);bug.Activity=BugActivity.Nesting;bug.Target=WebBounds(web).Location;bug.Decision=8;return true;
+    }
+    private bool PrepareSilk(BugEntity bug,EcosystemWeb web)
+    {
+        EnsureSilk(web);
+        if(web.Construction>=1)
+        {
+            bug.SilkAttached=false;bug.WeavingSegment=-1;
+            if(bug.WeavingOwner!=web.Owner || !WebBounds(web).Contains(bug.Target))bug.Target=SilkPoint(web,Range(.15,.85),Range(.15,.85));
+            bug.WeavingOwner=web.Owner;return (bug.Target-bug.Position).Length>10;
+        }
+        if(bug.WeavingOwner!=web.Owner || bug.WeavingSegment<0 || bug.WeavingSegment>=web.Strands.Count || web.Strands[bug.WeavingSegment].Progress>=1)
+        {
+            bug.WeavingOwner=web.Owner;bug.WeavingSegment=-1;bug.SilkAttached=false;
+            var claimed=Bugs.Where(b=>b!=bug && IsActive(b) && b.WeavingOwner==web.Owner && b.Activity==BugActivity.Nesting).Select(b=>b.WeavingSegment).ToHashSet();
+            for(var i=0;i<web.Strands.Count;i++)if(web.Strands[i].Progress<1 && !claimed.Contains(i)){bug.WeavingSegment=i;break;}
+            if(bug.WeavingSegment<0)return false;
+        }
+        var strand=web.Strands[bug.WeavingSegment];var from=SilkPoint(web,strand.FromX,strand.FromY);var to=SilkPoint(web,strand.ToX,strand.ToY);var tip=from+(to-from)*strand.Progress;
+        if(!bug.SilkAttached && (bug.Position-tip).Length<9)bug.SilkAttached=true;
+        bug.Target=bug.SilkAttached?to:tip;return true;
+    }
+    private void LaySilk(BugEntity bug)
+    {
+        if(!bug.SilkAttached || bug.WeavingSegment<0 || Webs.FirstOrDefault(w=>w.Owner==bug.WeavingOwner) is not {} web)return;
+        var strand=web.Strands[bug.WeavingSegment];var from=SilkPoint(web,strand.FromX,strand.FromY);var to=SilkPoint(web,strand.ToX,strand.ToY);var direction=to-from;
+        var progress=direction.LengthSquared<.01?1:Math.Clamp(Vector.Multiply(bug.Position-from,direction)/direction.LengthSquared,0,1);
+        strand.Progress=Math.Max(strand.Progress,(bug.Position-to).Length<10?1:progress);web.Construction=web.Strands.Average(s=>s.Progress);
+        if(strand.Progress>=1){bug.SilkAttached=false;bug.WeavingSegment=-1;}
+    }
+    private bool MarchAnt(BugEntity bug,double step)
+    {
+        if(bug.Species!=BugSpecies.Ants || bug.Activity!=BugActivity.Exploring || Surfaces.Count==0)return false;
+        if(bug.Surface==null || !Surfaces.ContainsKey(bug.Surface))
+        {
+            var nearest=Surfaces.MinBy(p=>Enumerable.Range(0,32).Min(i=>(EdgePoint(p.Value,i/32d)-bug.Position).LengthSquared));bug.Surface=nearest.Key;
+            bug.EdgeProgress=Enumerable.Range(0,64).MinBy(i=>(EdgePoint(nearest.Value,i/64d)-bug.Position).LengthSquared)/64d;
+        }
+        var rect=Surfaces[bug.Surface];var edge=EdgePoint(rect,bug.EdgeProgress);
+        if((bug.Position-edge).Length>14){bug.Target=edge;return false;}
+        var prior=bug.Position;bug.EdgeProgress+=Math.Max(12,bug.Speed*.55)*step/Math.Max(1,2*(rect.Width+rect.Height));bug.Position=EdgePoint(rect,bug.EdgeProgress);bug.Target=EdgePoint(rect,bug.EdgeProgress+.02);bug.State=BugState.Edge;
+        var delta=bug.Target-bug.Position;bug.Angle=BugAnimation.SmoothAngle(bug.Angle,Math.Atan2(delta.Y,delta.X)*180/Math.PI,step,280);bug.CrawlPhase+=(bug.Position-prior).Length*.35;return true;
+    }
+}

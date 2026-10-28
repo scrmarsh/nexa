@@ -40,6 +40,7 @@ internal sealed partial class BugManager
         EcosystemActive = true; WorldId = doc.WorldId; WorldSeed = doc.Seed; SimulationAge = doc.SimulationAge; WorldPaused = doc.Paused; CombatDeaths = doc.CombatDeaths; NaturalEncounters = doc.NaturalEncounters;
         Preferences = Preferences with { Ecosystem = doc.Options.Safe() };
         Bounds = new Size(WorldWidth, WorldHeight); VisibleBounds = new Rect(Bounds);
+        arrivals.Clear();WorldSpawnDelay=1;
         Bugs.Clear(); Splats.Clear(); Nests.Clear(); Resources.Clear(); Webs.Clear();
         Nests.AddRange(Continuity.Clone(doc.Nests)); Resources.AddRange(Continuity.Clone(doc.Resources)); Webs.AddRange(Continuity.Clone(doc.Webs));
         foreach (var b in doc.Bugs) Bugs.Add(new()
@@ -74,7 +75,7 @@ internal sealed partial class BugManager
     {
         const double cell=64;
         var buckets=new Dictionary<(int,int),List<BugEntity>>();
-        foreach(var bug in Bugs.Where(b=>b.State is not (BugState.Squashed or BugState.Hiding or BugState.Flying)))
+        foreach(var bug in Bugs.Where(b=>IsActive(b) && b.State is not (BugState.Squashed or BugState.Hiding or BugState.Flying)))
         {var key=((int)(bug.Position.X/cell),(int)(bug.Position.Y/cell));if(!buckets.TryGetValue(key,out var list))buckets[key]=list=[];list.Add(bug);}
         foreach(var pair in buckets)foreach(var bug in pair.Value)
         {
@@ -111,22 +112,25 @@ internal sealed partial class BugManager
         {
             if (!r.Decoration && r.Amount < 12) { r.Regrowth += dt; if (r.Regrowth >= 90) { r.Amount = Math.Min(12, r.Amount + 1); r.Regrowth = 0; } }
         }
-        for (var i = Webs.Count - 1; i >= 0; i--) { Webs[i].Age += dt; if (Webs[i].Age > 86400 && !Bugs.Any(b=>b.InteractionId==Webs[i].Owner)) Webs.RemoveAt(i); }
+        for (var i = Webs.Count - 1; i >= 0; i--) { Webs[i].Age += dt; if (Webs[i].Age > 86400 && !Bugs.Any(b=>b.InteractionId==Webs[i].Owner || Webs[i].Helpers.Contains(b.InteractionId))) Webs.RemoveAt(i); }
+        AdvanceArrivals();
         SeparateNearby(dt);
         WorldSpawnDelay -= dt;
-        if (Bugs.Count < EcosystemCap && WorldSpawnDelay <= 0 && (Preferences.Density != BugDensity.Infestation || AdaptiveSpawnAllowed))
+        if (Bugs.Count < EcosystemCap && arrivals.Count==0 && WorldSpawnDelay <= 0 && ArrivalBudgetAvailable && (Preferences.Density != BugDensity.Infestation || AdaptiveSpawnAllowed))
         {
             var bug = Spawn(); bug.Scale = EcosystemSettings.Size; bug.Personality = (BugPersonality)random.Next(4); bug.Decision = 0;
             if (Preferences.Species == BugSpecies.AllBugs) bug.Species = AllSpecies.OrderBy(species => Bugs.Count(other => !ReferenceEquals(other, bug) && other.Species == species)).First();
             bug.Speed = bug.Species switch { BugSpecies.Ants => Range(18,34), BugSpecies.Roaches => Range(75,125), BugSpecies.Ladybugs => Range(22,38), BugSpecies.Centipedes => Range(38,58), _ => Range(50,90) };
-            var nest = Nest(bug.Species); bug.Position = nest.Position + new Vector(Range(-35, 35), Range(-35, 35)); bug.Surface = null;
-            WorldSpawnDelay = Preferences.Density == BugDensity.Infestation ? .4 : Bugs.Count < 12 ? .15 : nest.Food >= 1 ? 2 : 8;
+            var nest = Nest(bug.Species); bug.Position=ArrivalPoint();bug.Target=ExplorationPoint(bug.Position);bug.Surface=null;
+            bug.Activity=BugActivity.Exploring;bug.ExploreUntil=SimulationAge+Range(16,28);bug.Decision=Range(3,6);
+            WorldSpawnDelay=ArrivalInterval;
             nest.Food = Math.Max(0, nest.Food - .2);
         }
         for (var i = Splats.Count - 1; i >= 0; i--) { Splats[i].Age += dt; if (Splats[i].Age > 4) Splats.RemoveAt(i); }
         for (var i = Bugs.Count - 1; i >= 0; i--)
         {
             var bug = Bugs[i];
+            if(!IsActive(bug))continue;
             if (bug.State == BugState.Squashed || bug.Health <= 0)
             {
                 bug.SquashAge += dt;
@@ -144,10 +148,16 @@ internal sealed partial class BugManager
                 bug.State = BugState.Paused; bug.FlightHeight=Math.Max(0,bug.FlightHeight-step*3); bug.Energy = Math.Min(1, bug.Energy + step * .015); bug.Health = Math.Min(100, bug.Health + step * .3); bug.CrawlPhase += step * .15; continue;
             }
             if (bug.Activity == BugActivity.Socializing && (bug.Target-bug.Position).Length < 30) { bug.Energy=Math.Min(1,bug.Energy+step*.01); bug.State=BugState.Paused; bug.FlightHeight=Math.Max(0,bug.FlightHeight-step*3); continue; }
-            if (bug.Activity == BugActivity.Hiding) { bug.State = BugState.Hiding; continue; }
-            var flyPhase=bug.Age%14;
-            if(bug.Species==BugSpecies.Flies && bug.Activity==BugActivity.Exploring && flyPhase>=10)
-            {bug.Activity=BugActivity.Grooming;bug.Decision=14-flyPhase;bug.State=BugState.Paused;bug.FlightHeight=Math.Max(0,bug.FlightHeight-step*3);continue;}
+            if((bug.Activity==BugActivity.Hiding || bug.State==BugState.Hiding) && bug.Species!=BugSpecies.Roaches){bug.Activity=BugActivity.Exploring;bug.State=BugState.Crossing;bug.Decision=0;}
+            if(bug.Activity==BugActivity.Hiding && Surfaces.Values.Any(rect=>rect.Contains(bug.Position))){bug.State=BugState.Hiding;continue;}
+            if(MarchAnt(bug,step))continue;
+            var flyPhase=bug.Age%11;
+            if(bug.Species==BugSpecies.Flies && bug.Activity==BugActivity.Exploring && flyPhase>=9)
+            {
+                var landing=Surfaces.Count==0?bug.Position:Surfaces.Values.Select(rect=>new Point(Math.Clamp(bug.Position.X,rect.Left,rect.Right),Math.Clamp(bug.Position.Y,rect.Top,rect.Bottom))).MinBy(p=>(p-bug.Position).LengthSquared);
+                if((landing-bug.Position).Length>10)bug.Target=landing;
+                else {bug.Activity=BugActivity.Grooming;bug.Decision=1.6;bug.State=BugState.Landed;bug.FlightHeight=Math.Max(0,bug.FlightHeight-step*3);continue;}
+            }
             var flight = bug.Species == BugSpecies.Flies || bug.Species == BugSpecies.Ladybugs && bug.Activity == BugActivity.Exploring && bug.Age % 45 < 10;
             bug.State = flight ? BugState.Flying : BugState.Crossing;
             bug.FlightHeight = Math.Clamp(bug.FlightHeight + step * (flight ? 1.8 : -3), 0, 1);
@@ -188,7 +198,7 @@ internal sealed partial class BugManager
                         if(SimulationAge<bug.FeedingUntil){bug.State=BugState.Paused;bug.FlightHeight=0;continue;}
                         bug.FeedingResource=null;
                     }
-                    var partner = bug.Species==BugSpecies.Ants && resource.Kind==BugResourceKind.Candy ? Bugs.FirstOrDefault(b=>b!=bug && b.Species==BugSpecies.Ants && b.State!=BugState.Squashed && b.Health>0 && b.Carrying<=0 && (b.Position-bug.Position).Length<35) : null;
+                    var partner = bug.Species==BugSpecies.Ants && resource.Kind==BugResourceKind.Candy ? Bugs.FirstOrDefault(b=>IsActive(b) && b!=bug && b.Species==BugSpecies.Ants && b.State!=BugState.Squashed && b.Health>0 && b.Carrying<=0 && (b.Position-bug.Position).Length<35) : null;
                     var amount=Math.Min(resource.Amount,partner!=null?2:.5);resource.Amount-=amount;
                     bug.Carrying=partner==null?amount:amount/2;bug.Activity=BugActivity.Carrying;bug.Target=nest.Position;bug.Decision=30;
                     if(partner!=null){bug.PartnerId=partner.InteractionId;partner.PartnerId=bug.InteractionId;partner.Carrying=amount/2;partner.Activity=BugActivity.Carrying;partner.Target=nest.Position;partner.Decision=30;partner.CrawlPhase=bug.CrawlPhase;}
@@ -202,8 +212,8 @@ internal sealed partial class BugManager
             }
             if (bug.Activity == BugActivity.Nesting)
             {
-                if(bug.Species==BugSpecies.Spiders && Webs.FirstOrDefault(w=>w.Owner==bug.InteractionId && w.Construction<1) is {} web)
-                {bug.Target=new(web.X,web.Y);if((bug.Position-bug.Target).Length<42){web.Construction=Math.Min(1,web.Construction+step*.025);bug.State=BugState.Paused;continue;}}
+                if(bug.Species==BugSpecies.Spiders && Webs.FirstOrDefault(w=>w.Owner==bug.InteractionId || w.Helpers.Contains(bug.InteractionId)) is {} web)
+                {if(!PrepareSilk(bug,web)){bug.State=BugState.Paused;continue;}}
                 else {nest.Construction=Math.Min(1,nest.Construction+step*.001);bug.Target=nest.Position;}
             }
             if (bug.Activity is BugActivity.Hunting or BugActivity.Defending or BugActivity.Raiding) Encounter(bug, step);
@@ -211,7 +221,7 @@ internal sealed partial class BugManager
             if(bug.PartnerId is {} partnerId && Bugs.FirstOrDefault(b=>b.InteractionId==partnerId) is {} carrier)speed=(bug.Speed+carrier.Speed)*.5*.55*.65;
             if(bug.Species==BugSpecies.Flies && flight && flyPhase<3)speed*=.14;
             if (EcosystemSettings.Behavior == BugBehavior.Creepy && bug.Species == BugSpecies.Roaches && bug.Personality != BugPersonality.Social) speed *= 1.8;
-            var navigationTarget=VisibleWaypoint(bug.Position,bug.Target);
+            var navigationTarget=(bug.Species==BugSpecies.Spiders && bug.Activity==BugActivity.Nesting || bug.Species==BugSpecies.Roaches && bug.Activity==BugActivity.Hiding || bug.Species==BugSpecies.Flies)?bug.Target:VisibleWaypoint(bug.Position,bug.Target);
             // A moved/resized widget can engulf a creature; place it on a free edge once.
             if(Surfaces.Values.Any(rect=>rect.Contains(bug.Position)) && !Surfaces.Values.Any(rect=>rect.Contains(navigationTarget)))bug.Position=navigationTarget;
             var delta = navigationTarget - bug.Position;
@@ -222,15 +232,22 @@ internal sealed partial class BugManager
             }
             else if (bug.Activity == BugActivity.Exploring) bug.Decision = 0;
             bug.Position = new(Math.Clamp(bug.Position.X, 12, WorldWidth - 12), Math.Clamp(bug.Position.Y, 12, WorldHeight - 12));
+            if(bug.Species==BugSpecies.Spiders && bug.Activity==BugActivity.Nesting)LaySilk(bug);
         }
     }
     private void ChooseActivity(BugEntity bug)
     {
         bug.State = BugState.Crossing; bug.ResourceId = null; bug.EnemyId = null; bug.RaidTarget = null; bug.Decision = Range(5, 16);
+        if(EcosystemSettings.Behavior==BugBehavior.Cozy && SimulationAge<bug.ExploreUntil && bug.Carrying<=0)
+        {bug.Activity=BugActivity.Exploring;bug.Target=ExplorationPoint(bug.Position);bug.Decision=Range(3,6);return;}
         if(bug.Species==BugSpecies.Spiders && Webs.FirstOrDefault(w=>w.Owner==bug.InteractionId && w.Construction<1) is {} unfinished)
         {bug.Activity=BugActivity.Nesting;bug.Target=new(unfinished.X,unfinished.Y);bug.Decision=8;return;}
         if (bug.Carrying > 0) { bug.Activity = BugActivity.Carrying; bug.Target = Nest(bug.Species).Position; return; }
+        if(bug.Species==BugSpecies.Spiders && ChooseWebActivity(bug))return;
+        bug.SilkAttached=false;bug.WeavingSegment=-1;
         var mode = EcosystemSettings.Behavior; var roll = random.NextDouble();
+        if(bug.Species==BugSpecies.Roaches && mode!=BugBehavior.Combative && roll<.22 && Surfaces.Count>0)
+        {var cover=Surfaces.Values.ElementAt(random.Next(Surfaces.Count));bug.Activity=BugActivity.Hiding;bug.Target=new(cover.Left+cover.Width*.25,cover.Top+cover.Height*.35);bug.Decision=Range(3,7);return;}
         if(mode==BugBehavior.Classic)
         {
             bug.Activity=roll<.12?BugActivity.Grooming:BugActivity.Exploring;
@@ -246,32 +263,26 @@ internal sealed partial class BugManager
                 if(targetNest!=null)
                 {
                     bug.Activity=BugActivity.Raiding;bug.RaidTarget=targetNest.Species;bug.Target=targetNest.Position;bug.Decision=30;
-                    foreach(var ally in Bugs.Where(b=>b!=bug && b.Species==bug.Species && b.Health>0 && (b.Position-bug.Position).Length<180).Take(2))
+                    foreach(var ally in Bugs.Where(b=>IsActive(b) && b!=bug && b.Species==bug.Species && b.Health>0 && (b.Position-bug.Position).Length<180).Take(2))
                     {ally.Activity=BugActivity.Raiding;ally.RaidTarget=targetNest.Species;ally.EnemyId=null;ally.Target=targetNest.Position;ally.Decision=30;}
                     return;
                 }
             }
-            var enemy = Bugs.Where(b => b != bug && b.Species != bug.Species && b.Health > 0 && b.State != BugState.Squashed).MinBy(b => (b.Position - bug.Position).LengthSquared);
+            var enemy = Bugs.Where(b => IsActive(b) && b != bug && b.Species != bug.Species && b.Health > 0 && b.State != BugState.Squashed).MinBy(b => (b.Position - bug.Position).LengthSquared);
             if (enemy != null && ((enemy.Position - Nest(bug.Species).Position).Length < 180 || roll < .6))
             { bug.Activity = (enemy.Position - Nest(bug.Species).Position).Length < 180 ? BugActivity.Defending : BugActivity.Raiding; bug.EnemyId = enemy.InteractionId; bug.Target = enemy.Position; bug.Decision = Range(2, 5);
-                foreach(var ally in Bugs.Where(b=>b!=bug && b.Species==bug.Species && b.Health>0 && b.Activity!=BugActivity.Defending && (b.Position-bug.Position).Length<200).Take(2))
+                foreach(var ally in Bugs.Where(b=>IsActive(b) && b!=bug && b.Species==bug.Species && b.Health>0 && b.Activity!=BugActivity.Defending && (b.Position-bug.Position).Length<200).Take(2))
                 {ally.Activity=BugActivity.Raiding;ally.EnemyId=enemy.InteractionId;ally.Target=enemy.Position;ally.Decision=4;}
                 return; }
         }
         if (mode == BugBehavior.Creepy && bug.Species is BugSpecies.Spiders or BugSpecies.Centipedes && roll < .13)
         {
-            var prey = Bugs.Where(b => b.Species is BugSpecies.Flies or BugSpecies.Ants && b.State != BugState.Squashed).MinBy(b => (b.Position - bug.Position).LengthSquared);
+            var prey = Bugs.Where(b => IsActive(b) && b.Species is BugSpecies.Flies or BugSpecies.Ants && b.State != BugState.Squashed).MinBy(b => (b.Position - bug.Position).LengthSquared);
             if (prey != null && (prey.Position - bug.Position).Length < 180) { NaturalEncounters++; bug.Activity = BugActivity.Hunting; bug.EnemyId = prey.InteractionId; bug.Target = prey.Position; bug.Decision = 3; return; }
         }
         if (bug.Energy < .3 || roll < (mode == BugBehavior.Cozy ? .12 : .04)) { bug.Activity = BugActivity.Sleeping; bug.Decision = Range(5, 12); return; }
-        if (mode == BugBehavior.Cozy && roll < .24) { bug.Activity = BugActivity.Socializing; bug.Target = Bugs.FirstOrDefault(b => b != bug && b.Species == bug.Species)?.Position ?? Nest(bug.Species).Position; return; }
+        if (mode == BugBehavior.Cozy && roll < .24) { bug.Activity = BugActivity.Socializing; bug.Target = Bugs.FirstOrDefault(b => IsActive(b) && b != bug && b.Species == bug.Species)?.Position ?? Nest(bug.Species).Position; return; }
         if (roll < .31) { bug.Activity = mode == BugBehavior.Creepy ? BugActivity.Hiding : BugActivity.Grooming; bug.Decision = Range(2, 5); return; }
-        if (bug.Species == BugSpecies.Spiders && Webs.Count < 24 && Webs.All(w => w.Owner != bug.InteractionId) && roll < .5)
-        {
-            var anchor=Surfaces.Count>0?Surfaces.MinBy(p=>(new Point(p.Value.Right,p.Value.Top)-bug.Position).LengthSquared):default;
-            var origin=Surfaces.Count>0?new Point(anchor.Value.Right+12,anchor.Value.Top-12):new Point(bug.Position.X<WorldWidth/2?24:WorldWidth-24,Math.Clamp(bug.Position.Y,24,WorldHeight-24));
-            Webs.Add(new(){Owner=bug.InteractionId,X=origin.X,Y=origin.Y,AnchorId=Surfaces.Count>0?anchor.Key:null,AnchorOffsetX=12,AnchorOffsetY=-12});bug.Activity=BugActivity.Nesting;bug.Target=origin;bug.Decision=8;return;
-        }
         if (roll < .8)
         {
             var resource = Resources.Where(r => Edible(bug, r)).MinBy(r => (r.Position - bug.Position).LengthSquared);
@@ -283,7 +294,7 @@ internal sealed partial class BugManager
     }
     private void Encounter(BugEntity bug, double dt)
     {
-        var enemy = Bugs.FirstOrDefault(b => b.InteractionId == bug.EnemyId && b.Health > 0 && b.State != BugState.Squashed);
+        var enemy = Bugs.FirstOrDefault(b => IsActive(b) && b.InteractionId == bug.EnemyId && b.Health > 0 && b.State != BugState.Squashed);
         if (enemy == null) { bug.EnemyId = null; if (bug.RaidTarget == null) bug.Decision = 0; return; }
         bug.Target = enemy.Position;
         if ((enemy.Position - bug.Position).Length > 24 * EcosystemSettings.Size) return;

@@ -80,6 +80,7 @@ internal sealed class NexaEcosystem : IDisposable
     internal void Attach(object view, Func<bool> visible)
     {
         if (disposed) throw new ObjectDisposedException(nameof(NexaEcosystem));
+        if(views.Count==0)Manager.BeginDashboardArrival();
         views[view] = visible;
         if (!timer.IsEnabled) { previous = 0; clock.Restart(); timer.Start(); }
     }

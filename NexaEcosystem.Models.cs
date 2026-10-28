@@ -67,8 +67,18 @@ internal sealed class EcosystemResource
     public double Regrowth { get; set; }
     [System.Text.Json.Serialization.JsonIgnore] internal Point Position => new(X, Y);
 }
+internal sealed class SilkStrand
+{
+    public double FromX {get;set;}
+    public double FromY {get;set;}
+    public double ToX {get;set;}
+    public double ToY {get;set;}
+    public double Progress {get;set;}
+}
 internal sealed class EcosystemWeb
 {
+    public List<SilkStrand> Strands {get;set;}=[];
+    public List<Guid> Helpers {get;set;}=[];
     public string? AnchorId {get;set;}
     public double AnchorOffsetX {get;set;}
     public double AnchorOffsetY {get;set;}
@@ -142,7 +152,7 @@ internal sealed class EcosystemDocument
                 !double.IsFinite(b.Age) || b.Age < 0 || !double.IsFinite(b.Angle) || !double.IsFinite(b.Decision) || !double.IsFinite(b.Phase) || !double.IsFinite(b.Carrying) || b.Carrying is < 0 or > 10 || b.Hits < 0 || b.Kills < 0 || b.RaidTarget != null && !species.Contains(b.RaidTarget.Value) || !Enum.IsDefined(b.Activity) || !Enum.IsDefined(b.Personality) || !Enum.IsDefined(b.State)) ||
             Bugs.Select(b => b.Id).Distinct().Count() != Bugs.Count || Nests == null || Nests.Count != 6 || Nests.Any(n => n == null) || Nests.Select(n => n.Species).Distinct().Count() != 6 || Nests.Any(n => !species.Contains(n.Species) || !Coordinate(n.X, n.Y) || !double.IsFinite(n.Food) || n.Food is < 0 or > 10000 || !double.IsFinite(n.Construction) || n.Construction is < 0 or > 1 || n.Deliveries < 0) ||
             Resources == null || Resources.Count > 128 || Resources.Any(r => r == null || r.Id == Guid.Empty || !Coordinate(r.X, r.Y) || !Enum.IsDefined(r.Kind) || !double.IsFinite(r.Amount) || r.Amount is < 0 or > 100 || !double.IsFinite(r.Regrowth) || r.Regrowth < 0) || Resources.Select(r => r.Id).Distinct().Count() != Resources.Count ||
-            Webs == null || Webs.Count > 24 || Webs.Any(w => w == null || !Coordinate(w.X, w.Y) || w.AnchorId?.Length>128 || !double.IsFinite(w.AnchorOffsetX) || !double.IsFinite(w.AnchorOffsetY) || Math.Abs(w.AnchorOffsetX)>1600 || Math.Abs(w.AnchorOffsetY)>1000 || !double.IsFinite(w.Age) || w.Age < 0 || !double.IsFinite(w.Construction) || w.Construction is < 0 or > 1))
+            Webs == null || Webs.Count > 24 || Webs.Any(w => w == null || w.Helpers==null || w.Helpers.Count>8 || w.Helpers.Any(id=>id==Guid.Empty) || w.Helpers.Distinct().Count()!=w.Helpers.Count || w.Strands==null || w.Strands.Count>80 || w.Strands.Any(t=>t==null || !double.IsFinite(t.FromX) || !double.IsFinite(t.FromY) || !double.IsFinite(t.ToX) || !double.IsFinite(t.ToY) || !double.IsFinite(t.Progress) || t.FromX is <0 or >1 || t.FromY is <0 or >1 || t.ToX is <0 or >1 || t.ToY is <0 or >1 || t.Progress is <0 or >1) || !Coordinate(w.X, w.Y) || w.AnchorId?.Length>128 || !double.IsFinite(w.AnchorOffsetX) || !double.IsFinite(w.AnchorOffsetY) || Math.Abs(w.AnchorOffsetX)>1600 || Math.Abs(w.AnchorOffsetY)>1000 || !double.IsFinite(w.Age) || w.Age < 0 || !double.IsFinite(w.Construction) || w.Construction is < 0 or > 1))
             throw new InvalidDataException("The ecosystem save contains invalid data. Its original files were preserved.");
     }
 }
