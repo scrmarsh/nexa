@@ -1,0 +1,40 @@
+PASS: Current .28 identity uses the existing version infrastructure
+PASS: Pre-.28 ledger JSON preserves recorded score/event identity without inventing a new boost
+PASS: Disposable child writer starts without opening the user's workspace
+PASS: Process termination during repeated atomic saves preserves session/widget identities, counters and permanent tasks
+PASS: Restart ignores orphan partial temp files and retains a committed layout/note generation
+PASS: Corrupt primary restores the existing same-owner backup
+PASS: Saving recovered data preserves both valid backup and unreadable primary evidence
+PASS: An exclusive file lock reports save failure
+PASS: Failed write leaves the committed primary unchanged
+PASS: A later retry persists pending edits without replacing session identity
+PASS: Monday 2:15 PM finalizes exactly the recorded session
+PASS: Monday 2:20 PM commits the five-minute checkpoint
+PASS: Wednesday 12:50 PM exposes the actual postpone-reset action
+PASS: Failed pre-reset save cannot clear the previous session
+PASS: Postponed reset survives application restart
+PASS: Completing postponed reset archives one old identity and starts the correct Wednesday occurrence
+PASS: Reset preserves all reusable tasks without changing permanence
+PASS: Repeated completion cannot duplicate an already active occurrence
+PASS: Restored Creepy executes actual hiding/low-conflict AI without raids
+PASS: Creepy mode and original world/bug identities persist
+PASS: Attacked non-spider immediately receives a defensive retaliation order
+PASS: A previously passive defender actually damages its attacker
+PASS: Advanced locomotion remains optional/off with static cute fallback
+PASS: Behavior changes keep the visible appearance selector synchronized with legacy automatic matching
+PASS: An explicit appearance remains independent of later behavior changes and persists
+PASS: Large Space defers offscreen bodies while preserving every widget model
+PASS: Scrolling to a deferred final widget constructs its real saved editor
+PASS: Saving a partially materialized visual tree preserves all offscreen notes
+PASS: Layout phase instrumentation remains available
+PASS: Direct squash starts the independent twenty-second 2x window
+PASS: Existing shared two-minute half-step streak remains intact
+PASS: Duplicate events cannot refresh Bug Frenzy
+PASS: Eligible points receive a non-stacking 2x boost
+PASS: Exact expiry restores the still-active shared streak after resume
+PASS: A new direct squash refreshes twenty seconds
+PASS: Delayed historical events cannot move the current boost backward
+PASS: Candy advances the shared streak without activating direct-only Bug Frenzy
+PASS: Configured bonus cap also bounds the short boost
+PASS: Boost timestamps persist and do not grant future bonuses retroactively
+PASS: 39 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-165225

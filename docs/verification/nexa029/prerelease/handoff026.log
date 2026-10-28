@@ -1,0 +1,96 @@
+PASS: Fresh normal Home removes seasonal rendering and hit targets
+PASS: Normal Home leaves no tagline text run or layout gap
+PASS: Initial Home contains exactly six Spaces
+PASS: Space title uses symmetric whole-card centering independently of its icon
+PASS: Last-used label occupies the bottom-right corner
+PASS: Expansion preserves original card instances
+PASS: Delayed entrance stays invisible before its assigned start
+PASS: Additional cards enter visibly in sequence
+PASS: Expanded layout completes within a bounded deadline
+PASS: Mouse wheel bubbles from expanded Space cards to the page scroller
+PASS: Hide More retains visual children during exit
+PASS: Last added Space exits first
+PASS: Hide More restores exactly six Spaces after exit
+PASS: Live Home reveals seasonal artwork after toggling on
+PASS: Seasonal artwork cannot intercept controls during fade-out
+PASS: Live Home collapses all seasonal layers after fade
+PASS: Nexaween Off persists through the state store
+PASS: Experimental page marks all three unfinished providers Coming Soon
+PASS: Experimental tab is pinned through bottom docking
+PASS: Bottom tab remains anchored during resize
+PASS: Time zone selection field rejects arbitrary text entry
+PASS: Time zone selections render readable labels through the native ComboBox template
+PASS: Clock preview advances when its Settings page is initialized lazily
+PASS: Authoritative Central time aliases match CHIC
+PASS: Authoritative Central time aliases match Chicago
+PASS: Authoritative Central time aliases match Central Standard Time
+PASS: Authoritative Central time aliases match America Chicago
+PASS: Typing CHIC live-filters the real time zone dropdown
+PASS: Choosing a result synchronizes and persistently saves the real selection
+PASS: Selected authoritative Chicago zone retains daylight saving rules
+PASS: Sounds exposes five styles and five independent choices for each feedback direction
+PASS: Independent sound choices persist without being overwritten by the style selector
+PASS: All five positive and negative original PCM cues are distinct
+PASS: Reopening Home resets expansion and preserves normal appearance
+PASS: Independent Add Bugs survives Nexaween False with bugs False
+PASS: Candy collection gate follows current seasonal preference, including transition
+PASS: Independent Add Bugs survives Nexaween True with bugs False
+PASS: Candy collection gate follows current seasonal preference, including transition
+PASS: Independent Add Bugs survives Nexaween False with bugs True
+PASS: Candy collection gate follows current seasonal preference, including transition
+PASS: Independent Add Bugs survives Nexaween True with bugs True
+PASS: Candy collection gate follows current seasonal preference, including transition
+PASS: Dashboard seasonal layer leaves active rendering when Off
+PASS: Productivity lightning uses the shared golden yellow in normal mode
+PASS: Productivity lightning remains golden yellow in seasonal mode
+PASS: Productivity supports a 220 by 240 minimum with live breakdown
+PASS: Large settled cumulative scores render exact integer digits rather than double rounding
+PASS: Default Productivity hides activity summaries behind details
+PASS: Shared in-place Splash Preview completes
+PASS: Splash Preview creates no additional visible windows and preserves dashboard bounds
+PASS: In-window Space transition finishes through the shared fade sequence
+PASS: A newly created Space commits within an already open dashboard
+PASS: In-window Space creation resets its initial viewport after layout
+PASS: New Space creation also starts at the top without constructing a new window
+PASS: New Class finishes its initial viewport reset at 900,600
+PASS: New Class opens at the top at 900,600
+PASS: New Class finishes its initial viewport reset at 1450,950
+PASS: New Class opens at the top at 1450,950
+PASS: New Church finishes its initial viewport reset at 900,600
+PASS: New Church opens at the top at 900,600
+PASS: New Church finishes its initial viewport reset at 1450,950
+PASS: New Church opens at the top at 1450,950
+PASS: New Study finishes its initial viewport reset at 900,600
+PASS: New Study opens at the top at 900,600
+PASS: New Study finishes its initial viewport reset at 1450,950
+PASS: New Study opens at the top at 1450,950
+PASS: New Meeting finishes its initial viewport reset at 900,600
+PASS: New Meeting opens at the top at 900,600
+PASS: New Meeting finishes its initial viewport reset at 1450,950
+PASS: New Meeting opens at the top at 1450,950
+PASS: New Focus finishes its initial viewport reset at 900,600
+PASS: New Focus opens at the top at 900,600
+PASS: New Focus finishes its initial viewport reset at 1450,950
+PASS: New Focus opens at the top at 1450,950
+PASS: New Blank finishes its initial viewport reset at 900,600
+PASS: New Blank opens at the top at 900,600
+PASS: New Blank finishes its initial viewport reset at 1450,950
+PASS: New Blank opens at the top at 1450,950
+PASS: Animated startup hides progress until the complete tagline is typed
+PASS: Full seasonal tagline finishes before progress is revealed
+PASS: Real initialization milestones accumulate while tagline types
+PASS: Splash colors only haunts orange after typing
+PASS: Recap preserves the requested 425 to 560 cumulative example
+PASS: Private export/import retains cumulative baseline and historical recap without duplicate credit
+PASS: Starting a fresh session preserves cumulative points and the prior recap snapshot
+PASS: Configuration-only exports omit scores, recaps and private activity
+PASS: Legacy portable exports remain readable without new score metadata
+PASS: Appearance onboarding omits unrelated account copy
+PASS: Welcome reaches the single final Space naming step
+PASS: Final naming screen retains centered large input and illustrated selected-tool cards
+PASS: Productivity tool previews also use the shared gold lightning
+PASS: Quick Start introduction keeps explicit skip and continue controls
+PASS: Skipping Quick Start removes the blocking layer and persists
+PASS: Quick Start remains replayable after skip
+PASS: Recap renders native illustrated mini-cards for actual recorded actions
+PASS: 95 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-165246

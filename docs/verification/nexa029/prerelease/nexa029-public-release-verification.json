@@ -1,0 +1,11 @@
+{
+  "Release": "https://github.com/scrmarsh/nexa/releases/tag/v0.0.29-alpha",
+  "Public": true,
+  "Prerelease": true,
+  "Draft": false,
+  "DownloadStatus": 200,
+  "DownloadBytes": [
+    "145433398"
+  ],
+  "ExecutableDigest": "sha256:badbdb24fc0345cc6ed00c27cc873bb92068f27194ca23f25452cba0f57cd9cd"
+}

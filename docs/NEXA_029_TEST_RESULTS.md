@@ -1,5 +1,7 @@
 # Nexa 0.0.29 Alpha — test results
 
+Latest prerelease verification: **19 routes / 786 assertions** on published source commit 496dea2db01d4d59832febe5780dacebadd1e88f; clean Release build and packaged startup passed. See the [publication record](NEXA_029_PUBLICATION.md). The earlier development checkpoint below remains historical evidence.
+
 October 28, 2026. Starting commit `054fffdc5f0e42f292dcfb28d3a60631b2ba8024`; final application/test commit `34c214507f55ecf87156f6aa7bfe0b9afa9633fc` on `codex/nexa-029-polish`. Reports/captures are recorded in a subsequent documentation-only commit. No live user workspace, credential or provider account was used as a fixture.
 
 ## Final gate

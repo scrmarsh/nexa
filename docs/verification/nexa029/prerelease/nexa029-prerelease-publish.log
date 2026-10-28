@@ -1,0 +1,8 @@
+  Determining projects to restore...
+C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\SessionDashboard.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  Restored C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\SessionDashboard.csproj (in 6.07 sec).
+C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\SessionDashboard.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\SessionDashboard_vwf4ulnf_wpftmp.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  SessionDashboard -> C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\bin\Release\net10.0-windows\win-x64\Nexa.dll
+  SessionDashboard -> C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\Builds\Testing\nexa029-prerelease\
+Ready: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\Builds\Testing\nexa029-prerelease\Nexa.exe

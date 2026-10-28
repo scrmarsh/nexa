@@ -1,0 +1,33 @@
+PASS: Dashboard gets an initial quiet period instead of an immediate spawn burst
+PASS: New bugs arrive gradually, rather than a dozen in the first few seconds
+PASS: New arrivals are distributed inside the current viewport
+PASS: Cozy newcomers explore before seeking shared nests or food
+PASS: Random arrival positions cover a broad area instead of one nest or central cluster
+PASS: Exploration eventually yields to normal Cozy gathering and social behavior
+PASS: Restored populations are kept but do not all activate on the opening frame
+PASS: Saving during the arrival ramp preserves every dormant saved creature and identity
+PASS: Saved creatures reappear one at a time across multiple frames
+PASS: Dormant creatures do not run hidden simulation before their arrival
+PASS: Frame pressure throttles spawning at ordinary densities too
+PASS: Productivity popup is bottom-centered above the work-area margin
+PASS: Nexaween water uses an orange liquid palette
+PASS: Disabling Nexaween restores the normal blue water
+PASS: New web bounds remain proportional without covering the whole widget
+PASS: Web topology contains an irregular nonradial network of silk paths
+PASS: Two spiders attach silk to separate jobs on one shared web
+PASS: Silk construction advances through actual crawling by multiple spiders
+PASS: Shared web collaborators and individual strand progress survive reload
+PASS: Spiders prefer their completed home web but may still explore
+PASS: Ants march along actual widget edges with moving legs
+PASS: Only roaches may hide behind a widget; other species remain visible
+PASS: Visible jack-o-lanterns attach at a larger size to free widget corners
+PASS: The rendered squash gallery contains all six portraits at triple their former natural dimensions
+PASS: The roomy squash widget displays the enlarged portraits without squeezing them back to small icons
+PASS: Squash widget reserves enough height for the enlarged two-row gallery
+PASS: Compact tips have no separate settings button
+PASS: Tip card is narrower and more compact while retaining wrapping
+PASS: Clicking the tip card opens its settings directly
+PASS: Clicking a tip close control does not open settings
+PASS: Dismiss still removes the compact tip
+PASS: Important non-tip notification action buttons are preserved
+PASS: 32 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-165319

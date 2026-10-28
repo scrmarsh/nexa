@@ -1,6 +1,6 @@
 # Nexa 0.0.29 Alpha — implementation status
 
-Publication update: the user explicitly authorized a GitHub **NEXAWEEN: Interface Polish Alpha prerelease**. See [prerelease notes](NEXA_029_PRERELEASE_NOTES.md). The original unpublished development checkpoints and their verification scope below are retained as historical evidence.
+Publication update: **[NEXAWEEN: Interface Polish Alpha prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.29-alpha) is published** with explicit user authorization; see the [publication record](NEXA_029_PUBLICATION.md). See [prerelease notes](NEXA_029_PRERELEASE_NOTES.md). The original unpublished development checkpoints and their verification scope below are retained as historical evidence.
 
 Latest follow-ups: [Space name/icon ordering](NEXA_029_SPACE_ICON_ORDER.md) and [tight, even fullscreen notification spacing](NEXA_029_NOTIFICATION_SPACING.md). The original development checkpoint and full-suite evidence are recorded below.
 

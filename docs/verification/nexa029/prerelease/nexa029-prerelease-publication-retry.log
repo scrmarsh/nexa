@@ -1,0 +1,32 @@
+To https://github.com/scrmarsh/nexa.git
+ * [new branch]      HEAD -> codex/nexa-029-polish
+ * [new tag]         v0.0.29-alpha -> v0.0.29-alpha
+Pushed release branch and v0.0.29-alpha at 496dea2db01d4d59832febe5780dacebadd1e88f
+Uploading Nexa.exe (145433398 bytes)
+Verified GitHub SHA-256: Nexa.exe
+Uploading SHA256SUMS.txt (76 bytes)
+Verified GitHub SHA-256: SHA256SUMS.txt
+{
+  "id": 427233210,
+  "tag_name": "v0.0.29-alpha",
+  "name": "Nexa v0.0.29 Alpha — NEXAWEEN: Interface Polish",
+  "html_url": "https://github.com/scrmarsh/nexa/releases/tag/v0.0.29-alpha",
+  "prerelease": true,
+  "draft": false,
+  "published_at": "2026-10-28T22:01:16Z",
+  "assets": [
+    {
+      "name": "Nexa.exe",
+      "size": 145433398,
+      "digest": "sha256:badbdb24fc0345cc6ed00c27cc873bb92068f27194ca23f25452cba0f57cd9cd",
+      "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.29-alpha/Nexa.exe"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 76,
+      "digest": "sha256:664d40e04c9109638938e4220bd370612dc21c3f666506e00274f48f2af71709",
+      "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.29-alpha/SHA256SUMS.txt"
+    }
+  ]
+}
+
