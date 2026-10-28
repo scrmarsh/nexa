@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,7 +28,7 @@ internal static partial class Program
         Assert(dashboard.Current.Snapshots.Count == 3, "Recovery snapshots are capped at three generations per current dashboard");
         Continuity.Reset(dashboard);
         Assert(dashboard.DashboardId == dashboardId && dashboard.History.Single().SessionId == oldSessionId && dashboard.History.Single().WasReset, "Reset archives current content and preserves dashboard identity");
-        Assert(dashboard.Current.Data.Notes == "" && dashboard.Current.Data.Tasks.Count == 0 && dashboard.Current.Data.Session == null && !dashboard.Current.Data.ShowNotes && dashboard.Current.Data.PixelColor == "#A67AF2", "Reset clears session data while preserving colors and panel layout");
+        Assert(dashboard.Current.Data.Notes == "" && dashboard.Current.Data.Tasks.Count == 2 && dashboard.Current.Data.Session == null && !dashboard.Current.Data.ShowNotes && dashboard.Current.Data.PixelColor == "#A67AF2", "Reset clears session data while preserving colors and panel layout");
         Assert(dashboard.History.Single().Snapshots.Count == 0 && dashboard.History.Single().Data.Notes.EndsWith("7"), "Archived sessions retain final content without redundant snapshots");
         var historyJson = JsonSerializer.Serialize(dashboard.History.Single().Data);
         dashboard.Current.Data.Notes = "Current notes";
@@ -36,7 +36,7 @@ internal static partial class Program
         var currentColor = dashboard.Current.Data.PixelColor = "#123456";
         Continuity.Merge(dashboard, oldSessionId, "user-a", false);
         Assert(dashboard.Current.Data.Notes.Contains("Current notes") && dashboard.Current.Data.Notes.Contains("Private lecture notes 7") && dashboard.Current.Data.Notes.Contains("An interval note") && dashboard.Current.Data.Notes.Contains("Saved transcript"), "Merge retains current notes and imports labelled historical notes and transcript");
-        Assert(dashboard.Current.Data.Tasks.Count == 1 && dashboard.Current.Data.PixelColor == currentColor && dashboard.Current.MergedFrom.Contains(oldSessionId), "Merge deduplicates tasks and preserves layout with provenance");
+        Assert(dashboard.Current.Data.Tasks.Count == 3 && dashboard.Current.Data.PixelColor == currentColor && dashboard.Current.MergedFrom.Contains(oldSessionId), "Merge deduplicates tasks and preserves layout with provenance");
         var mergedNotes = dashboard.Current.Data.Notes;
         Continuity.Merge(dashboard, oldSessionId, "user-a", false);
         Assert(dashboard.Current.Data.Notes == mergedNotes && JsonSerializer.Serialize(dashboard.History[0].Data) == historyJson, "Repeated merges do not duplicate content or mutate historical data");

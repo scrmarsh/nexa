@@ -2,6 +2,11 @@
     <Application.Resources>
       <ResourceDictionary>
         <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="DarkControls.xaml"/></ResourceDictionary.MergedDictionaries>
+        <FontFamily x:Key="NexaUiFont">Segoe UI</FontFamily>
+        <Style TargetType="TextBlock"><Setter Property="FontFamily" Value="{DynamicResource NexaUiFont}"/></Style>
+        <Style TargetType="Window"><Setter Property="FontFamily" Value="{DynamicResource NexaUiFont}"/><Setter Property="TextOptions.TextFormattingMode" Value="Display"/></Style>
+        <SolidColorBrush x:Key="SpaceIconBrush" Color="#818CF8"/>
+
         <SolidColorBrush x:Key="BackgroundBrush" Color="#080B16"/>
         <SolidColorBrush x:Key="PanelBrush" Color="#101629"/>
         <SolidColorBrush x:Key="LineBrush" Color="#2B3553"/>

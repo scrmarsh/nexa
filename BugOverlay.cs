@@ -45,13 +45,16 @@ internal sealed class BugOverlay : FrameworkElement
     protected override HitTestResult? HitTestCore(PointHitTestParameters p) => DrawWorld || HitAt(p.HitPoint) != null ? new PointHitTestResult(this, p.HitPoint) : null;
     protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
     {
-        if (HitAt(e.GetPosition(this)) is { } bug) { if (Manager.Squash(bug)) DirectSquashed?.Invoke(bug); e.Handled = true; RefreshFrame(); }
+        if (HitAt(e.GetPosition(this)) is { } bug) { ShowHealth(bug);if (Manager.Squash(bug)) DirectSquashed?.Invoke(bug); e.Handled = true; RefreshFrame(); }
     }
     protected override void OnMouseMove(MouseEventArgs e){base.OnMouseMove(e);cursor=e.GetPosition(this);}
+    private readonly Dictionary<Guid,long> healthClicks=[];
+    internal void ShowHealth(BugEntity bug){healthClicks[bug.InteractionId]=Environment.TickCount64;RefreshFrame();}
     internal void RefreshFrame() => InvalidateVisual();
     protected override void OnRender(DrawingContext dc)
     {
         var began = System.Diagnostics.Stopwatch.GetTimestamp(); RenderedFrames++;
+        foreach(var id in healthClicks.Keys.Where(id=>Environment.TickCount64-healthClicks[id]>=3300 || !Manager.Bugs.Any(b=>b.InteractionId==id && b.Health>0 && b.State!=BugState.Squashed)).ToArray())healthClicks.Remove(id);
         if(protectedClip!=null)dc.PushClip(protectedClip);
         if (Manager.EcosystemActive) DrawFeatures(dc);
         foreach (var splat in Manager.Splats)
@@ -86,7 +89,13 @@ internal sealed class BugOverlay : FrameworkElement
             }
             else BugVisuals.Draw(dc, bug, options, Manager.SeasonalCostumes);
             dc.Pop();
-
+            if(healthClicks.TryGetValue(bug.InteractionId,out var clicked) && bug.Health>0 && bug.State!=BugState.Squashed)
+            {
+                var age=(Environment.TickCount64-clicked)/1000d;
+                if(age<3.3){dc.PushOpacity(ReduceMotion?1:Math.Clamp((3.3-age)/.3,0,1));var bar=new Rect(p.X-14,p.Y-radius-7,28,4);dc.DrawRoundedRectangle(BugVisuals.B("#CC111827"),null,bar,2,2);dc.DrawRoundedRectangle(BugVisuals.B("#86EFAC"),null,new Rect(bar.X,bar.Y,bar.Width*Math.Clamp(bug.Health/100,0,1),4),2,2);dc.Pop();}
+                else healthClicks.Remove(bug.InteractionId);
+            }
+            else healthClicks.Remove(bug.InteractionId);
         }
         foreach(var bug in VisibleBugs.Where(b=>b.PartnerId!=null && b.Carrying>0 && b.State!=BugState.Squashed))
         {
@@ -128,7 +137,7 @@ internal sealed class BugOverlay : FrameworkElement
             dc.DrawEllipse(BugVisuals.B(color), BugVisuals.P("#D9C9DD", .5), p, size, size * .7);
             if (resource.Kind == BugResourceKind.Candy) { dc.DrawLine(BugVisuals.P("#A855F7", 2 * ViewScale), p + new Vector(-size * 1.4, -size * .5), p + new Vector(size * 1.4, size * .5)); dc.DrawLine(BugVisuals.P("#FACC15", ViewScale), p + new Vector(0, -size * .6), p + new Vector(0, size * .6)); }
         }
-        var silk=BugVisuals.P(Manager.SeasonalCostumes?"#7484CC16":"#809D8CAE",.65);
+        var silk=BugVisuals.P("#80FFFFFF",.65);
         var builders=Manager.Bugs.Where(b=>Manager.IsActive(b) && b.WeavingOwner!=null && b.WeavingSegment>=0 && b.SilkAttached && b.Activity==BugActivity.Nesting && b.State!=BugState.Squashed).GroupBy(b=>(b.WeavingOwner!.Value,b.WeavingSegment)).ToDictionary(g=>g.Key,g=>g.First());
         foreach(var removed in webReveals.Keys.Where(id=>!Manager.Webs.Any(w=>w.Owner==id)).ToArray())webReveals.Remove(removed);
         foreach(var web in Manager.Webs)

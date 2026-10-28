@@ -50,12 +50,12 @@ internal static partial class Program
         Assert(preset.AutomaticScheduling && preset.ScheduledDays.SequenceEqual(schedule.ScheduledDays) && preset.StartClockMinutes == 780 && preset.EndClockMinutes == 855, "Weekdays, times and automatic recurrence persist on the reusable preset");
         Assert(saved.Session!.AutomaticScheduling && saved.Session.TimeZoneId == zone && saved.Widgets.Single(w => w.Id == notes.Id).PlacementY == 960, "Restart payload preserves recurrence, selected zone and widget coordinates");
         window.UpdateClock(monday.AddMinutes(20));
-        Assert(window.Countdown.Text == "00:20:00" && window.CountdownCaption.Text == "SESSION PROGRESS", "The actual Pixel Timer displays elapsed class time");
+        Assert(window.Countdown.Text == "00:55:00" && window.CountdownCaption.Text == "TIME REMAINING" && window.ElapsedLabel.Text == "00:20:00", "The actual Pixel Timer counts down while its secondary timer shows elapsed time");
         var lit = window.PixelGrid.Children.OfType<Border>().Select(p => Equals(p.Background, window.FullContent.Resources["DashboardPixelBrush"])).ToArray();
         Assert(lit.TakeWhile(x => x).Count() == lit.Count(x => x) && lit.Any(x => x) && lit.Any(x => !x), "Rendered pixels remain a contiguous partially filled prefix");
         Assert(Descendants(window).OfType<ProductivityRing>().Count()==2 && !Descendants(window).OfType<TextBlock>().Any(t=>t.Text.Contains("Meaningful actions:") || t.Text.Contains("Next milestone:")), "Both legacy productivity placements render compact rings without default activity summaries");
         window.ShowWeeklySchedule(); Pump(TimeSpan.FromMilliseconds(60));
-        var editor = Application.Current.Windows.OfType<Window>().Single(w => w.Title == "Nexa · Pixel Timer");
+        var editor = Application.Current.Windows.OfType<Window>().Single(w => w is SettingsDialog{SessionInterface:true});
         Assert(Descendants(editor).OfType<Button>().Any(b => Equals(b.Content, "M/W")) && Descendants(editor).OfType<Button>().Any(b => Equals(b.Content, "Apply timer settings")), "The timer's real editor exposes weekday shortcuts and a save action");
         editor.Close();
         Assert(WidgetLibrary.Definitions.Count(d => d.Name == "Productivity") == 1 && WidgetLibrary.Definition("Productivity Meter").Name == "Productivity" && WidgetLibrary.Definition("Productivity Score").Name == "Productivity", "One combined Productivity entry accepts both legacy widget kinds");

@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Controls;
@@ -71,6 +71,7 @@ public static class Theme
     public static void Apply(ResourceDictionary resources, ThemeMode mode, AppTheme theme = AppTheme.Nexa)
     {
         var old = PaletteBrushes(resources);
+        resources["SpaceIconBrush"]=new SolidColorBrush(SeasonalEnabled?Color.FromRgb(249,115,22):Color.FromRgb(129,140,248));
         currentMode = mode;
         currentTheme = theme;
         (currentAccent, currentPixel) = AppPalette(theme);

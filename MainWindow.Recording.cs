@@ -37,7 +37,7 @@ public partial class MainWindow
     }
     private void StartLocalRecordingClick(object sender, RoutedEventArgs e)
     {
-        if (state.Session is not { } session) { RecordingStatus.Text = "Start or resume a session before recording."; return; }
+        if (state.Session is not {FinalizedAt:null} session) { RecordingStatus.Text = "Start or resume a session before recording."; return; }
         if (recordingPaused) { if (RecordingCommand($"record {RecorderAlias}") == 0) { recordingPaused = false; recordingStarted = DateTimeOffset.Now; recordingTimer.Start(); PauseRecordingButton.Content = "Pause"; RecordingStatus.Text = "Microphone active · Recording"; MicrophoneIndicator.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "AccentBrush"); } return; }
         if (recordingActive) return;
         if (!microphoneConsentGranted)

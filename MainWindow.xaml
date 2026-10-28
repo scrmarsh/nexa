@@ -10,12 +10,13 @@
     <DockPanel x:Name="DashboardShell">
         <Border x:Name="DashboardHeader" DockPanel.Dock="Top" Height="52" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="12,8,12,6">
             <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" MaxWidth="210" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Image x:Name="HeaderBrandIcon" Source="assets/nexa-icon-256.png" Width="24" Height="24" Margin="0,0,12,0"/>
                     <ContentControl x:Name="SpaceIconHost" Margin="0,0,8,0" VerticalAlignment="Center"/><ContentControl x:Name="SessionNameHost" MaxWidth="290" VerticalAlignment="Center"/>
                 </StackPanel>
-                <StackPanel x:Name="TopNavigation" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                <Viewbox Grid.Column="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center" Margin="8,0">
+                <StackPanel x:Name="TopNavigation" Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Button Content="Home" Click="HomeClick" Padding="14,5" Margin="0,0,8,0"/>
                     <Button x:Name="GlobalSettingsButton" Content="Settings" Click="GlobalSettingsClick" Padding="14,5" Margin="0,0,8,0"/>
                     <Button x:Name="SessionSettingsButton" Content="Session" Click="DashboardSettingsClick" Style="{StaticResource PrimaryButton}" Padding="14,5"/>
@@ -26,13 +27,15 @@
                     <Button x:Name="DeveloperSoundButton" Content="Play Sound" MinWidth="106" Padding="12,6" Margin="8,0,0,0" Click="DeveloperSoundClick" Visibility="Collapsed"/>
                     <Button x:Name="DeveloperResetButton" Content="Reset dev" Click="DeveloperResetClick" Visibility="Collapsed"/>
                 </StackPanel>
+                </Viewbox>
                 <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                    <StackPanel x:Name="SystemIndicators" Orientation="Horizontal" Visibility="Collapsed" Margin="4,0,4,0"/>
                     <Button x:Name="MinimizeButton" Content="&#xE921;" Style="{StaticResource CaptionControlButton}" Click="MinimizeClick" ToolTip="Minimize"/>
                     <Button x:Name="MaximizeButton" Content="&#xE922;" Style="{StaticResource CaptionControlButton}" Click="MaximizeClick" ToolTip="Maximize"/>
                     <Button x:Name="ExitButton" Content="&#xE8BB;" Style="{StaticResource CaptionCloseButton}" Click="ExitClick" ToolTip="Close"/>
                 </StackPanel>
             </Grid>        </Border>
-    <Grid Margin="24" Background="{DynamicResource BackgroundBrush}">
+    <Grid x:Name="WorkspaceOuter" Margin="24" Background="{DynamicResource BackgroundBrush}">
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
         <StackPanel x:Name="CompactTimerHost" Visibility="Collapsed"/>
         <Border x:Name="SpaceBackgroundLayer" Grid.Row="1" CornerRadius="10" ClipToBounds="True"/>
@@ -73,9 +76,10 @@
                             <StackPanel x:Name="PixelInfo" Margin="0,0,20,0">
                             <StackPanel x:Name="CountdownHost" Margin="0,0,0,10">
                                 <TextBlock x:Name="Countdown" Text="00:00:00" FontFamily="Consolas" FontSize="40"/>
+                                <TextBlock x:Name="CountdownUnits" Text="hours       minutes      seconds" FontFamily="Consolas" FontSize="10" Foreground="White" Margin="0,2,0,5"/>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock x:Name="CountdownCaption" Text="TIME REMAINING" FontSize="10" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
-                                    <Button x:Name="SessionEditButton" Content="Edit" Click="SessionTimeEditClick" Padding="7,3" FontSize="10" Margin="8,0,0,0"/>
+                                    <Button x:Name="SessionEditButton" Content="Edit" Click="SessionTimeEditClick" Visibility="Collapsed" Padding="7,3" FontSize="10" Margin="8,0,0,0"/>
                                     <Button x:Name="SessionResetButton" Content="Reset" Click="ResetSessionTimerClick" Padding="7,3" FontSize="10" Margin="6,0,0,0"/><Button Content="&#x2026;" Click="PixelBannerOptionsClick" Width="28" Padding="3" Margin="6,0,0,0" ToolTip="Pixel Timer options" AutomationProperties.Name="Pixel Timer options"/>
                                 </StackPanel>
                                 <Button x:Name="ExpandButton" Content="Expand Space" Click="CompactClick" Visibility="Collapsed"/>
@@ -85,7 +89,7 @@
                             <ProgressBar x:Name="SessionProgressBar" Maximum="100" Height="4" Margin="0,5,0,12" Foreground="{DynamicResource DashboardPixelBrush}">
                                 <ProgressBar.Template><ControlTemplate TargetType="ProgressBar"><Grid><Border x:Name="PART_Track" Background="{DynamicResource DashboardLineBrush}" CornerRadius="2"/><Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" CornerRadius="2"/></Grid></ControlTemplate></ProgressBar.Template>
                             </ProgressBar>
-                            <TextBlock Text="ELAPSED" Style="{StaticResource Eyebrow}"/><TextBlock x:Name="ElapsedLabel" Text="00:00:00" FontSize="18" FontFamily="Consolas" Margin="0,3,0,12"/>
+                            <TextBlock x:Name="ElapsedCaption" Text="ELAPSED" Style="{StaticResource Eyebrow}"/><TextBlock x:Name="ElapsedLabel" Text="00:00:00" FontSize="18" FontFamily="Consolas" Margin="0,3,0,12"/>
                             <TextBlock x:Name="MilestoneLabel" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold" Margin="0,0,0,8" Visibility="Collapsed" TextWrapping="Wrap"/>
                             <Button x:Name="StoryButton" Content="I'm bored" Click="StoryClick" HorizontalAlignment="Left" Margin="0,8,0,0"/>
                             </StackPanel>

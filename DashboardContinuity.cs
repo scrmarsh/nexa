@@ -50,6 +50,7 @@ public sealed class DashboardRecord
 
 public sealed class DashboardSession
 {
+    public bool SessionValuesReset {get;set;}
     public long? ScoreAtStart {get;set;}
     public long? ScoreAtEnd {get;set;}
     public SessionRecap? Recap {get;set;}
@@ -171,7 +172,10 @@ public static class Continuity
     public static void Archive(DashboardRecord dashboard, bool reset = false)
     {
         SpaceScores.Reconcile(dashboard);
+        if(dashboard.History.Any(h=>h.SessionId==dashboard.Current.SessionId))return;
+        if(dashboard.Current.SessionValuesReset && dashboard.Current.Data.Notes.Length==0 && dashboard.Current.Data.Productivity.Events.Count==0 && !dashboard.Current.Data.Widgets.Any(w=>w.SessionScoped && WidgetLibrary.Definition(w.Kind).Editor is "text" or "counter" or "waterBottles" or "beer" or "timer" or "stopwatch" && w.HasData))return;
         var archived = Clone(dashboard.Current);
+        if(archived.SessionValuesReset){archived.Recap=null;archived.ScoreAtEnd=null;}
         archived.IsActive = false; archived.WasReset = reset; archived.ClosedAt = DateTimeOffset.Now;
         archived.Snapshots.Clear();
         dashboard.History.Add(archived);
@@ -211,6 +215,38 @@ public static class Continuity
         dashboard.Current = NewSession(dashboard, data);
         dashboard.Current.ContinuedFrom = source.SessionId;
         source.LastAccessedAt = DateTimeOffset.Now;
+    }
+    public static void RestoreHistorical(DashboardRecord target, DashboardSession source, string userId, bool loadAsNew, DateTimeOffset now)
+    {
+        if(target.UserId!=userId || source.UserId!=userId)throw new UnauthorizedAccessException();
+        var current=target.Current.Data;
+        var data=Clone(current);data.Notes=source.Data.Notes;data.Session=source.Data.Session==null?null:Clone(source.Data.Session);data.Productivity=Clone(source.Data.Productivity);
+        // Layout and Space appearance belong to the target identity, not the archived session.
+        data.Background=Clone(current.Background);data.SpaceIcon=current.SpaceIcon;data.AccentColor=current.AccentColor;data.PixelColor=current.PixelColor;
+        var values=source.Data.Widgets.ToDictionary(w=>w.Id);
+        data.Widgets=Clone(current.Widgets);
+        foreach(var widget in data.Widgets)
+        {
+            if(!values.TryGetValue(widget.Id,out var archived))archived=values.Values.Count(w=>w.Kind==widget.Kind)==1 && current.Widgets.Count(w=>w.Kind==widget.Kind)==1?values.Values.Single(w=>w.Kind==widget.Kind):null;
+            if(archived==null || !widget.SessionScoped || WidgetLibrary.Definition(widget.Kind).Editor is "externalTasks" or "calendar" || widget.Kind=="Task List")continue;
+            widget.Value=archived.Value;widget.Text=archived.Text;widget.StopwatchElapsedSeconds=archived.StopwatchElapsedSeconds;widget.StopwatchStartedAt=null;
+            widget.StopwatchLaps=Clone(archived.StopwatchLaps);
+            widget.TimerStart=archived.TimerStart;widget.TimerEnd=archived.TimerEnd;widget.TimerStopped=archived.TimerStopped??source.Recap?.EndedAt??now;
+        }
+        data.Tasks=Clone(current.Tasks);
+        foreach(var task in source.Data.Tasks)if(!data.Tasks.Any(t=>t.Id==task.Id || string.Equals(t.Text.Trim(),task.Text.Trim(),StringComparison.OrdinalIgnoreCase)))data.Tasks.Add(Clone(task));
+        if(data.Session is {} timer)
+        {
+            var duration=timer.End-timer.Start;var elapsed=loadAsNew?TimeSpan.Zero:timer.Elapsed(source.Recap?.EndedAt??now);
+            timer.Start=now-elapsed;timer.End=now+TimeSpan.FromSeconds(Math.Max(60,(duration-elapsed).TotalSeconds));timer.StoppedAt=null;timer.FinalizedAt=null;
+            timer.AutomaticScheduling=false;timer.HedySessionId="";timer.HedyBaseline="";timer.LocalRecordingPath="";timer.LocalRecordingSeconds=0;
+        }
+        SpaceScores.Reconcile(target);
+        foreach(var e in data.Productivity.Events)target.CreditedScoreEvents.Add(e.Id);
+        if(loadAsNew)data.Productivity=new();
+        Archive(target);
+        target.Current=NewSession(target,data);target.Current.OpenedAt=now;target.Current.ScoreAtStart=target.SpaceProductivityScore;
+        target.Current.ContinuedFrom=loadAsNew?null:source.SessionId;
     }
     private static string Append(string current, string incoming)
     {

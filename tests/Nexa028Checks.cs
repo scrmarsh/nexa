@@ -19,7 +19,7 @@ internal static partial class Program
     }
     private static void Check028()
     {
-        Assert(App.AppVersion=="0.0.28" && App.VersionLabel=="Nexa v0.0.28 Alpha" && ReleaseNotes.All[0].Title=="NEXAWEEN EVOLVED","Current .28 identity uses the existing version infrastructure");
+        Assert(App.AppVersion=="0.0.29" && App.VersionLabel=="nexa v0.0.29 alpha" && ReleaseNotes.All[0].Title=="NEXAWEEN: Final Polish & Workspace Evolution","Current .28 identity uses the existing version infrastructure");
         CheckRecovery028();CheckSchedule028();CheckEcosystem028();CheckLargeWorkspace028();
         var at=DateTimeOffset.UtcNow;var ledger=new ProductivityLedger();
         Assert(ProductivityScoring.DirectSquash(ledger,"boost",at) && ledger.BugFrenzyUntil==at.AddSeconds(20) && ledger.EffectiveMultiplier(at)==2,"Direct squash starts the independent twenty-second 2x window");
@@ -99,7 +99,7 @@ internal static partial class Program
         Assert(Continuity.Current(main.state.Workspace!,store.UserId).Current.ResetDeferred,"Postponed reset survives application restart");
         main.CompleteDeferredResetAt(next.Start.AddMinutes(1));var dashboard=Continuity.Current(main.state.Workspace!,store.UserId);
         Assert(dashboard.Current.SessionId!=oldId && dashboard.History.Count(s=>s.SessionId==oldId)==1 && dashboard.Current.Data.Session!.Start==next.Start,"Completing postponed reset archives one old identity and starts the correct Wednesday occurrence");
-        Assert(dashboard.Current.Data.Widgets.Single().Items.Single().Permanent,"Reset preserves permanent task data while clearing session-only tasks");
+        Assert(dashboard.Current.Data.Widgets.Single().Items.Count==2 && dashboard.Current.Data.Widgets.Single().Items.Any(t=>t.Permanent),"Reset preserves all reusable tasks without changing permanence");
         var newId=dashboard.Current.SessionId;main.CompleteDeferredResetAt(next.Start.AddMinutes(2));
         Assert(Continuity.Current(main.state.Workspace!,store.UserId).Current.SessionId==newId,"Repeated completion cannot duplicate an already active occurrence");main.Close();
     }

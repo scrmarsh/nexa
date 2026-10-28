@@ -294,6 +294,7 @@ internal sealed partial class BugManager
     }
     private void Encounter(BugEntity bug, double dt)
     {
+        if(EcosystemSettings.Behavior is BugBehavior.Classic or BugBehavior.Cozy){bug.EnemyId=null;bug.RaidTarget=null;bug.Activity=BugActivity.Exploring;bug.Decision=0;return;}
         var enemy = Bugs.FirstOrDefault(b => IsActive(b) && b.InteractionId == bug.EnemyId && b.Health > 0 && b.State != BugState.Squashed);
         if (enemy == null) { bug.EnemyId = null; if (bug.RaidTarget == null) bug.Decision = 0; return; }
         bug.Target = enemy.Position;

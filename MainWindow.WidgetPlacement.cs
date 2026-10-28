@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -311,6 +311,11 @@ public partial class MainWindow
             trackerScroll.Height = Math.Max(1, body.Height - trackerPanel.Margin.Top - trackerPanel.Margin.Bottom);
         if (widget.Kind == "Notes" && body.Content is StackPanel notesPanel && notesPanel.Children.OfType<TextBox>().FirstOrDefault() is { } notes)
             notes.Height = Math.Max(110, body.Height - notesPanel.Margin.Top - notesPanel.Margin.Bottom - 2);
+        if(body.Content is StackPanel textPanel && textPanel.Children.OfType<Border>().FirstOrDefault(b=>Equals(b.Tag,"ResizableTranscript")) is {} flexible)
+        {
+            var other=textPanel.Children.OfType<FrameworkElement>().Where(c=>c!=flexible).Sum(c=>c.DesiredSize.Height);
+            flexible.Height=Math.Max(flexible.MinHeight,body.Height-textPanel.Margin.Top-textPanel.Margin.Bottom-other);
+        }
         if(widget.Kind=="Bible" && body.Content is StackPanel biblePanel && biblePanel.Children.OfType<BibleReader>().FirstOrDefault() is {} reader)
             reader.Height=Math.Max(1,body.Height-biblePanel.Margin.Top-biblePanel.Margin.Bottom);
     }

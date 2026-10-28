@@ -90,7 +90,7 @@ internal static partial class Program
         var manual = new Session { Title = "Manual", Start = DateTimeOffset.UtcNow, End = DateTimeOffset.UtcNow.AddHours(1), AutomaticScheduling = false };
         Assert(main.ApplyClassSchedule(manual, true) && main.SessionResetButton.Visibility == Visibility.Visible, "Manual Mode restores Reset and persists independently of weekly schedules");
         Assert(!uiStore.Load().Presets.Single(p => p.Name == "Manual").AutomaticScheduling, "The manual operating mode survives serialization in its preset");
-        main.ShowWeeklySchedule(); var timerEditor = Application.Current.Windows.OfType<NexaDialog>().Single(w => w.Title == "Nexa · Pixel Timer");
+        main.ShowWeeklySchedule(); var timerEditor = Application.Current.Windows.OfType<NexaDialog>().Single(w => w is SettingsDialog{SessionInterface:true});
         Assert(Descendants(timerEditor).OfType<ComboBox>().Any(c => c.Items.OfType<string>().SequenceEqual(new[] { "Manual Mode", "Schedule Mode" })), "The actual Pixel Timer editor exposes the two operating modes"); timerEditor.Close();
         var settings = new SettingsDialog(main, uiStore, main.state, main, "Appearance"); settings.Show();
         Assert(settings.AutoSaveStatus.Opacity == 0 && settings.AutoSaveStatus.Text == "", "Settings save confirmation is hidden until an actual change");

@@ -60,7 +60,7 @@ internal static partial class Program
         var finish=Descendants(main).OfType<System.Windows.Controls.Button>().Single(b=>Equals(b.Content,"Get Started"));finish.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Button.ClickEvent));
         Assert(!main.TutorialActive && store.Load().Workspace!.Settings.QuickStartCompleted,"Tutorial completion removes the overlay and persists");
         main.ShowWeeklySchedule();Pump(TimeSpan.FromMilliseconds(50));
-        var timerEditor=Application.Current.Windows.OfType<Window>().Single(w=>w.Title=="Nexa \u00b7 Pixel Timer");
+        var timerEditor=Application.Current.Windows.OfType<Window>().Single(w=>w is SettingsDialog{SessionInterface:true});
         var mode=Descendants(timerEditor).OfType<System.Windows.Controls.ComboBox>().Single(b=>System.Windows.Automation.AutomationProperties.GetName(b)=="Pixel Timer operating mode");
         var clocks=Descendants(timerEditor).OfType<ClockPicker>().ToArray();clocks[0].Value=TimeSpan.FromHours(9);mode.SelectedIndex=1;clocks[0].Value=TimeSpan.FromHours(13);mode.SelectedIndex=0;
         Assert(clocks[0].Value==TimeSpan.FromHours(9),"Switching modes restores the independent Manual time draft");mode.SelectedIndex=1;

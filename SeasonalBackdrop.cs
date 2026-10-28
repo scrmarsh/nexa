@@ -34,7 +34,7 @@ internal sealed class SeasonalCorners:FrameworkElement
     internal static double WebSize(Size size)=>Math.Min(725,Math.Min(size.Width*.46,size.Height*.62));
     internal static Point SpiderPoint(double time,double size)
     {
-        var cycle=time%60;var travel=cycle<20?cycle/20:cycle<30?1:cycle<50?1-(cycle-30)/20:0;
+        var cycle=time%4;var travel=cycle<.5?cycle/.5:cycle<2?1:cycle<2.5?1-(cycle-2)/.5:0;
         var eased=travel*travel*(3-2*travel);return new(25+8*eased,Math.Min(size*.24,120)+18*eased);
     }
     internal SeasonalCorners()
@@ -51,12 +51,12 @@ internal sealed class SeasonalCorners:FrameworkElement
         var time=Options.SeasonalAnimation && NexaMotion.Allowed(Options)?clock.Elapsed.TotalSeconds:0;
         var pumpkin=Math.Min(275,ActualWidth*.33);
         NexaweenDecorations.DrawPumpkinLight(dc,new Rect(ActualWidth-pumpkin,ActualHeight-pumpkin,pumpkin,pumpkin),time);
-        var point=SpiderPoint(time,WebSize(RenderSize));dc.PushTransform(new TranslateTransform(point.X,point.Y));dc.PushTransform(new ScaleTransform(1.7,1.7));dc.PushTransform(new RotateTransform(Math.Sin(time*.06)*35));
+        var point=SpiderPoint(time,WebSize(RenderSize));dc.PushTransform(new TranslateTransform(point.X,point.Y));dc.PushTransform(new ScaleTransform(2.2,2.2));dc.PushTransform(new RotateTransform(Math.Sin(time*.06)*35));
         BugVisuals.Draw(dc,new BugEntity{Species=BugSpecies.Spiders},new EcosystemOptions{Appearance=BugAppearance.Halloween,MatchAppearance=false,Adorable=true},true);dc.Pop();dc.Pop();dc.Pop();
     }
     private void DrawStatic(DrawingContext dc)
     {
-        var size=WebSize(RenderSize);var pen=BugVisuals.P("#609D8CAE",.75);
+        var size=WebSize(RenderSize);var pen=BugVisuals.P("#70FFFFFF",.65);
         for(var i=0;i<9;i++){var a=i*Math.PI/16;dc.DrawLine(pen,new(0,0),new(Math.Cos(a)*size,Math.Sin(a)*size));}
         for(var ring=1;ring<=9;ring++)for(var i=0;i<8;i++)
         {

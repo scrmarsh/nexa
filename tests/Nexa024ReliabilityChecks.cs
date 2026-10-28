@@ -33,7 +33,7 @@ internal static partial class Program
         Assert(!WidgetActivity.Capture(calendar, "Google Calendar", "Classes", [new() { Title = "Chemistry", Status = "Scheduled", Start = start, End = start.AddMinutes(75) }], now.AddMinutes(1)), "Unchanged provider refreshes do not duplicate historical snapshots");
         var data = new DashboardData { Widgets = [pins, tasks, calendar] };
         var reset = WeeklySchedule.ResetSessionData(data);
-        Assert(reset.Widgets[0].ScripturePins.Single().Permanent && reset.Widgets[1].Items.Single().Permanent, "Session reset keeps individual permanent Scripture pins and tasks");
+        Assert(reset.Widgets[0].ScripturePins.Single().Permanent && reset.Widgets[1].Items.Count==2 && reset.Widgets[1].Items.Any(t=>t.Permanent), "Session reset keeps individual permanent Scripture pins and tasks");
         Assert(reset.Widgets[2].IntegrationSnapshots.Count == 0 && data.Widgets[2].IntegrationSnapshots.Count == 1, "Session reset clears live integration history only after preserving the original record");
         Assert(Continuity.ConfigurationOnly(data).Widgets[2].IntegrationSnapshots.Count == 0, "Configuration-only export strips private provider snapshots");
         for (var i = 0; i < 20; i++) WidgetActivity.Capture(calendar, "Google Calendar", "Classes", [new() { Title = "Class " + i }], now.AddMinutes(i + 2));

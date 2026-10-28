@@ -31,6 +31,7 @@ internal static partial class Program
             else if(args.Contains("--existing-data"))CheckExistingData(args[Array.IndexOf(args,"--existing-data")+1]);
             else if(args.Contains("--public-updates"))CheckPublicUpdates025();
             else if(args.Contains("--diagnostics028"))Diagnostics028();
+            else if(args.Contains("--nexa029"))Check029();
             else if(args.Contains("--nexaween028"))Check028();
             else if(args.Contains("--nexaween027"))Check027();
             else if(args.Contains("--handoff026"))CheckHandoff026();

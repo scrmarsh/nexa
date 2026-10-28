@@ -113,6 +113,7 @@ public sealed class SpaceBackground
     public SpaceBackgroundMode Mode { get; set; }
     public string SolidColor { get; set; } = "#080B16";
     public string ImagePath { get; set; } = "";
+    public bool FitImage {get;set;}
     public bool Blur { get; set; }
     public double BlurStrength { get; set; } = 12;
     public double Overlay { get; set; } = .42;

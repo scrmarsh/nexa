@@ -229,7 +229,8 @@ internal BugEntity? Hit(Point point)
     internal bool Squash(BugEntity bug)
     {
         if(bug.Health<=0||!Bugs.Contains(bug)||bug.State is BugState.Squashed or BugState.Hiding)return false;
-        var squash=bug.Hits>=(bug.Species==BugSpecies.Roaches?4:bug.Species==BugSpecies.Ladybugs?1:0);bug.Hits++;
+        var required=bug.Species==BugSpecies.Roaches?5:bug.Species==BugSpecies.Ladybugs?2:1;bug.Hits++;
+        bug.Health=Math.Max(0,Math.Min(bug.Health-100d/required,100d*(required-bug.Hits)/required));var squash=bug.Health<=0;
         if(!squash){bug.HitFlash=.35;bug.State=BugState.Paused;bug.Surface=null;bug.Decision=.4;return false;}
         bug.State=BugState.Squashed;bug.Surface=null;
         foreach(var other in Bugs)if(other!=bug && other.State!=BugState.Squashed && (other.Position-bug.Position).LengthSquared<6400)Detach(other);

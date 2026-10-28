@@ -7,6 +7,12 @@ namespace SessionDashboard;
 // Additive workspace settings: old version-2 files retain their content and identities.
 public sealed class NexaOptions
 {
+    public bool EnableF11 {get;set;} = true;
+    public bool FullscreenNotification {get;set;} = true;
+    public bool ShowSystemIndicators {get;set;} = true;
+    public bool EnableVolumeSlider {get;set;} = true;
+    public bool EscExitsFullscreen {get;set;} = true;
+    public SpaceBackground HomeWallpaper {get;set;} = new();
     public bool QuickStartCompleted {get;set;}
     public bool QuickStartSkipped {get;set;}
     public int QuickStartStep {get;set;}
@@ -109,7 +115,7 @@ public static class WeeklySchedule
     public static DashboardData ResetSessionData(DashboardData source)
     {
         var next = Continuity.Clone(source);
-        next.Notes = ""; next.Tasks.RemoveAll(t => !t.Permanent);
+        if(!next.Widgets.Any(w=>w.PanelKey=="notes" && !w.SessionScoped))next.Notes = ""; // Local and external task lists persist across session boundaries.
         next.Productivity = new();
         foreach (var w in next.Widgets)
         {
@@ -117,7 +123,7 @@ public static class WeeklySchedule
             if (!w.SessionScoped || w.Kind is "Bible" or "Flashcards" || w.Distribution != null) continue;
             w.IntegrationSnapshots.Clear();
             if (w.Kind == "Scripture pins") { w.ScripturePins.RemoveAll(p => !p.Permanent); continue; }
-            if (w.Kind == "Task List") { w.Items.RemoveAll(t => !t.Permanent); continue; }
+            if (w.Kind == "Task List") continue;
             if (w.Kind is "Notes" or "Hedy Notes" or "Scripture pins" or "Counter" or "Water" or "Water Bottle" or "Water bottles" or "Alcoholic Beverage" or "Timer" or "Break timer" or "Stopwatch" ||
                 WidgetLibrary.Definition(w.Kind).Editor is "waterBottles" or "beer" or "counter" or "timer" or "stopwatch")
                 WidgetLibrary.ClearContent(w);

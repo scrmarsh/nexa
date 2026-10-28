@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -16,8 +16,8 @@ public partial class MainWindow
         panel.Children.Add(new TextBlock{Text="Summary interval (minutes)",Margin=new Thickness(0,8,0,4)});panel.Children.Add(interval);
         interval.SelectionChanged+=(_,_)=>{if(interval.SelectedItem is int minutes){foreach(var timeline in state.Widgets.Where(w=>WidgetLibrary.Definition(w.Kind).Editor=="timeline"))timeline.SummaryIntervalMinutes=minutes;if(state.Session is {} session)session.IntervalMinutes=minutes;IntervalInput.Text=minutes.ToString();BuildTimeline();Changed();SaveNow();}};
         var shortcuts = new WrapPanel { Margin = new Thickness(0, 8, 0, 10) };
-        var recorder = new Button { Content = "Open Audio Recorder", Margin = new Thickness(0, 0, 8, 5) };
-        var hedyNotes = new Button { Content = "Open Hedy Notes", Margin = new Thickness(0, 0, 8, 5) };
+        var recorder = new Button { Content = "●", Foreground=System.Windows.Media.Brushes.OrangeRed,Width=36,Height=36,Padding=new Thickness(0),ToolTip="Record · choose source", Margin = new Thickness(0, 0, 8, 5) };
+        var sources=new ContextMenu();var local=new MenuItem{Header="Local Recording"};var remote=new MenuItem{Header="Hedy"};sources.Items.Add(local);sources.Items.Add(remote);recorder.ContextMenu=sources;
         var shortcutStatus = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush") };
         void OpenTool(string kind)
         {
@@ -28,13 +28,14 @@ public partial class MainWindow
             if (widgetFrames.TryGetValue(target.Id, out var frame)) WidgetScroller.ScrollToVerticalOffset(Math.Max(0, Canvas.GetTop(frame) - 40));
             FocusWidget(target.Id);
         }
-        recorder.Click += (_, _) => OpenTool("Audio Recorder");
-        hedyNotes.Click += (_, _) => OpenTool("Hedy Notes");
-        shortcuts.Children.Add(recorder); shortcuts.Children.Add(hedyNotes); panel.Children.Add(shortcuts); panel.Children.Add(shortcutStatus);
+        local.Click+=(_,_)=>{OpenTool("Audio Recorder");StartLocalRecordingClick(recorder,new RoutedEventArgs());};
+        remote.Click+=(_,_)=>{OpenTool("Hedy Notes");shortcutStatus.Text="Link notes in Hedy. Remote recording must be started explicitly in Hedy; Nexa does not control the provider microphone.";};
+        recorder.Click+=(_,_)=>{sources.PlacementTarget=recorder;sources.IsOpen=true;};
+        shortcuts.Children.Add(recorder); panel.Children.Add(shortcuts); panel.Children.Add(shortcutStatus);
         // A standalone manual notes area also works before a timed session starts.
         var note = new TextBox { AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, MinHeight = 64, MaxLength = 100000, ToolTip = "Add a timeline note" };
         var add = new Button { Content = "Add note", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 6, 0, 10) };
-        var entries = new StackPanel(); panel.Children.Add(note); panel.Children.Add(add); panel.Children.Add(new ScrollViewer { Content = entries, Height = Math.Max(120, widget.Height - 200), VerticalScrollBarVisibility = ScrollBarVisibility.Auto });
+        var entries = new StackPanel(); panel.Children.Add(note); panel.Children.Add(add); panel.Children.Add(ResizableTranscriptArea(panel,new ScrollViewer{Content=entries,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled},120));
         string? lastContent = null;
         void Refresh()
         {
@@ -53,8 +54,20 @@ public partial class MainWindow
             var content = string.Join("\n\n", rows); if (content == lastContent) return; lastContent = content; entries.Children.Clear();
             if (session != null)
             {
-                var intervals = new Button { Content = "Open session intervals", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 10) };
-                intervals.Click += (_, _) => { BuildTimeline(); OpenLegacyPanel(TimelinePanel, "Session Timeline"); }; entries.Children.Add(intervals);
+                var count=Math.Min(120,(int)Math.Ceiling((session.End-session.Start).TotalMinutes/session.IntervalMinutes));
+                for(var i=0;i<count;i++)
+                {
+                    var start=session.Start.AddMinutes(i*session.IntervalMinutes);var end=start.AddMinutes(session.IntervalMinutes);if(end>session.End)end=session.End;
+                    var summary=session.IntervalSummaries.GetValueOrDefault(i);
+                    var source=session.HedyIntervalNotes.GetValueOrDefault(i)??session.IntervalNotes.GetValueOrDefault(i);
+                    var excerpt=summary??(string.IsNullOrWhiteSpace(source)?"No transcript available for this interval.":source.Length>160?source[..160]+"…":source);
+                    var card=new StackPanel();card.Children.Add(new TextBlock{Text=$"{NexaTime.Clock(start,Options)}–{NexaTime.Clock(end,Options)}",FontWeight=FontWeights.SemiBold,FontSize=12});
+                    card.Children.Add(new TextBlock{Text=excerpt,TextWrapping=TextWrapping.Wrap,FontSize=12,Margin=new Thickness(0,5,0,5)});
+                    var detail=(source??"No transcript available for this interval.")+"\n\n"+(string.IsNullOrWhiteSpace(source)?"Local audio transcription is not connected.":"Source excerpt; no connected abstractive summarization provider.");
+                    card.Children.Add(new Expander{Header=string.IsNullOrWhiteSpace(source)?"No transcript · Details":"Saved text · Expand",Content=new TextBlock{Text=detail,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(8)}});
+                    var frame=new Border{Child=card,Padding=new Thickness(10),CornerRadius=new CornerRadius(8),BorderThickness=new Thickness(1),Margin=new Thickness(0,0,0,8)};frame.SetResourceReference(Border.BorderBrushProperty,"LineBrush");entries.Children.Add(frame);
+
+                }
             }
             foreach (var row in rows)
             {
@@ -89,8 +102,13 @@ public partial class MainWindow
             var settings = new Button { Content = "Hedy settings" }; settings.Click += HedySettingsClick; panel.Children.Add(settings);
         }
         if (!string.IsNullOrEmpty(widget.Text)) panel.Children.Add(new TextBlock { Text = widget.Text, TextWrapping = TextWrapping.Wrap });
-        var transcript = new TextBox { IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, Height = Math.Max(110, widget.Height - 260), VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
-        panel.Children.Add(transcript); widgetTicks.Add(_ => { var value = state.Session?.HedyTranscript ?? "Connect and link a Hedy session to see live notes."; if (transcript.Text != value) transcript.Text = value; });
+        var transcript = new TextBox { IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        panel.Children.Add(ResizableTranscriptArea(panel,transcript,110)); widgetTicks.Add(_ => { var value = state.Session?.HedyTranscript ?? "Connect and link a Hedy session to see live notes."; if (transcript.Text != value) transcript.Text = value; });
+    }
+    private static Border ResizableTranscriptArea(StackPanel panel,FrameworkElement content,double minimum)
+    {
+        var host=new Border{Child=content,Height=minimum,Tag="ResizableTranscript",MinHeight=minimum};
+        return host;
     }
     private void BuildRecorderWidget(StackPanel panel)
     {

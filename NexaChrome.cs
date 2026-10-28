@@ -15,7 +15,8 @@ namespace SessionDashboard;
 internal static class NexaChrome
 {
     private static readonly HashSet<Window> FadingWindows = [];
-    internal static ImageSource Icon => new BitmapImage(new Uri("pack://application:,,,/Nexa;component/assets/"+(Theme.SeasonalEnabled?"nexa-icon-seasonal-256.png":"nexa-icon-256.png")));
+    internal static ImageSource Icon => new BitmapImage(new Uri("pack://application:,,,/Nexa;component/assets/nexa-icon-256.png"));
+    internal static ImageSource BrandIcon => new BitmapImage(new Uri("pack://application:,,,/Nexa;component/assets/"+(Theme.SeasonalEnabled?"nexa-icon-seasonal-256.png":"nexa-icon-256.png")));
     internal static void Apply(Window window)
     {
         window.UseLayoutRounding = true; window.SnapsToDevicePixels = true; window.Icon = Icon; window.WindowStyle = WindowStyle.None; window.ResizeMode = ResizeMode.CanResize;

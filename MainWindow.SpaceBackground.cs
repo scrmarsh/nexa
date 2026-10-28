@@ -24,14 +24,14 @@ public partial class MainWindow
             {
                 var bitmap = new BitmapImage(); bitmap.BeginInit(); bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.UriSource = new Uri(Path.GetFullPath(state.Background.ImagePath)); bitmap.EndInit(); bitmap.Freeze();
-                SpaceBackgroundLayer.Background = new ImageBrush(bitmap) { Stretch = Stretch.UniformToFill };
+                SpaceBackgroundLayer.Background = new ImageBrush(bitmap) { Stretch = state.Background.FitImage?Stretch.Uniform:Stretch.UniformToFill };
                 if (state.Background.Blur) SpaceBackgroundLayer.Effect = new BlurEffect { Radius = Math.Clamp(state.Background.BlurStrength, 0, 40), KernelType = KernelType.Gaussian };
                 SpaceBackgroundOverlay.Opacity = Math.Clamp(state.Background.Overlay, 0, .9);
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or ArgumentException or System.Runtime.InteropServices.COMException or InvalidOperationException)
             { Feedback.Text = "The Space background image could not be loaded."; }
         }
-        if (widgetsReady) ArrangeWidgetFrames();
+        // Wallpaper changes do not change widget geometry or saved placement.
     }
 
     internal bool SaveSpaceBackground(SpaceBackground value)

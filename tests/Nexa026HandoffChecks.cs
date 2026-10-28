@@ -33,9 +33,9 @@ internal static partial class Program
         var initial=CardsHandoff(home);Assert(initial.Length==6,"Initial Home contains exactly six Spaces");
         foreach(var card in initial.Take(1))
         {
-            var layout=(Grid)card.Content;var title=layout.Children.OfType<TextBlock>().Single(t=>t.FontSize==16);
+            var layout=(Grid)card.Content;var title=Descendants(layout).OfType<TextBlock>().Single(t=>t.FontSize==19);
             Assert(title.TextAlignment==TextAlignment.Center && title.Margin.Left==title.Margin.Right,"Space title uses symmetric whole-card centering independently of its icon");
-            Assert(layout.Children.OfType<TextBlock>().Any(t=>t.HorizontalAlignment==HorizontalAlignment.Right && t.VerticalAlignment==VerticalAlignment.Bottom),"Last-used label occupies the bottom-right corner");
+            Assert(layout.Children.OfType<TextBlock>().Any(t=>t.HorizontalAlignment==HorizontalAlignment.Right && Grid.GetRow(t)==1),"Last-used label occupies the bottom-right corner");
         }
         home.Saved.Workspace!.Settings.ReduceMotion=false;ClickHandoff(home,"↓ Show More Spaces");
         var extra=CardsHandoff(home).Skip(6).ToArray();Assert(initial.All(c=>CardsHandoff(home).Contains(c)),"Expansion preserves original card instances");
@@ -105,7 +105,7 @@ internal static partial class Program
         options.SeasonalMode="Off";main.ApplyReliabilityOptions();WaitHandoff(()=>main.WidgetCanvas.Children.OfType<NexaweenDecorations>().Single().Visibility==Visibility.Collapsed,"Dashboard seasonal layer leaves active rendering when Off");
         Assert(((SolidColorBrush)ProductivityRing.LightningBrush).Color==Color.FromRgb(250,204,21),"Productivity lightning uses the shared golden yellow in normal mode");Theme.SetSeasonalEnabled(true);
         Assert(((SolidColorBrush)ProductivityRing.LightningBrush).Color==Color.FromRgb(250,204,21),"Productivity lightning remains golden yellow in seasonal mode");
-        var productivity=main.state.Widgets.Single(w=>w.Kind=="Productivity");Assert(WidgetLibrary.MinimumWidth(productivity)==220 && WidgetLibrary.MinimumHeight(productivity)==192,"Productivity supports a compact 220 by 192 minimum");
+        var productivity=main.state.Widgets.Single(w=>w.Kind=="Productivity");Assert(WidgetLibrary.MinimumWidth(productivity)==220 && WidgetLibrary.MinimumHeight(productivity)==240,"Productivity supports a 220 by 240 minimum with live breakdown");
         var ring=Descendants(main).OfType<ProductivityRing>().Single();ring.Update(long.MaxValue,new NexaOptions{ReduceMotion=true});Assert(ring.ScoreText==long.MaxValue.ToString("N0"),"Large settled cumulative scores render exact integer digits rather than double rounding");Capture026(main,"handoff-compact-productivity");
         Assert(!Descendants(main).OfType<TextBlock>().Any(t=>t.Text.StartsWith("Meaningful actions:") || t.Text.StartsWith("Next milestone:")),"Default Productivity hides activity summaries behind details");
         options.ReduceMotion=true;var oldVisible=Application.Current.Windows.OfType<Window>().Count(w=>w.IsVisible);var bounds=new Rect(main.Left,main.Top,main.Width,main.Height);

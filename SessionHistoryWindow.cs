@@ -38,6 +38,17 @@ internal sealed class SessionHistoryWindow : NexaPanel
         var actions = new WrapPanel { Margin = new Thickness(0, 12, 0, 0) }; DockPanel.SetDock(actions, Dock.Bottom); root.Children.Add(actions);
         var columns = new Grid(); columns.ColumnDefinitions.Add(new() { Width = new GridLength(300) }); columns.ColumnDefinitions.Add(new());
         VirtualizingPanel.SetIsVirtualizing(list, true); VirtualizingPanel.SetVirtualizationMode(list, VirtualizationMode.Recycling); ScrollViewer.SetCanContentScroll(list, true);
+        var itemStyle=new Style(typeof(ListBoxItem));
+        itemStyle.Setters.Add(new Setter(Control.HorizontalContentAlignmentProperty,HorizontalAlignment.Stretch));
+        itemStyle.Setters.Add(new Setter(Control.PaddingProperty,new Thickness(10)));
+        itemStyle.Setters.Add(new Setter(FrameworkElement.MarginProperty,new Thickness(2,2,2,6)));
+        itemStyle.Setters.Add(new Setter(Control.BackgroundProperty,new DynamicResourceExtension("PanelBrush")));
+        itemStyle.Setters.Add(new Setter(Control.ForegroundProperty,new DynamicResourceExtension("TextBrush")));
+        var border=new FrameworkElementFactory(typeof(Border));border.SetValue(Border.CornerRadiusProperty,new CornerRadius(8));border.SetBinding(Border.BackgroundProperty,new Binding("Background"){RelativeSource=new RelativeSource(RelativeSourceMode.TemplatedParent)});border.SetBinding(Border.PaddingProperty,new Binding("Padding"){RelativeSource=new RelativeSource(RelativeSourceMode.TemplatedParent)});
+        var presenter=new FrameworkElementFactory(typeof(ContentPresenter));border.AppendChild(presenter);itemStyle.Setters.Add(new Setter(Control.TemplateProperty,new ControlTemplate(typeof(ListBoxItem)){VisualTree=border}));
+        var hover=new Trigger{Property=UIElement.IsMouseOverProperty,Value=true};hover.Setters.Add(new Setter(Control.BackgroundProperty,new DynamicResourceExtension("SurfaceBrush")));itemStyle.Triggers.Add(hover);
+        var selected=new Trigger{Property=ListBoxItem.IsSelectedProperty,Value=true};selected.Setters.Add(new Setter(Control.BackgroundProperty,new DynamicResourceExtension("AccentBrush")));itemStyle.Triggers.Add(selected);
+        list.ItemContainerStyle=itemStyle;list.SetResourceReference(Control.BackgroundProperty,"BackgroundBrush");list.BorderThickness=new Thickness(0);
         list.Margin = new Thickness(0, 0, 14, 0); columns.Children.Add(list); Grid.SetColumn(report, 1); columns.Children.Add(report); root.Children.Add(columns);
         Button Action(string label, System.Action callback, bool mutation = false)
         {
@@ -54,10 +65,10 @@ internal sealed class SessionHistoryWindow : NexaPanel
             if (MessageBox.Show(this, "Permanently delete this historical record?", "Delete record", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 Change(d => d.History.RemoveAll(s => s.SessionId == selected.SessionId));
         }, true);
-        if (openSpace != null)
+        if (openSpace != null || space != null)
         {
             actions.Children.Add(includeLayout);
-            Action("Continue session", () => Continue(false), true); Action("Merge to Space", () => Continue(true), true);
+            Action("Restore to Current Workspace", RestoreToWorkspace, true); Action("Merge to Space", () => Continue(true), true);
         }
         clearHistoryButton = Action("Clear History", ClearHistory);
         clearHistoryButton.IsEnabled = false;
@@ -173,6 +184,33 @@ internal sealed class SessionHistoryWindow : NexaPanel
         if (space != null) { if (!space.CommitWorkspace(candidate)) throw new IOException("The history change could not be saved."); }
         else store.Save(Continuity.Activate(candidate, store.UserId, saved.HedyRegion, saved.HedyProtectedKey));
         _ = LoadArchive();
+    }
+    private void RestoreToWorkspace()
+    {
+        if(list.SelectedItem is not HistoryEntry{Editable:true,Session:{} source})return;
+        var choice=new NexaPanel{Owner=this,Title="Restore to Current Workspace",Width=520,Height=320,WindowStartupLocation=WindowStartupLocation.CenterOwner};
+        var panel=new StackPanel{Margin=new Thickness(24)};
+        panel.Children.Add(new TextBlock{Text="Your current session will be saved to History before replacement. The source record stays unchanged. Layouts, tasks and accounts remain in place. Recording stays stopped. Resume keeps elapsed time and links this continuation to its source. Load as New starts a fresh clock and session score.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,16)});
+        void Option(string label,bool loadAsNew)
+        {
+            var button=new Button{Content=label,Margin=new Thickness(0,0,0,10)};panel.Children.Add(button);
+            button.Click+=(_,_)=>
+            {
+                try
+                {
+                    if(space!=null && !space.SaveNow())return;
+                    var saved=space?.CopyWorkspaceState()??store.Load();var candidate=Continuity.Clone(saved.Workspace!);
+                    var target=Continuity.Current(candidate,store.UserId);
+                    Continuity.RestoreHistorical(target,source,store.UserId,loadAsNew,DateTimeOffset.UtcNow);
+                    if(space!=null){if(!space.CommitWorkspace(candidate))return;}
+                    else store.Save(Continuity.Activate(candidate,store.UserId,saved.HedyRegion,saved.HedyProtectedKey));
+                    choice.Close();Close();if(space==null)openSpace?.Invoke(target.DashboardId);
+                }
+                catch(Exception ex) when(HistoryArchive.Recoverable(ex)){Fail(ex);}
+            };
+        }
+        Option("Resume Previous Session",false);Option("Load as New Session",true);
+        var cancel=new Button{Content="Cancel"};cancel.Click+=(_,_)=>choice.Close();panel.Children.Add(cancel);choice.Content=panel;choice.ShowDismissible();
     }
     private void Continue(bool merge)
     {

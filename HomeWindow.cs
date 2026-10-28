@@ -27,10 +27,10 @@ internal sealed partial class HomeWindow : NexaDialog
         BuildHomeHeader(panel);
         var create = new Button { Content = "+ Create New Space", HorizontalAlignment = HorizontalAlignment.Center, MinWidth = 260, Margin = new Thickness(0, 28, 0, 20) };
         create.FontSize=17;create.FontWeight=FontWeights.Bold;create.MinHeight=48;
-        var primary=new StackPanel { Orientation=Orientation.Horizontal, HorizontalAlignment=HorizontalAlignment.Center };
+        var primary=new Grid();primary.ColumnDefinitions.Add(new());primary.ColumnDefinitions.Add(new());
         create.Click += (_, _) => NewDashboard();primary.Children.Add(create);
         var import=new Button {Content="↓ Import Space",FontSize=17,FontWeight=FontWeights.Bold,MinHeight=48,MinWidth=210,Margin=new Thickness(12,28,0,20)};
-        import.Click+=(_,_)=>ImportDashboard();primary.Children.Add(import);panel.Children.Add(primary);
+        import.Click+=(_,_)=>ImportDashboard();Grid.SetColumn(import,1);primary.Children.Add(import);create.HorizontalAlignment=HorizontalAlignment.Stretch;import.HorizontalAlignment=HorizontalAlignment.Stretch;create.MinWidth=import.MinWidth=0;create.Margin=new Thickness(4,28,4,20);import.Margin=new Thickness(4,28,4,20);panel.Children.Add(primary);
         panel.Children.Add(new TextBlock { Text = "Recent Spaces", FontSize = 20, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 22, 0, 12) });
         recentChevron.MouseEnter += (_, _) => recentChevron.Opacity = 1;
         recentChevron.MouseLeave += (_, _) => recentChevron.Opacity = .55;
@@ -56,7 +56,7 @@ internal sealed partial class HomeWindow : NexaDialog
         homeLayout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         homeLayout.Children.Add(new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled });
         Grid.SetRow(footer, 1); homeLayout.Children.Add(footer);
-        Content = SeasonalBackdrop.Wrap(homeLayout,()=>Saved.Workspace?.Settings??new(),permanentCorners:true);
+        var backdrop=new Grid();backdrop.Children.Add(homeWallpaper);backdrop.Children.Add(homeWallpaperShade);backdrop.Children.Add(SeasonalBackdrop.Wrap(homeLayout,()=>Saved.Workspace?.Settings??new(),permanentCorners:true));Content=backdrop;RefreshWallpaper();
     }
 
     private void OpenSettingsOld()

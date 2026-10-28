@@ -12,7 +12,7 @@ internal sealed class SplashWindow:Window
     private readonly TaskCompletionSource taglineReady=new(TaskCreationOptions.RunContinuationsAsynchronously);
     private double reported;
     private readonly Stopwatch displayClock = new();
-    internal static readonly TimeSpan MinimumDisplay = TimeSpan.FromSeconds(3);
+    internal static readonly TimeSpan MinimumDisplay = TimeSpan.FromSeconds(5);
     internal bool TaglineComplete=>taglineReady.Task.IsCompletedSuccessfully;
     internal double ReportedProgress=>reported;
     internal double DisplayedMilliseconds {get;private set;}
@@ -53,6 +53,7 @@ internal sealed class SplashWindow:Window
     internal async Task PreviewIn(Grid host)
     {
         var renderer=(FrameworkElement)Content;Content=null;
+        renderer.Width=620;renderer.Height=350;renderer.HorizontalAlignment=HorizontalAlignment.Center;renderer.VerticalAlignment=VerticalAlignment.Center;
         var overlay=new Grid{Background=TryFindResource("BackgroundBrush") as Brush??Brushes.Black};overlay.Children.Add(renderer);
         Panel.SetZIndex(overlay,2000);host.Children.Add(overlay);
         try

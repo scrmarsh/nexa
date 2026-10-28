@@ -13,7 +13,9 @@ internal sealed partial class SettingsDialog
         var species = new ComboBox { ItemsSource = new[] { BugSpecies.AllBugs }.Concat(BugManager.AllSpecies).ToArray(), SelectedItem = preferences.Species };
         Field(page, "Bug type", species);
         var density = new ComboBox { ItemsSource = new[] { "Low", "Normal", "High", "Infestation" }, SelectedIndex = (int)preferences.Density }; Field(page, "Density", density);
-        var behavior = new ComboBox { ItemsSource = new[]{BugBehavior.Classic,BugBehavior.Cozy,BugBehavior.Creepy,BugBehavior.Combative}, SelectedItem = options.Behavior }; Field(page, "Behavior", behavior);
+        var behavior = new ComboBox { ItemsSource = new[]{BugBehavior.Classic,BugBehavior.Cozy,BugBehavior.Creepy,BugBehavior.Combative}, SelectedItem = options.Behavior }; var friendly=new ComboBox{ItemsSource=new[]{BugBehavior.Classic,BugBehavior.Cozy},SelectedItem=options.Behavior};Field(page,"Friendly behavior",friendly);
+        var legacyModes=new Expander{Header="Advanced behavior · legacy / Battle",Content=behavior,IsExpanded=false};page.Children.Add(legacyModes);
+        friendly.SelectionChanged+=(_,_)=>{if(friendly.SelectedItem is BugBehavior selected)behavior.SelectedItem=selected;};
         var appearance = new ComboBox { ItemsSource = new[] { "Classic", "Creepy", "Halloween" }, SelectedIndex = options.EffectiveAppearance == BugAppearance.Creepy ? 1 : options.EffectiveAppearance == BugAppearance.Halloween ? 2 : 0 };
         Field(page, "Appearance", appearance);
         var updatingAppearance = false;

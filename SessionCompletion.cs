@@ -40,6 +40,21 @@ public static class SpaceScores
 }
 public static class SessionFinalization
 {
+    public static SessionRecap ArchiveAndReset(DashboardRecord record, DateTimeOffset now)
+    {
+        var recap=Complete(record,now);
+        if(record.Current.SessionValuesReset)return recap;
+        Continuity.Archive(record);
+        var stopped=Continuity.Clone(record.Current.Data.Session!);
+        record.Current.Data=WeeklySchedule.ResetSessionData(record.Current.Data);
+        // Keep the finalized schedule seed for recurrence reconciliation; never restart recording.
+        stopped.IntervalNotes.Clear();stopped.HedyIntervalNotes.Clear();stopped.IntervalSummaries.Clear();
+        stopped.TimelineEntries.Clear();stopped.HedyTranscript="";stopped.HedyBaseline="";stopped.HedySessionId="";
+        stopped.LocalRecordingPath="";stopped.LocalRecordingSeconds=0;
+        record.Current.Data.Session=stopped;
+        record.Current.ContinuedFrom=record.Current.SessionId;record.Current.SessionId=Guid.NewGuid();record.Current.SessionValuesReset=true;
+        return recap;
+    }
     public static SessionRecap Complete(DashboardRecord record,DateTimeOffset now)
     {
         if(record.Current.Recap is {} recap)return recap;

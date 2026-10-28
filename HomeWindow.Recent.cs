@@ -5,6 +5,7 @@ namespace SessionDashboard;
 internal sealed partial class HomeWindow
 {
     private bool togglingRecent;
+    private Border? recentViewport;
     private async void ToggleRecentSpaces()
     {
         if(togglingRecent)return;
@@ -19,9 +20,9 @@ internal sealed partial class HomeWindow
                 if(NexaMotion.Allowed(options) && DescendantsOfRecent().FirstOrDefault()?.Parent is FrameworkElement grid)
                 {
                     grid.UpdateLayout();var fullHeight=grid.ActualHeight;var duration=RecentDelay(Math.Max(0,DescendantsOfRecent().Count()-7))+360;
-                    grid.ClipToBounds=true;grid.MaxHeight=Math.Max(oldHeight,fullHeight);
-                    grid.BeginAnimation(MaxHeightProperty,new DoubleAnimation(oldHeight,fullHeight,TimeSpan.FromMilliseconds(duration)){EasingFunction=new CubicEase{EasingMode=EasingMode.EaseOut},FillBehavior=FillBehavior.Stop});
-                    await Task.Delay(duration);await Dispatcher.InvokeAsync(()=>{grid.BeginAnimation(MaxHeightProperty,null);grid.MaxHeight=double.PositiveInfinity;});
+                    grid.Height=fullHeight;recentViewport!.Height=fullHeight;
+                    recentViewport.BeginAnimation(HeightProperty,new DoubleAnimation(oldHeight,fullHeight,TimeSpan.FromMilliseconds(duration)){EasingFunction=new CubicEase{EasingMode=EasingMode.EaseOut},FillBehavior=FillBehavior.Stop});
+                    await Task.Delay(duration);await Dispatcher.InvokeAsync(()=>{recentViewport.BeginAnimation(HeightProperty,null);recentViewport.Height=double.NaN;grid.Height=double.NaN;});
                 }
             }
             else
@@ -30,6 +31,15 @@ internal sealed partial class HomeWindow
                 await Task.WhenAll(extra.Select(async (card,index)=>{
                     await NexaMotion.CardTransition(card,false,options,RecentDelay(index));
                 }));
+                var shrinking=await Dispatcher.InvokeAsync(()=>
+                {
+                    if(!NexaMotion.Allowed(options) || recentViewport==null || DescendantsOfRecent().FirstOrDefault()?.Parent is not FrameworkElement grid)return false;
+                    var full=grid.ActualHeight;var collapsed=full*3/Math.Ceiling(DescendantsOfRecent().Count()/2d);
+                    grid.Height=full;recentViewport.Height=collapsed;
+                    recentViewport.BeginAnimation(HeightProperty,new DoubleAnimation(full,collapsed,TimeSpan.FromMilliseconds(280)){EasingFunction=new CubicEase{EasingMode=EasingMode.EaseInOut},FillBehavior=FillBehavior.Stop});
+                    return true;
+                });
+                if(shrinking)await Task.Delay(280);
                 // Keep all row slots stable while the reverse sequence runs.
                 // Removing individual children would shift every later UniformGrid cell.
                 await Dispatcher.InvokeAsync(()=>{recentRows=3;RefreshRecentSpaces();});
@@ -41,24 +51,28 @@ internal sealed partial class HomeWindow
     internal static int RecentDelay(int index)=>Math.Min(2400,index<12?index*120:1440+(index-12)*12);
 
     private int recentRows = 3;
-    private IEnumerable<Button> DescendantsOfRecent()=>Recent.Children.OfType<StackPanel>().SelectMany(c=>c.Children.OfType<System.Windows.Controls.Primitives.UniformGrid>()).SelectMany(c=>c.Children.OfType<Button>());
+    private IEnumerable<Button> DescendantsOfRecent()=>recentViewport?.Child is System.Windows.Controls.Primitives.UniformGrid cards?cards.Children.OfType<Button>():[];
     private void RefreshRecentSpaces()
     {
         var spaces = (Saved.Workspace?.Dashboards ?? []).Where(d => d.PresetOrigin != "Developer mode").OrderByDescending(d => d.Current.LastAccessedAt).ToArray();
         var previousCards=DescendantsOfRecent().ToDictionary(b=>(Guid)b.Tag);
-        foreach(var grid in Recent.Children.OfType<StackPanel>().SelectMany(c=>c.Children.OfType<System.Windows.Controls.Primitives.UniformGrid>()))grid.Children.Clear();
+        if(recentViewport?.Child is System.Windows.Controls.Primitives.UniformGrid oldCards)oldCards.Children.Clear();
         if(recentChevron.Parent is Panel previous)previous.Children.Remove(recentChevron);
         Recent.Children.Clear();
         var column = new StackPanel { HorizontalAlignment = HorizontalAlignment.Stretch, MinWidth = 280 };
         Recent.Children.Add(column);
         var cards = new System.Windows.Controls.Primitives.UniformGrid { Columns = 2 };
-        column.Children.Add(cards);
+        recentViewport=new Border{Child=cards,ClipToBounds=true,VerticalAlignment=VerticalAlignment.Top};column.Children.Add(recentViewport);
         foreach (var space in spaces.Take(recentRows == 3 ? 6 : spaces.Length))
         {
             var text=new Grid{Height=78};
-            var icon=SpaceIcons.Create(SpaceIcons.Resolve(space.Current.Data.SpaceIcon,space.PresetOrigin),28);icon.HorizontalAlignment=HorizontalAlignment.Left;icon.VerticalAlignment=VerticalAlignment.Center;text.Children.Add(icon);
-            var name=new TextBlock{Text=space.Name,FontSize=16,FontWeight=FontWeights.SemiBold,TextAlignment=TextAlignment.Center,HorizontalAlignment=HorizontalAlignment.Stretch,VerticalAlignment=VerticalAlignment.Center,TextTrimming=TextTrimming.CharacterEllipsis,Margin=new Thickness(40,0,40,15)};text.Children.Add(name);
-            var detail=new TextBlock{Text=NexaTime.Local(space.Current.LastAccessedAt,Saved.Workspace?.Settings.TimeZoneId??"Automatic").ToString("g"),FontSize=11,HorizontalAlignment=HorizontalAlignment.Right,VerticalAlignment=VerticalAlignment.Bottom,Margin=new Thickness(0,0,0,2)};detail.SetResourceReference(TextBlock.ForegroundProperty,"MutedBrush");text.Children.Add(detail);
+            text.RowDefinitions.Add(new());text.RowDefinitions.Add(new(){Height=GridLength.Auto});
+            var group=new Grid{HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center};
+            group.ColumnDefinitions.Add(new());group.ColumnDefinitions.Add(new(){Width=GridLength.Auto});
+            var name=new TextBlock{Text=space.Name,FontSize=19,FontWeight=FontWeights.SemiBold,TextAlignment=TextAlignment.Center,VerticalAlignment=VerticalAlignment.Center,TextTrimming=TextTrimming.CharacterEllipsis,MaxWidth=260};group.Children.Add(name);
+            var icon=SpaceIcons.Create(SpaceIcons.Resolve(space.Current.Data.SpaceIcon,space.PresetOrigin),26);icon.Margin=new Thickness(9,0,0,0);Grid.SetColumn(icon,1);group.Children.Add(icon);text.Children.Add(group);
+            text.SizeChanged+=(_,_)=>name.MaxWidth=Math.Max(40,text.ActualWidth-44);
+            var detail=new TextBlock{Text=NexaTime.Local(space.Current.LastAccessedAt,Saved.Workspace?.Settings.TimeZoneId??"Automatic").ToString("g"),FontSize=11,HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(0,7,0,2)};detail.SetResourceReference(TextBlock.ForegroundProperty,"MutedBrush");Grid.SetRow(detail,1);text.Children.Add(detail);
             var button = previousCards.GetValueOrDefault(space.DashboardId) ?? new Button { Tag = space.DashboardId, Content = text, HorizontalContentAlignment = HorizontalAlignment.Stretch, Margin = new Thickness(4, 0, 4, 8), ToolTip = space.Name };
             if(previousCards.ContainsKey(space.DashboardId))button.Content=text;
             if(!previousCards.ContainsKey(space.DashboardId))button.Click += (_, _) => OpenDashboard(space.DashboardId); cards.Children.Add(button);
@@ -67,7 +81,7 @@ internal sealed partial class HomeWindow
         recentChevron.Content = recentRows == 3 ? "↓ Show More Spaces" : "↑ Hide More Spaces"; recentChevron.MinWidth=260;recentChevron.FontSize=17;recentChevron.FontWeight=FontWeights.Bold;recentChevron.ToolTip = "Expand or collapse additional Spaces"; recentChevron.HorizontalAlignment = HorizontalAlignment.Center; recentChevron.Width = double.NaN;
         recentChevron.Visibility = spaces.Length > 6 ? Visibility.Visible : Visibility.Collapsed;
         System.Windows.Automation.AutomationProperties.SetName(recentChevron, recentRows==3?"Show More Spaces":"Hide More Spaces");
-        column.Children.Add(recentChevron);
+        recentChevron.Margin=new Thickness(0,20,0,8);column.Children.Add(recentChevron);
         void Reveal(){var index=0;foreach(var card in cards.Children.OfType<Button>().Where(b=>!previousCards.ContainsKey((Guid)b.Tag)))_ = NexaMotion.CardTransition(card,true,Saved.Workspace?.Settings??new(),RecentDelay(index++));}
         if(IsLoaded)Reveal();else cards.Loaded+=(_,_)=>Reveal();
     }

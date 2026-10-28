@@ -28,6 +28,8 @@ internal sealed partial class SettingsDialog
         row.Children.Add(new TextBlock { Text = "Nexaween", Foreground = (Brush)new BrushConverter().ConvertFromString("#84CC16")!, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0), FontWeight = FontWeights.SemiBold });
         row.Children.Add(MakeSeasonSwitch()); page.Children.Insert(1, row);
         if (active) { var seasonal = BuildSeasonalEvents(); page.Children.Add(seasonal); }
+        page.Children.Add(BuildWallpaperControls(ReliabilityOptions.HomeWallpaper,true));
+        page.Children.Add(BuildDisplaySettings());
         return SeasonalBackdrop.Wrap(page,()=>ReliabilityOptions);
     }
     private CheckBox MakeSeasonSwitch()

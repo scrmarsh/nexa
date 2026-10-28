@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.0.29 Alpha — NEXAWEEN: Final Polish & Workspace Evolution (unpublished)
+
+- Archive original completed session data before resetting; preserve tasks, configuration, recordings, all-time statistics and the existing recap.
+- Compact native fullscreen with overlay notification, persisted shortcuts and optional Windows battery/network/default-output volume controls.
+- Independent Home/Space wallpaper previews, fit/fill and defaults; embed timer configuration in Session Settings.
+- Lowercase left-aligned version branding, five-second compact splash and permanent Classic executable icon.
+- Larger right-icon Space titles, live productivity breakdown, 0–20 distraction phrases, expandable real-content intervals and growing transcript regions.
+- Explicit History resume/new choices, advanced-only legacy bug modes, click-only health bars, white orb/corner silk and intermittent Home spider motion.
+- Physical Windows, hardware, live providers and extended-session acceptance remain open. No release or push.
+
+
 ![NEXAWEEN — nexa alpha development](docs/media/nexaween-banner.svg)
 
 ## 0.0.28 Alpha — NEXAWEEN EVOLVED (2026-10-28, unpublished)

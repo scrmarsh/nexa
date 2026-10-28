@@ -30,11 +30,8 @@ public partial class MainWindow
         if (focusedWidget is { } id && widgetFrames.TryGetValue(id, out var frame)) { Panel.SetZIndex(frame, 0); if (widgetResizeHandles.TryGetValue(id, out var handles)) foreach (var handle in handles) Panel.SetZIndex(handle.Handle, 2001); }
         focusedWidget = null;
     }
-    internal static string DistractionMessage(decimal value) => value switch
-    {
-        >= 30 => "LOCK. IN. NOW.", >= 25 => "WHAT are you doing?", >= 20 => "FOCUS!",
-        >= 15 => "Get rid of the distractions.", >= 10 => "Okay, focus up.", >= 5 => "Lock in.", _ => ""
-    };
+    internal static string DistractionMessage(decimal value) => DistractionPhrases[(int)Math.Clamp(decimal.Floor(value),0,20)];
+    private static readonly string[] DistractionPhrases = ["Locked in. Keep it going.", "Already?", "We're off to a rough start.", "What are you doing?", "LOCK IN.", "Seriously, focus.", "The distractions are winning.", "You're getting cooked.", "Your attention span has left the chat.", "This is getting embarrassing.", "TEN?! Be serious.", "Your productivity is filing a complaint.", "Bro. The work is RIGHT THERE.", "At this point, you're avoiding success.", "The focus button is begging for mercy.", "This is a full-blown disaster.", "Your to-do list has trust issues.", "The assignment isn't going to finish itself.", "You're speedrunning procrastination.", "One more and we're calling an intervention.", "TWENTY. PUT THE PHONE DOWN."];
     private void AddDistractionMessage(StackPanel panel, WidgetInstance widget)
     {
         var label = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0), FontWeight = FontWeights.SemiBold, RenderTransform = new TranslateTransform() };
@@ -43,7 +40,7 @@ public partial class MainWindow
         {
             var message = state.DistractionEscalationEnabled ? DistractionMessage(widget.Value) : "";
             label.Text = message; label.FontSize = widget.Value >= 20 ? 17 : 13;
-            if (message != previous && state.DistractionEscalationEnabled && widget.Value >= 20 && message.Length > 0)
+            if (message != previous && NexaMotion.Allowed(Options) && state.DistractionEscalationEnabled && widget.Value >= 20 && message.Length > 0)
                 ((TranslateTransform)label.RenderTransform).BeginAnimation(TranslateTransform.XProperty, new DoubleAnimationUsingKeyFrames { Duration = TimeSpan.FromMilliseconds(320), KeyFrames = { new LinearDoubleKeyFrame(0, KeyTime.FromPercent(0)), new LinearDoubleKeyFrame(-3, KeyTime.FromPercent(.2)), new LinearDoubleKeyFrame(3, KeyTime.FromPercent(.4)), new LinearDoubleKeyFrame(-2, KeyTime.FromPercent(.6)), new LinearDoubleKeyFrame(2, KeyTime.FromPercent(.8)), new LinearDoubleKeyFrame(0, KeyTime.FromPercent(1)) } });
             if (!state.DistractionEscalationEnabled) ((TranslateTransform)label.RenderTransform).BeginAnimation(TranslateTransform.XProperty, null);
             previous = message;

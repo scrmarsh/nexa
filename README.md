@@ -2,7 +2,7 @@
 
 ![nexa · latest — a space for whatever comes next](docs/media/nexa-banner.svg)
 
-![version: 0.0.28 Alpha](https://img.shields.io/badge/version-0.0.28%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
+![version: 0.0.29 Alpha](https://img.shields.io/badge/version-0.0.29%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
 ![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-185FA5?style=flat-square&labelColor=111827)
 ![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-7F77DD?style=flat-square&labelColor=111827)
 
@@ -12,7 +12,7 @@
 
 </div>
 
-> **Current development: Nexa v0.0.28 Alpha — NEXAWEEN EVOLVED (unpublished).** Builds on .27 with broader offscreen widget loading, a guarded postponed reset, restored Creepy behavior and capped 20-second Bug Frenzy. Approved seasonal branding is preserved. See the [audit](docs/NEXAWEEN_028_AUDIT.md), [status](docs/NEXAWEEN_028_STATUS.md) and [Beta readiness](docs/NEXA_BETA_READINESS.md). Manual acceptance remains open.
+> **Current development: nexa v0.0.29 alpha — NEXAWEEN: Final Polish & Workspace Evolution (unpublished).** Save-first completion, fullscreen controls and workspace polish continue the verified .28 source. See the [audit](docs/NEXA_029_AUDIT.md), [status](docs/NEXA_029_STATUS.md) and [test results](docs/NEXA_029_TEST_RESULTS.md). Physical and provider acceptance remains open.
 
 Alpha development now uses **v0.0.X Alpha**, Beta will use **v0.1.X Beta**, and
 the first stable release is planned as **v1.0.0**. The first intended retained

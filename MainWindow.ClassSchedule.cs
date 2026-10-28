@@ -6,14 +6,13 @@ namespace SessionDashboard;
 public partial class MainWindow
 {
     internal void ShowWeeklySchedule() => OpenClassSchedule();
-    private void OpenClassSchedule()
+    private void OpenClassSchedule() => OpenMainSettings("Session");
+    internal FrameworkElement BuildTimerSettings(Action? draftChanged=null)
     {
-        if (sessionEditor != null) { sessionEditor.Activate(); return; }
-        var dialog = Dialog("Nexa · Pixel Timer", 580, 620);
-        sessionEditor = dialog;
-        var page = new StackPanel { Margin = new Thickness(24) };
+
+        var page = new StackPanel { Margin = new Thickness(0,0,0,18) };
         page.Children.Add(new TextBlock { Text = "Pixel Timer", FontSize = 23, FontWeight = FontWeights.SemiBold });
-        page.Children.Add(new TextBlock { Text = "Count down until class, count up during class, then count down to the next class. Session pixels fill from the top-left; between classes they clear from the bottom-right.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 18) });
+        page.Children.Add(new TextBlock { Text = "Count down to session end, track elapsed session time, then count down to the next class. Session pixels fill from the top-left; between classes they clear from the bottom-right.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 18) });
         var name = new TextBox { Text = state.Session?.Title ?? (string.IsNullOrWhiteSpace(state.Draft.Title) ? "Class" : state.Draft.Title), MaxLength = 100 };
         page.Children.Add(new TextBlock { Text = "Class / preset name" }); page.Children.Add(name);
         var chosen = state.Session?.ScheduledDays ?? state.Draft.ScheduledDays;
@@ -84,22 +83,27 @@ public partial class MainWindow
                 schedule.IntervalMinutes=state.Session?.IntervalMinutes??10;
                 schedule.AutomaticScheduling = mode.SelectedIndex == 1;
                 SaveDraft();
-                if (ApplyClassSchedule(schedule, savePreset.IsChecked == true)) dialog.CloseWithFade();
+                if (ApplyClassSchedule(schedule, savePreset.IsChecked == true)) status.Text="Session Settings saved.";
                 else status.Text = "The schedule could not be saved. Your current dashboard is unchanged.";
             }
             catch (ArgumentException ex) { status.Text = ex.Message; }
         };
         page.Children.Add(apply);
-        var once = new Button { Content = "Edit a one-time end date instead", HorizontalAlignment = HorizontalAlignment.Left };
-        once.Click += (_, _) => { dialog.Close(); EditOneTimeTarget(this, new RoutedEventArgs()); }; page.Children.Add(once);
-        dialog.Content = new ScrollViewer { Content = page, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled };
-        dialog.Closed += (_, _) => {SaveDraft();Changed();SaveNow();sessionEditor = null;}; dialog.ShowDismissible();
+        void DraftEdited(){SaveDraft();Changed();draftChanged?.Invoke();}
+        name.TextChanged+=(_,_)=>DraftEdited();start.TimeChanged+=(_,_)=>DraftEdited();end.TimeChanged+=(_,_)=>DraftEdited();
+        startDate.SelectedDateChanged+=(_,_)=>DraftEdited();endDate.SelectedDateChanged+=(_,_)=>DraftEdited();
+        return page;
     }
     internal bool ApplyClassSchedule(Session schedule, bool savePreset)
     {
         if (!SaveNow()) return false;
         var candidate = CopyWorkspaceState().Workspace!;
         var current = Continuity.Current(candidate, store.UserId).Current;
+        if(current.Recap!=null)
+        {
+            if(!current.SessionValuesReset){Continuity.Archive(Continuity.Current(candidate,store.UserId));current.SessionId=Guid.NewGuid();}
+            current.Recap=null;current.ScoreAtEnd=null;current.ScoreAtStart=Continuity.Current(candidate,store.UserId).SpaceProductivityScore;current.SessionValuesReset=false;current.IsActive=true;
+        }
         // Editing a schedule preserves the current report identity and all widget data.
         var session = current.Data.Session ?? new Session();
         session.Title = schedule.Title; session.Start = schedule.Start; session.End = schedule.End; session.IntervalMinutes=current.Data.Widgets.FirstOrDefault(w=>WidgetLibrary.Definition(w.Kind).Editor=="timeline")?.SummaryIntervalMinutes??schedule.IntervalMinutes;

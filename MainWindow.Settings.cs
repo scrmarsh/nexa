@@ -1,4 +1,4 @@
-﻿namespace SessionDashboard;
+namespace SessionDashboard;
 
 public partial class MainWindow
 {
@@ -31,7 +31,7 @@ public partial class MainWindow
     }
     internal void RefreshThemeViews()
     {
-        HeaderBrandIcon.Source=NexaChrome.Icon;
+        HeaderBrandIcon.Source=NexaChrome.BrandIcon;
         // The selected app theme is already live; reloading stored preferences
         // here would undo it during the autosave debounce.
         Theme.ApplyDashboard(FullContent.Resources, state.AccentColor, state.PixelColor);

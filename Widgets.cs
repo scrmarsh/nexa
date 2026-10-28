@@ -92,7 +92,7 @@ public static class WidgetLibrary
     public static IReadOnlyList<WidgetDefinition> Definitions { get; } =
     [
         new("Bugs Squashed", "Bugs", "Direct user squashes in this session and across all sessions.", "squashes", MinHeight:480, DefaultHeight:528, MinWidth:400),
-        new("Productivity", "Session", "Compact cumulative score and streak, with optional details.", "productivity", MinHeight:192,DefaultHeight:192,DefaultSpan:5,MinWidth:220,CanMinimize:false),
+        new("Productivity", "Session", "Compact cumulative score and streak, with optional details.", "productivity", MinHeight:240,DefaultHeight:240,DefaultSpan:5,MinWidth:220,CanMinimize:false),
         new("Timer", "Session", "Independent countdown or elapsed timer.", "timer", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
         new("Stopwatch", "Session", "Digital and analog elapsed time with pause and resume.", "stopwatch", MinHeight: 360, DefaultSpan: 6, DefaultHeight: 384, MinWidth: 280, CanMinimize: false),
         new("Clock", "Session", "Your local date and time.", "clock", MinHeight: 96, DefaultSpan: 4, DefaultHeight: 120, MinWidth: 200, CanMinimize: false),
@@ -102,7 +102,7 @@ public static class WidgetLibrary
         new("Progress bar", "Session", "Progress of your dashboard session.", "progress", MinHeight: 120, DefaultSpan: 6, DefaultHeight: 144, MinWidth: 240, CanMinimize: false),
         new("Pixel timer", "Session", "Session pixels with an optional Pixel Swarm break.", "progress", 6, 480, CanMinimize: false),
         new("Session controls", "Session", "Schedule sessions and manage timer presets.", "setup", 4, 480),
-        new("Session timeline", "Session", "Manual notes and a timeline for any session, with optional connected sources.", "timeline", 4, 288, DefaultHeight: 360, CanMinimize: false),
+        new("Session timeline", "Session", "Manual notes and a timeline for any session, with optional connected sources.", "timeline", 4, 480, DefaultHeight: 552, CanMinimize: false),
         new("Audio Recorder", "Session", "Record locally; keep audio alongside your Session Timeline.", "recorder", MinHeight: 240, DefaultHeight: 288, MinWidth: 280, CanMinimize: false),
         new("Calculator", "Productivity", "Quick calculations with a small recent history.", "calculator", MinHeight: 480, DefaultHeight: 528, MinWidth: 280, CanMinimize: false),
         new("Break timer", "Session", "A short independent countdown.", "timer", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),

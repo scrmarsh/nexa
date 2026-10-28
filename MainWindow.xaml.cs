@@ -76,7 +76,7 @@ public partial class MainWindow
         NotesToggle.IsChecked = state.ShowNotes;
         ChecklistToggle.IsChecked = state.ShowChecklist;
         PinToggle.IsChecked = state.AlwaysOnTop;
-        HeaderBrandIcon.Source=NexaChrome.Icon;
+        HeaderBrandIcon.Source=NexaChrome.BrandIcon;
         InitializeColorPickers();
         AccentInput.Text = state.AccentColor;
         PixelInput.Text = state.PixelColor;
@@ -109,7 +109,7 @@ public partial class MainWindow
         Countdown.MouseLeftButtonUp += SessionTimeEditClick;
         foreach (var button in TopNavigation.Children.OfType<Button>().Where(b => b.Content is string text && text == "Home")) button.Content = NexaIcons.Label("Home");
         SessionEditButton.Content = NexaIcons.Label("Edit");
-        Closed+=(_,_)=>{widgetToastTimer.Stop();completionFill.Stop();recapWindow?.Close();};
+        Closed+=(_,_)=>{widgetToastTimer.Stop();completionFill.Stop();RemoveCompletionVisuals();recapWindow?.Close();};
         InitializeInlineSession();
         PreviewKeyDown+=(_,e)=>{if(TutorialActive && e.Key==Key.Escape){FinishQuickStart(true);e.Handled=true;}};
         Loaded+=(_,_)=>{if(state.OfferQuickStart && !Options.QuickStartCompleted)StartQuickStart(false);};
@@ -373,7 +373,7 @@ public partial class MainWindow
         var candidate = CopyWorkspaceState();
         var dashboard = Continuity.Current(candidate.Workspace!, store.UserId);
         Continuity.Archive(dashboard);
-        dashboard.Current = new DashboardSession { UserId = store.UserId, DashboardId = dashboard.DashboardId, Data = Continuity.Capture(candidate), Title = session.Title };
+        dashboard.Current = new DashboardSession { UserId = store.UserId, DashboardId = dashboard.DashboardId, Data = WeeklySchedule.ResetSessionData(Continuity.Capture(candidate)), Title = session.Title };
         dashboard.Current.Data.Session = session;
         dashboard.Current.Data.Productivity = new();
         CommitWorkspace(candidate.Workspace!);
@@ -532,11 +532,15 @@ public partial class MainWindow
     private void ExitClick(object sender, RoutedEventArgs e) => CloseWithFade();
     private void UpdateDashboardHeaderGeometry()
     {
-        var needsTopInset = fullscreen || WindowState == WindowState.Maximized;
-        DashboardHeader.Height = needsTopInset ? 60 : 52;
-        DashboardHeader.Padding = new Thickness(12, needsTopInset ? 16 : 8, 12, 6);
+        var needsTopInset = !fullscreen && WindowState == WindowState.Maximized;
+        DashboardHeader.Height = fullscreen?44:needsTopInset?60:52;
+        DashboardHeader.Padding = new Thickness(fullscreen?8:12,needsTopInset?16:4,fullscreen?8:12,4);
+        WorkspaceOuter.Margin=fullscreen?new Thickness(8,4,8,8):new Thickness(24);
+        foreach(var button in new[]{MinimizeButton,MaximizeButton,ExitButton})button.Visibility=fullscreen?Visibility.Collapsed:Visibility.Visible;
+        SessionNameHost.Visibility=SpaceIconHost.Visibility=fullscreen && DashboardHeader.ActualWidth<1300?Visibility.Collapsed:Visibility.Visible;
         SessionNameHost.MaxWidth = Math.Clamp((DashboardHeader.ActualWidth - TopNavigation.ActualWidth) / 2 - 52, 60, 290);
     }
+    private System.Windows.Shell.WindowChrome? savedFullscreenChrome;
     internal void ToggleFullscreen()
     {
         if (!fullscreen)
@@ -545,26 +549,22 @@ public partial class MainWindow
             restoreWindowState = WindowState;
             restoreBounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
             restoreFullscreenTopmost = Topmost;
-            fullscreen = true;
-            WindowState = WindowState.Normal; Topmost = true;
-            ResizeMode = ResizeMode.NoResize;
-            WindowState = WindowState.Maximized;
+            savedFullscreenChrome=System.Windows.Shell.WindowChrome.GetWindowChrome(this);
+            fullscreen = true;WindowState = WindowState.Normal;
+            System.Windows.Shell.WindowChrome.SetWindowChrome(this,null);
+            ResizeMode = ResizeMode.NoResize;Topmost=true;WindowState = WindowState.Maximized;
         }
         else
         {
-            WindowState = WindowState.Normal; ResizeMode = ResizeMode.CanResize;
-            if (restoreWindowState == WindowState.Normal)
-            { Left = restoreBounds.Left; Top = restoreBounds.Top; Width = restoreBounds.Width; Height = restoreBounds.Height; }
-            fullscreen = false; Topmost = restoreFullscreenTopmost;
-            WindowState = restoreWindowState;
+            fullscreen=false;WindowState = WindowState.Normal;
+            System.Windows.Shell.WindowChrome.SetWindowChrome(this,savedFullscreenChrome);
+            ResizeMode = ResizeMode.CanResize;
+            Left=restoreBounds.Left;Top=restoreBounds.Top;Width=restoreBounds.Width;Height=restoreBounds.Height;
+            Topmost = restoreFullscreenTopmost;WindowState = restoreWindowState;
         }
-        UpdateDashboardHeaderGeometry();
-        var duration = TimeSpan.FromMilliseconds(260);
-        var easing = new CubicEase { EasingMode = EasingMode.EaseInOut };
-        DashboardShell.BeginAnimation(OpacityProperty, new DoubleAnimation(.94, 1, duration) { EasingFunction = easing });
-        var scale = new ScaleTransform(.992, .992); DashboardShell.RenderTransformOrigin = new Point(.5, .5); DashboardShell.RenderTransform = scale;
-        scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(.992, 1, duration) { EasingFunction = easing });
-        scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(.992, 1, duration) { EasingFunction = easing });
+        UpdateDashboardHeaderGeometry();ReconcileFullscreenStatus();
+        if(fullscreen && Options.FullscreenNotification)ShowFullscreenNotice();
+        else DismissFullscreenNotice();
     }
     private void WindowKeyDown(object sender, KeyEventArgs e)
     {
@@ -578,7 +578,12 @@ public partial class MainWindow
         if (NexaPanels.HandleEscape(this, e)) return;
         if(HandleWidgetUndoKey(e)) return;
         if (e.Key == Key.Escape && focusedWidget != null) { ClearWidgetFocus(); e.Handled = true; return; }
-        if (e.Key == Key.F11 || (e.Key == Key.Escape && fullscreen)) { ToggleFullscreen(); e.Handled = true; }
+        if(e.Key==Key.Escape && Keyboard.FocusedElement is DependencyObject focused)
+        {
+            for(var node=focused;node!=null;node=node is Visual?VisualTreeHelper.GetParent(node):LogicalTreeHelper.GetParent(node))
+                if(node is ComboBox{IsDropDownOpen:true})return;
+        }
+        if (!e.Handled && (e.Key == Key.F11 && Options.EnableF11 || e.Key == Key.Escape && fullscreen && Options.EscExitsFullscreen && System.Windows.Input.Keyboard.FocusedElement is not TextBox)) { ToggleFullscreen(); e.Handled = true; }
     }
     private void DismissCompletionClick(object sender, RoutedEventArgs e) { completionDismissed = true; CompletionBanner.Visibility = Visibility.Collapsed; }
     private void CompactClick(object sender, RoutedEventArgs e) { SetCompact(!state.Compact); Changed(); }
@@ -655,11 +660,16 @@ public partial class MainWindow
         }
         PercentLabel.Text = NexaTime.Percentage(progress);
         SessionProgressBar.Value=progress*100;
-        Countdown.Text = ClockText(reading.Time, !reading.CountUp);
-        CountdownCaption.Text = reading.Caption; StatusLabel.Text = reading.Status;
+        var active=reading.Status=="IN SESSION" && session?.FinalizedAt==null;
+        var mainTime=active && reading.PhaseEnd is {} phaseEnd?phaseEnd-now:reading.Time;
+        Countdown.Text=mainTime.TotalDays>=1?$"{(int)mainTime.TotalDays:00}:{mainTime.Hours:00}:{mainTime.Minutes:00}":ClockText(mainTime);
+        CountdownUnits.Text=mainTime.TotalDays>=1?"days        hours        minutes":"hours       minutes      seconds";
+        ElapsedCaption.Text=active?"ELAPSED":reading.Status is "SCHEDULED" or "BETWEEN SESSIONS"?"NEXT SESSION DURATION":"SESSION STATUS";
+        ElapsedLabel.Text=active && reading.PhaseStart is {} phaseStart?ClockText(now-phaseStart,false):reading.Status is "SCHEDULED" or "BETWEEN SESSIONS"?DurationLabel.Text:"Ready for a fresh session";
+        CountdownCaption.Text = active?"TIME REMAINING":reading.Caption; StatusLabel.Text = reading.Status;
         var remainingFraction = reading.VisualFraction;
         UpdateFrenzyFeedback();
-        var head = completionVisualProgress is {} fill ? (int)Math.Floor(fill*pixels.Count) : PixelTiming.CompletedPixels(reading, pixels.Count);
+        var head = completionVisualProgress is {} fill ? (int)Math.Floor(fill*pixels.Count) : SessionValuesWereReset?0:PixelTiming.CompletedPixels(reading, pixels.Count);
         if (previousHead >= 0 && previousHead < pixels.Count)
         { pixels[previousHead].BeginAnimation(OpacityProperty, null); pixels[previousHead].Opacity = 1; }
         if (head != litPixels)
@@ -696,7 +706,7 @@ public partial class MainWindow
             text.Children.Add(new TextBlock { Text = $"{start.LocalDateTime:h:mm}–{end.LocalDateTime:h:mm tt}", FontSize = 12, FontWeight = FontWeights.SemiBold, Foreground = Brush("MutedBrush") });
             var notePreview = string.Join(" ", Enumerable.Range(i, Math.Min(stride, count - i)).Select(index => session.IntervalSummaries.GetValueOrDefault(index) ?? "")).Trim();
             var inProgress = DateTimeOffset.Now >= start && DateTimeOffset.Now < end && session.StoppedAt == null;
-            text.Children.Add(new TextBlock { Text = notePreview.Length == 0 ? (inProgress ? "●  Summarizing…" : "No notes captured") : notePreview, FontSize = 12, MaxHeight = 74, TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(0, 6, 0, 0), Foreground = inProgress ? Brush("AccentBrush") : Brush("TextBrush") });
+            text.Children.Add(new TextBlock { Text = notePreview.Length == 0 ? (inProgress ? "No transcript available for this interval." : "No transcript available for this interval.") : notePreview, FontSize = 12, MaxHeight = 74, TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(0, 6, 0, 0), Foreground = inProgress ? Brush("AccentBrush") : Brush("TextBrush") });
             var card = new Border { Child = text, HorizontalAlignment = HorizontalAlignment.Stretch, Margin = new Thickness(0, 0, 0, 8), Padding = new Thickness(12), CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Tag = (start, end) };
             var first = i; var groupCount = Math.Min(stride, count - i);
             var button = new Button { Content = card, Padding = new Thickness(0), Background = Brushes.Transparent, BorderThickness = new Thickness(0), ToolTip = "Open interval notes" };

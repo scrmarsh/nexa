@@ -7,6 +7,7 @@ internal static class SpaceIcons
 {
     internal static readonly Dictionary<string,string> Paths=new()
     {
+        ["Graduation cap"]="M1,7 L10,2 19,7 10,12 Z M4,9 L4,15 Q10,20 16,15 L16,9 M19,7 L19,15",
         ["Church"]="M3,10 L10,5 17,10 17,19 3,19 Z M10,1 L10,7 M7,3 L13,3 M8,19 L8,13 12,13 12,19",
         ["Book"]="M10,5 Q5,1 1,4 L1,17 Q5,14 10,18 Q15,14 19,17 L19,4 Q15,1 10,5 L10,18",
         ["Briefcase"]="M2,6 L18,6 18,18 2,18 Z M6,6 L6,2 14,2 14,6 M2,11 Q10,15 18,11",
@@ -27,7 +28,7 @@ internal static class SpaceIcons
     internal static FrameworkElement Create(string id,double size=20)
     {
         var icon=new System.Windows.Shapes.Path{Data=Geometry.Parse(Paths.GetValueOrDefault(id,Paths["Sparkle"])),Width=size,Height=size,Stretch=Stretch.Uniform,StrokeThickness=1.5,Margin=new Thickness(0,0,0,5)};
-        icon.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty,"AccentBrush");System.Windows.Automation.AutomationProperties.SetName(icon,id+" space icon");return icon;
+        icon.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty,"SpaceIconBrush");System.Windows.Automation.AutomationProperties.SetName(icon,id+" space icon");return icon;
     }
     internal static ComboBox Picker(string selected,Action<string> change)
     {

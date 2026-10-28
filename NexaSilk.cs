@@ -7,7 +7,7 @@ internal sealed partial class BugManager
     {
         if(web.AnchorId is {} id && Surfaces.TryGetValue(id,out var card))
         {
-            var width=Math.Max(12,card.Width*.88);var height=Math.Max(12,card.Height*.84);
+            var width=Math.Max(12,Math.Min(180,card.Width*.55));var height=Math.Max(12,Math.Min(150,card.Height*.5));
             if(WebCoordinateAspect is {} aspect && aspect>0)
             {
                 var ratio=width*aspect/height;
@@ -22,15 +22,22 @@ internal sealed partial class BugManager
     {
         if(web.Strands.Count>0)return;
         var rng=new Random(web.Owner.GetHashCode());
-        var nodes=new List<Point>{new(.02,.08),new(.45,.02),new(.97,.12),new(.99,.6),new(.83,.97),new(.38,.98),new(.02,.79),new(.01,.36)};
         void Add(Point a,Point b)=>web.Strands.Add(new SilkStrand{FromX=a.X,FromY=a.Y,ToX=b.X,ToY=b.Y});
-        for(var i=0;i<8;i++)Add(nodes[i],nodes[(i+1)%8]);
-        Add(nodes[0],nodes[4]);Add(nodes[2],nodes[6]);Add(nodes[1],nodes[5]);
-        for(var i=0;i<18;i++)
+        var center=new Point(.49,.48);
+        if((web.Owner.GetHashCode()&1)==0)
         {
-            var point=new Point(.08+rng.NextDouble()*.84,.08+rng.NextDouble()*.84);
-            foreach(var other in nodes.OrderBy(n=>(n-point).LengthSquared).Take(i%3==0?3:2))Add(other,point);
-            nodes.Add(point);
+            var rim=Enumerable.Range(0,12).Select(i=>{var angle=i*Math.PI/6;var radius=.43+rng.NextDouble()*.035;return new Point(center.X+Math.Cos(angle)*radius,center.Y+Math.Sin(angle)*radius);}).ToArray();
+            foreach(var anchor in rim)Add(center,anchor);
+            for(var ring=1;ring<=5;ring++)for(var i=0;i<rim.Length;i++)
+            {var fraction=ring/5.5;Add(center+(rim[i]-center)*fraction,center+(rim[(i+1)%rim.Length]-center)*fraction);}
+        }
+        else
+        {
+            var corner=new Point(.03,.04);
+            var anchors=Enumerable.Range(0,9).Select(i=>new Point(.15+rng.NextDouble()*.8,.15+rng.NextDouble()*.8)).ToArray();
+            foreach(var anchor in anchors)Add(corner,anchor);
+            for(var i=0;i<anchors.Length-1;i++)for(var level=1;level<=3;level++)
+            {var t=level/4d;Add(corner+(anchors[i]-corner)*t,corner+(anchors[i+1]-corner)*(t+.02*rng.NextDouble()));}
         }
         var completed=Math.Clamp(web.Construction,0,1)*web.Strands.Count;
         for(var i=0;i<web.Strands.Count;i++)web.Strands[i].Progress=Math.Clamp(completed-i,0,1);

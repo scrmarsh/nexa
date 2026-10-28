@@ -733,7 +733,7 @@ public partial class MainWindow
                 panel.Children.Add(counts);
                 var resetCounter = new Button { Content = "Reset", Margin = new Thickness(3, 8, 3, 0), HorizontalAlignment = HorizontalAlignment.Right };
                 resetCounter.Click += (_, _) => { widget.Value = widget.StartingValue; number.Text = widget.Value.ToString(CultureInfo.CurrentCulture); Changed(); };
-                panel.Children.Add(resetCounter);
+                if(widget.CounterMode!="Distraction")panel.Children.Add(resetCounter);
                 if (widget.CounterMode == "Distraction") AddDistractionMessage(panel, widget);
                 break;
             case "timer": case "stopwatch":
@@ -760,7 +760,7 @@ public partial class MainWindow
                 widgetTicks.Add(now =>
                 {
                     if (editor == "clock") { label.Cursor = Cursors.Hand; label.ToolTip = "Click to configure clock"; label.Text = NexaTime.Local(now, Options.TimeZoneId).ToString(Options.Use24HourClock ? widget.ShowSeconds ? "HH:mm:ss" : "HH:mm" : widget.ShowSeconds ? "h:mm:ss tt" : "h:mm tt"); analog?.SetTime(NexaTime.Local(now, Options.TimeZoneId).DateTime); progress.Visibility = Visibility.Collapsed; return; }
-                    var reading=PixelTiming.ForWidget(widget,state.Session,now); var value=reading.VisualFraction; label.Text=NexaTime.Percentage(value); label.ToolTip=reading.Caption; progress.Value=value;
+                    var reading=PixelTiming.ForWidget(widget,state.Session,now); var value=widget.ProgressLinkedToSession && SessionValuesWereReset?0:reading.VisualFraction; label.Text=NexaTime.Percentage(value); label.ToolTip=reading.Caption; progress.Value=value;
                 });
                 break;
             case "tracker":

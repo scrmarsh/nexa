@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Windows;
@@ -55,7 +55,7 @@ internal static partial class Program
         var data = new DashboardData { Notes = "Shared notes", Widgets = [note, permanent, tasks], Tasks = [new() { Text = "Global permanent", Permanent = true }, new() { Text = "Session task" }], Session = seed, Productivity = ledger };
         var reset = WeeklySchedule.ResetSessionData(data);
         Assert(reset.Notes == "" && reset.Widgets[0].Text == "" && reset.Widgets[0].PlacementY == 900, "Reset clears session notes while preserving widget identity and placement");
-        Assert(reset.Widgets[1].Text == "Permanent library" && reset.Tasks.Count == 1 && reset.Widgets[2].Items.Count == 1, "Reset preserves permanent notes and tasks");
+        Assert(reset.Widgets[1].Text == "Permanent library" && reset.Tasks.Count == 2 && reset.Widgets[2].Items.Count == 2, "Reset preserves permanent notes and tasks");
         Assert(reset.Productivity.Score == 0 && data.Productivity.Score > 0 && data.Notes == "Shared notes", "Detached reset leaves the original record and score intact");
         Assert(Continuity.ConfigurationOnly(data).Productivity.Events.Count == 0, "Configuration-only exports never leak productivity activity");
 

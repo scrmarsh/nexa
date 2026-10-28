@@ -20,11 +20,13 @@ public partial class MainWindow
         FooterStatus.Visibility = Visibility.Collapsed; DashboardTip.Visibility = Visibility.Collapsed;
         var feedback = DependencyPropertyDescriptor.FromProperty(TextBlock.TextProperty, typeof(TextBlock));
         feedback.AddValueChanged(Feedback, FeedbackChanged);
+        Activated+=FullscreenFocusChanged;Deactivated+=FullscreenFocusChanged;
         SystemEvents.PowerModeChanged += PowerChanged;
         SystemEvents.TimeChanged += ClockChanged;
         saveRetry.Tick += async (_, _) => { if (!dirty) { saveRetry.Stop(); return; } await SaveInBackground(); };
         Closed += (_, _) =>
         {
+            DisposeFullscreenStatus();
             reliabilityReady = false; feedback.RemoveValueChanged(Feedback, FeedbackChanged);
             SystemEvents.TimeChanged -= ClockChanged;
             SystemEvents.PowerModeChanged -= PowerChanged; saveRetry.Stop(); notifications.Dispose();
@@ -50,6 +52,7 @@ public partial class MainWindow
         if(bugsOverlay!=null)bugsOverlay.ReduceMotion=Options.ReduceMotion;
         autosave.Interval = TimeSpan.FromSeconds(Options.EffectiveSaveSeconds);
         ApplySeasonalOptions();
+        ReconcileFullscreenStatus();
         feedbackOverlay?.ReconcileOptions(); notifications?.ReconcileMotion();
         if (!Options.ShowQuickTips) { notifications?.Dismiss("tip"); tipRotation.Stop(); }
         else if (!closing) tipRotation.Start();
@@ -79,7 +82,7 @@ public partial class MainWindow
             var current = Continuity.Current(state.Workspace, store.UserId).Current;
             if (session.StoppedAt == null && now >= session.End && current.CompletedCheckpointAt == null)
             {
-                if(session.FinalizedAt==null){if(!FinalizeSession(now,false))return;session=state.Session!;current=Continuity.Current(state.Workspace!,store.UserId).Current;}
+                if(session.FinalizedAt==null){if(!FinalizeSession(now,false,resetValues:false))return;session=state.Session!;current=Continuity.Current(state.Workspace!,store.UserId).Current;}
                 current.CompletedCheckpointAt = session.End;
                 if (SaveNow()) notifications?.Show("session-complete", "Session complete. Your notes and widgets remain available for review.", "✓", 1, 8);
                 else current.CompletedCheckpointAt = null;
@@ -151,7 +154,9 @@ public partial class MainWindow
         var details=new Button {Content="···",ToolTip="Productivity details",FontSize=18,Padding=new Thickness(8,0,8,0),MinHeight=26};
         System.Windows.Automation.AutomationProperties.SetName(details,"Productivity details");
         details.Click+=(_,_)=>ShowProductivityDetails(widget);side.Children.Add(details);Grid.SetColumn(side,1);row.Children.Add(side);panel.Children.Add(row);
+        var breakdown=new TextBlock{FontSize=11,TextAlignment=TextAlignment.Center,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,8,0,0)};panel.Children.Add(breakdown);
         widgetTicks.Add(now=>{
+            var ledger=state.Productivity;breakdown.Text=$"{ledger.Events.Count:N0} actions · {ledger.Events.Count(e=>e.Category=="Task completed"):N0} tasks\n{ledger.Events.Sum(e=>(long)e.BasePoints):N0} base points · {ledger.Events.Sum(e=>(long)e.BonusPoints):N0} bonus points";
             ring.Update(SpaceScores.Total(Continuity.Current(state.Workspace!,store.UserId),state.Productivity),Options);
             var value=state.Productivity.EffectiveMultiplier(now);badge.Visibility=value>1?Visibility.Visible:Visibility.Collapsed;
             badge.ToolTip=state.Productivity.BugFrenzyActive(now)?$"Bug Frenzy · {Math.Ceiling((state.Productivity.BugFrenzyUntil!.Value-now).TotalSeconds)} seconds remaining":"Shared productivity streak";

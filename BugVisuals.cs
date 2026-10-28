@@ -94,12 +94,12 @@ internal static partial class BugVisuals
             switch (species)
             {
                 case BugSpecies.Ants:
-                    Shape(dc, "M0,-7 L5,-16 L9,-7 L12,-6 L-2,-6 Z", "#24152F", "#A855F7"); dc.DrawLine(P("#F97316", 1.6), new(3, -9), new(8, -9));
+                    // Detached witch hat retired; saved costume choice still controls body accents.
                     dc.DrawEllipse(B("#F97316"), P("#9A3412", .5), new(-6, 5), 3.5, 3); dc.DrawLine(P("#84CC16", 1), new(-6, 2), new(-5, 0)); dc.DrawEllipse(null, P("#F97316", .7), new(-4, 0), 3, 2); break;
                 case BugSpecies.Spiders:
                     dc.DrawEllipse(B("#AA6B21A8"), P("#84CC16", .5), new(-4, 0), 6.5, 5);
                     Shape(dc, "M-8,-2 L-4,-4 L0,-2 L-4,0 Z M-8,2 L-4,4 L0,2 L-4,0 Z", "#84CC16");
-                    Shape(dc, "M1,-6 L4,-12 L7,-6 L10,-5 L-1,-5 Z", "#24152F", "#A855F7"); break;
+                    break;
                 case BugSpecies.Ladybugs:
                     Shape(dc, "M-4,-3 L-16,-11 L-13,-3 L-17,1 L-12,4 L-15,11 L-4,3 Z", "#3B143F", "#991B3A", 1);
                     Shape(dc, "M4,-4 L8,-7 L7,-1 Z M4,4 L8,7 L7,1 Z", "#6B164A"); Shape(dc, "M7,-1 L10,-1 L8,2 Z M7,2 L9,2 L8,4 Z", "#FFF7ED"); break;
