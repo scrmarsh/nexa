@@ -1,0 +1,65 @@
+PASS: Monday ends with a 46h45 countdown to Wednesday
+PASS: Wednesday ends with a 118h45 countdown to Monday
+PASS: Missed-start recovery selects the active occurrence
+PASS: Recurring midnight crossings preserve local dates and duration
+PASS: Spring DST gap advances to a valid wall time
+PASS: Fall DST overlap deterministically selects standard time and stores UTC
+PASS: IANA and Windows zones agree in summer
+PASS: Progress formats exactly three decimals
+PASS: Only actual completion can display 100.000 percent
+PASS: Sequential pixel count is bounded at 1
+PASS: Sequential pixel count is bounded at 0.999
+PASS: Sequential pixel count is bounded at 0.75
+PASS: Sequential pixel count is bounded at 0.5
+PASS: Sequential pixel count is bounded at 0.001
+PASS: Sequential pixel count is bounded at 0
+PASS: Direct squash awards points and starts Frenzy
+PASS: The same bug cannot earn duplicate points
+PASS: Eligible actions receive 2x points during the direct-squash Bug Frenzy window
+PASS: Frenzy expires at a saved timestamp without a running animation
+PASS: Repeated observations do not farm task completion
+PASS: Reopening and completing a task again never adds points
+PASS: Counter decrement/increment farming earns no repeat points
+PASS: Reset clears session notes while preserving widget identity and placement
+PASS: Reset preserves permanent notes and tasks
+PASS: Detached reset leaves the original record and score intact
+PASS: Configuration-only exports never leak productivity activity
+PASS: Continuous saves preserve one durable session ID
+PASS: Unclean restart recovers the latest durable content
+PASS: Autosave interval applies immediately and persists: 30
+PASS: Autosave interval applies immediately and persists: 60
+PASS: Autosave interval applies immediately and persists: 180
+PASS: Autosave interval applies immediately and persists: 300
+PASS: Autosave interval applies immediately and persists: 600
+PASS: Autosave interval applies immediately and persists: 900
+PASS: Autosave interval applies immediately and persists: 1800
+PASS: Fixed footer and old fixed tip reserve no layout space
+PASS: Canvas maintains one viewport below the lowest widget
+PASS: Rendered timer pixels form one contiguous prefix after timestamp jumps
+PASS: Session completion and review checkpoint preserve visible work
+PASS: The review checkpoint updates the existing session
+PASS: Historical report includes identity, scores, and meaningful widget content
+PASS: Persistence failure prevents destructive reset
+PASS: Successful reset archives the complete prior record once
+PASS: Pre-session reset prepares the right recurrence and preserves permanent content
+PASS: New occurrence retains layout with a new session identity
+PASS: Prepared next occurrence survives restart
+PASS: Automatic seasonal activation begins October 1 in the selected zone
+PASS: Automatic seasonal activation includes all of November 2
+PASS: Manual seasonal activation works outside October
+PASS: Manual Off overrides Halloween dates
+PASS: Seasonal palette applies the requested dark purple background
+PASS: Seasonal styling does not rewrite saved normal colors
+PASS: Seasonal artwork cannot intercept dashboard controls
+PASS: Decoration toggle hides artwork after its bounded fade
+PASS: Contextual Add Widget appears below existing content
+PASS: Disabling Halloween restores the saved dashboard palette
+PASS: Actual saving settings UI applies and saves a changed interval
+PASS: Opening readable history includes live and archived records without replaying a session
+PASS: Editing an archive persists retrospective notes without changing the active session identity
+PASS: Reset postponement is persisted immediately
+PASS: Postponed reset keeps the current dashboard past the deadline
+PASS: Manual deferred-reset completion safely prepares the correct occurrence
+PASS: An older detached background payload cannot overwrite a newer completed save
+PASS: Development candidate identifies itself as Nexa v0.0.28 Alpha
+PASS: 64 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-174204
