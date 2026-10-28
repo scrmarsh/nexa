@@ -14,6 +14,7 @@ internal static partial class Program
         output=Path.GetFullPath(Path.Combine("verification",DateTime.Now.ToString("yyyyMMdd-HHmmss")));Directory.CreateDirectory(output);
         try
         {
+            if(args.Contains("--save-writer028"))return SaveWriter028(args[Array.IndexOf(args,"--save-writer028")+1]);
             var app=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};app.InitializeComponent();
             Theme.Apply(app.Resources,SessionDashboard.ThemeMode.Dark,AppTheme.Nexa);
             if(args.Contains("--ui-controls"))
@@ -29,6 +30,8 @@ internal static partial class Program
             if(args.Contains("--showcase"))GenerateShowcase(args[Array.IndexOf(args,"--showcase")+1]);
             else if(args.Contains("--existing-data"))CheckExistingData(args[Array.IndexOf(args,"--existing-data")+1]);
             else if(args.Contains("--public-updates"))CheckPublicUpdates025();
+            else if(args.Contains("--diagnostics028"))Diagnostics028();
+            else if(args.Contains("--nexaween028"))Check028();
             else if(args.Contains("--nexaween027"))Check027();
             else if(args.Contains("--handoff026"))CheckHandoff026();
             else if(args.Contains("--profile026-animated"))Profile026(true);

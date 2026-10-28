@@ -38,11 +38,10 @@ internal sealed record EcosystemOptions
     internal static EcosystemOptions Existing(EcosystemOptions value)=>value.LastSeasonalActive==null && value.NonSeasonalBehavior==null && value.SeasonalBehavior==null?value with {NonSeasonalBehavior=value.Behavior,SeasonalBehavior=value.Behavior}:value;
     internal EcosystemOptions Safe() => this with
     {
-        Behavior = Behavior == BugBehavior.Creepy ? BugBehavior.Classic : Enum.IsDefined(Behavior) ? Behavior : BugBehavior.Classic,
-        NonSeasonalBehavior = NonSeasonalBehavior == BugBehavior.Creepy ? BugBehavior.Classic : NonSeasonalBehavior,
-        SeasonalBehavior = SeasonalBehavior == BugBehavior.Creepy ? BugBehavior.Classic : SeasonalBehavior,
-        MatchAppearance = Behavior == BugBehavior.Creepy ? false : MatchAppearance,
-        Appearance = Behavior == BugBehavior.Creepy && MatchAppearance ? BugAppearance.Creepy : Enum.IsDefined(Appearance) ? Appearance : BugAppearance.Normal,
+        Behavior = Enum.IsDefined(Behavior) ? Behavior : BugBehavior.Classic,
+        NonSeasonalBehavior = NonSeasonalBehavior is {} normal && !Enum.IsDefined(normal) ? null : NonSeasonalBehavior,
+        SeasonalBehavior = SeasonalBehavior is {} seasonal && !Enum.IsDefined(seasonal) ? null : SeasonalBehavior,
+        Appearance = Enum.IsDefined(Appearance) ? Appearance : BugAppearance.Normal,
         Quality = Enum.IsDefined(Quality) ? Quality : BugAnimationQuality.Balanced,
         Size = double.IsFinite(Size) ? Math.Clamp(Size, .75, 4) : 2
     };

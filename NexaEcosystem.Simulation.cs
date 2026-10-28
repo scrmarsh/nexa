@@ -302,6 +302,11 @@ internal sealed partial class BugManager
         if (EcosystemSettings.Behavior == BugBehavior.Creepy) { damage *= .25; }
         var defended = (enemy.Position - Nest(enemy.Species).Position).Length < 100;
         enemy.Health = Math.Max(0, enemy.Health - damage * (defended ? .75 : 1)); enemy.HitFlash = .12;
+        if (enemy.Health > 0 && EcosystemSettings.Behavior == BugBehavior.Combative && enemy.EnemyId == null)
+        {
+            enemy.EnemyId = bug.InteractionId; enemy.Activity = BugActivity.Defending;
+            enemy.Target = bug.Position; enemy.Decision = Math.Max(enemy.Decision, 3);
+        }
         if (enemy.Health <= 0) { CombatDeaths++; bug.Kills++; enemy.State = BugState.Squashed; enemy.SquashAge = 0; bug.Decision = 0; }
     }
 }

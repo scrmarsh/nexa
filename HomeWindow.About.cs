@@ -87,7 +87,7 @@ internal sealed partial class HomeWindow
     private void OpenChangelog()
     {
         var dialog = InfoDialog("Changelog", 800, 720); var body = new StackPanel { Margin = new Thickness(28) };
-        body.Children.Add(new TextBlock{Text=App.VersionLabel+" — NEXAWEEN · unpublished development",FontSize=22,FontWeight=FontWeights.Bold,TextWrapping=TextWrapping.Wrap});
+        body.Children.Add(new TextBlock{Text=App.VersionLabel+" — "+ReleaseNotes.All[0].Title+" · unpublished development",FontSize=22,FontWeight=FontWeights.Bold,TextWrapping=TextWrapping.Wrap});
         body.Children.Add(Copy("Continues the October 28 handoff. Manual acceptance remains open; the first planned public release under the new stage convention is v0.1.0 Beta.",15));
         body.Children.Add(new TextBlock { Text = "What’s new in Nexa", FontSize = 27, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
         body.Children.Add(Copy("Release history · Windows desktop", 13));
@@ -104,7 +104,7 @@ internal sealed partial class HomeWindow
                 row.Children.Add(new System.Windows.Shapes.Ellipse { Width = 5, Height = 5, Fill = (Brush)FindResource("AccentBrush"), HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(2, 8, 0, 0) });
                 var text = Copy(update); text.Margin = new Thickness(0); Grid.SetColumn(text, 1); row.Children.Add(text); section.Children.Add(row);
             }
-            var seasonalEntry = release.Version is "0.1.24" or "0.0.27" && Theme.SeasonalEnabled;
+            var seasonalEntry = release.Version is "0.1.24" or "0.0.27" or "0.0.28" && Theme.SeasonalEnabled;
             if (seasonalEntry)
             {
                 void Tint(DependencyObject element)

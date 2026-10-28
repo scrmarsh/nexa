@@ -145,6 +145,13 @@ public sealed class ProductivityLedger
     public DateTimeOffset? FrenzyStartedAt {get;set;}
     public DateTimeOffset? LastDirectSquashAt {get;set;}
     public double FrenzyMultiplier {get;set;} = 1;
+    public DateTimeOffset? BugFrenzyStartedAt {get;set;}
+    public DateTimeOffset? BugFrenzyUntil {get;set;}
+    public double BugFrenzyCap {get;set;} = 2;
+    public bool BugFrenzyActive(DateTimeOffset now) => BugFrenzyStartedAt is {} start && BugFrenzyUntil is {} end && start<=now && now<end && end<=start.AddSeconds(20);
+    // Preserve the shared candy/squash streak; the short direct-only boost never
+    // multiplies an existing multiplier or revises previously recorded awards.
+    public double EffectiveMultiplier(DateTimeOffset now) => Math.Max(Multiplier(now), BugFrenzyActive(now)?Math.Clamp(double.IsFinite(BugFrenzyCap)?BugFrenzyCap:2,1.5,2):1);
     public double Multiplier(DateTimeOffset now)=>FrenzyUntil>now && (FrenzyStartedAt==null || now>=FrenzyStartedAt)?Math.Clamp(double.IsFinite(FrenzyMultiplier)?FrenzyMultiplier:1.5,1.5,10):1;
     public Dictionary<Guid, decimal> CounterHighWater { get; set; } = [];
     public int FrenzyActivations { get; set; }
@@ -158,7 +165,7 @@ public static class ProductivityScoring
     {
         if (ledger.Events.Count >= 10000 || once && ledger.Events.Any(e => e.Key == key)) return false;
         if (ledger.Events.Count(e => now >= e.At && now - e.At < TimeSpan.FromSeconds(1)) >= 20) return false;
-        var bonus = category != "Bug squash" && points>0 ? (int)Math.Round(points*(ledger.Multiplier(now)-1),MidpointRounding.AwayFromZero) : 0;
+        var bonus = category != "Bug squash" && points>0 ? (int)Math.Round(points*(ledger.EffectiveMultiplier(now)-1),MidpointRounding.AwayFromZero) : 0;
         ledger.Events.Add(new() { WidgetId = widgetId, Key = key, Category = category, Description = description, BasePoints = points, BonusPoints = bonus, At = now.ToUniversalTime() });
         return true;
     }
@@ -174,6 +181,7 @@ public static class ProductivityScoring
             ledger.FrenzyMultiplier=Math.Min(maximum,active?ledger.Multiplier(now)+.5:1.5);
             if(!active)ledger.FrenzyStartedAt=now.ToUniversalTime();
             ledger.LastDirectSquashAt=now.ToUniversalTime();ledger.FrenzyUntil=now.AddMinutes(2).ToUniversalTime();
+            ledger.BugFrenzyStartedAt=now.ToUniversalTime();ledger.BugFrenzyUntil=now.AddSeconds(20).ToUniversalTime();ledger.BugFrenzyCap=maximum;
         }
         return true;
     }

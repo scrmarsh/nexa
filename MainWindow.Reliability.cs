@@ -114,10 +114,10 @@ public partial class MainWindow
     internal void CompleteDeferredReset() => CompleteDeferredResetAt(DateTimeOffset.UtcNow);
     internal void CompleteDeferredResetAt(DateTimeOffset now)
     {
-        if (state.Session is not { } session) return;
+        if (state.Session is not { } session || state.Workspace==null || !Continuity.Current(state.Workspace,store.UserId).Current.ResetDeferred) return;
         var latest = WeeklySchedule.Latest(session, now);
         var target = latest != null && latest.Start > session.Start && latest.End > now ? latest : WeeklySchedule.Next(session, now);
-        if (target != null) PrepareOccurrence(target, now);
+        if (target != null && target.Start>session.Start && now>=session.End) PrepareOccurrence(target, now);
     }
     private void PrepareOccurrence(SessionOccurrence occurrence, DateTimeOffset now)
     {
@@ -153,7 +153,8 @@ public partial class MainWindow
         details.Click+=(_,_)=>ShowProductivityDetails(widget);side.Children.Add(details);Grid.SetColumn(side,1);row.Children.Add(side);panel.Children.Add(row);
         widgetTicks.Add(now=>{
             ring.Update(SpaceScores.Total(Continuity.Current(state.Workspace!,store.UserId),state.Productivity),Options);
-            var value=state.Productivity.Multiplier(now);badge.Visibility=value>1?Visibility.Visible:Visibility.Collapsed;
+            var value=state.Productivity.EffectiveMultiplier(now);badge.Visibility=value>1?Visibility.Visible:Visibility.Collapsed;
+            badge.ToolTip=state.Productivity.BugFrenzyActive(now)?$"Bug Frenzy · {Math.Ceiling((state.Productivity.BugFrenzyUntil!.Value-now).TotalSeconds)} seconds remaining":"Shared productivity streak";
             multiplier.Text=value.ToString("0.0")+"×";
         });
     }

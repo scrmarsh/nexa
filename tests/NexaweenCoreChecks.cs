@@ -33,7 +33,7 @@ internal static partial class Program
         Assert(ProductivityScoring.DirectSquash(ledger, "one", at), "Direct squash awards points and starts Frenzy");
         Assert(!ProductivityScoring.DirectSquash(ledger, "one", at.AddSeconds(1)) && ledger.BugsSquashed == 1, "The same bug cannot earn duplicate points");
         ProductivityScoring.Add(ledger, "productive", "Task", "Complete task", 100, at.AddSeconds(1));
-        Assert(ledger.Score == 160 && ledger.Events.Last().BonusPoints == 50, "Eligible actions receive the initial 1.5 times points during a streak");
+        Assert(ledger.Score == 210 && ledger.Events.Last().BonusPoints == 100, "Eligible actions receive 2x points during the direct-squash Bug Frenzy window");
         ProductivityScoring.Add(ledger, "expired", "Notes", "Later note", 20, at.AddSeconds(121));
         Assert(ledger.Events.Last().BonusPoints == 0 && ledger.FrenzyUntil == at.AddMinutes(2), "Frenzy expires at a saved timestamp without a running animation");
         var before = new DashboardData { Tasks = [new TaskItem { Text = "Finish worksheet" }] };

@@ -1,8 +1,8 @@
 # Local build authority
 
-Current source development is **Nexa v0.0.27 Alpha — NEXAWEEN**, unpublished.
-Use a fresh `Builds/Testing/0.0.27-alpha-*` output directory when explicitly
-packaging it. No .27 portable package has been accepted. Existing executable
+Current source development is **Nexa v0.0.28 Alpha — NEXAWEEN EVOLVED**, unpublished.
+Use a fresh `Builds/Testing/0.0.28-alpha-*` output directory when explicitly
+packaging it. No .28 portable package has been accepted. Existing executable
 paths and hashes below are historical records, not verification of current bytes.
 
 - `Builds/Testing`: unapproved candidates. `Publish-Exe.ps1` writes only within this tree; select a fresh subdirectory to preserve earlier candidates.

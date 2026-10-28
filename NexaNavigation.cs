@@ -49,7 +49,16 @@ internal static class NexaNavigation
             timings["Input enabled"]=request.Elapsed.TotalMilliseconds;
             timings["Fade in"]=phase.Elapsed.TotalMilliseconds;LastProfile=timings;
             target.Background=background;
+            phase.Restart();
             if(source is MainWindow main)main.CloseAfterNavigation();else source.Close();
+            timings["Source window teardown"]=phase.Elapsed.TotalMilliseconds;
+            await target.Dispatcher.InvokeAsync(()=>{},DispatcherPriority.ApplicationIdle);
+            timings["Click to dispatcher idle"]=request.Elapsed.TotalMilliseconds;
+            if(target is MainWindow measured)
+            {
+                timings["Widget layout total"]=measured.WidgetLayoutMilliseconds;
+                timings["Widget layout passes"]=measured.WidgetLayoutPasses;
+            }
         }
         catch
         {

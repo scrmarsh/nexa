@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
 namespace SessionDashboard;
@@ -14,7 +14,7 @@ internal sealed partial class SettingsDialog
         var save=new Button{Content="Save Now",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,0,0,12)};save.Click+=(_,_)=>{space?.SaveNow();};page.Children.Add(save);
         var saving=(ScrollViewer)BuildSavingHistory();var content=(UIElement)saving.Content;saving.Content=null;page.Children.Add(content);
         var cap=new Slider{Minimum=1.5,Maximum=10,Value=ReliabilityOptions.EffectiveStreakCap,TickFrequency=.5,IsSnapToTickEnabled=true};Field(page,"Maximum squash streak multiplier",cap);
-        var capText=new TextBlock{Text=cap.Value.ToString("0.0")+"×"};page.Children.Add(capText);cap.ValueChanged+=(_,_)=>{ReliabilityOptions.StreakMultiplierCap=cap.Value;state.Productivity.FrenzyMultiplier=Math.Min(state.Productivity.FrenzyMultiplier,cap.Value);capText.Text=cap.Value.ToString("0.0")+"×";QueueSave("streak-limit",SaveState);};
+        var capText=new TextBlock{Text=cap.Value.ToString("0.0")+"×"};page.Children.Add(capText);cap.ValueChanged+=(_,_)=>{ReliabilityOptions.StreakMultiplierCap=cap.Value;state.Productivity.FrenzyMultiplier=Math.Min(state.Productivity.FrenzyMultiplier,cap.Value);state.Productivity.BugFrenzyCap=cap.Value;capText.Text=cap.Value.ToString("0.0")+"×";QueueSave("streak-limit",SaveState);};
         var distraction=new ComboBox{ItemsSource=new[]{0,5,10,20,50,100},SelectedItem=ReliabilityOptions.DistractionPenalty};Field(page,"Points deducted per new distraction (0 disables)",distraction);
         var alcohol=new ComboBox{ItemsSource=new[]{0,5,10,20,50,100},SelectedItem=ReliabilityOptions.AlcoholPenalty};Field(page,"Points deducted per logged alcoholic drink (0 disables)",alcohol);
         distraction.SelectionChanged+=(_,_)=>{ReliabilityOptions.DistractionPenalty=(int)(distraction.SelectedItem??0);QueueSave("penalties",SaveState);};alcohol.SelectionChanged+=(_,_)=>{ReliabilityOptions.AlcoholPenalty=(int)(alcohol.SelectedItem??0);QueueSave("penalties",SaveState);};

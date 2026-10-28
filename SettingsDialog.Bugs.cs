@@ -13,9 +13,10 @@ internal sealed partial class SettingsDialog
         var species = new ComboBox { ItemsSource = new[] { BugSpecies.AllBugs }.Concat(BugManager.AllSpecies).ToArray(), SelectedItem = preferences.Species };
         Field(page, "Bug type", species);
         var density = new ComboBox { ItemsSource = new[] { "Low", "Normal", "High", "Infestation" }, SelectedIndex = (int)preferences.Density }; Field(page, "Density", density);
-        var behavior = new ComboBox { ItemsSource = new[]{BugBehavior.Classic,BugBehavior.Cozy,BugBehavior.Combative}, SelectedItem = options.Behavior == BugBehavior.Creepy ? BugBehavior.Classic : options.Behavior }; Field(page, "Behavior", behavior);
+        var behavior = new ComboBox { ItemsSource = new[]{BugBehavior.Classic,BugBehavior.Cozy,BugBehavior.Creepy,BugBehavior.Combative}, SelectedItem = options.Behavior }; Field(page, "Behavior", behavior);
         var appearance = new ComboBox { ItemsSource = new[] { "Classic", "Creepy", "Halloween" }, SelectedIndex = options.EffectiveAppearance == BugAppearance.Creepy ? 1 : options.EffectiveAppearance == BugAppearance.Halloween ? 2 : 0 };
         Field(page, "Appearance", appearance);
+        var updatingAppearance = false;
         var description = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 12) }; page.Children.Add(description);
         var adorable = new CheckBox { Content = "Adorable Mode", IsChecked = options.Adorable, Margin = new Thickness(0, 16, 20, 10) };
         var advanced = new CheckBox { Content = "Advanced Animations", IsChecked = options.AdvancedAnimations, Margin = new Thickness(0, 16, 0, 10) };
@@ -27,6 +28,12 @@ internal sealed partial class SettingsDialog
         var status = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 12) }; page.Children.Add(status);
         void Refresh()
         {
+            if(options.MatchAppearance)
+            {
+                updatingAppearance=true;
+                try{appearance.SelectedIndex=options.EffectiveAppearance==BugAppearance.Creepy?1:options.EffectiveAppearance==BugAppearance.Halloween?2:0;}
+                finally{updatingAppearance=false;}
+            }
             sizeLabel.Text = $"{size.Value:P0} · default 200%";
             description.Text = (BugBehavior?)behavior.SelectedItem switch
             {
@@ -48,7 +55,7 @@ internal sealed partial class SettingsDialog
             QueueSave("bugs", () => { store.SaveBugPreferences(preferences); if (!world.Save()) throw new System.IO.IOException(world.Status ?? "Ecosystem could not be saved."); });
             Refresh();
         }
-        enabled.Click += (_, _) => Changed(); species.SelectionChanged += (_, _) => Changed(); density.SelectionChanged += (_, _) => Changed(); behavior.SelectionChanged += (_, _) => Changed(); appearance.SelectionChanged += (_, _) => Changed(true);
+        enabled.Click += (_, _) => Changed(); species.SelectionChanged += (_, _) => Changed(); density.SelectionChanged += (_, _) => Changed(); behavior.SelectionChanged += (_, _) => Changed(); appearance.SelectionChanged += (_, _) => {if(!updatingAppearance)Changed(true);};
         adorable.Click += (_, _) => Changed(); advanced.Click += (_, _) => Changed(); costumes.Click += (_, _) => Changed(); size.ValueChanged += (_, _) => Changed(); quality.SelectionChanged += (_, _) => Changed();
         if (space != null)
         {

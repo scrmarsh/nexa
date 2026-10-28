@@ -105,7 +105,7 @@ internal static partial class Program
         var overlay = new BugOverlay(new BugManager()); overlay.Measure(new Size(800, 600)); overlay.Arrange(new Rect(0, 0, 800, 600)); overlay.SetViewport(new Rect(0, 70, 800, 530));
         Assert(overlay.HitAt(new Point(20, 20)) == null, "The bug viewport rejects toolbar-region hits");
         var legacyMode = new EcosystemOptions { Behavior = BugBehavior.Creepy, MatchAppearance = true }.Safe();
-        Assert(legacyMode.Behavior == BugBehavior.Classic && legacyMode.EffectiveAppearance == BugAppearance.Creepy && !legacyMode.MatchAppearance, "Legacy Creepy settings become an independent appearance without a hidden retired behavior");
+        Assert(legacyMode.Behavior == BugBehavior.Creepy && legacyMode.EffectiveAppearance == BugAppearance.Creepy && legacyMode.MatchAppearance, "Existing Creepy identities remain readable and use the restored selectable behavior");
         var population = new BugManager(947); var behavior = new EcosystemOptions { Behavior = BugBehavior.Cozy, MatchAppearance = false };
         population.NewEcosystem(uiStore.UserId, behavior); population.Configure(new(true, BugSpecies.Ants, BugDensity.Low, behavior));
         for (var i = 0; i < 1000; i++) population.AdvanceEcosystem(.1);

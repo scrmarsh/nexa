@@ -2,6 +2,23 @@
 
 ![NEXAWEEN — nexa alpha development](docs/media/nexaween-banner.svg)
 
+## 0.0.28 Alpha — NEXAWEEN EVOLVED (2026-10-28, unpublished)
+
+- Reuse lazy body construction for all widgets in large Spaces; keep saved
+  models and create real editors when they enter the viewport. Navigation
+  profiling now includes source teardown, layout and dispatcher idle.
+- Guard postponed-reset completion against repeated/stale invocation so a
+  newly active session cannot be archived prematurely.
+- Restore selectable Creepy AI alongside Classic, Cozy and Combative. Give
+  attacked creatures immediate defensive orders in Combative mode; retain
+  existing species damage values and world identities.
+- Add capped 20-second direct-squash Bug Frenzy. The existing two-minute shared
+  candy/squash streak is preserved; bonuses use the greater eligible multiplier
+  and never multiply each other. Duplicate/delayed events cannot extend it.
+- Preserve the approved icon/X and animation defaults. Extend disposable
+  process-termination, recovery, scheduling and lazy-editor tests; record
+  performance and outstanding Beta acceptance in the .28 reports.
+
 ## 0.0.27 Alpha — NEXAWEEN (2026-10-28, unpublished)
 
 - Adopt the stage convention v0.0.X Alpha, v0.1.X Beta, then v1.0.0 stable.

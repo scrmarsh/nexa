@@ -62,7 +62,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
         for (var page = 1; page <= 10; page++)
         {
         using var request = new HttpRequestMessage(HttpMethod.Get, page == 1 ? ReleasesUri : new Uri(ReleasesUri.AbsoluteUri + "&page=" + page));
-        request.Headers.UserAgent.ParseAdd("Nexa-Desktop/0.1");
+        request.Headers.UserAgent.ParseAdd("Nexa-Desktop/"+App.AppVersion);
         request.Headers.Accept.ParseAdd("application/vnd.github+json");
         using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if ((int)response.StatusCode is 403 or 429) throw new HttpRequestException("GitHub rate limit or access restriction. Try again later; public release checks require no login.");
@@ -112,7 +112,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Get, release.Url);
-            request.Headers.UserAgent.ParseAdd("Nexa-Desktop/0.1");
+            request.Headers.UserAgent.ParseAdd("Nexa-Desktop/"+App.AppVersion);
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
             if (response.RequestMessage?.RequestUri is not { Scheme: "https" } actual || actual.Host is not ("github.com" or "release-assets.githubusercontent.com" or "objects.githubusercontent.com") || actual.Host == "github.com" && !actual.AbsolutePath.StartsWith("/scrmarsh/nexa/releases/download/", StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Installer redirect is not an official release URL.");

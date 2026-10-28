@@ -8,6 +8,13 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
+        new("0.0.28", "October 28, 2026", "NEXAWEEN EVOLVED", "Unpublished Alpha development. Navigation profiling, recovery verification and focused ecosystem improvements; Beta acceptance remains open.",
+        [
+            "Large Spaces reuse existing lazy loading for all offscreen widget bodies while keeping every saved model. Navigation diagnostics now include layout, source-window teardown and dispatcher-idle timing.",
+            "Creepy behavior is selectable again through the existing simulation. Attacked creatures in Combative mode receive immediate defensive orders; no species damage rebalance was applied.",
+            "Direct squashes activate a capped twenty-second 2x Bug Frenzy alongside the existing two-minute shared streak. Bonuses do not multiply each other; the greater eligible multiplier applies. Duplicate or delayed events cannot refresh the window incorrectly.",
+            "Approved Nexaween branding and optional Advanced Animations remain intact. Recovery, scheduling and Beta readiness are documented with automated scope and outstanding physical/live acceptance."
+        ]),
         new("0.0.27", "October 28, 2026", "NEXAWEEN", "Unpublished Alpha development. Continues the verified October 28 handoff; physical and live-account acceptance remains open.",
         [
             "Alpha development uses v0.0.X; the first planned public Beta is v0.1.0. Legacy 0.1.X Alpha packages compare by their development revision without changing package provenance.",

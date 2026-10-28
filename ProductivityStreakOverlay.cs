@@ -9,7 +9,7 @@ internal sealed class ProductivityStreakOverlay : FrameworkElement, IDisposable
     internal static double DisplayMultiplier(ProductivityLedger ledger, DateTimeOffset now)
     {
         if (ledger.FrenzyUntil is not {} until || ledger.FrenzyStartedAt>now) return 0;
-        if (now < until) return ledger.Multiplier(now);
+        if (now < until) return ledger.EffectiveMultiplier(now);
         return Math.Max(0, Math.Clamp(ledger.FrenzyMultiplier, 1.5, 10) - .5 * (1 + Math.Floor((now-until).TotalSeconds/.35)));
     }
     internal long? SpaceScore {get;set;}

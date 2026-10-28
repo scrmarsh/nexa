@@ -41,7 +41,7 @@ internal static partial class Program
         Throws<InvalidDataException>(() => bad.Validate("synthetic-owner"), "Non-finite creature coordinates are rejected before restoration");
         var creepy = CreateWorld(BugBehavior.Creepy); var creepyActivities = new HashSet<BugActivity>();
         for (var tick = 0; tick < 1200; tick++) { creepy.Advance(.1); foreach (var b in creepy.Bugs) creepyActivities.Add(b.Activity); }
-        Assert(creepy.EcosystemSettings.Behavior == BugBehavior.Classic && creepy.EcosystemSettings.EffectiveAppearance == BugAppearance.Creepy && !creepyActivities.Contains(BugActivity.Raiding), "Retired Creepy behavior migrates to peaceful Classic behavior while preserving Creepy appearance");
+        Assert(creepy.EcosystemSettings.Behavior == BugBehavior.Creepy && creepy.EcosystemSettings.EffectiveAppearance == BugAppearance.Creepy && !creepyActivities.Contains(BugActivity.Raiding), "Restored Creepy behavior preserves its appearance and avoids territorial raids");
         var combat = CreateWorld(BugBehavior.Combative); Step(combat, 10);
         foreach (var b in combat.Bugs) { b.Position = new(800 + (int)b.Species, 500); b.Target = b.Position; b.Health = 12; b.Decision = 0; }
         Step(combat, 12);
@@ -124,9 +124,9 @@ internal static partial class Program
         var world = NexaEcosystem.For(store);
         Assert(window.bugsOverlay != null && ReferenceEquals(window.bugsOverlay.Manager, world.Manager), "Dashboard bugs use the same authoritative manager as the ecosystem service");
         var settings = new SettingsDialog(window, store, window.state, window, "Add Bugs"); settings.Show(); Pump(TimeSpan.FromMilliseconds(80));
-        Assert(Descendants(settings).OfType<ComboBox>().Any(c => c.Items.OfType<BugBehavior>().Count() == 3) && Descendants(settings).OfType<CheckBox>().Any(c => Equals(c.Content, "Adorable Mode")), "Actual Add Bugs settings expose behavior, appearance and Adorable Mode controls");
+        Assert(Descendants(settings).OfType<ComboBox>().Any(c => c.Items.OfType<BugBehavior>().Count() == 4) && Descendants(settings).OfType<CheckBox>().Any(c => Equals(c.Content, "Adorable Mode")), "Actual Add Bugs settings expose behavior, appearance and Adorable Mode controls");
         var size = Descendants(settings).OfType<Slider>().Single(s => s.Minimum == .75 && s.Maximum == 4); size.Value = 3;
-        var behavior = Descendants(settings).OfType<ComboBox>().Single(c => c.Items.OfType<BugBehavior>().Count() == 3); behavior.SelectedItem = BugBehavior.Cozy;
+        var behavior = Descendants(settings).OfType<ComboBox>().Single(c => c.Items.OfType<BugBehavior>().Count() == 4); behavior.SelectedItem = BugBehavior.Cozy;
         Pump(TimeSpan.FromMilliseconds(800));
         Assert(store.LoadBugPreferences().Ecosystem?.Size == 3 && world.Manager.EcosystemSettings.Behavior == BugBehavior.Cozy, "Real size and behavior controls apply immediately and persist"); settings.Close();
         Assert(world.ViewCount == 1, "Only the dashboard overlay owns a simulation view");

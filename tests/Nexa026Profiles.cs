@@ -15,18 +15,18 @@ internal static partial class Program
         var startMemory=Process.GetCurrentProcess().WorkingSet64;
         for(var i=0;i<4;i++)
         {
-            var watch=Stopwatch.StartNew();home.OpenDashboard(spaces[i%spaces.Count].DashboardId);Wait(()=>!home.IsVisible);
+            var watch=Stopwatch.StartNew();home.OpenDashboard(spaces[i%spaces.Count].DashboardId);Wait(()=>!home.IsVisible && !NexaNavigation.Busy(home));
             results.Add($"Open Space cycle {i}: {watch.Elapsed.TotalMilliseconds:F2} ms; "+string.Join(", ",NexaNavigation.LastProfile.Select(p=>$"{p.Key} {p.Value:F2} ms")));
             var main=(MainWindow)Application.Current.MainWindow;results.Add("Construction: "+string.Join(", ",main.ConstructionProfile.Select(p=>$"{p.Key} {p.Value:F2} ms")));
             watch.Restart();var settings=new SettingsDialog(main,store,main.state,main,"Appearance");settings.Show();Pump(TimeSpan.FromMilliseconds(40));results.Add($"Settings first layout {i}: {watch.Elapsed.TotalMilliseconds:F2} ms");settings.Close();
             watch.Restart();Theme.BeginTransition(main.state.Workspace!.Settings);main.state.Workspace.Settings.SeasonalMode=i%2==0?"On":"Off";main.ApplyReliabilityOptions();Pump(TimeSpan.FromMilliseconds(30));results.Add($"Theme update reduced-motion {i}: {watch.Elapsed.TotalMilliseconds:F2} ms");
-            var back=main.TopNavigation.Children.OfType<Button>().First(b=>Descendants(b).OfType<TextBlock>().Any(t=>t.Text=="Home"));watch.Restart();back.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Wait(()=>!main.IsVisible);
+            var back=main.TopNavigation.Children.OfType<Button>().First(b=>Descendants(b).OfType<TextBlock>().Any(t=>t.Text=="Home"));watch.Restart();back.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Wait(()=>!main.IsVisible && !NexaNavigation.Busy(main));
             results.Add($"Return Home {i}: {watch.Elapsed.TotalMilliseconds:F2} ms");home=(HomeWindow)Application.Current.MainWindow;
         }
         for(var cycle=0;cycle<3;cycle++)
         {
             var bounds=new Rect(home.Left,home.Top,home.ActualWidth,home.ActualHeight);var state=home.WindowState;
-            var dev=Descendants(home).OfType<Button>().Single(b=>Equals(b.Content,"DEV"));var developer=Stopwatch.StartNew();dev.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Wait(()=>!home.IsVisible);
+            var dev=Descendants(home).OfType<Button>().Single(b=>Equals(b.Content,"DEV"));var developer=Stopwatch.StartNew();dev.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Wait(()=>!home.IsVisible && !NexaNavigation.Busy(home));
             results.Add($"Developer cycle {cycle}: {developer.Elapsed.TotalMilliseconds:F2} ms; "+string.Join(", ",NexaNavigation.LastProfile.Select(p=>$"{p.Key} {p.Value:F2} ms")));
             var dashboard=(MainWindow)Application.Current.MainWindow;
             Assert(dashboard.WindowState==state && Math.Abs(dashboard.Left-bounds.Left)<1 && Math.Abs(dashboard.Top-bounds.Top)<1 && Math.Abs(dashboard.ActualWidth-bounds.Width)<1 && Math.Abs(dashboard.ActualHeight-bounds.Height)<1,"Developer navigation preserves outer window geometry");

@@ -80,6 +80,7 @@ internal sealed class BugOverlay : FrameworkElement
                 if(cursor is {} pointer && (pointer-p).Length<250)look=ScreenToWorld(pointer);
                 else if(bug.ResourceId is {} id && Manager.Resources.FirstOrDefault(r=>r.Id==id) is {} resource)look=resource.Position;
                 else if(DecorationTargets.FirstOrDefault(target=>(WorldToScreen(target)-p).Length<130) is var target && target!=default(Point))look=target;
+                else if(options.Adorable && Manager.Bugs.Take(64).Where(other=>other!=bug && other.Health>0 && Manager.IsActive(other) && (other.Position-bug.Position).Length<120).MinBy(other=>(other.Position-bug.Position).LengthSquared) is {} neighbor)look=neighbor.Position;
                 var motionScale=Math.Sqrt(Math.Pow(scaleX*Math.Cos(worldAngle),2)+Math.Pow(scaleY*Math.Sin(worldAngle),2))/Math.Max(.1,ViewScale);
                 BugVisuals.Draw(dc,bug,options,Manager.SeasonalCostumes,Manager.SimulationAge,look,motionScale,Window.GetWindow(this)?.IsActive==true,false);
             }

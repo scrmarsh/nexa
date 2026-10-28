@@ -14,6 +14,8 @@ public partial class MainWindow
     private readonly Dictionary<Guid,(WidgetInstance Widget,ScrollViewer Body)> deferredWidgetBodies=[];
     internal int DeferredWidgetBodies=>deferredWidgetBodies.Count;
     private bool loadingWidgetBodies,arrangingWidgets;
+    internal int WidgetLayoutPasses {get;private set;}
+    internal double WidgetLayoutMilliseconds {get;private set;}
     private bool widgetsReady;
     internal bool editingDashboard;
     private readonly Dictionary<string, Border> legacyPanels = [];
@@ -200,7 +202,9 @@ public partial class MainWindow
             {
                 Detach(legacy); legacy.Margin = new Thickness(0); legacy.Padding = new Thickness(14); legacy.BorderThickness = new Thickness(0); legacy.Background = DashboardBrush("PanelBrush"); content = legacy;
             }
-            else if(state.Widgets.Count>12 && widget.Kind is ("Bible" or "Flashcards" or "Calculator" or "Distribution Tracker" or "Session timeline" or "Bugs Squashed"))
+            // Large Spaces retain every widget model/frame, but construct body
+            // controls only near the viewport through the existing loader.
+            else if(state.Widgets.Count>12)
             {deferBody=true;content=new Border{Height=Math.Max(40,widget.Height-64),IsHitTestVisible=false};}
             else content = BuildWidgetContent(widget);
             var body = new ScrollViewer { Content = content, VerticalScrollBarVisibility = widget.Kind is "Water Bottle Counter" or "Alcoholic Beverage" or "Stopwatch" ? ScrollBarVisibility.Hidden : ScrollBarVisibility.Disabled, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Tag = "WidgetBody" };
@@ -382,7 +386,8 @@ public partial class MainWindow
     private void ArrangeWidgetFrames()
     {
         if(arrangingWidgets)return;arrangingWidgets=true;
-        try{ArrangeWidgetFramesCore();}finally{arrangingWidgets=false;}
+        var layoutWatch=Stopwatch.StartNew();WidgetLayoutPasses++;
+        try{ArrangeWidgetFramesCore();}finally{arrangingWidgets=false;WidgetLayoutMilliseconds+=layoutWatch.Elapsed.TotalMilliseconds;}
         LoadVisibleWidgetBodies();
     }
     private void ArrangeWidgetFramesCore()

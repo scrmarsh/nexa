@@ -2,17 +2,17 @@
 
 ![nexa · latest — a space for whatever comes next](docs/media/nexa-banner.svg)
 
-![version: 0.0.27 Alpha](https://img.shields.io/badge/version-0.0.27%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
+![version: 0.0.28 Alpha](https://img.shields.io/badge/version-0.0.28%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
 ![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-185FA5?style=flat-square&labelColor=111827)
 ![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-7F77DD?style=flat-square&labelColor=111827)
 
 **a space for whatever comes next**
 
-[Release history](https://github.com/scrmarsh/nexa/releases) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Development status](docs/NEXAWEEN_027_STATUS.md)
+[Release history](https://github.com/scrmarsh/nexa/releases) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Development status](docs/NEXAWEEN_028_STATUS.md)
 
 </div>
 
-> **Current development: Nexa v0.0.27 Alpha — NEXAWEEN (unpublished).** Continues the October 28 handoff with the supplied orange icon, bold black icon outlines and matching borderless wordmark. Manual acceptance remains open; see the [audit](docs/NEXAWEEN_027_AUDIT.md) and [status](docs/NEXAWEEN_027_STATUS.md).
+> **Current development: Nexa v0.0.28 Alpha — NEXAWEEN EVOLVED (unpublished).** Builds on .27 with broader offscreen widget loading, a guarded postponed reset, restored Creepy behavior and capped 20-second Bug Frenzy. Approved seasonal branding is preserved. See the [audit](docs/NEXAWEEN_028_AUDIT.md), [status](docs/NEXAWEEN_028_STATUS.md) and [Beta readiness](docs/NEXA_BETA_READINESS.md). Manual acceptance remains open.
 
 Alpha development now uses **v0.0.X Alpha**, Beta will use **v0.1.X Beta**, and
 the first stable release is planned as **v1.0.0**. The first intended retained
@@ -20,6 +20,10 @@ public release is **v0.1.0 Beta**, pending explicit approval and acceptance; it 
 not been released. Historical 0.1.X Alpha identities and **0.1.26 — Spaces in
 Motion** remain in the release history. Updater comparison recognizes legacy
 Alpha revisions without changing their tags or download URLs.
+
+Already-distributed older Alpha executables retain their original comparison
+logic. Installing a newer approved build manually may be necessary to bootstrap
+the corrected updater. The code cannot retrofit an old executable.
 
 
 nexa is a local Windows productivity dashboard for classes, study, meetings and everyday work. Arrange movable widgets into a Space, follow your recurring sessions, and keep your notes, tasks and progress together.
@@ -34,7 +38,7 @@ Real screenshots of the published Windows build, using sample notes and tasks. S
 
 ## Development builds and historical downloads
 
-Build the current Alpha from source using the instructions below. No .27 public
+Build the current Alpha from source using the instructions below. No .28 public
 release is published. The [releases page](https://github.com/scrmarsh/nexa/releases)
 may contain historical experimental packages; those are not this source candidate.
 Self-contained Windows x64 packages include their .NET runtime; framework-dependent
@@ -85,13 +89,13 @@ The historical project filename and save-data namespace remain for compatibility
 .\tools\Verify.ps1
 ```
 
-The seventeen-route suite checks version compatibility, settings, splash timing,
+The eighteen-route suite checks version compatibility, settings, splash timing,
 layout, scrolling, saving, history, controls, the ecosystem and animations using
-isolated data stores. To run only the .27 route after building the checks project:
+isolated data stores. To run the .28 failure/recovery and behavior route after building the checks project:
 
 ```powershell
 dotnet build .\tests\SessionDashboard.Checks.csproj -c Release
-.\tests\bin\Nexa024\Release\net10.0-windows\SessionDashboard.Checks.exe --nexaween027
+.\tests\bin\Nexa024\Release\net10.0-windows\SessionDashboard.Checks.exe --nexaween028
 ```
 
 Generated logs and captures stay in the ignored `verification/` directory. See
