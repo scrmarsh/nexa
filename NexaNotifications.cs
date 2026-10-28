@@ -58,13 +58,13 @@ internal sealed class NexaNotifications : IDisposable
     internal void Show(string key, string message, string icon = "ℹ", int priority = 0, double? seconds = 5, Action? action = null, string? actionLabel = null)
     {
         Dismiss(key);
-        var body = new DockPanel();
+        var body = new Grid();body.ColumnDefinitions.Add(new(){Width=GridLength.Auto});body.ColumnDefinitions.Add(new(){Width=new GridLength(1,GridUnitType.Star)});body.ColumnDefinitions.Add(new(){Width=GridLength.Auto});
         var dismiss = new Button { Content = "×", Focusable = false, Padding = new Thickness(5, 1, 5, 1), VerticalAlignment = VerticalAlignment.Top, ToolTip = "Dismiss notification" };
-        dismiss.Click += (_, _) => Dismiss(key); DockPanel.SetDock(dismiss, Dock.Right); body.Children.Add(dismiss);
+        dismiss.Click += (_, _) => Dismiss(key); Grid.SetColumn(dismiss,2); body.Children.Add(dismiss);
         var glyph = new TextBlock { Text = icon, Foreground = key == "tip" ? new SolidColorBrush(Color.FromRgb(250, 204, 21)) : priority >= 2 ? Brushes.Orange : Brushes.LightGreen, FontSize = 20, Margin = new Thickness(0, 0, 10, 0) };
         glyph.RenderTransformOrigin = new Point(.5, .5); glyph.RenderTransform = new RotateTransform();
         ConfigureGlyph(key,glyph,message);
-        DockPanel.SetDock(glyph, Dock.Left); body.Children.Add(glyph);
+        Grid.SetColumn(glyph,0); body.Children.Add(glyph);
         var content = new StackPanel();
         var text = new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap };
         text.SetResourceReference(TextBlock.ForegroundProperty, "TextBrush");
@@ -75,7 +75,7 @@ internal sealed class NexaNotifications : IDisposable
             var button = new Button { Content = actionLabel ?? "Review", Focusable = false, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 0) };
             button.Click += (_, _) => action(); content.Children.Add(button);
         }
-        body.Children.Add(content);
+        Grid.SetColumn(content,1);body.Children.Add(content);
         var card = new Border { Child = body, Padding = new Thickness(13), Margin = new Thickness(0, 6, 0, 0), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(10) };
         card.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); card.SetResourceReference(Border.BorderBrushProperty, "LineBrush");
         if(key=="tip" && action!=null)card.MouseLeftButtonUp+=(_,e)=>{if(e.OriginalSource is not Button){action();e.Handled=true;}};

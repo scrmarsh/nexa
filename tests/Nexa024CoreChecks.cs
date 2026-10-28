@@ -58,7 +58,7 @@ internal static partial class Program
         var editor = Application.Current.Windows.OfType<Window>().Single(w => w.Title == "Nexa · Pixel Timer");
         Assert(Descendants(editor).OfType<Button>().Any(b => Equals(b.Content, "M/W")) && Descendants(editor).OfType<Button>().Any(b => Equals(b.Content, "Apply timer settings")), "The timer's real editor exposes weekday shortcuts and a save action");
         editor.Close();
-        Assert(WidgetLibrary.Definitions.Any(d => d.Name == "Productivity Meter") && WidgetLibrary.Definitions.Any(d => d.Name == "Productivity Score"), "Both productivity widgets remain in the normal Add Widget library");
+        Assert(WidgetLibrary.Definitions.Count(d => d.Name == "Productivity") == 1 && WidgetLibrary.Definition("Productivity Meter").Name == "Productivity" && WidgetLibrary.Definition("Productivity Score").Name == "Productivity", "One combined Productivity entry accepts both legacy widget kinds");
         Snapshot(window, "weekly-productivity-dashboard", 1450, 950);
         window.Close(); Pump(TimeSpan.FromMilliseconds(80));
     }

@@ -21,7 +21,7 @@ function Move-ProjectFile([string]$relative,[string]$legacyRelative){
 function Copy-ArchiveTree([string]$sourceRoot,[string]$legacyRelative){
  if(-not(Test-Path -LiteralPath $sourceRoot)){return}
  $resolved=[IO.Path]::GetFullPath($sourceRoot)
- if(-not($resolved.StartsWith('M:\Aevoria-old\Nexa-embedded-20261026\',[StringComparison]::OrdinalIgnoreCase) -or $resolved -eq 'C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\implementation')){throw 'Unexpected archive source'}
+ if(-not($resolved.StartsWith('M:\Aevoria-old\Nexa-embedded-20261026\',[StringComparison]::OrdinalIgnoreCase) -or $resolved -eq 'C:/Users/<user>\Documents\ChatGPT\Nexa\implementation')){throw 'Unexpected archive source'}
  foreach($file in Get-ChildItem -LiteralPath $resolved -Recurse -File){
   if($file.FullName -match '\\(__pycache__|bin|obj|verification)\\'){continue}
   $relative=[IO.Path]::GetRelativePath($resolved,$file.FullName)
@@ -45,9 +45,9 @@ Move-ProjectFile 'nexa.ico' 'assets\nexa.ico'
 Move-ProjectFile 'tests\Nexa024.Checks.csproj' 'tests\Nexa024.Checks.csproj'
 Copy-ArchiveTree 'M:\Aevoria-old\Nexa-embedded-20261026\removed' 'embedded-aevoria\source'
 Copy-ArchiveTree 'M:\Aevoria-old\Nexa-embedded-20261026\remaining-legacy' 'embedded-aevoria\archive'
-Copy-ArchiveTree 'C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\implementation' 'implementation-staging'
+Copy-ArchiveTree 'C:/Users/<user>\Documents\ChatGPT\Nexa\implementation' 'implementation-staging'
 foreach($name in @('cleanup_nexa.py','green_nexa_brand.ps1')){
- $source=Join-Path 'C:\Users\Sean Marsh\Documents\ChatGPT\Nexa' $name
+ $source=Join-Path 'C:/Users/<user>\Documents\ChatGPT\Nexa' $name
  $target=Destination-InLegacy ('maintenance\'+$name)
  if((Test-Path -LiteralPath $source) -and -not(Test-Path -LiteralPath $target)){Copy-Item -LiteralPath $source -Destination $target}
 }

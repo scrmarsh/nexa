@@ -11,7 +11,7 @@ for name in ['nexa-logo-full-dark.svg','nexa-logo-full.svg','nexa-icon.svg']:
  t=p.read_text(encoding='utf-8-sig').replace('#65A30D','#1C102A').replace('#7F77DD',purple).replace('#CECBF6',purple).replace('#AFA9EC',purple)
  target.write_text(t,encoding='utf-8')
 # Retain the old native-vector icon renderer, generate from vectors at every size.
-t=Path('C:/Users/Sean Marsh/Documents/ChatGPT/Nexa/green_nexa_brand.ps1').read_text(encoding='utf-8-sig')
+t=Path('C:/Users/<user>/Documents/ChatGPT/Nexa/green_nexa_brand.ps1').read_text(encoding='utf-8-sig')
 a=t.index('function New-NexaPng');t=t[a:]
 t=t.replace("'#65A30D'","'#1C102A'").replace("'#7F77DD'",repr(purple)).replace("'#CECBF6'",repr(purple))
 t=t.replace("'nexa-icon-256.png'","'nexa-icon-seasonal-256.png'").replace("'nexa-icon-1024.png'","'nexa-icon-seasonal-1024.png'").replace("'nexa-icon.ico'","'nexa-icon-seasonal.ico'")

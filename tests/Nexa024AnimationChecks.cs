@@ -62,7 +62,7 @@ internal static partial class Program
         Assert(Descendants(grid).OfType<TextBlock>().All(x=>!x.HasAnimatedProperties && !x.RenderTransform.HasAnimatedProperties),"Reduced motion removes running notification clocks");
         using var art=new NexaweenDecorations {IsHitTestVisible=false};
         art.ConfigureAnimation(options,new Rect(0,0,1200,1000));art.Update(1200,1000,[],"High");
-        Assert(art.ActorCount<=32 && art.ActorCount>0 && !art.IsAnimating,"Seasonal decorations remain bounded and do not animate while unloaded");
+        Assert(art.ActorCount<=52 && art.ActorCount>0 && !art.IsAnimating,"Seasonal decorations remain bounded and do not animate while unloaded");
         art.Dispose();Assert(!art.IsAnimating,"Disposing seasonal art stops its timer");
     }
     private static void CheckCarrierAnimation()

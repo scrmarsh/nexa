@@ -2,7 +2,7 @@
 
 The complete master prompt was supplied. Current implementation/verification is documented in NEXAWEEN024_IMPLEMENTATION.md and ANIMATION_NOTES.md. Earlier statements that the prompt is missing or the ecosystem is unimplemented are superseded.
 
-Actual source: M:/Nexa. Helper scripts: C:/Users/Sean Marsh/Documents/ChatGPT/Nexa/implementation. Many helper scripts are non-idempotent staging steps; M: is authoritative. Do not rerun old stages over the integrated source.
+Actual source: M:/Nexa. Helper scripts: C:/Users/<user>/Documents/ChatGPT/Nexa/implementation. Many helper scripts are non-idempotent staging steps; M: is authoritative. Do not rerun old stages over the integrated source.
 
 User overrides: version stays 0.1.24; lowercase splash/home label nexa v0.1.24 alpha with no suffix; green branding and requested drink colors; full NEW Cozy/Creepy/Combative ecosystem; timer digits UP in class and DOWN between classes. Legacy games remain archived, not dependencies. Latest user emphasis: each species' animation must be anatomically appropriate.
 

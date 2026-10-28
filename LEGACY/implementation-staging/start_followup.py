@@ -7,7 +7,7 @@ for p in r.glob('*'):
 for p in (r/'tests').glob('*.cs'):
  (backup/'tests').mkdir(exist_ok=True)
  if not (backup/'tests'/p.name).exists():shutil.copy2(p,backup/'tests'/p.name)
-shutil.copy2(Path('C:/Users/Sean Marsh/.codex/attachments/d26a6164-b433-4ca6-8a19-0fa7ab1676d6/Pasted text.txt'),r/'NEXAWEEN_FOLLOWUP_REQUIREMENTS.md')
+shutil.copy2(Path('C:/Users/<user>/.codex/attachments/d26a6164-b433-4ca6-8a19-0fa7ab1676d6/Pasted text.txt'),r/'NEXAWEEN_FOLLOWUP_REQUIREMENTS.md')
 p=r/'tests/Nexa024Runner.cs'
 s=p.read_text(encoding='utf-8-sig').replace('            if(args.Contains("--animation"))','''            if(args.Contains("--ui-controls"))
             {

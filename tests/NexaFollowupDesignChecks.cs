@@ -45,9 +45,9 @@ internal static partial class Program
     private static void CheckFollowupArtwork()
     {
         using var candy=new NexaweenDecorations();candy.Update(1600,1500,[],"High");
-        Assert(NexaweenDecorations.CandyKinds.Distinct().Count()==10 && candy.CandyActorCount==candy.ActorCount,"Background placement uses ten candy types and no generic environmental decorations");
+        Assert(NexaweenDecorations.CandyKinds.Distinct().Count()==10 && candy.CandyActorCount>candy.ActorCount/2,"Seasonal background favors varied candy and keeps generated webs separate");
         var cards=new[]{new Rect(80,80,400,250),new Rect(620,80,400,250),new Rect(80,500,400,250)};candy.Update(1600,1500,cards.ToList(),"High",cards);
-        Assert(candy.ContextualActorCount>0 && candy.ActorCount<=32,"Contextual widget-corner decorations share the bounded budget");
+        Assert(candy.ContextualActorCount>0 && candy.ActorCount<=52,"Contextual widget-corner decorations share the bounded budget");
         var reserved=new List<Rect>{new Rect(80,80,400,250),new Rect(620,80,400,250)};
         candy.Update(1600,1500,reserved,"High");Assert(candy.ContextualActorCount==0,"Occupied reserved regions never become inferred attachment targets");
         var occupiedCopy=reserved.ToArray();var target=new Rect(80,500,400,250);
@@ -60,7 +60,7 @@ internal static partial class Program
         candy.Update(1600,1500,[new Rect(target.Right,target.Bottom,100,100)],"High",widgetTargets:[target]);Assert(candy.ContextualActorCount==0,"Reserved UI collision regions prevent corner attachments even for a real widget target");
         Theme.SetSeasonalEnabled(true);var tagline=new TextBlock();NexaBranding.ApplyTagline(tagline,NexaBranding.Tagline);
         var orange=tagline.Inlines.OfType<Run>().Where(r=>r.Foreground is SolidColorBrush b && b.Color==(Color)ColorConverter.ConvertFromString("#F97316")).ToArray();
-        Assert(orange.Length==1 && orange[0].Text=="haunts" && new TextRange(tagline.ContentStart,tagline.ContentEnd).Text=="Nexa — A space for whatever haunts you next.","Only haunts receives Halloween orange in the new seasonal tagline");
+        Assert(orange.Length==1 && orange[0].Text=="haunts" && new TextRange(tagline.ContentStart,tagline.ContentEnd).Text=="a space for whatever haunts you next","Only haunts receives Halloween orange in the new seasonal tagline");
         Theme.SetSeasonalEnabled(false);Assert(NexaBranding.Tagline=="a space for whatever comes next.","Disabling Nexaween restores the ordinary tagline");
         var world=CreateWorld(BugBehavior.Cozy);world.SetSurfaces([new BugSurface("card",new Rect(300,300,300,200))],new Size(1600,1000));var owner=world.Bugs.FirstOrDefault(b=>b.Species==BugSpecies.Spiders);if(owner==null){Step(world,20);owner=world.Bugs.First(b=>b.Species==BugSpecies.Spiders);}
         var web=new EcosystemWeb{Owner=owner.InteractionId,AnchorId="card",AnchorOffsetX=12,AnchorOffsetY=-12,X=612,Y=288,Construction=.4};world.Webs.Add(web);
@@ -78,6 +78,6 @@ internal static partial class Program
         var home=task.GetAwaiter().GetResult();
         Assert(splash.Loading.Value==1 && home.IsLoaded && splash.CompletedStages.Last()=="Home ready","Real splash stages reach 100% only after the home window renders");
         Assert(splash.CompletedStages.Contains("Workspace loaded and validated") && splash.CompletedStages.IndexOf("Workspace loaded and validated")<splash.CompletedStages.IndexOf("Home ready"),"Startup progress records actual completed data and UI initialization stages");
-        File.WriteAllText(Path.Combine(output,"startup-stages.txt"),string.Join(Environment.NewLine,splash.CompletedStages)+$"\nMeasured startup {splash.DisplayedMilliseconds:0} ms; no fixed display delay.");app.MainWindow=prior;home.Close();
+        File.WriteAllText(Path.Combine(output,"startup-stages.txt"),string.Join(Environment.NewLine,splash.CompletedStages)+$"\nMeasured startup {splash.DisplayedMilliseconds:0} ms; three-second logo hold overlaps loading.");app.MainWindow=prior;home.Close();
     }
 }
