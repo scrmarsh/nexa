@@ -1,22 +1,22 @@
 <div align="center">
 
-![nexa v0.1.24 alpha — NEXAWEEN. A space for whatever haunts you next.](docs/media/nexaween-banner.svg)
+![nexa · latest — a space for whatever comes next](docs/media/nexa-banner.svg)
 
-![Version: 0.1.24 Alpha](https://img.shields.io/badge/version-0.1.24%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
-![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-A855F7?style=flat-square&labelColor=1C102A)
-![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-F97316?style=flat-square&labelColor=1C102A)
+![version: latest](https://img.shields.io/badge/version-latest-7F77DD?style=flat-square&labelColor=111827)
+![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-185FA5?style=flat-square&labelColor=111827)
+![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-7F77DD?style=flat-square&labelColor=111827)
 
-**Your dashboard. Your Space. A little seasonal mischief.**
+**a space for whatever comes next**
 
-[Download Nexa](https://github.com/scrmarsh/nexa/releases/tag/v0.1.24-alpha) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Verification report](docs/IMPLEMENTATION-0.1.24.md)
+[Download nexa](https://github.com/scrmarsh/nexa/releases) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Verification report](docs/IMPLEMENTATION-0.1.24.md)
 
 </div>
 
-Nexa is a local Windows productivity dashboard for classes, study, meetings and everyday work. Arrange movable widgets into a Space, follow your recurring sessions, and keep your notes, tasks and progress together.
+nexa is a local Windows productivity dashboard for classes, study, meetings and everyday work. Arrange movable widgets into a Space, follow your recurring sessions, and keep your notes, tasks and progress together.
 
-## Get Nexa
+## Get nexa
 
-1. Open the [0.1.24 Alpha release](https://github.com/scrmarsh/nexa/releases/tag/v0.1.24-alpha).
+1. Open the [releases page](https://github.com/scrmarsh/nexa/releases).
 2. Download **Nexa.exe** from **Assets** and place it in a folder you control.
 3. Run it. The self-contained Windows x64 build includes its .NET runtime; no installer or separate .NET installation is required.
 
@@ -26,7 +26,7 @@ Release assets also include `SHA256SUMS.txt`. To inspect your download's checksu
 Get-FileHash .\Nexa.exe -Algorithm SHA256
 ```
 
-Compare the result with `SHA256SUMS.txt`. User data stays in the existing Windows LocalAppData `SessionDashboard` location, so replacing the executable preserves saved Spaces, settings and history. The repository and downloads currently require an authorized GitHub account.
+Compare the result with `SHA256SUMS.txt`. User data stays in the existing Windows LocalAppData `SessionDashboard` location, so replacing the executable preserves saved Spaces, settings and history. The repository and release downloads are public; no GitHub sign-in is needed.
 
 ## Inside your Space
 
@@ -35,15 +35,11 @@ Compare the result with `SHA256SUMS.txt`. User data stays in the existing Window
 | Recurring class schedules and a Pixel Timer that fills during class and counts down between sessions | Movable, resizable widgets with scrolling room below your layout |
 | Notes, tasks, water tracking, counters, Scripture and recording/timeline tools | Configurable appearance, sounds and optional integrations |
 | Session history, automatic checkpoints and save-before-reset protection | Productivity Meter, score breakdowns and squash streaks |
-| Time zone settings and precise linked or independent progress bars | Classic, Cozy, Creepy and Combative bugs with species-specific movement |
+| Time zone settings and precise linked or independent progress bars | Optional decorative bugs with species-specific movement |
 
-## 🎃 NEXAWEEN
+## What’s new
 
-The seasonal update brings **candy-only backgrounds**, pumpkins and vines anchored to real widget corners, six costumed bug species, and spider-owned webs. The app's seasonal changelog palette carries onto this page: deep purple `#1C102A`, neon green `#84CC16`, pumpkin orange `#F97316`, pale green `#D9F99D`, and witch purple `#A855F7`.
-
-Seasonal settings support automatic dates or a manual switch. Your normal appearance settings are retained. Decorations avoid widget controls, and advanced effects respect reduced-motion preferences.
-
-Read the [current changelog](CHANGELOG.md) for the release features and the [implementation report](docs/IMPLEMENTATION-0.1.24.md) for evidence and limitations. Physical hibernation, real account/microphone integrations, and extended mixed-DPI/GPU testing remain manual acceptance work.
+Release-specific features, seasonal artwork and update notes live in the [changelog](CHANGELOG.md). The [verification report](docs/IMPLEMENTATION-0.1.24.md) records testing and known limitations.
 
 ## Build from source
 
@@ -61,7 +57,7 @@ dotnet build .\SessionDashboard.csproj -c Release
 .\publish\win-x64\Nexa.exe
 ```
 
-The historical project filename and save-data namespace remain for compatibility; the product and executable are **Nexa**.
+The historical project filename and save-data namespace remain for compatibility; the product and executable are **nexa**.
 
 ## Verify and contribute
 
