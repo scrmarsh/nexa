@@ -1,19 +1,19 @@
 # Changelog
 
-## 0.0.29 Alpha — NEXAWEEN: Final Polish & Workspace Evolution (unpublished)
+## 0.0.29 Alpha â€” NEXAWEEN: Final Polish & Workspace Evolution (unpublished)
 
 - Archive original completed session data before resetting; preserve tasks, configuration, recordings, all-time statistics and the existing recap.
 - Compact native fullscreen with overlay notification, persisted shortcuts and optional Windows battery/network/default-output volume controls.
 - Independent Home/Space wallpaper previews, fit/fill and defaults; embed timer configuration in Session Settings.
 - Lowercase left-aligned version branding, five-second compact splash and permanent Classic executable icon.
-- Larger right-icon Space titles, live productivity breakdown, 0–20 distraction phrases, expandable real-content intervals and growing transcript regions.
+- Larger Home titles with icons on the left and top-bar Space names followed by their icons. Live productivity breakdown, 0â€“20 distraction phrases, expandable real-content intervals and growing transcript regions.
 - Explicit History resume/new choices, advanced-only legacy bug modes, click-only health bars, white orb/corner silk and intermittent Home spider motion.
-- Physical Windows, hardware, live providers and extended-session acceptance remain open. No release or push.
+- Released as an explicitly marked Nexaween Alpha prerelease. Physical Windows, hardware, live providers and extended-session acceptance remain open; this is not Beta acceptance.
 
 
-![NEXAWEEN — nexa alpha development](docs/media/nexaween-banner.svg)
+![NEXAWEEN â€” nexa alpha development](docs/media/nexaween-banner.svg)
 
-## 0.0.28 Alpha — NEXAWEEN EVOLVED (2026-10-28, unpublished)
+## 0.0.28 Alpha â€” NEXAWEEN EVOLVED (2026-10-28, unpublished)
 
 - Reuse lazy body construction for all widgets in large Spaces; keep saved
   models and create real editors when they enter the viewport. Navigation
@@ -30,7 +30,7 @@
   process-termination, recovery, scheduling and lazy-editor tests; record
   performance and outstanding Beta acceptance in the .28 reports.
 
-## 0.0.27 Alpha — NEXAWEEN (2026-10-28, unpublished)
+## 0.0.27 Alpha â€” NEXAWEEN (2026-10-28, unpublished)
 
 - Adopt the stage convention v0.0.X Alpha, v0.1.X Beta, then v1.0.0 stable.
   Update current assembly/file/manifest metadata and shared visible labels.
@@ -43,14 +43,14 @@
 - Keep shared splash stages and preview with a minimum three-second display.
 - Match the supplied seasonal icon geometry and exact orange palette; outline
   only the icon perimeter/hourglass silhouette. Keep wordmark letters borderless
-  and use the requested classic white/light-orange X contrast. Export 16–1024px PNGs and a six-size Windows ICO.
+  and use the requested classic white/light-orange X contrast. Export 16â€“1024px PNGs and a six-size Windows ICO.
 - Preserve the completed October 28 handoff and document .28 carry-forward work.
 
 Physical/live-account acceptance remains open; automated branding checks and
 source-rendered previews are recorded in the .27 status.
 No Alpha release, tag or existing approved binary is changed by this work.
 
-## 0.1.26 alpha — Spaces in Motion (2026-10-28)
+## 0.1.26 alpha â€” Spaces in Motion (2026-10-28)
 
 Additional **unpublished handoff candidate** work: full seasonal visibility/hit-testing restoration; compact golden-lightning Productivity; centered Space cards and paced/reverse expansion with working mouse-wheel scrolling; bottom-pinned Experimental Features; Chicago zone aliases and selection-only dropdown; new-Space viewport reset; five sound styles; tagline-first splash and in-place preview; safer transitions; cumulative scores and recap snapshots in private exports; illustrated recaps and guide polish. This does not describe the bytes already published under v0.1.26-alpha. See [handoff evidence and remaining acceptance](docs/HANDOFF-COMPLETION-0.1.26-alpha.md).
 
@@ -69,12 +69,12 @@ Additional **unpublished handoff candidate** work: full seasonal visibility/hit-
 
 **Verification:** 507 regression checks, 10 native updater checks and packaged x64 startup passed. Physical mixed-DPI, genuine hibernation, live-provider and extended performance acceptance remain pending; a measured Space-loading latency outlier remains. See the [release notes](docs/releases/0.1.26-alpha.md).
 
-## 0.1.25 alpha — dashboard refinements (development only)
+## 0.1.25 alpha â€” dashboard refinements (development only)
 
-- Gradual bug arrivals, shared spider silk, compact tips, larger squash illustrations, widget jack-o’-lanterns and scrolling feedback fixes.
+- Gradual bug arrivals, shared spider silk, compact tips, larger squash illustrations, widget jack-oâ€™-lanterns and scrolling feedback fixes.
 - See [recorded verification and limitations](docs/TWEAKS-0.1.25.md).
 
-## 0.1.24 Alpha — final-prompt repair candidate (not released)
+## 0.1.24 Alpha â€” final-prompt repair candidate (not released)
 
 - **The Archives Awaken:** catch historical validation failures, preserve damaged original records, protect unreadable files from fallback writes, and load/filter reports away from the UI thread with explicit dispatcher updates.
 - **Time Is Under a Spell:** explicit Manual/Schedule editing, persisted preset mode and schedule-only Reset protection.
@@ -85,7 +85,7 @@ Additional **unpublished handoff candidate** work: full seasonal visibility/hit-
 
 This candidate is not the final Nexaween release. See [verification and outstanding acceptance](docs/FINAL-0.1.24-STATUS.md). No production release was overwritten.
 
-## Previously published baseline — nexa v0.1.24 Alpha — Getting Candy for Trick-or-Treaters
+## Previously published baseline â€” nexa v0.1.24 Alpha â€” Getting Candy for Trick-or-Treaters
 
 A space for whatever haunts you next.
 

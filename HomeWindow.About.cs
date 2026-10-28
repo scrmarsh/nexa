@@ -87,8 +87,8 @@ internal sealed partial class HomeWindow
     private void OpenChangelog()
     {
         var dialog = InfoDialog("Changelog", 800, 720); var body = new StackPanel { Margin = new Thickness(28) };
-        body.Children.Add(new TextBlock{Text=App.VersionLabel+" — "+ReleaseNotes.All[0].Title+" · unpublished development",FontSize=22,FontWeight=FontWeights.Bold,TextWrapping=TextWrapping.Wrap});
-        body.Children.Add(Copy("Continues the October 28 handoff. Manual acceptance remains open; the first planned public release under the new stage convention is v0.1.0 Beta.",15));
+        body.Children.Add(new TextBlock{Text=App.VersionLabel+" — "+ReleaseNotes.All[0].Title+" · prerelease",FontSize=22,FontWeight=FontWeights.Bold,TextWrapping=TextWrapping.Wrap});
+        body.Children.Add(Copy("This Nexaween Alpha prerelease focuses on interface polish. Manual acceptance remains open; v0.1.0 is reserved for the first approved Beta.",15));
         body.Children.Add(new TextBlock { Text = "What’s new in Nexa", FontSize = 27, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
         body.Children.Add(Copy("Release history · Windows desktop", 13));
         foreach (var release in ReleaseNotes.All)

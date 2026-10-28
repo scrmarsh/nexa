@@ -1,6 +1,6 @@
 <div align="center">
 
-![nexa · latest — a space for whatever comes next](docs/media/nexa-banner.svg)
+![nexa Â· latest â€” a space for whatever comes next](docs/media/nexa-banner.svg)
 
 ![version: 0.0.29 Alpha](https://img.shields.io/badge/version-0.0.29%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
 ![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-185FA5?style=flat-square&labelColor=111827)
@@ -8,16 +8,16 @@
 
 **a space for whatever comes next**
 
-[Release history](https://github.com/scrmarsh/nexa/releases) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Development status](docs/NEXAWEEN_028_STATUS.md)
+[Nexaween prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.29-alpha) Â· [What's new](CHANGELOG.md) Â· [Build from source](#build-from-source) Â· [Development status](docs/NEXA_029_STATUS.md)
 
 </div>
 
-> **Current development: nexa v0.0.29 alpha — NEXAWEEN: Final Polish & Workspace Evolution (unpublished).** Save-first completion, fullscreen controls and workspace polish continue the verified .28 source. See the [audit](docs/NEXA_029_AUDIT.md), [status](docs/NEXA_029_STATUS.md) and [test results](docs/NEXA_029_TEST_RESULTS.md). Physical and provider acceptance remains open.
+> **nexa v0.0.29 alpha — NEXAWEEN: Interface Polish (prerelease).** A cleaner, more consistent interface: refined typography and branding, corrected Space icon placement, compact fullscreen navigation, even notification padding, independent wallpapers and more readable widgets. Save-first session completion and History restoration support the polish update. See the [prerelease notes](docs/NEXA_029_PRERELEASE_NOTES.md), [audit](docs/NEXA_029_AUDIT.md), [status](docs/NEXA_029_STATUS.md) and [test results](docs/NEXA_029_TEST_RESULTS.md). Physical and provider acceptance remains open.
 
 Alpha development now uses **v0.0.X Alpha**, Beta will use **v0.1.X Beta**, and
-the first stable release is planned as **v1.0.0**. The first intended retained
-public release is **v0.1.0 Beta**, pending explicit approval and acceptance; it has
-not been released. Historical 0.1.X Alpha identities and **0.1.26 — Spaces in
+the first stable release is planned as **v1.0.0**. This Nexaween build is an
+explicitly marked Alpha prerelease; **v0.1.0 Beta** remains reserved for the first
+approved Beta. Historical 0.1.X Alpha identities and **0.1.26 â€” Spaces in
 Motion** remain in the release history. Updater comparison recognizes legacy
 Alpha revisions without changing their tags or download URLs.
 
@@ -32,15 +32,13 @@ nexa is a local Windows productivity dashboard for classes, study, meetings and 
 
 Real screenshots of the published Windows build, using sample notes and tasks. Select an image to view it at full size.
 
-| Study space · dark | Meeting space · dark |
+| Study space Â· dark | Meeting space Â· dark |
 | --- | --- |
 | [![Study dashboard with a Pixel Timer, notes, checklist, clock and water counter](docs/media/screenshots/study-space-dark.png)](docs/media/screenshots/study-space-dark.png) | [![Meeting dashboard with a session timer, meeting notes, action items, clock and decision counter](docs/media/screenshots/meeting-space-dark.png)](docs/media/screenshots/meeting-space-dark.png) |
 
 ## Development builds and historical downloads
 
-Build the current Alpha from source using the instructions below. No .29 public
-release is published. The [releases page](https://github.com/scrmarsh/nexa/releases)
-may contain historical experimental packages; those are not this source candidate.
+Download **Nexa.exe** from the [Nexaween Alpha prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.29-alpha), or build from source below. The release is explicitly marked as a prerelease; physical and live-provider acceptance remains open.
 Self-contained Windows x64 packages include their .NET runtime; framework-dependent
 builds require the .NET 10 Desktop Runtime.
 
@@ -61,7 +59,7 @@ Compare the result with `SHA256SUMS.txt`. User data stays in the existing Window
 | Session history, automatic checkpoints and save-before-reset protection | Combined Productivity view, score breakdowns and squash streaks |
 | Time zone settings and precise linked or independent progress bars | Optional decorative bugs with independent behavior and appearance |
 
-## What’s new
+## Whatâ€™s new
 
 Release-specific features, seasonal artwork and update notes live in the [changelog](CHANGELOG.md). The [verification report](docs/IMPLEMENTATION-0.1.24.md) records testing and known limitations.
 
@@ -89,7 +87,7 @@ The historical project filename and save-data namespace remain for compatibility
 .\tools\Verify.ps1
 ```
 
-The eighteen-route suite checks version compatibility, settings, splash timing,
+The nineteen-route suite checks version compatibility, settings, splash timing,
 layout, scrolling, saving, history, controls, the ecosystem and animations using
 isolated data stores. To run the .28 failure/recovery and behavior route after building the checks project:
 

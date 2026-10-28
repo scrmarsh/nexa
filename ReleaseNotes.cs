@@ -8,8 +8,9 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
-        new("0.0.29", "October 28, 2026", "NEXAWEEN: Final Polish & Workspace Evolution", "Unpublished Alpha. Save-first session completion, fullscreen controls and workspace polish; physical and provider acceptance remains open.",
+        new("0.0.29", "October 28, 2026", "NEXAWEEN: Interface Polish", "Nexaween Alpha prerelease focused on a cleaner, more consistent interface. Physical and provider acceptance remains open.",
         [
+            "Interface polish leads this Nexaween update: clearer typography, larger Home titles with icons on the left, Space name before its icon in the top bar, and even twelve-DIP fullscreen notification padding.",
             "Completed sessions archive their original notes, counters and recordings before resetting session values. Persistent tasks, layouts, preferences and all-time statistics remain intact.",
             "Fullscreen uses native monitor bounds, compact top navigation, an overlay notice and optional Windows battery, connectivity and default-output volume indicators.",
             "Home and Space wallpapers are independent, with previews, fit/fill and restore defaults. Session Settings embeds the existing timer editor.",

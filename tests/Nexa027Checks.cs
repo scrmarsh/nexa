@@ -21,7 +21,7 @@ internal static partial class Program
         Assert(App.AppVersion == "0.0.29" && App.VersionLabel == "nexa v0.0.29 alpha", "Shared current identity uses the Alpha convention");
         Assert(typeof(App).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version == "0.0.29.0", "Windows file version is numeric and current");
         Assert(typeof(App).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.StartsWith("0.0.29-alpha") == true, "Product version retains the Alpha stage");
-        Assert(ReleaseNotes.All[0].Version == "0.0.29" && ReleaseNotes.All[0].Title == "NEXAWEEN: Final Polish & Workspace Evolution" && ReleaseNotes.All.Single(r=>r.Version=="0.0.27").Title=="NEXAWEEN" && ReleaseNotes.All.Single(r => r.Version == "0.1.26").Title == "Spaces in Motion", "New changelog retains historical release identity");
+        Assert(ReleaseNotes.All[0].Version == "0.0.29" && ReleaseNotes.All[0].Title == "NEXAWEEN: Interface Polish" && ReleaseNotes.All.Single(r=>r.Version=="0.0.27").Title=="NEXAWEEN" && ReleaseNotes.All.Single(r => r.Version == "0.1.26").Title == "Spaces in Motion", "New changelog retains historical release identity");
         Assert(ExperimentalUpdater.IsNewer(new(0,0,27), "Alpha", new(0,1,26)), "New Alpha can update the legacy Alpha revision");
         Assert(!ExperimentalUpdater.IsNewer(new(0,1,26), "Alpha", new(0,0,27)), "Legacy Alpha cannot downgrade new Alpha");
         Assert(!ExperimentalUpdater.IsNewer(new(0,1,27), "alpha", new(0,0,27)), "Equivalent legacy identity is not a new package");
