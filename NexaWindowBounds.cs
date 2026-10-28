@@ -14,7 +14,7 @@ internal static class NexaWindowBounds
     [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)] private static extern bool GetMonitorInfo(nint monitor, ref MonitorInfo info);
 
     internal static bool IsFullscreen(FrameworkElement element) => Window.GetWindow(element) is MainWindow { IsFullscreen: true };
-    internal static double NotificationInset(FrameworkElement element) => IsFullscreen(element) ? 8 : 18;
+    internal static double NotificationInset(FrameworkElement element) => IsFullscreen(element) ? 12 : 18;
     internal static bool TryNotificationArea(FrameworkElement element, out Rect area)
     {
         if (!IsFullscreen(element)) return TryWorkArea(element, out area);

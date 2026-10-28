@@ -1,0 +1,10 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  SessionDashboard -> C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\bin\Nexa029\Release\net10.0-windows\Nexa.dll
+  SessionDashboard.Checks -> C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\bin\Nexa029\Release\net10.0-windows\SessionDashboard.Checks.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:26.38

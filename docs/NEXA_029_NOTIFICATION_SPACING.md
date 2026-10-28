@@ -1,5 +1,7 @@
 # Fullscreen notification spacing follow-up
 
+Latest adjustment: fullscreen side and bottom padding is now **12 DIP**, increased from 8 to leave a little breathing room while retaining equal gaps. This applies to autosave, tips, generic notifications, the productivity banner and widget undo feedback. Release build: zero warnings/errors; the nexa029 route passes all 87 assertions. Logs: docs/verification/nexa029/notification-padding/. Earlier 8-DIP verification below records the preceding iteration.
+
 October 28, 2026. Continues clean checkpoint `6919df510ba5419cd265f9c8700b7f70b683f8a0` on codex/nexa-029-polish.
 
 Fullscreen peripheral notifications now use the full viewport and an equal 8 DIP side/bottom inset. Previously they retained the taskbar's reserved work area, lifting bottom notifications above their intended baseline. Autosave/manual save, tips and other shared notification cards use the same bounds; the centered Productivity score/streak banner uses the same 8 DIP bottom baseline. Widget undo feedback also uses matching fullscreen edge spacing and updates when entering/leaving fullscreen. Standard windowed work-area positioning is retained. No persistence, timing, scoring or session behavior changed.

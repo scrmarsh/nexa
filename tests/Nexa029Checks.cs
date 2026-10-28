@@ -98,15 +98,15 @@ internal static partial class Program
             return card.TransformToVisual(root).TransformBounds(new Rect(card.RenderSize));
         }
         var saveBounds=NoticeBounds("Fullscreen edge autosave");var tipBounds=NoticeBounds("Fullscreen edge tip");
-        Assert(Math.Abs(saveBounds.Left-8)<.5 && Math.Abs(root.ActualHeight-saveBounds.Bottom-8)<.5,"Fullscreen autosave has matching tight eight-DIP side and bottom gaps");
-        Assert(Math.Abs(root.ActualWidth-tipBounds.Right-8)<.5 && Math.Abs(root.ActualHeight-tipBounds.Bottom-8)<.5,"Fullscreen tips use the same eight-DIP right and bottom gaps");
+        Assert(Math.Abs(saveBounds.Left-12)<.5 && Math.Abs(root.ActualHeight-saveBounds.Bottom-12)<.5,"Fullscreen autosave has matching twelve-DIP side and bottom padding");
+        Assert(Math.Abs(root.ActualWidth-tipBounds.Right-12)<.5 && Math.Abs(root.ActualHeight-tipBounds.Bottom-12)<.5,"Fullscreen tips use the same twelve-DIP right and bottom padding");
         Assert(NexaWindowBounds.TryNotificationArea(root,out var notificationArea) && notificationArea==new Rect(root.RenderSize),"Fullscreen notification area includes the taskbar strip");
         var scoreFrame=ProductivityStreakOverlay.LayoutFrame(root.RenderSize,notificationArea,NexaWindowBounds.NotificationInset(root));
-        Assert(Math.Abs(root.ActualHeight-scoreFrame.Bottom-8)<.5,"Productivity score banner shares the tight fullscreen bottom baseline");
+        Assert(Math.Abs(root.ActualHeight-scoreFrame.Bottom-12)<.5,"Productivity score banner shares the padded fullscreen bottom baseline");
         SnapshotHome029(main,"nexa029-fullscreen-notification-edges");
         notices.Dismiss("tip");notices.Show("edge-alert","Fullscreen edge alert",seconds:null);main.UpdateLayout();
         var alertBounds=NoticeBounds("Fullscreen edge alert");
-        Assert(Math.Abs(root.ActualWidth-alertBounds.Right-8)<.5 && Math.Abs(root.ActualHeight-alertBounds.Bottom-8)<.5,"Other fullscreen notification cards share the same edge spacing");
+        Assert(Math.Abs(root.ActualWidth-alertBounds.Right-12)<.5 && Math.Abs(root.ActualHeight-alertBounds.Bottom-12)<.5,"Other fullscreen notification cards share the same twelve-DIP padding");
         notices.Dismiss("edge-alert");notices.Dismiss("autosave");
         SnapshotHome029(main,"nexa029-fullscreen");main.ToggleFullscreen();Pump(TimeSpan.FromMilliseconds(50));
         Assert(NexaWindowBounds.NotificationInset(root)==18,"Leaving fullscreen restores the standard windowed notification inset");
