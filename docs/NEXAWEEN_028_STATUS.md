@@ -7,8 +7,9 @@ October 28, 2026. **Unpublished Alpha; physical/live Beta acceptance remains ope
 Repository: `C:/Users/Sean Marsh/Documents/ChatGPT/Nexa/continuation-source`.
 Starting branch `codex/nexa-027-nexaween`, commit
 `b9e68dfcc575e20cfed7a835daacfc0d498e9ca4`, clean. Final branch
-`codex/nexa-028-nexaween-evolved`; final source checkpoint is the .28 commit on
-this branch (`git log -1`). The .27/handoff ancestry and all prior work are
+`codex/nexa-028-nexaween-evolved`; final application/test source checkpoint is
+`235a88e81dec1f8bdf05b29dc8b75f794dc453d8`. A subsequent report-only commit
+records this identifier; it does not alter executable source. The .27/handoff ancestry and all prior work are
 preserved. No original M: source, approved binary, archived package, live user
 data, credential, GitHub release or tag was changed. No history was rewritten.
 
