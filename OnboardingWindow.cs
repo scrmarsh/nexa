@@ -85,7 +85,7 @@ internal sealed class OnboardingWindow : NexaDialog
         {
             case 0:
                 Text("A little space to stay present. Five quick steps, no account needed."); Text("What should we call you? (optional)");
-                var display=new TextBox { Text=Profile.DisplayName, MaxLength=80, FontSize=22,MinHeight=52,Padding=new Thickness(14) }; display.TextChanged+=(_,_)=>Profile.DisplayName=display.Text.Trim(); body.Children.Add(display); break;
+                var display=new TextBox { Text=Profile.DisplayName, TextAlignment=TextAlignment.Center, MaxLength=80, FontSize=22,MinHeight=52,Padding=new Thickness(14) }; display.TextChanged+=(_,_)=>Profile.DisplayName=display.Text.Trim(); body.Children.Add(display); break;
             case 1:
                 Text("Pick any that fit.");
                 foreach(var use in GuidedSetup.UseCases) Choice(use,Profile.UseCases.Contains(use),on=> { if(on && !Profile.UseCases.Contains(use)) Profile.UseCases.Add(use); else if(!on) Profile.UseCases.Remove(use); });
@@ -123,10 +123,10 @@ internal sealed class OnboardingWindow : NexaDialog
                 preview.Click+=(_,_)=> { if(Profile.Sounds) InterfaceAudio.Preview(Profile.Volume); else error.Text="Turn sounds on first to preview."; }; body.Children.Add(preview);
                 break;
             case 5:
-                Text("Name your space");
-                var spaceName=new TextBox { Text=name,FontSize=24,MinHeight=56,Padding=new Thickness(14), MaxLength=100, Margin=new Thickness(0,0,0,18) }; spaceName.TextChanged+=(_,_)=>name=spaceName.Text.Trim(); body.Children.Add(spaceName);
+                Text("Name Your Space");
+                var spaceName=new TextBox { Text=name,TextAlignment=TextAlignment.Center,FontSize=24,MinHeight=56,Padding=new Thickness(14), MaxLength=100, Margin=new Thickness(0,0,0,18) }; spaceName.TextChanged+=(_,_)=>name=spaceName.Text.Trim(); body.Children.Add(spaceName);
                 body.Children.Add(SpaceIcons.Picker(SpaceIcons.Resolve(spaceIcon,Profile.PreferredDashboard),icon=>spaceIcon=icon));
-                var selectedTools=new WrapPanel();foreach(var tool in tools){var card=new Border{CornerRadius=new CornerRadius(10),Padding=new Thickness(14),Margin=new Thickness(0,8,8,0),BorderThickness=new Thickness(1),Child=new TextBlock{Text=tool}};card.SetResourceReference(Border.BorderBrushProperty,"LineBrush");selectedTools.Children.Add(card);}body.Children.Add(selectedTools);
+                var selectedTools=new WrapPanel();foreach(var tool in tools){var previewRow=new StackPanel{Orientation=Orientation.Horizontal};previewRow.Children.Add(MainWindow.ToolPreview(tool));previewRow.Children.Add(new TextBlock{Text=tool,Margin=new Thickness(10,0,0,0),VerticalAlignment=VerticalAlignment.Center});var card=new Border{CornerRadius=new CornerRadius(10),Padding=new Thickness(14),Margin=new Thickness(0,8,8,0),BorderThickness=new Thickness(1),Child=previewRow};card.SetResourceReference(Border.BorderBrushProperty,"LineBrush");selectedTools.Children.Add(card);}body.Children.Add(selectedTools);
                 Text("Nexaween: "+(NexaSeason.Active(Options,DateTimeOffset.UtcNow)?"On":"Off")); Text($"Theme: {Profile.Theme}\nSounds: {(Profile.Sounds?"On":"Off")}\nSession: {(Profile.TimedSessions?$"{Profile.DefaultMinutes} minutes":"Untimed")}");
                 Text("Ready when you are. Every tool can be changed later."); break;
         }

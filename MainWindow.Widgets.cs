@@ -944,7 +944,7 @@ public partial class MainWindow
         }
         if(kind=="Focus Reset")return SpaceIcons.Create("Sparkle",25);
         if(kind=="Water Bottle Counter")return new DrinkArtwork(false){Width=25,Height=32,FillFraction=.5};
-        if(kind=="Productivity")return SpaceIcons.Create("Lightning",25);
+        if(kind=="Productivity"){var bolt=(System.Windows.Shapes.Path)SpaceIcons.Create("Lightning",25);bolt.Stroke=ProductivityRing.LightningBrush;return bolt;}
         if(kind=="Calendar")return SpaceIcons.Create("Calendar",25);
         var symbol=new TextBlock{Text=WidgetIcon(WidgetLibrary.Definition(kind).Editor),FontFamily=new FontFamily("Segoe MDL2 Assets"),FontSize=24,VerticalAlignment=VerticalAlignment.Center};symbol.SetResourceReference(TextBlock.ForegroundProperty,"AccentBrush");return symbol;
     }

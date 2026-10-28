@@ -119,6 +119,6 @@ internal static class NexaIcons
             _ => "M4,10 L16,10"
         };
         var path = new System.Windows.Shapes.Path { Data = Geometry.Parse(data), StrokeThickness = 1.5, Width = 16, Height = 16, Stretch = Stretch.Uniform, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round };
-        path.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "TextBrush"); return path;
+        if(action=="Productivity")path.Stroke=ProductivityRing.LightningBrush;else path.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "TextBrush"); return path;
     }
 }

@@ -74,7 +74,7 @@ internal static partial class Program
         var zones=Descendants(settings).OfType<ComboBox>().Single(c=>c.ItemsSource is IEnumerable<TimeZoneChoice>);
         Assert(!zones.IsEditable && !zones.IsTextSearchEnabled,"Time zone selection field rejects arbitrary text entry");
         foreach(var query in new[]{"CHIC","Chicago","Central Standard Time","America Chicago"})Assert(TimeZoneCatalog.Search(query).Any(c=>c.Id=="Central Standard Time"),"Authoritative Central time aliases match "+query);
-        search.Text="CHIC";Assert(zones.Items.Cast<TimeZoneChoice>().Any(c=>c.Id=="Central Standard Time"),"Typing CHIC live-filters the real time zone dropdown");Capture026(settings,"handoff-timezone-search");
+        search.Text="CHIC";Assert(zones.Items.Cast<TimeZoneChoice>().Any(c=>c.Id=="Central Standard Time"),"Typing CHIC live-filters the real time zone dropdown");Pump(TimeSpan.FromMilliseconds(350));Capture026(settings,"handoff-timezone-search");
         zones.SelectedItem=zones.Items.Cast<TimeZoneChoice>().First(c=>c.Id=="Central Standard Time");ClickHandoff(settings,"Use selected time zone");settings.FlushPendingChanges();
         Assert(store.Load().Workspace!.Settings.TimeZoneId=="Central Standard Time" && search.Text=="","Choosing a result synchronizes and persistently saves the real selection");
         var chicago=TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");Assert(chicago.GetUtcOffset(new DateTime(2026,1,15))!=chicago.GetUtcOffset(new DateTime(2026,7,15)),"Selected authoritative Chicago zone retains daylight saving rules");
@@ -146,7 +146,10 @@ internal static partial class Program
         var welcome=OffscreenHandoff(new OnboardingWindow(store){Owner=main});welcome.Show();Pump(TimeSpan.FromMilliseconds(40));Capture026(welcome,"handoff-onboarding-welcome");
         welcome.Advance();welcome.Advance();welcome.Advance();
         Assert(!Descendants(welcome).OfType<TextBlock>().Any(t=>t.Text.Contains("Optional accounts can be connected later")),"Appearance onboarding omits unrelated account copy");Capture026(welcome,"handoff-onboarding-appearance");
-        welcome.Advance();Assert(welcome.Step==5,"Welcome reaches the single final Space naming step");Capture026(welcome,"handoff-onboarding-name");welcome.Close();
+        welcome.Advance();Assert(welcome.Step==5,"Welcome reaches the single final Space naming step");
+        Assert(Descendants(welcome).OfType<TextBox>().Single().TextAlignment==TextAlignment.Center && Descendants(welcome).OfType<Border>().Count(b=>b.CornerRadius==new CornerRadius(10) && b.Child is StackPanel)>=3,"Final naming screen retains centered large input and illustrated selected-tool cards");
+        Assert(ReferenceEquals(((System.Windows.Shapes.Path)MainWindow.ToolPreview("Productivity")).Stroke,ProductivityRing.LightningBrush),"Productivity tool previews also use the shared gold lightning");
+        Capture026(welcome,"handoff-onboarding-name");welcome.Close();
         main.StartQuickStart();Pump(TimeSpan.FromMilliseconds(40));Capture026(main,"handoff-guide-introduction");
         Assert(Descendants(main).OfType<Button>().Any(b=>Equals(b.Content,"I Know What I'm Doing")) && Descendants(main).OfType<Button>().Any(b=>Equals(b.Content,"Continue")),"Quick Start introduction keeps explicit skip and continue controls");
         main.AdvanceGuide();Pump(TimeSpan.FromMilliseconds(40));Capture026(main,"handoff-guide-spotlight");ClickHandoff(main,"Skip guide");
