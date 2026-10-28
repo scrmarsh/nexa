@@ -73,6 +73,9 @@ internal static partial class Program
         var search=Descendants(settings).OfType<TextBox>().Single(t=>System.Windows.Automation.AutomationProperties.GetName(t)=="Search time zones");
         var zones=Descendants(settings).OfType<ComboBox>().Single(c=>c.ItemsSource is IEnumerable<TimeZoneChoice>);
         Assert(!zones.IsEditable && !zones.IsTextSearchEnabled,"Time zone selection field rejects arbitrary text entry");
+        Assert(TimeZoneCatalog.Choices.All(c=>c.ToString()==c.Label),"Time zone selections render readable labels through the native ComboBox template");
+        var clockLabel=Descendants(settings).OfType<TextBlock>().Single(t=>t.Text.Contains("Daylight saving:"));var clockBefore=clockLabel.Text;
+        WaitHandoff(()=>clockLabel.Text!=clockBefore,"Clock preview advances when its Settings page is initialized lazily");
         foreach(var query in new[]{"CHIC","Chicago","Central Standard Time","America Chicago"})Assert(TimeZoneCatalog.Search(query).Any(c=>c.Id=="Central Standard Time"),"Authoritative Central time aliases match "+query);
         search.Text="CHIC";Assert(zones.Items.Cast<TimeZoneChoice>().Any(c=>c.Id=="Central Standard Time"),"Typing CHIC live-filters the real time zone dropdown");Pump(TimeSpan.FromMilliseconds(350));Capture026(settings,"handoff-timezone-search");
         zones.SelectedItem=zones.Items.Cast<TimeZoneChoice>().First(c=>c.Id=="Central Standard Time");ClickHandoff(settings,"Use selected time zone");settings.FlushPendingChanges();

@@ -1,5 +1,8 @@
 namespace SessionDashboard;
-internal sealed record TimeZoneChoice(string Id,string Label,string SearchText);
+internal sealed record TimeZoneChoice(string Id,string Label,string SearchText)
+{
+    public override string ToString()=>Label;
+}
 internal static class TimeZoneCatalog
 {
     internal static IReadOnlyList<TimeZoneChoice> Choices {get;}=Create();

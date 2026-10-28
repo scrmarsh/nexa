@@ -70,7 +70,7 @@ internal sealed partial class SettingsDialog
             status.Text = now.ToString(ReliabilityOptions.Use24HourClock ? "yyyy-MM-dd HH:mm:ss" : "yyyy-MM-dd h:mm:ss tt") + $"\n{zone.DisplayName}\nUTC {now:zzz} · Daylight saving: {(zone.IsDaylightSavingTime(now) ? "Active" : "Inactive")}";
         }
         var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-        timer.Tick += (_, _) => Refresh(); Loaded += (_, _) => timer.Start(); Closed += (_, _) => timer.Stop(); Refresh();
+        timer.Tick += (_, _) => Refresh(); Loaded += (_, _) => timer.Start(); Closed += (_, _) => timer.Stop();if(IsLoaded)timer.Start();Refresh();
         return new ScrollViewer { Content = page, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
     }
     private UIElement BuildEffects()
