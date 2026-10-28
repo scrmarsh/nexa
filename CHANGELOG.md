@@ -2,7 +2,7 @@
 
 ![NEXAWEEN — nexa alpha development](docs/media/nexaween-banner.svg)
 
-## 0.1.26 alpha — Spaces in Motion (testing candidate)
+## 0.1.26 alpha — Spaces in Motion (2026-10-28)
 
 - Paired Create/Import actions, six initial Space cards, all/ six expansion controls and saved vector Space icons.
 - Black-backed navigation transitions, dispatcher-safe failure recovery and off-thread Space/DEV file preparation.
@@ -11,7 +11,13 @@
 - Immediate splash-bar visibility with monotonic real milestones, visible version, no three-second hold, and frozen shared logo resources.
 - Thirty-second tips with five-second display, more close-button spacing, compact flame-free streak feedback and restored normal beverage colors.
 
-Cumulative per-Space productivity, collectible candy with a shared streak, circular Productivity rendering, save-first End Session recaps, an interactive guide, independent timer drafts and updated seasonal artwork are implemented in this candidate. Physical acceptance and long-session/provider testing remain pending. See the [implementation report](docs/IMPLEMENTATION-0.1.26-alpha.md). No public release or approved Latest build was replaced.
+- Persistent cumulative productivity per Space, one-point collectible candy and a shared half-step streak multiplier.
+- Circular animated Productivity widget, dedicated save-first End Session, one-second early-completion feedback and saved accomplishment/score recaps.
+- Interactive dashboard spotlights for adding, moving, resizing and renaming widgets, with skip/replay and restart recovery.
+- Optional Todoist/Hevy introduction, separate manual/schedule Pixel Timer drafts, independent theme/sound settings.
+- Larger web-bound Home spider, rounded shaded jack-o-lanterns, stalk-connected earthy vines and scroll-stable widget pumpkins.
+
+**Verification:** 507 regression checks, 10 native updater checks and packaged x64 startup passed. Physical mixed-DPI, genuine hibernation, live-provider and extended performance acceptance remain pending; a measured Space-loading latency outlier remains. See the [release notes](docs/releases/0.1.26-alpha.md).
 
 ## 0.1.25 alpha — dashboard refinements (development only)
 
@@ -29,7 +35,7 @@ Cumulative per-Space productivity, collectible candy with a shared streak, circu
 
 This candidate is not the final Nexaween release. See [verification and outstanding acceptance](docs/FINAL-0.1.24-STATUS.md). No production release was overwritten.
 
-## Previously published baseline — nexa v0.1.24 Alpha — Getting Candy for Trick-or-Treaters
+## Previously published baseline — nexa v0.1.24 Alpha — NEXAWEEN
 
 A space for whatever haunts you next.
 

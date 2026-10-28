@@ -1,8 +1,8 @@
 # nexa v0.1.26 alpha - testing candidate readiness
 
-**IMPLEMENTED BUT UNVERIFIED for public release.**
+**Approved by the user for v0.1.26 alpha publication on October 28, 2026. Manual acceptance remains incomplete.**
 
-The three requested implementation passes are represented in working code. A release has not been published and the approved executable has not been overwritten. This remains alpha.
+The three requested implementation passes are represented in working code. The user approved publishing this verified candidate as an alpha release. This approval does not convert the outstanding manual checks into completed tests.
 
 Candidate destination: M:/Nexa/Builds/Testing/0.1.26-alpha-passes-20261028/Nexa.exe.
 
@@ -16,7 +16,7 @@ Release application/test build: zero warnings, zero errors. Full fifteen-route r
 
 Native updater integration: 10 checks passed against this exact candidate (verification/20261028-080527), including rollback, preserved synthetic data, idempotence, interruption reconciliation, tamper rejection, external helper install and isolated restart. No production installation was modified.
 
-The approved/root executables and earlier testing candidates were hash-verified unchanged. Only the development branch is updated; no release is published.
+The approved/root executables and earlier testing candidates were hash-verified unchanged. The release process preserves previous release assets and uses the exact verified candidate bytes.
 
 [Fullscreen Home screenshot with synthetic Spaces](media/preview026/home-fullscreen.jpg).
 
@@ -28,6 +28,6 @@ The approved/root executables and earlier testing candidates were hash-verified 
 - Extended-session memory and live high-density rendering FPS.
 - Remaining Space-load latency outlier seen in the comparison fixture.
 
-No known failing automated functional test is intended to ship. These remaining items prevent declaring the alpha fully accepted or publishing a release without the user's explicit approval.
+No known failing automated functional test is intended to ship. These remaining items prevent declaring the alpha fully accepted. They are disclosed in the user-approved alpha release notes.
 
 See the [implementation](IMPLEMENTATION-0.1.26-alpha.md) and [testing evidence](TESTING-0.1.26-alpha.md).

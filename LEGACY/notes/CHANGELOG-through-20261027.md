@@ -1,6 +1,6 @@
 # Changelog
 
-## nexa v0.1.24 Alpha — Getting Candy for Trick-or-Treaters
+## nexa v0.1.24 Alpha — NEXAWEEN
 
 A space for whatever haunts you next.
 
@@ -13,7 +13,7 @@ A space for whatever haunts you next.
 
 See NEXAWEEN024_IMPLEMENTATION.md for verification evidence and outstanding manual acceptance. Older entries below describe previous dashboard versions.
 
-## nexa 0.1.23 Alpha — Decorating for Halloween (2026-10-19)
+## nexa 0.1.23 Alpha — Minor changes (2026-10-19)
 
 - Minor changes.
 

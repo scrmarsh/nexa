@@ -8,11 +8,11 @@
 
 **a space for whatever comes next**
 
-[Download nexa](https://github.com/scrmarsh/nexa/releases) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Verification report](docs/IMPLEMENTATION-0.1.24.md)
+[Download nexa](https://github.com/scrmarsh/nexa/releases) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Verification report](docs/TESTING-0.1.26-alpha.md)
 
 </div>
 
-> **0.1.26 alpha testing candidate:** this branch includes cumulative productivity, candy scoring, session recaps, guided onboarding and seasonal refinements. Manual release acceptance remains pending. See [implementation status](docs/IMPLEMENTATION-0.1.26-alpha.md), [testing](docs/TESTING-0.1.26-alpha.md), and [release readiness](docs/RELEASE-READINESS-0.1.26-alpha.md).
+> **Latest alpha: [v0.1.26 — Spaces in Motion](https://github.com/scrmarsh/nexa/releases/tag/v0.1.26-alpha).** Cumulative productivity, collectible candy, session recaps, guided setup and seasonal artwork. See the [release notes](docs/releases/0.1.26-alpha.md) for verification and known alpha limitations.
 
 
 nexa is a local Windows productivity dashboard for classes, study, meetings and everyday work. Arrange movable widgets into a Space, follow your recurring sessions, and keep your notes, tasks and progress together.
