@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace SessionDashboard;
@@ -7,8 +7,8 @@ public partial class MainWindow
 {
     private void TrackDirectSquash(BugEntity bug)
     {
-        if (ProductivityScoring.DirectSquash(state.Productivity, bug.InteractionId.ToString(), DateTimeOffset.UtcNow,Options.StreakMultiplierCap))
-        { if (state.Workspace != null) state.Workspace.AllTimeSquashes++; Changed(); }
+        if (ProductivityScoring.DirectSquash(state.Productivity, bug.InteractionId.ToString(), DateTimeOffset.UtcNow,Options.StreakMultiplierCap,bug.Species.ToString()))
+        { if (state.Workspace != null) {state.Workspace.AllTimeSquashes++;RecordSpeciesTotal(bug.Species);} Changed(); }
     }
     internal void AddSquashesWidget() => AddWidget("Bugs Squashed", null);
     private void AttachTaskPermanence(CheckBox checkbox, TaskItem item)

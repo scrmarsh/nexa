@@ -92,8 +92,7 @@ public static class WidgetLibrary
     public static IReadOnlyList<WidgetDefinition> Definitions { get; } =
     [
         new("Bugs Squashed", "Bugs", "Direct user squashes in this session and across all sessions.", "squashes", DefaultHeight: 200),
-        new("Productivity Meter", "Session", "Meaningful actions and recent activity, separate from Session Timeline.", "productivity", DefaultHeight: 336),
-        new("Productivity Score", "Session", "Session points, milestones, category breakdown and Bug Frenzy.", "score", DefaultHeight: 336),
+        new("Productivity", "Session", "Session score, meaningful actions, recent activity, milestones and streaks.", "productivity", DefaultHeight: 384),
         new("Timer", "Session", "Independent countdown or elapsed timer.", "timer", MinHeight: 192, DefaultSpan: 6, DefaultHeight: 216, MinWidth: 240, CanMinimize: false),
         new("Stopwatch", "Session", "Digital and analog elapsed time with pause and resume.", "stopwatch", MinHeight: 360, DefaultSpan: 6, DefaultHeight: 384, MinWidth: 280, CanMinimize: false),
         new("Clock", "Session", "Your local date and time.", "clock", MinHeight: 96, DefaultSpan: 4, DefaultHeight: 120, MinWidth: 200, CanMinimize: false),
@@ -125,6 +124,7 @@ public static class WidgetLibrary
     ];
     private static string CanonicalKind(string kind) => kind switch
     {
+        "Productivity Score" or "Productivity Meter" => "Productivity",
         "Pomodoro" => "Timer", "Hedy" => "Hedy Notes", "Beer Counter" => "Alcoholic Beverage",
         "Task" or "Tasks" or "Checklist" or "Action items" or "Action Items" or "Agenda" or "Main passage" or "Main Passage" or "Prayer requests" or "Prayer Requests" or "Assignment tracker" or "Questions to ask" => "Task List",
         "Topics" or "Custom fields" or "Custom Fields" or "Custom text" => "Notes",
@@ -168,6 +168,7 @@ public static class WidgetLibrary
                     widget.Text = MergeLegacyText(widget.Text, string.Join("\n", widget.Fields.Select(field => field + ":")));
                 if (previousKind is "Distraction counter" or "Distraction Counter") widget.CounterMode = "Distraction";
                 widget.Kind = canonical;
+                if (previousKind is "Productivity Meter" or "Productivity Score" && widget.Title == previousKind) widget.Title = canonical;
                 if (previousKind is "Pomodoro" or "Hedy" or "Beer Counter" && widget.Title == previousKind) widget.Title = canonical;
                 if (previousKind is "Task" or "Tasks" && widget.Title == previousKind) widget.Title = "Task List";
                 changed = true;

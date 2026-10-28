@@ -4,10 +4,15 @@ namespace SessionDashboard;
 public partial class MainWindow
 {
     private NexaFeedback? feedbackOverlay;
+    private ProductivityStreakOverlay? streakOverlay;
+    private readonly System.Windows.Threading.DispatcherTimer streakRefresh = new(System.Windows.Threading.DispatcherPriority.Background) { Interval=TimeSpan.FromMilliseconds(100) };
     private void InitializeFeedback()
     {
         feedbackOverlay = new NexaFeedback(() => Options, FeedbackBounds, () => IsLoaded && IsVisible && WindowState != WindowState.Minimized && DashboardShell.IsVisible);
         Panel.SetZIndex(feedbackOverlay, 110); ((Grid)Content).Children.Add(feedbackOverlay);
+        streakOverlay=new ProductivityStreakOverlay();Panel.SetZIndex(streakOverlay,111);((Grid)Content).Children.Add(streakOverlay);
+        streakRefresh.Tick+=(_,_)=>{if(IsVisible && WindowState!=WindowState.Minimized && DashboardShell.IsVisible){streakOverlay.Ledger=state.Productivity;streakOverlay.Options=Options;streakOverlay.Refresh();}};
+        Loaded+=(_,_)=>streakRefresh.Start();
         if (state.Workspace != null) feedbackOverlay.Observe(Continuity.Current(state.Workspace, store.UserId).Current, state.Productivity.Events);
         PreviewMouseMove += (_, e) =>
         {
@@ -15,13 +20,13 @@ public partial class MainWindow
             if (seasonalArtwork != null) seasonalArtwork.SetCursor(e.GetPosition(WidgetCanvas));
         };
         WidgetScroller.ScrollChanged += (_, _) => seasonalArtwork?.SetViewport(new Rect(WidgetScroller.HorizontalOffset, WidgetScroller.VerticalOffset, Math.Max(1, WidgetScroller.ViewportWidth), Math.Max(1, WidgetScroller.ViewportHeight)));
-        Closed += (_, _) => { feedbackOverlay?.Dispose(); seasonalArtwork?.Dispose(); };
+        Closed += (_, _) => { streakRefresh.Stop();streakOverlay?.Dispose();feedbackOverlay?.Dispose(); seasonalArtwork?.Dispose(); };
     }
     private Rect? FeedbackBounds(Guid? id)
     {
         if (feedbackOverlay == null || !IsLoaded) return null;
         FrameworkElement? element=id is {} scoreId && scoreAreas.TryGetValue(scoreId,out var scoreArea)?scoreArea:id is {} value && widgetFrames.TryGetValue(value,out var frame)?frame:null;
-        element ??= state.Widgets.FirstOrDefault(w => w.Kind == "Productivity Score") is { } score && widgetFrames.TryGetValue(score.Id, out var scoreFrame) ? scoreFrame : PixelBannerContainer;
+        element ??= state.Widgets.FirstOrDefault(w => w.Kind is "Productivity" or "Productivity Score") is { } score && widgetFrames.TryGetValue(score.Id, out var scoreFrame) ? scoreFrame : PixelBannerContainer;
         if (!element.IsVisible || element.ActualWidth <= 0 || element.ActualHeight <= 0) return null;
         var bounds = element.TransformToVisual(feedbackOverlay).TransformBounds(new Rect(element.RenderSize));
         var viewport = new Rect(0, 52, ActualWidth, Math.Max(0, ActualHeight - 52));
@@ -41,7 +46,7 @@ public partial class MainWindow
     }
     private void UpdateFrenzyFeedback()
     {
-        var score = state.Widgets.FirstOrDefault(w => w.Kind == "Productivity Score");
-        feedbackOverlay?.Frenzy(state.Productivity.FrenzyUntil, score == null ? null : FeedbackBounds(score.Id));
+        var score = state.Widgets.FirstOrDefault(w => w.Kind is "Productivity" or "Productivity Score");
+        if(streakOverlay!=null){streakOverlay.Ledger=state.Productivity;streakOverlay.Options=Options;streakOverlay.Refresh();}
     }
 }

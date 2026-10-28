@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -145,6 +145,7 @@ public sealed class ProductivityLedger
     public Dictionary<Guid, decimal> CounterHighWater { get; set; } = [];
     public int FrenzyActivations { get; set; }
     public int BugsSquashed { get; set; }
+    public Dictionary<string,long> SquashesBySpecies {get;set;} = [];
     public int Score => Events.Sum(e => e.BasePoints + e.BonusPoints);
 }
 public static class ProductivityScoring
@@ -157,10 +158,11 @@ public static class ProductivityScoring
         ledger.Events.Add(new() { WidgetId = widgetId, Key = key, Category = category, Description = description, BasePoints = points, BonusPoints = bonus, At = now.ToUniversalTime() });
         return true;
     }
-    public static bool DirectSquash(ProductivityLedger ledger, string identity, DateTimeOffset now, double maximum=3)
+    public static bool DirectSquash(ProductivityLedger ledger, string identity, DateTimeOffset now, double maximum=3, string? species=null)
     {
         if (!Add(ledger, "squash:" + identity, "Bug squash", "Direct bug squash", 10, now)) return false;
         maximum=double.IsFinite(maximum)?Math.Clamp(Math.Floor(maximum*2)/2,1.5,10):3;
+        if(species!=null && BugManager.AllSpecies.Any(s=>s.ToString()==species))ledger.SquashesBySpecies[species]=ledger.SquashesBySpecies.GetValueOrDefault(species)+1;
         ledger.BugsSquashed++;ledger.FrenzyActivations++;
         if(ledger.LastDirectSquashAt==null || now>=ledger.LastDirectSquashAt)
         {

@@ -179,7 +179,7 @@ public partial class MainWindow
                 }
             }
             var visible = ledger.Events.Where(e => !widget.HiddenProductivityCategories.Contains(e.Category)).ToArray();
-            var value = score ? $"Base: {ledger.Events.Sum(e => e.BasePoints):N0} · Bonus: {ledger.Events.Sum(e => e.BonusPoints):N0}\n" +
+            var value = score ? $"Meaningful actions: {ledger.Events.Count:N0} · Completed tasks: {ledger.Events.Count(e => e.Category == "Task completed"):N0}\n" + $"Base: {ledger.Events.Sum(e => e.BasePoints):N0} · Bonus: {ledger.Events.Sum(e => e.BonusPoints):N0}\n" +
                 (ledger.FrenzyUntil > now ? $"Streak · {ledger.Multiplier(now):0.0}× · {(ledger.FrenzyUntil.Value - now).TotalSeconds:0}s\n" : "") +
                 $"Next milestone: {(ledger.Score / 500 + 1) * 500:N0}" + (expanded.IsChecked == true ? $"\nAll-time score: {state.Workspace?.AllTimeProductivityScore ?? 0:N0}" : "")
                 : $"Meaningful actions: {ledger.Events.Count:N0}\nCompleted tasks: {ledger.Events.Count(e => e.Category == "Task completed"):N0}";

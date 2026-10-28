@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -620,9 +620,8 @@ public partial class MainWindow
         switch (editor)
         {
             case "squashes":
-                var squashes = new TextBlock { FontSize = 20, TextWrapping = TextWrapping.Wrap };
-                panel.Children.Add(squashes); widgetTicks.Add(_ => squashes.Text = $"This session: {state.Productivity.BugsSquashed:N0}\nAll time: {state.Workspace?.AllTimeSquashes ?? 0:N0}"); break;
-            case "productivity": BuildProductivityWidget(panel, widget, false); break;
+                BuildSquashesWidget(panel); break;
+            case "productivity": BuildProductivityWidget(panel, widget, true); break;
             case "score": BuildProductivityWidget(panel, widget, true); break;
             case "calculator": BuildCalculator(panel, widget); break;
             case "recorder": BuildRecorderWidget(panel); break;

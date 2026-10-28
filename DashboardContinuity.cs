@@ -23,6 +23,7 @@ public sealed class WorkspaceDocument
 {
     public NexaOptions Settings { get; set; } = new();
     public long AllTimeSquashes { get; set; }
+    public Dictionary<string,long> AllTimeSquashesBySpecies {get;set;} = [];
     public long AllTimeProductivityScore { get; set; }
     public int FormatVersion { get; set; } = 2;
     public string UserId { get; set; } = "";
@@ -299,7 +300,7 @@ public static class Continuity
         if (data.Session is { } recurrence && (recurrence.RecurringStartMinutes is < 0 or > 1439 || recurrence.RecurringEndMinutes is < 0 or > 1439 || recurrence.RecurringEndDayOffset is < 0 or > 7)) throw new InvalidDataException("Invalid recurrence clock values.");
         if (data.Session is { } session && (session.TimelineEntries == null || session.TimelineEntries.Count > 10000 || session.TimelineEntries.Any(e => e == null || e.Id == Guid.Empty || e.Text == null || e.Source == null || e.AudioPath == null || e.Text.Length > 1000000 || e.Source.Length > 100 || e.AudioPath.Length > 32768)))
             throw new InvalidDataException("Session timeline entries are invalid.");
-        if (data.Productivity == null || data.Productivity.Events == null || data.Productivity.CounterHighWater == null ||
+        if (data.Productivity == null || data.Productivity.Events == null || data.Productivity.CounterHighWater == null || data.Productivity.SquashesBySpecies==null || data.Productivity.SquashesBySpecies.Any(p=>!BugManager.AllSpecies.Any(s=>s.ToString()==p.Key) || p.Value<0) ||
             !double.IsFinite(data.Productivity.FrenzyMultiplier) || data.Productivity.FrenzyMultiplier is < 1 or > 10 || data.Productivity.Events.Count > 10000 || data.Productivity.Events.Any(e => e == null || e.Key == null || e.Category == null || e.Description == null || e.BasePoints is < -1000 or > 1000 || e.BonusPoints is < 0 or > 9000 || e.BasePoints<0 && (e.Category is not ("Distraction" or "Alcohol") || e.BonusPoints!=0)) ||
             data.Productivity.Events.Select(e => e.Id).Distinct().Count() != data.Productivity.Events.Count)
             throw new InvalidDataException("Invalid productivity activity.");
@@ -340,7 +341,7 @@ public static class Continuity
     }
     internal static void ValidateWorkspace(WorkspaceDocument workspace, string userId)
     {
-        if (workspace.Settings == null || workspace.AllTimeSquashes < 0) throw new InvalidDataException("Invalid workspace settings.");
+        if (workspace.Settings == null || workspace.AllTimeSquashes < 0 || workspace.AllTimeSquashesBySpecies==null || workspace.AllTimeSquashesBySpecies.Any(p=>!BugManager.AllSpecies.Any(s=>s.ToString()==p.Key) || p.Value<0)) throw new InvalidDataException("Invalid workspace settings.");
         if (workspace.FormatVersion != 2) throw new NotSupportedException("This workspace was saved by an unsupported version of Nexa. Use that version to open it.");
         if (workspace.UserId != userId) throw new UnauthorizedAccessException("This workspace belongs to another Windows user.");
         if (workspace.Dashboards == null || workspace.Dashboards.Count == 0 || workspace.Dashboards.Any(d => d == null) || workspace.Dashboards.Select(d => d.DashboardId).Distinct().Count() != workspace.Dashboards.Count)
