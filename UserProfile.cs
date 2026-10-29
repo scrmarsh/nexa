@@ -91,7 +91,7 @@ internal static class GuidedSetup
     };
     internal static DashboardRecord Create(UserProfile profile, string name, IEnumerable<string> tools, string userId)
     {
-        var color=profile.Theme switch { AppTheme.Violet=>"#AA80FF", AppTheme.Aurora=>"#63D8BC", AppTheme.Ember=>"#FFAA70", _=>"#7395FF" };
+        var color=profile.Theme switch { AppTheme.Violet=>"#AA80FF", AppTheme.Aurora=>"#63D8BC", AppTheme.Ember=>"#FFAA70", AppTheme.Amber=>Theme.AppPalette(AppTheme.Amber).Accent, AppTheme.Green=>Theme.AppPalette(AppTheme.Green).Accent, _=>"#7395FF" };
         var data = new DashboardData { WidgetLayoutInitialized=true, AccentColor=color,PixelColor=color,Draft = new DashboardDraft { Title=name } };
         foreach(var kind in tools.Distinct()) data.Widgets.Add(WidgetLibrary.Create(kind,kind switch { "Pixel timer"=>"pixels", "Notes"=>"notes", "Tasks" or "Task List"=>"tasks", "Session timeline"=>"timeline", _=>"" }));
         WidgetLibrary.Arrange(data.Widgets,false);

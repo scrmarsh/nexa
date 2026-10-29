@@ -25,6 +25,7 @@ internal static partial class Program
                 var lifetime=new DispatcherTimer{Interval=TimeSpan.FromSeconds(120)};lifetime.Tick+=(_,_)=>{lifetime.Stop();settings.Close();main.Close();app.Shutdown();};lifetime.Start();
                 settings.Closed+=(_,_)=>{main.Close();lifetime.Stop();app.Shutdown();};main.Closed+=(_,_)=>app.Shutdown();app.Run();return 0;
             }
+            if(args.Contains("--wallpaper-ui032")){ShowWallpaperUi032(app);return 0;}
             if(args.Contains("--home-fullscreen026")) { ShowHomeFullscreen026(app); return 0; }
             if(args.Contains("--handoff-ui026")) { ShowHandoffUi026(app); return 0; }
             if(args.Contains("--showcase"))GenerateShowcase(args[Array.IndexOf(args,"--showcase")+1]);
@@ -32,6 +33,7 @@ internal static partial class Program
             else if(args.Contains("--public-updates"))CheckPublicUpdates025();
             else if(args.Contains("--diagnostics028"))Diagnostics028();
             else if(args.Contains("--packaged031"))CheckPackaged031(args[Array.IndexOf(args,"--packaged031")+1]);
+            else if(args.Contains("--nexa032"))Check032();
             else if(args.Contains("--update-automation"))CheckUpdateAutomation();
             else if(args.Contains("--laptop-audio"))CheckLaptopAudio();
             else if(args.Contains("--nexa031"))Check031();

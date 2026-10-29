@@ -91,7 +91,7 @@ internal sealed partial class SettingsDialog : NexaPanel
         if (!pages.TryGetValue(name, out var page)) return;
         host.Content = page; NexaMotion.Entrance(host,ReliabilityOptions);
         if (name == "Session") sessionStatusPage = page;
-        foreach (var pair in tabs) { pair.Value.SetResourceReference(Control.BackgroundProperty, pair.Key == name ? "AccentBrush" : "PanelBrush"); pair.Value.SetResourceReference(Control.ForegroundProperty, pair.Key == name ? "BackgroundBrush" : "TextBrush"); }
+        foreach (var pair in tabs) { pair.Value.SetResourceReference(Control.BackgroundProperty, pair.Key == name ? "AccentBrush" : "PanelBrush"); pair.Value.SetResourceReference(Control.ForegroundProperty, pair.Key == name ? "AccentTextBrush" : "TextBrush"); }
         if(tips)FocusTips();
         if(hedy) Dispatcher.BeginInvoke(new Action(()=> { hedySettingsSection?.BringIntoView(); hedySettingsSection?.Focus(); }));
     }
@@ -108,11 +108,11 @@ internal sealed partial class SettingsDialog : NexaPanel
     }
     private UIElement BuildAppearance()
     {
-        var page = Page("Appearance", "Choose nexa’s global light mode and app palette. Space colors and backgrounds remain independent.");
+        var page = Page("Theme Mode", "Choose Classic or nexaween above, then light mode and Theme Colors. Wallpapers remain independent.");
         store.LoadInteractionPreferences(state);
         var selectedMode = store.LoadThemeMode(); var selectedTheme = store.LoadAppTheme();
         var modes = new WrapPanel(); var themes = new WrapPanel();
-        Field(page, "Light mode", modes); Field(page, "App theme", themes);
+        Field(page, "Light mode", modes); Field(page, "Theme Colors", themes);
         var note = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 12, 0, 0) }; page.Children.Add(note);
         void SaveAppearance()
         {
@@ -129,8 +129,16 @@ internal sealed partial class SettingsDialog : NexaPanel
             group.Children.Add(option);
         }
         foreach (var value in Enum.GetValues<ThemeMode>()) Choice(modes, value.ToString(), value == selectedMode, () => selectedMode = value);
-        foreach (var value in Enum.GetValues<AppTheme>()) Choice(themes, value.ToString(), value == selectedTheme, () => selectedTheme = value);
-        var effects=(StackPanel)BuildEffects();foreach(var child in effects.Children.Cast<UIElement>().ToArray()){effects.Children.Remove(child);page.Children.Add(child);}
+        var choices=new Dictionary<AppTheme,RadioButton>();
+        foreach(var value in Enum.GetValues<AppTheme>())
+        {
+            var color=Theme.AppPalette(value).Accent;
+            var content=new StackPanel{Orientation=Orientation.Horizontal};content.Children.Add(new Border{Width=24,Height=24,CornerRadius=new CornerRadius(5),Background=new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)),Margin=new Thickness(0,0,8,0)});content.Children.Add(new TextBlock{Text=AppearancePalettes.Name(value),VerticalAlignment=VerticalAlignment.Center});
+            var option=new RadioButton{Content=content,Tag=value,GroupName="ThemeColors",IsChecked=value==selectedTheme,Margin=new Thickness(0,0,16,10),Padding=new Thickness(5)};
+            System.Windows.Automation.AutomationProperties.SetName(option,AppearancePalettes.Name(value));option.ToolTip=color;option.Checked+=(_,_)=>{selectedTheme=value;SaveAppearance();};themes.Children.Add(option);choices[value]=option;
+        }
+        var restore=new Button{Content="Restore default theme color",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,4,0,8)};
+        restore.Click+=(_,_)=>{choices[AppTheme.Nexa].IsChecked=true;selectedTheme=AppTheme.Nexa;SaveAppearance();};page.Children.Add(restore);
         return page;
     }
     private UIElement BuildHedy()

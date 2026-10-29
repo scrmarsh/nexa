@@ -17,7 +17,9 @@ public enum AppTheme
     Nexa,
     Violet,
     Aurora,
-    Ember
+    Ember,
+    Amber,
+    Green
 }
 
 public static class Theme
@@ -65,6 +67,8 @@ public static class Theme
         AppTheme.Violet => ("#A78BFA", "#7C3AED"),
         AppTheme.Aurora => ("#38BDF8", "#14B8A6"),
         AppTheme.Ember => ("#FB7185", "#F59E0B"),
+        AppTheme.Amber => ("#FFCA78", "#E6A441"),
+        AppTheme.Green => ("#6AE58F", "#1DB954"),
         _ => ("#5B7CFF", "#8B5CF6")
     };
 
@@ -101,6 +105,7 @@ public static class Theme
         var old = PaletteBrushes(resources, "Dashboard");
         var palette = new ResourceDictionary(); ApplyPalette(palette, currentMode, currentAccent, currentPixel);
         palette["AccentBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(SeasonalEnabled ? "#A855F7" : accent));
+        palette["AccentTextBrush"]=new SolidColorBrush(AccentText(((SolidColorBrush)palette["AccentBrush"]).Color));
         palette["PixelBrush"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(SeasonalEnabled ? "#84CC16" : pixel));
         foreach (string key in palette.Keys)
         {
@@ -113,7 +118,7 @@ public static class Theme
     }
 
     private static Dictionary<string, Brush> PaletteBrushes(ResourceDictionary resources, string prefix = "") =>
-        new[] { "AccentBrush", "PixelBrush", "BackgroundBrush", "PanelBrush", "LineBrush", "TextBrush", "MutedBrush", "SurfaceBrush", "PixelOffBrush", "InputBrush" }
+        new[] { "AccentBrush", "PixelBrush", "BackgroundBrush", "PanelBrush", "LineBrush", "TextBrush", "MutedBrush", "SurfaceBrush", "PixelOffBrush", "InputBrush", "AccentTextBrush" }
             .Where(key => resources[prefix + key] is Brush)
             .ToDictionary(key => prefix + key, key => (Brush)resources[prefix + key]);
     private static Dictionary<Brush, Brush> Replacements(Dictionary<string, Brush> before, ResourceDictionary resources) =>
@@ -140,6 +145,12 @@ public static class Theme
         application.Dispatcher.BeginInvoke(new Action(() => Apply(application.Resources, currentMode, currentTheme)));
     }
 
+    internal static Color AccentText(Color color)
+    {
+        static double Linear(byte value){var c=value/255d;return c<=.04045?c/12.92:Math.Pow((c+.055)/1.055,2.4);}
+        var luminance=.2126*Linear(color.R)+.7152*Linear(color.G)+.0722*Linear(color.B);
+        return (luminance+.05)/.05>=1.05/(luminance+.05)?Colors.Black:Colors.White;
+    }
     private static void ApplyPalette(ResourceDictionary resources, ThemeMode mode, string accentHex, string pixelHex)
     {
         void Set(string key, Color color)
@@ -147,12 +158,16 @@ public static class Theme
             if (resources[key] is SolidColorBrush existing && !existing.IsFrozen) SetColor(existing,color);
             else resources[key] = new SolidColorBrush(color);
         }
+        Set("AccentTextBrush",AccentText((Color)ColorConverter.ConvertFromString(accentHex)));
         if (SeasonalEnabled)
         {
             foreach (var pair in new Dictionary<string, string> {
                 ["BackgroundBrush"]="#100D19", ["PanelBrush"]="#1C102A", ["SurfaceBrush"]="#291938", ["InputBrush"]="#180F24",
                 ["LineBrush"]="#794D34", ["TextBrush"]="#E9D5FF", ["MutedBrush"]="#CFBADE", ["AccentBrush"]="#A855F7", ["PixelBrush"]="#84CC16", ["PixelOffBrush"]="#2B2034" })
                 Set(pair.Key, (Color)ColorConverter.ConvertFromString(pair.Value));
+            // Seasonal artwork/base surfaces stay seasonal; global accent choice
+            // must remain usable instead of being hidden by a fixed purple accent.
+            Set("AccentBrush",(Color)ColorConverter.ConvertFromString(accentHex));
             return;
         }
         var accent = (Color)ColorConverter.ConvertFromString(accentHex);

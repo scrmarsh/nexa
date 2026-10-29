@@ -7,6 +7,7 @@ public partial class App : Application
 {
     static App()
     {
+        NexaScrolling.Initialize();
         FrameworkElement.UseLayoutRoundingProperty.OverrideMetadata(typeof(Window),new FrameworkPropertyMetadata(true));
         UIElement.SnapsToDevicePixelsProperty.OverrideMetadata(typeof(Window),new FrameworkPropertyMetadata(true));
     }

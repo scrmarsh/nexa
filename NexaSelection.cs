@@ -19,12 +19,21 @@ public static class NexaSelection
     {var total=remainder+delta;steps=Math.Clamp(total/120,-1,1);return Math.Abs(total)>=120?total%120:total;}
     private static void Wheel(object sender,MouseWheelEventArgs e)
     {
+        if((Keyboard.Modifiers&ModifierKeys.Shift)!=0)return;
         var box=(ComboBox)sender;e.Handled=true;
         if(!box.IsDropDownOpen && !box.IsKeyboardFocusWithin)
         {
             box.SetValue(RemainderProperty,0);
-            for(DependencyObject? p=box;p!=null;p=p is Visual?VisualTreeHelper.GetParent(p):LogicalTreeHelper.GetParent(p))
-                if(p is ScrollViewer scroll){scroll.ScrollToVerticalOffset(scroll.VerticalOffset-e.Delta/120d*36);break;}
+            NexaScrolling.ScrollFrom(box,e.Delta);
+            return;
+        }
+        if(box.IsDropDownOpen)
+        {
+            if(box.Template.FindName("PART_Popup",box) is System.Windows.Controls.Primitives.Popup popup && popup.Child is DependencyObject content)
+            {
+                ScrollViewer? Find(DependencyObject node){if(node is ScrollViewer scroll)return scroll;for(var i=0;i<VisualTreeHelper.GetChildrenCount(node);i++){var found=Find(VisualTreeHelper.GetChild(node,i));if(found!=null)return found;}return null;}
+                if(Find(content) is {} scroll)NexaScrolling.Scroll(scroll,e.Delta);
+            }
             return;
         }
         var remainder=Accumulate((int)box.GetValue(RemainderProperty),e.Delta,out var steps);box.SetValue(RemainderProperty,remainder);

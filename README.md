@@ -2,17 +2,17 @@
 
 ![nexa · latest — a space for whatever comes next](docs/media/nexa-banner.svg)
 
-![version: 0.0.31 Alpha](https://img.shields.io/badge/version-0.0.31%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
+![version: 0.0.32 Alpha development](https://img.shields.io/badge/version-0.0.32%20Alpha%20development-84CC16?style=flat-square&labelColor=1C102A)
 ![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-185FA5?style=flat-square&labelColor=111827)
 ![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-7F77DD?style=flat-square&labelColor=111827)
 
 **a space for whatever comes next**
 
-[nexaween prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Development status](docs/NEXA_031_STATUS.md)
+[nexaween prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Development status](docs/NEXA_032_STATUS.md)
 
 </div>
 
-> **nexa v0.0.31 alpha — Release Integrity & Ecosystem Evolution.** Canonical version comparison and updater diagnostics, centered Space cards, editable icons, readable timer status and physically constructed orb webs. Explicit session loads refresh live creature activity while preserving permanent data and crash recovery. Google/Microsoft integration work is deferred by user request. See the [audit](docs/NEXA_031_AUDIT.md), [status](docs/NEXA_031_STATUS.md) and [test results](docs/NEXA_031_TEST_RESULTS.md). Download the [v0.0.31 Alpha prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha). See the [release notes](docs/NEXA_031_PRERELEASE_NOTES.md) for changes and remaining acceptance.
+> **nexa v0.0.32 alpha — Appearance Restoration & Scrolling Refinement (local development).** Full Appearance access, restored Theme Colors, independent Home/Space backgrounds, repaired image selection and proportional scrolling. See the [audit](docs/NEXA_032_AUDIT.md), [status](docs/NEXA_032_STATUS.md) and [test results](docs/NEXA_032_TEST_RESULTS.md). The public download remains the approved .31 release; .32 is not published.
 
 Alpha development now uses **v0.0.X Alpha**, Beta will use **v0.1.X Beta**, and
 the first stable release is planned as **v1.0.0**. This Nexaween build is an

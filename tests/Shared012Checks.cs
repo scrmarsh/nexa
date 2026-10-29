@@ -55,7 +55,7 @@ internal static partial class Program
             Math.Abs(Bounds(tasks).Width - committedRight.Width) < 1 && Bounds(tasks).Top == committedRight.Top,
             "Canceling a shared resize restores both cards without moving them");
         var settings = new SettingsDialog(window, store, window.state, window, "Appearance"); settings.Show(); Pump(TimeSpan.FromMilliseconds(80));
-        var palette = Descendants(settings).OfType<RadioButton>().Single(c => Equals(c.Content, "Ember"));
+        var palette = Descendants(settings).OfType<RadioButton>().Single(c => Equals(c.Tag, AppTheme.Ember));
         ((System.Windows.Automation.Provider.ISelectionItemProvider)new System.Windows.Automation.Peers.RadioButtonAutomationPeer(palette)
             .GetPattern(System.Windows.Automation.Peers.PatternInterface.SelectionItem)).Select(); Pump(TimeSpan.FromMilliseconds(50));
         Assert(((SolidColorBrush)Application.Current.Resources["AccentBrush"]).Color ==

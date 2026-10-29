@@ -27,7 +27,7 @@ internal static partial class Program
     }
     private static void Check026()
     {
-        Assert(App.VersionLabel=="nexa v0.0.31 alpha","Current Alpha version comes from assembly metadata");
+        Assert(App.VersionLabel=="nexa v0.0.32 alpha","Current Alpha version comes from assembly metadata");
         var store=new StateStore(Path.Combine(output,"alpha026.json"));
         var spaces=Enumerable.Range(0,10).Select(i=>Continuity.NewDashboard("Space "+i,"Study",new DashboardData{SpaceIcon="Palette",WidgetLayoutInitialized=true,Widgets=[WidgetLibrary.Create("Notes","notes")]},store.UserId)).ToList();
         var model=Continuity.Activate(new WorkspaceDocument{UserId=store.UserId,ActiveDashboardId=spaces[0].DashboardId,Dashboards=spaces},store.UserId);model.Workspace!.Settings.ReduceMotion=true;store.Save(model);

@@ -231,39 +231,6 @@ public partial class MainWindow
         CommitWorkspace(candidate);
     }
 
-    private void GentleMouseWheel(object sender, MouseWheelEventArgs e)
-    {
-        DependencyObject? source = e.OriginalSource as DependencyObject;
-        while (source != null && source is not ScrollViewer)
-        {
-            // FlowDocument content is not a Visual. Follow its content parents
-            // to the editor, whose own scroller must keep the wheel event.
-            if (source is System.Windows.Controls.Primitives.TextBoxBase editor)
-            {
-                var canScroll = e.Delta < 0 ? editor.VerticalOffset + editor.ViewportHeight < editor.ExtentHeight - .1 : editor.VerticalOffset > .1;
-                if (canScroll)
-                {
-                    editor.ScrollToVerticalOffset(editor.VerticalOffset - e.Delta / 120.0 * 48);
-                    e.Handled = true;
-                    return;
-                }
-            }
-            source = source switch
-            {
-                ContentElement content => ContentOperations.GetParent(content)
-                    ?? (content as FrameworkContentElement)?.Parent,
-                Visual or System.Windows.Media.Media3D.Visual3D => VisualTreeHelper.GetParent(source),
-                _ => LogicalTreeHelper.GetParent(source)
-            };
-        }
-        if (source is not ScrollViewer scroller) return;
-
-        var canScrollViewer = e.Delta < 0 ? scroller.VerticalOffset < scroller.ScrollableHeight - .1 : scroller.VerticalOffset > .1;
-        var target = canScrollViewer ? scroller : WidgetScroller;
-        target.ScrollToVerticalOffset(target.VerticalOffset - e.Delta / 120.0 * 48);
-        e.Handled = true;
-    }
-
     private void InitializeColorPickers()
     {
         AccentColorPicker.SelectedColor = state.AccentColor;

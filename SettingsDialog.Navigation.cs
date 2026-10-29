@@ -23,14 +23,18 @@ internal sealed partial class SettingsDialog
     {
         seasonalSwitches.Clear();
         var active = NexaSeason.Active(ReliabilityOptions, DateTimeOffset.UtcNow);
-        var page = active ? Page("Appearance", "Nexaween is using the seasonal palette. Your normal appearance is preserved.") : (StackPanel)BuildAppearance();
+        var page = (StackPanel)BuildAppearance();
+        page.Margin=new Thickness(0,0,8,28);
         var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 12) };
         row.Children.Add(new TextBlock { Text = "Nexaween", Foreground = (Brush)new BrushConverter().ConvertFromString("#84CC16")!, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0), FontWeight = FontWeights.SemiBold });
         row.Children.Add(MakeSeasonSwitch()); page.Children.Insert(1, row);
-        if (active) { var seasonal = BuildSeasonalEvents(); page.Children.Add(seasonal); }
         page.Children.Add(BuildWallpaperControls(ReliabilityOptions.HomeWallpaper,true));
+        if (active) { var seasonal = BuildSeasonalEvents(); page.Children.Add(seasonal); }
+        var effects=(StackPanel)BuildEffects();foreach(var child in effects.Children.Cast<UIElement>().ToArray()){effects.Children.Remove(child);page.Children.Add(child);}
         page.Children.Add(BuildDisplaySettings());
-        return SeasonalBackdrop.Wrap(page,()=>ReliabilityOptions);
+        var scroll=new ScrollViewer{Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled,CanContentScroll=false,PanningMode=PanningMode.VerticalOnly,Tag="AppearanceScroll"};
+        var layout=new DockPanel();var heading=new TextBlock{Text="Appearance",FontSize=26,FontWeight=FontWeights.SemiBold,Margin=new Thickness(0,0,0,14)};DockPanel.SetDock(heading,Dock.Top);layout.Children.Add(heading);layout.Children.Add(scroll);
+        return SeasonalBackdrop.Wrap(layout,()=>ReliabilityOptions);
     }
     private CheckBox MakeSeasonSwitch()
     {
@@ -65,6 +69,7 @@ internal sealed partial class SettingsDialog
     }
     private void SetNexaween(bool active)
     {
+        if(!FlushPendingChanges())return;
         var wasAppearance=pages.TryGetValue("Appearance",out var oldPage) && ReferenceEquals(host.Content,oldPage);
         var wasBugs=pages.TryGetValue("Add Bugs",out var oldBugs) && ReferenceEquals(host.Content,oldBugs);
         ReliabilityOptions.SeasonalMode=active?"On":"Off";

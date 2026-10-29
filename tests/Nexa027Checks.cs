@@ -18,10 +18,10 @@ internal static partial class Program
     private static void Check027()
     {
         CheckBranding027();
-        Assert(App.AppVersion == "0.0.31" && App.VersionLabel == "nexa v0.0.31 alpha", "Shared current identity uses the Alpha convention");
-        Assert(typeof(App).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version == "0.0.31.0", "Windows file version is numeric and current");
-        Assert(typeof(App).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.StartsWith("0.0.31-alpha") == true, "Product version retains the Alpha stage");
-        Assert(ReleaseNotes.All[0].Version == "0.0.31" && ReleaseNotes.All[0].Title == "Release Integrity & Ecosystem Evolution" && ReleaseNotes.All.Single(r=>r.Version=="0.0.27").Title=="NEXAWEEN" && ReleaseNotes.All.Single(r => r.Version == "0.0.26").Title == "Spaces in Motion", "New changelog retains historical release identity");
+        Assert(App.AppVersion == "0.0.32" && App.VersionLabel == "nexa v0.0.32 alpha", "Shared current identity uses the Alpha convention");
+        Assert(typeof(App).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version == "0.0.32.0", "Windows file version is numeric and current");
+        Assert(typeof(App).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.StartsWith("0.0.32-alpha") == true, "Product version retains the Alpha stage");
+        Assert(ReleaseNotes.All[0].Version == "0.0.32" && ReleaseNotes.All[0].Title == "Appearance Restoration & Scrolling Refinement" && ReleaseNotes.All.Single(r=>r.Version=="0.0.27").Title=="NEXAWEEN" && ReleaseNotes.All.Single(r => r.Version == "0.0.26").Title == "Spaces in Motion", "New changelog retains historical release identity");
         Assert(ExperimentalUpdater.IsNewer(new(0,0,27), "Alpha", new(0,1,26)), "New Alpha can update the legacy Alpha revision");
         Assert(!ExperimentalUpdater.IsNewer(new(0,1,26), "Alpha", new(0,0,27)), "Legacy Alpha cannot downgrade new Alpha");
         Assert(!ExperimentalUpdater.IsNewer(new(0,1,27), "alpha", new(0,0,27)), "An unconfirmed legacy-looking Alpha identity is not offered as a new package");

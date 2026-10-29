@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.32 Alpha — Appearance Restoration & Scrolling Refinement (local, unpublished)
+
+- Restore complete Appearance scrolling, visible draggable scrollbars and Theme Colors in Classic and nexaween.
+- Retain existing saved global themes; expose recovered Blue/Green/Amber/Violet palette swatches through the existing Home/Space background model. See the .32 audit for the distinction between historical session palettes and wallpaper presets.
+- Apply independent wallpaper previews immediately; share image decoding/cache, preserve fit/fill and blur, retain unavailable-file choices and restore native file-picker foreground ownership.
+- Unify proportional wheel handling with Windows line/page settings, fine-delta accumulation and inner-first boundary handoff; preserve native keys, scrollbar dragging and focused selector stepping. Physical precision-trackpad acceptance remains open.
+- Preserve the latest laptop bounds, stationary Home logo, fatal-shot fix, batched kill persistence, independent audio and automatic-update flow. No release or push authorized.
+
 ## 0.0.31 Alpha — nexaween: Interface Polish & Release Integrity (2026-10-28)
 
 - Centralize canonical release identities; explicitly map confirmed legacy Alpha records while retaining genuine Beta numbering and legacy asset provenance.

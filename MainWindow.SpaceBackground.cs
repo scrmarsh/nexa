@@ -13,24 +13,8 @@ public partial class MainWindow
     internal void ApplySpaceBackground()
     {
         state.Background ??= new();
-        SpaceBackgroundLayer.Effect = null;
-        SpaceBackgroundLayer.Background = null;
-        SpaceBackgroundOverlay.Opacity = 0;
-        if (state.Background.Mode == SpaceBackgroundMode.SolidColor && InputRules.IsColor(state.Background.SolidColor))
-            SpaceBackgroundLayer.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(state.Background.SolidColor));
-        else if (state.Background.Mode == SpaceBackgroundMode.CustomImage && File.Exists(state.Background.ImagePath))
-        {
-            try
-            {
-                var bitmap = new BitmapImage(); bitmap.BeginInit(); bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.UriSource = new Uri(Path.GetFullPath(state.Background.ImagePath)); bitmap.EndInit(); bitmap.Freeze();
-                SpaceBackgroundLayer.Background = new ImageBrush(bitmap) { Stretch = state.Background.FitImage?Stretch.Uniform:Stretch.UniformToFill };
-                if (state.Background.Blur) SpaceBackgroundLayer.Effect = new BlurEffect { Radius = Math.Clamp(state.Background.BlurStrength, 0, 40), KernelType = KernelType.Gaussian };
-                SpaceBackgroundOverlay.Opacity = Math.Clamp(state.Background.Overlay, 0, .9);
-            }
-            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or ArgumentException or System.Runtime.InteropServices.COMException or InvalidOperationException)
-            { Feedback.Text = "The Space background image could not be loaded."; }
-        }
+        WallpaperImages.Apply(SpaceBackgroundLayer,state.Background);
+        SpaceBackgroundOverlay.Opacity=WallpaperImages.Shade(state.Background,false,SpaceBackgroundLayer.Background!=null);
         // Wallpaper changes do not change widget geometry or saved placement.
     }
 

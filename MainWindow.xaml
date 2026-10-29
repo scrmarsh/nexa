@@ -5,7 +5,7 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="nexa" Width="1220" Height="880" MinWidth="960" MinHeight="660"
         Background="{DynamicResource BackgroundBrush}" Foreground="{DynamicResource TextBrush}"
-        FontFamily="Segoe UI" FontSize="14" WindowStartupLocation="CenterScreen" PreviewKeyDown="WindowKeyDown" PreviewMouseWheel="GentleMouseWheel">
+        FontFamily="Segoe UI" FontSize="14" WindowStartupLocation="CenterScreen" PreviewKeyDown="WindowKeyDown">
     <Grid>
     <DockPanel x:Name="DashboardShell">
         <Border x:Name="DashboardHeader" DockPanel.Dock="Top" Height="52" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="12,8,12,6">
