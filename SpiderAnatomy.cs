@@ -4,7 +4,7 @@ namespace SessionDashboard;
 internal static class SpiderAnatomy
 {
     internal static Point Root(int index,int side)
-    {var x=1.3+index*1.4;return new(x,side*3.7*Math.Sqrt(Math.Max(.1,1-Math.Pow((x-4)/4.6,2))));}
+    {var x=.7+index*1.05;return new(x,side*3.95*Math.Sqrt(Math.Max(.1,1-Math.Pow((x-4)/4.5,2))));}
     internal static void Body(DrawingContext dc,Brush abdomen,Brush front,Pen edge)
     {
         dc.DrawEllipse(abdomen,edge,new(-5,0),7,6.8);

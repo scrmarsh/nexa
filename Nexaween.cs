@@ -138,7 +138,7 @@ internal sealed partial class NexaweenDecorations : FrameworkElement
         switch (kind)
         {
             case 0: case 1: // Pumpkin / jack-o-lantern
-                NexaPumpkin.Draw(dc,new Rect(0,0,64,64));
+                FlatPumpkin.Draw(dc,new Rect(0,0,64,64));
                 break;
             case 2: // Ghost
                 Shape(dc,"M9,58 L10,25 Q13,3 32,5 Q53,4 55,26 L56,58 L47,51 L39,59 L31,52 L21,59 L16,52 Z","#D8D1F0");

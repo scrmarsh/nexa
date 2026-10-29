@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.IO.Compression;
 using System.Text.Json;
 using System.Windows;
@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void Check034()
     {
-        Assert(App.AppVersion=="0.0.34" && NexaReleaseIdentity.Current.Stage=="Alpha",".34 assembly and Alpha identity agree");
+        Assert(App.AppVersion=="0.0.35" && NexaReleaseIdentity.Current.Stage=="Alpha",".34 assembly and Alpha identity agree");
         CheckInstallerWait034();CheckData034();CheckProfile034();CheckUi034();
     }
     private static void CheckProfile034()
@@ -144,7 +144,7 @@ internal static partial class Program
         foreach(var mode in new[]{SessionDashboard.ThemeMode.Light,SessionDashboard.ThemeMode.Dark})foreach(var palette in Theme.OfficialThemes)
         {
             store.SavePreferences(mode,palette);Theme.Apply(Application.Current.Resources,mode,palette);home.RefreshWallpaper();
-            Assert(((Border)wallpaperField.GetValue(home)!).Background is SolidColorBrush brush && brush.Color==Color.FromRgb(23,27,38),"Default Home stays charcoal under "+mode+" / "+palette);
+            Assert(((Border)wallpaperField.GetValue(home)!).Background is SolidColorBrush brush && brush.Color==Color.FromRgb(18,22,32),"Default Home stays charcoal under "+mode+" / "+palette);
         }
         Assert(home.FindResource("TextBrush") is SolidColorBrush textBrush && textBrush.Color==Color.FromRgb(240,242,255),"The fixed charcoal Home retains readable text independently of the application mode");
         store.SavePreferences(SessionDashboard.ThemeMode.System,AppTheme.Nexa);Theme.Apply(Application.Current.Resources,SessionDashboard.ThemeMode.System,AppTheme.Nexa);
@@ -173,7 +173,7 @@ internal static partial class Program
     }
     private static void Capture034(Window window,string name)
     {
-        var directory=Path.GetFullPath("docs/media/nexa034");Directory.CreateDirectory(directory);window.UpdateLayout();
+        var directory=Path.GetFullPath("docs/media/nexa035/regression");Directory.CreateDirectory(directory);window.UpdateLayout();
         var bitmap=new System.Windows.Media.Imaging.RenderTargetBitmap(Math.Max(1,(int)window.ActualWidth),Math.Max(1,(int)window.ActualHeight),96,96,PixelFormats.Pbgra32);bitmap.Render(window);
         var encoder=new System.Windows.Media.Imaging.PngBitmapEncoder();encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));using var file=File.Create(Path.Combine(directory,name+".png"));encoder.Save(file);
     }

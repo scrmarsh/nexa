@@ -241,7 +241,7 @@ public static class WidgetLibrary
         UpgradeGrid(data.Widgets);
         widget.GridColumns = 20; widget.CustomSize = true;
         widget.Span = Math.Clamp(span, 1, 20); widget.Column = Math.Clamp(column, 0, 20 - widget.Span);
-        widget.Row = Math.Clamp(row, 0, 10000); widget.Height = Math.Clamp(height / 24 * 24, 24, 1440);
+        widget.Row = Math.Clamp(row, 0, 10000); widget.Height = Math.Clamp(height / 24 * 24, 24, 2400);
         // Push overlapping cards down; preserve order and ensure every final rectangle is disjoint.
         var placed = new List<WidgetInstance> { widget };
         foreach (var other in data.Widgets.Where(w => w.Id != widget.Id).OrderBy(w => w.Row).ThenBy(w => w.Column))
@@ -289,7 +289,7 @@ public static class WidgetLibrary
             if (def == null && (w.Kind==null || !LegacyBugHabitats.KindSpecies.ContainsKey(w.Kind)) || w.Id == Guid.Empty || w.Title == null || w.Placeholder == null || w.PanelKey == null || w.Text == null || w.Items == null || w.Records == null || w.Categories == null || w.Fields == null || w.FlashcardDecks == null ||
                 w.Items.Any(t => t == null || t.Text == null) || w.Records.Any(r => r == null || r.Name == null || r.Categories == null || r.Values == null) ||
                 w.FlashcardDecks.Count > 1000 || w.FlashcardDecks.Any(deck => deck == null || deck.Id == Guid.Empty || string.IsNullOrWhiteSpace(deck.Name) || deck.Name.Length > 200 || deck.Cards == null || deck.Cards.Count > 10000 || deck.Cards.Any(card => card == null || card.Id == Guid.Empty || card.Front == null || card.Back == null || card.StudyState == null || card.Front.Length > 10000 || card.Back.Length > 10000)) ||
-                w.Column < 0 || w.GridColumns is not (12 or 20) || w.Span < 1 || w.Column + w.Span > w.GridColumns || w.Row is < 0 or > 30000 || w.Height < 24 || w.Height > 1440 || w.SummaryIntervalMinutes is < 1 or > 10080 || w.TimerMinutes is < 1 or > 10080 || w.TimerDurationSeconds is < 1 or > 604800 || !double.IsFinite(w.StopwatchElapsedSeconds) || w.StopwatchElapsedSeconds < 0 ||
+                w.Column < 0 || w.GridColumns is not (12 or 20) || w.Span < 1 || w.Column + w.Span > w.GridColumns || w.Row is < 0 or > 30000 || w.Height < 24 || w.Height > 2400 || w.SummaryIntervalMinutes is < 1 or > 10080 || w.TimerMinutes is < 1 or > 10080 || w.TimerDurationSeconds is < 1 or > 604800 || !double.IsFinite(w.StopwatchElapsedSeconds) || w.StopwatchElapsedSeconds < 0 ||
                 w.Categories.Any(c => c == null) || w.Fields.Any(f => f == null) || w.Increment == 0 ||
                 w.CounterMode is not ("Standard" or "Distraction") || w.DisplayMode is not ("Auto" or "Compact" or "Expanded") || w.WaterBottleGoal is < 1 or > 100 || w.BeerGoal is < 1 or > 100 || w.BannerSpan is < 9 or > 20 || w.BannerHeight is < 312 or > 960) throw new InvalidDataException("Invalid widget configuration.");
             if (w.PanelKey.Length > 0 && (!new[] { "pixels", "setup", "timeline", "notes", "tasks", "hedy" }.Contains(w.PanelKey) || !panels.Add(w.PanelKey))) throw new InvalidDataException("Invalid linked panel.");

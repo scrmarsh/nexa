@@ -590,8 +590,8 @@ public partial class MainWindow
                 else if (edge.HasFlag(ResizeEdge.Right)) span = Math.Clamp(startSpan + (int)Math.Round(dx/unit), minSpan, Math.Max(minSpan,20-column));
                 left = column * unit;
                 var minimum = (int)Math.Ceiling(MinimumWidgetHeight(widget)/RowUnit)*24;
-                if (edge.HasFlag(ResizeEdge.Top)) { top = Math.Clamp(Math.Round((origin.Top+dy)/RowUnit)*RowUnit, Math.Max(0,origin.Bottom-1440), Math.Max(0,origin.Bottom-minimum)); height = (int)Math.Ceiling((origin.Bottom-top)/RowUnit)*24; }
-                else if (edge.HasFlag(ResizeEdge.Bottom)) height = Math.Clamp((int)Math.Round((origin.Height+dy)/RowUnit)*24,minimum,1440);
+                if (edge.HasFlag(ResizeEdge.Top)) { top = Math.Clamp(Math.Round((origin.Top+dy)/RowUnit)*RowUnit, Math.Max(0,origin.Bottom-2400), Math.Max(0,origin.Bottom-minimum)); height = (int)Math.Ceiling((origin.Bottom-top)/RowUnit)*24; }
+                else if (edge.HasFlag(ResizeEdge.Bottom)) height = Math.Clamp((int)Math.Round((origin.Height+dy)/RowUnit)*24,minimum,2400);
             }
             var width = resize ? Math.Max(1, span*unit-WidgetGap) : origin.Width;
             var candidate = new Rect(left,top,width,height);
@@ -636,7 +636,7 @@ public partial class MainWindow
             {
                 if (resize)
                 {
-                    widget.Span=span; widget.Height=Math.Clamp(height,(int)MinimumWidgetHeight(widget),1440); widget.CustomSize=true;
+                    widget.Span=span; widget.Height=Math.Clamp(height,(int)MinimumWidgetHeight(widget),2400); widget.CustomSize=true;
                     CommitWidgetDrop(widget,left,top,preserveAnchor:true);
                 }
                 else CommitWidgetDrop(widget, origin.X + dx, origin.Y + dy);
@@ -1026,7 +1026,7 @@ public partial class MainWindow
         TextBox Field(string label, string value) { panel.Children.Add(new TextBlock { Text = label, Margin = new Thickness(0, 12, 0, 6) }); var box = new TextBox { Text = value }; panel.Children.Add(box); return box; }
         var title = Field("Widget title", widget.Title); var placeholder = Field("Placeholder / hint", widget.Placeholder);
         var columns = Field("Relative width (1-20)", widget.Span.ToString());
-        var height = Field($"Height (24-pixel steps, minimum {(int)Math.Ceiling(MinimumWidgetHeight(widget) / 24)})", Math.Clamp(widget.Height / 24, 1, 60).ToString());
+        var height = Field($"Height (24-pixel steps, minimum {(int)Math.Ceiling(MinimumWidgetHeight(widget) / 24)})", Math.Clamp(widget.Height / 24, 1, 100).ToString());
         var autoHeight = new CheckBox { Content = "Fit height to content", IsChecked = !widget.CustomSize, Margin = new Thickness(0, 12, 0, 0) }; panel.Children.Add(autoHeight);
         height.TextChanged += (_, _) => autoHeight.IsChecked = false;
         void StepButtons(TextBox field)
@@ -1035,7 +1035,7 @@ public partial class MainWindow
             foreach (var direction in new[] { -1, 1 })
             {
                 var step = new Button { Content = direction < 0 ? "-" : "+", Width = 34, Margin = new Thickness(0, 0, 4, 0), ToolTip = direction < 0 ? "One grid step smaller" : "One grid step larger" };
-                step.Click += (_, _) => { if (int.TryParse(field.Text, out var value)) field.Text = Math.Clamp(value + direction, ReferenceEquals(field, height) ? (int)Math.Ceiling(MinimumWidgetHeight(widget) / 24) : 1, ReferenceEquals(field, height) ? 60 : 20).ToString(); };
+                step.Click += (_, _) => { if (int.TryParse(field.Text, out var value)) field.Text = Math.Clamp(value + direction, ReferenceEquals(field, height) ? (int)Math.Ceiling(MinimumWidgetHeight(widget) / 24) : 1, ReferenceEquals(field, height) ? 100 : 20).ToString(); };
                 steps.Children.Add(step);
             }
             panel.Children.Insert(panel.Children.IndexOf(field) + 1, steps);
@@ -1065,7 +1065,7 @@ public partial class MainWindow
         save.Click += (_, _) =>
         {
             if (string.IsNullOrWhiteSpace(title.Text) || !int.TryParse(columns.Text, out var span) || !int.TryParse(height.Text, out var h) || !int.TryParse(left.Text, out var c) || !int.TryParse(row.Text, out var r)) { error.Text = "Enter a title and valid whole-number dimensions."; return; }
-            if (span is < 1 or > 20 || h < Math.Ceiling(MinimumWidgetHeight(widget) / 24) || h > 60 || c < 0 || c + span > 20 || r is < 0 or > 10000) { error.Text = "Use width from 1 to 20, a height at or above the widget minimum (up to 60), and a position inside the grid."; return; }
+            if (span is < 1 or > 20 || h < Math.Ceiling(MinimumWidgetHeight(widget) / 24) || h > 100 || c < 0 || c + span > 20 || r is < 0 or > 10000) { error.Text = "Use width from 1 to 20, a height at or above the widget minimum (up to 100), and a position inside the grid."; return; }
             if (increment != null && (!decimal.TryParse(increment.Text, out var step) || step == 0)) { error.Text = "Increment must be a nonzero number."; return; }
             if (starting != null && !decimal.TryParse(starting.Text, out _)) { error.Text = "Starting value must be a number."; return; }
             if (minutes != null && !InputRules.ValidMinutes(minutes.Text, out _)) { error.Text = "Duration must be between 1 and 10,080 minutes."; return; }
@@ -1142,7 +1142,29 @@ public partial class MainWindow
         if (fullscreen) { ToggleFullscreen(); WindowState = WindowState.Maximized; }
         else NexaChrome.ToggleMaximize(this);
     }
-    private async void HomeClick(object sender, RoutedEventArgs e)
+    private Window? endSessionConfirmation;
+    private void HomeClick(object sender, RoutedEventArgs e)
+    {
+        if(NexaNavigation.Busy(this) || finalizingSession || completionFill.IsEnabled)return;
+        if(recapWindow!=null){recapWindow.Activate();return;}
+        if(!IsPreview && state.Session is {FinalizedAt:null})
+        {
+            if(endSessionConfirmation!=null){endSessionConfirmation.Activate();return;}
+            var dialog=new NexaDialog{Owner=this,Title="nexa · End session",Width=460,Height=240,MinWidth=320,MinHeight=200,WindowStartupLocation=WindowStartupLocation.CenterOwner};
+            endSessionConfirmation=dialog;
+            var body=new StackPanel{Margin=new Thickness(26)};
+            body.Children.Add(new TextBlock{Text="Do you want to end your session?",FontSize=22,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,24)});
+            var buttons=new Grid();buttons.ColumnDefinitions.Add(new());buttons.ColumnDefinitions.Add(new());
+            var cancel=new Button{Content="Cancel",HorizontalAlignment=HorizontalAlignment.Left};cancel.Click+=(_,_)=>dialog.Close();buttons.Children.Add(cancel);
+            var end=new Button{Content="End Session",HorizontalAlignment=HorizontalAlignment.Right};Grid.SetColumn(end,1);buttons.Children.Add(end);body.Children.Add(buttons);
+            end.Click+=(_,_)=>{end.IsEnabled=false;dialog.Close();if(!FinalizeSession())Error("Session could not be ended. Your session remains available; check the save error and try again.");};
+            dialog.Content=body;dialog.Closed+=(_,_)=>endSessionConfirmation=null;
+            dialog.PreviewKeyDown+=(_,key)=>{if(key.Key==Key.Escape){dialog.Close();key.Handled=true;}};
+            dialog.ShowDismissible();cancel.Focus();return;
+        }
+        NavigateHome();
+    }
+    private async void NavigateHome()
     {
         if (NexaNavigation.Busy(this) || !SaveForClose()) return;
         try

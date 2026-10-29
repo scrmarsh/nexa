@@ -15,6 +15,7 @@ internal sealed partial class HomeWindow
         var header = new Grid{HorizontalAlignment=HorizontalAlignment.Stretch,MaxWidth=960,Height=150}; header.ColumnDefinitions.Add(new() { Width = new GridLength(1,GridUnitType.Star) }); header.ColumnDefinitions.Add(new() { Width = new GridLength(32) }); header.ColumnDefinitions.Add(new(){Width=new GridLength(1,GridUnitType.Star)});
         var brand=new System.Windows.Controls.Viewbox{Stretch=Stretch.Uniform,StretchDirection=StretchDirection.DownOnly,HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center,Child=new NexaWordmark(300)};header.Children.Add(brand);
         var tagline = new TextBlock { Text = "", FontSize = 24, TextWrapping = TextWrapping.Wrap, TextAlignment=TextAlignment.Center, Foreground = (Brush)FindResource("TextBrush"), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 0, 0), MinHeight = 64 };
+        tagline.Effect=new System.Windows.Media.Effects.DropShadowEffect{Color=Colors.White,ShadowDepth=0,BlurRadius=7,Opacity=.38};
         System.Windows.Automation.AutomationProperties.SetName(tagline, "Home tagline"); Grid.SetColumn(tagline, 2); header.Children.Add(tagline); panel.Children.Add(header);
 
         var position = 0; var hold = 0; var restartDelay = 0; var fading = false; var typing = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(55) };

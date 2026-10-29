@@ -38,7 +38,7 @@ public partial class MainWindow
     }
     private FrameworkElement? GuideTarget()
     {
-        var step=Options.QuickStartStep;if(step==1)return AddWidgetButton;
+        var step=Options.QuickStartStep;if(step==1){workspaceAdd?.BringIntoView();return workspaceAdd;}
         if(Options.QuickStartWidget is not {} id || !widgetFrames.TryGetValue(id,out var frame))return null;
         if(step==3 && widgetResizeHandles.TryGetValue(id,out var handles))return handles.LastOrDefault().Handle;
         if(step==4)return FindGuideChildren(frame).OfType<TextBox>().FirstOrDefault(t=>System.Windows.Automation.AutomationProperties.GetName(t).StartsWith("Widget title "));

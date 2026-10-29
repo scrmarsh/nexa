@@ -29,7 +29,7 @@ public partial class MainWindow
         {
             ecosystem = NexaEcosystem.For(store);
             ecosystem.ReconcileGeneration(state.Workspace?.LiveEcosystemGeneration??Guid.Empty);
-            bugsOverlay = new BugOverlay(ecosystem.Manager); bugsOverlay.DirectSquashed += DashboardSquashed;
+            bugsOverlay = new BugOverlay(ecosystem.Manager); bugsOverlay.ScrollTarget=WidgetScroller; bugsOverlay.DirectSquashed += DashboardSquashed;
             Panel.SetZIndex(bugsOverlay, 40); ((Grid)Content).Children.Add(bugsOverlay);
             ecosystem.Attach(this, () => IsVisible && WindowState != WindowState.Minimized && DashboardShell.IsVisible);
             ecosystem.Changed += EcosystemChanged;

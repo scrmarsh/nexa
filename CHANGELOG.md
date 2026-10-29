@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.0.35 Alpha — UI Polish, Session Flow, Homepage & Nexaween Refinements (local, unpublished)
+
+- Darker frameless Classic Home with a subtle white tagline halo; centered display-name editor with explicit Save/Cancel.
+- Keep Hedy recording and genuine Hevy workout identities distinct; expose Hedy settings once. Exclude unrelated Living Worlds/Aevoria directories from legacy migration and preserve the owned ecosystem sidecar.
+- Fade a Home snapshot over the fully rendered opaque Space for 200 ms, respecting reduced motion. Hide scrollbar visuals globally and route wheel input over bug overlays into the dashboard.
+- Compact saved recap above complete History details, centered header icons, one bottom Add Widget action, and 2,400-DIP widget height support for longer Timelines.
+- Home confirms active session completion and reuses the idempotent saved recap with Dashboard/Home return choices. Autosave and recovery remain active.
+- Inline Windows endpoint volume slider/mute, curved Wi-Fi link icon and battery outline/fill/charging indicator. Signal strength is not estimated.
+- Flat vector small background pumpkins (the detailed Home pumpkin and candlelight are retained), responsive Home spider placement, eight cephalothorax leg roots and shared saved appearance preferences.
+- Installer, portable package and migration bridge remain Alpha candidates. See .35 verification for actual results and physical acceptance limits.
+
+
 ## 0.0.34 Alpha — Interface Refinement, Data Safety & Installer Repair
 
 - Refine Home branding, independent backgrounds, official palettes, nexaween toggle, settings scrolling/sounds and permanent Pixel Timer controls.

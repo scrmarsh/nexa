@@ -4,6 +4,7 @@ using System.Windows.Media;
 namespace SessionDashboard;
 internal sealed class BugOverlay : FrameworkElement
 {
+    internal System.Windows.Controls.ScrollViewer? ScrollTarget {get;set;}
     internal event Action<BugEntity>? DirectSquashed;
     internal BugManager Manager { get; }
     internal Point ContentOrigin;

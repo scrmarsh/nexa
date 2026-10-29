@@ -41,8 +41,10 @@ internal static partial class Program
             else if(args.Contains("--public-updates"))CheckPublicUpdates025();
             else if(args.Contains("--diagnostics028"))Diagnostics028();
             else if(args.Contains("--packaged031"))CheckPackaged031(args[Array.IndexOf(args,"--packaged031")+1]);
+            else if(args.Contains("--installer035")){var i=Array.IndexOf(args,"--installer035");CheckInstaller035(args[i+1],args[i+2],args[i+3],args[i+4]);}
             else if(args.Contains("--installer034")){var i=Array.IndexOf(args,"--installer034");CheckInstaller034(args[i+1],args[i+2],args[i+3],args[i+4]);}
             else if(args.Contains("--installer033")){var i=Array.IndexOf(args,"--installer033");CheckInstaller033(args[i+1],args[i+2],args[i+3],args[i+4]);}
+            else if(args.Contains("--nexa035"))Check035();
             else if(args.Contains("--nexa034"))Check034();
             else if(args.Contains("--nexa033"))Check033();
             else if(args.Contains("--nexa032"))Check032();

@@ -139,7 +139,8 @@ public partial class MainWindow
     private void RefreshDashboardPicker()
     {
         updatingDashboardPicker = true;
-        SpaceIconHost.Content=SpaceIcons.Create(SpaceIcons.Resolve(state.SpaceIcon,Continuity.Current(state.Workspace!,store.UserId).PresetOrigin),20);
+        var headerIcon=SpaceIcons.Create(SpaceIcons.Resolve(state.SpaceIcon,Continuity.Current(state.Workspace!,store.UserId).PresetOrigin),20);
+        headerIcon.Margin=new Thickness(0);headerIcon.VerticalAlignment=VerticalAlignment.Center;SpaceIconHost.Content=headerIcon;
         DashboardPicker.ItemsSource = null;
         DashboardPicker.ItemsSource = state.Workspace!.Dashboards.Where(d => d.UserId == store.UserId).ToList();
         DashboardPicker.SelectedItem = Continuity.Current(state.Workspace, store.UserId);

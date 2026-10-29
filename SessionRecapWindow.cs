@@ -3,6 +3,31 @@ using System.Windows.Controls;
 namespace SessionDashboard;
 internal sealed class SessionRecapWindow:NexaDialog
 {
+    // Read only: use the saved recap snapshot; viewing never finalizes or awards anything.
+    internal static UIElement Compact(string spaceName,DashboardSession session,NexaOptions options)
+    {
+        var body=new StackPanel{Margin=new Thickness(16)};
+        body.Children.Add(new TextBlock{Text=spaceName,FontSize=22,FontWeight=FontWeights.SemiBold,TextWrapping=TextWrapping.Wrap});
+        if(session.Title!=spaceName)body.Children.Add(new TextBlock{Text=session.Title,FontSize=15,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,5,0,0)});
+        if(session.Recap is {} recap)
+        {
+            var seconds=double.IsFinite(recap.ActualSeconds)?Math.Clamp(recap.ActualSeconds,0,3155760000):0;
+            body.Children.Add(new TextBlock{Text=$"{NexaTime.Local(recap.StartedAt,options.TimeZoneId):g} – {NexaTime.Local(recap.EndedAt,options.TimeZoneId):g}\n{TimeSpan.FromSeconds(seconds).TotalMinutes:0.#} minutes together · {recap.MeaningfulActions:N0} meaningful actions",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,8,0,8)});
+            var cards=new WrapPanel();
+            foreach(var item in recap.Accomplishments.Where(p=>p.Value>0))cards.Children.Add(Accomplishment(item.Key,item.Value,true));
+            body.Children.Add(cards);
+            body.Children.Add(new TextBlock{Text=$"Productivity {recap.ScoreStart:N0} → {recap.ScoreEnd:N0} ({recap.ScoreEnd-recap.ScoreStart:+0;-0;0} points)",FontSize=16,FontWeight=FontWeights.SemiBold,TextWrapping=TextWrapping.Wrap});
+        }
+        else body.Children.Add(new TextBlock{Text=$"{NexaTime.Local(session.OpenedAt,session.TimeZoneId):g}\nNo saved recap snapshot for this older session. Complete recorded details follow below.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,8,0,0)});
+        var frame=new Border{Child=body,CornerRadius=new CornerRadius(12),BorderThickness=new Thickness(1)};frame.SetResourceReference(Border.BorderBrushProperty,"AccentBrush");return frame;
+    }
+    private static Border Accomplishment(string name,int value,bool compact=false)
+    {
+        var illustration=name switch{"Tasks completed"=>"Task","Notes captured"=>"Notes","Water bottles recorded"=>"Water","Candy collected"=>"Candy","Bugs squashed"=>"Bug",_=>"Clock"};
+        var detail=new StackPanel{Orientation=Orientation.Horizontal};var art=(FrameworkElement)NexaIcons.Create(illustration);art.Width=art.Height=compact?20:26;art.Margin=new Thickness(0,0,10,0);detail.Children.Add(art);
+        detail.Children.Add(new TextBlock{Text=$"{value:N0} {name.ToLowerInvariant()}",FontSize=compact?13:16,VerticalAlignment=VerticalAlignment.Center});
+        var card=new Border{CornerRadius=new CornerRadius(12),BorderThickness=new Thickness(1),Padding=new Thickness(compact?9:16),Margin=new Thickness(0,0,10,10),Child=detail};card.SetResourceReference(Border.BorderBrushProperty,"AccentBrush");return card;
+    }
     internal SessionRecapWindow(Window owner,string spaceName,string icon,DashboardSession session,NexaOptions options,Action? home=null)
     {
         Owner=owner;Title="nexa - Session recap";Width=790;Height=700;MinWidth=570;MinHeight=450;WindowStartupLocation=WindowStartupLocation.CenterOwner;
@@ -21,11 +46,7 @@ internal sealed class SessionRecapWindow:NexaDialog
             var cards=new WrapPanel();
             foreach(var item in recap.Accomplishments.Where(p=>p.Value>0))
             {
-                var illustration=item.Key switch{"Tasks completed"=>"Task","Notes captured"=>"Notes","Water bottles recorded"=>"Water","Candy collected"=>"Candy","Bugs squashed"=>"Bug",_=>"Clock"};
-                var detail=new StackPanel{Orientation=Orientation.Horizontal};var iconArt=(FrameworkElement)NexaIcons.Create(illustration);iconArt.Width=iconArt.Height=26;iconArt.Margin=new Thickness(0,0,12,0);detail.Children.Add(iconArt);
-                detail.Children.Add(new TextBlock{Text=$"{item.Value:N0} {item.Key.ToLowerInvariant()}",FontSize=16,VerticalAlignment=VerticalAlignment.Center});
-                var card=new Border{CornerRadius=new CornerRadius(12),BorderThickness=new Thickness(1),Padding=new Thickness(16),Margin=new Thickness(0,0,10,10),Child=detail};
-                card.SetResourceReference(Border.BorderBrushProperty,"AccentBrush");cards.Children.Add(card);
+                cards.Children.Add(Accomplishment(item.Key,item.Value));
             }
             body.Children.Add(cards);Loaded+=(_,_)=>{var index=0;foreach(var card in cards.Children.OfType<FrameworkElement>())_ = NexaMotion.CardTransition(card,true,options,index++*120);};
             body.Children.Add(new TextBlock{Text=$"{recap.MeaningfulActions:N0} meaningful actions",Margin=new Thickness(0,10,0,10)});

@@ -61,7 +61,7 @@ public partial class MainWindow
         Detach(TitleInput);
         TitleInput.FontSize = 16; TitleInput.FontWeight = FontWeights.SemiBold;
         TitleInput.Background = Brushes.Transparent; TitleInput.BorderThickness = new Thickness(0);
-        TitleInput.Padding = new Thickness(0); TitleInput.ToolTip = "Edit session name";
+        TitleInput.Padding = new Thickness(0); TitleInput.VerticalContentAlignment=VerticalAlignment.Center; TitleInput.ToolTip = "Edit session name";
         SessionNameHost.Content = TitleInput;
         TitleInput.TextChanged += (_, _) =>
         {

@@ -11,13 +11,25 @@ internal sealed class HomeSpider
     internal int Pickups {get;private set;}
     internal bool HasRoom {get;private set;}=true;
     internal double Age {get;private set;}
+    internal double Radius {get;private set;}=70;
     private Point target;
     private double until,nextCandy=6,detourUntil;
     private IReadOnlyList<Rect> reserved=[];
     internal void Configure(Size size,IReadOnlyList<Rect> obstacles)
     {
-        Territory=new Rect(48,80,Math.Max(45,Math.Min(300,size.Width*.24)-48),Math.Max(45,Math.Min(370,size.Height*.53)-80));
-        reserved=obstacles;
+        // Search the actual free layout for a footprint that includes every leg, at any angle.
+        // Shrink only when controls/text leave insufficient room; never cover an action.
+        var desired=Math.Min(SeasonalCorners.PumpkinBounds(size).Width*.52,Math.Min(size.Width,size.Height)*.28);
+        Point? free=null;
+        for(var radius=Math.Max(28,desired);radius>=28 && free==null;radius-=8)
+        {
+            Radius=radius;Territory=new Rect(radius+4,radius+4,Math.Max(1,size.Width-2*radius-8),Math.Max(1,size.Height-2*radius-8));
+            reserved=obstacles.Select(r=>{r.Inflate(radius+8,radius+8);return r;}).ToArray();
+            for(var y=Territory.Top;y<=Territory.Bottom && free==null;y+=20)
+                for(var x=Territory.Left;x<=Territory.Right;x+=20)if(Valid(new Point(x,y))){free=new Point(x,y);break;}
+        }
+        if(free==null){HasRoom=false;Candy=null;return;}
+        if(!Valid(Bug.Position))Bug.Position=free.Value;
         if(!Valid(Bug.Position)){Bug.Position=FindPoint();target=Bug.Position;until=Age+1;}
         HasRoom=Valid(Bug.Position);
         if(Candy is {} candy && !Valid(candy))Candy=null;

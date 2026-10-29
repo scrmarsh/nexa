@@ -17,6 +17,7 @@ internal sealed class SessionHistoryWindow : NexaPanel
     private readonly DarkDatePicker date = new() { Width = 145 };
     private readonly ComboBox presets = new() { Width = 160 };
     private readonly TextBox report = new() { IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+    private readonly StackPanel summary=new(){Tag="CompactSessionSummary",Margin=new Thickness(0,0,0,16)};
     private readonly TextBlock status = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 8) };
     private readonly DispatcherTimer debounce = new() { Interval = TimeSpan.FromMilliseconds(250) };
     private readonly List<Button> mutationButtons = [];
@@ -49,7 +50,10 @@ internal sealed class SessionHistoryWindow : NexaPanel
         var hover=new Trigger{Property=UIElement.IsMouseOverProperty,Value=true};hover.Setters.Add(new Setter(Control.BackgroundProperty,new DynamicResourceExtension("SurfaceBrush")));itemStyle.Triggers.Add(hover);
         var selected=new Trigger{Property=ListBoxItem.IsSelectedProperty,Value=true};selected.Setters.Add(new Setter(Control.BackgroundProperty,new DynamicResourceExtension("AccentBrush")));itemStyle.Triggers.Add(selected);
         list.ItemContainerStyle=itemStyle;list.SetResourceReference(Control.BackgroundProperty,"BackgroundBrush");list.BorderThickness=new Thickness(0);
-        list.Margin = new Thickness(0, 0, 14, 0); columns.Children.Add(list); Grid.SetColumn(report, 1); columns.Children.Add(report); root.Children.Add(columns);
+        list.Margin = new Thickness(0, 0, 14, 0); columns.Children.Add(list);
+        report.FontSize=12;report.BorderThickness=new Thickness(0);report.VerticalScrollBarVisibility=ScrollBarVisibility.Disabled;
+        var detail=new StackPanel();detail.Children.Add(summary);detail.Children.Add(report);
+        var details=new ScrollViewer{Content=detail,VerticalScrollBarVisibility=ScrollBarVisibility.Hidden,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled,PanningMode=PanningMode.VerticalOnly};Grid.SetColumn(details,1);columns.Children.Add(details);root.Children.Add(columns);
         Button Action(string label, System.Action callback, bool mutation = false)
         {
             var button = new Button { Content = label, Margin = new Thickness(0, 0, 8, 6) };
@@ -141,7 +145,9 @@ internal sealed class SessionHistoryWindow : NexaPanel
         if (!Dispatcher.CheckAccess()) { await OnUi(() => _ = ShowReport()); return; }
         var token = ++selection; var entry = list.SelectedItem as HistoryEntry;
         foreach (var button in mutationButtons) button.IsEnabled = mutationsAllowed && entry?.Editable == true;
+        summary.Children.Clear();
         if (entry == null) return;
+        if(entry.Session is {} session)summary.Children.Add(SessionRecapWindow.Compact(entry.Space,session,store.Load().Workspace?.Settings??new()));
         report.Text = "Loading session report…";
         try { var text = await Task.Run(() => entry.Report); await OnUi(() => { if (token == selection) report.Text = text; }); }
         catch (Exception ex) when (HistoryArchive.Recoverable(ex)) { Fail(ex); }

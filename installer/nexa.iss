@@ -10,10 +10,10 @@
   #define PrepareHelper "Nexa.exe"
 #endif
 #ifndef OutputDirPath
-  #define OutputDirPath "..\verification\installer033"
+  #define OutputDirPath "..\verification\installer035"
 #endif
 #ifndef AppVersion
-  #define AppVersion "0.0.34"
+  #define AppVersion "0.0.35"
 #endif
 #ifdef TestRoot
   #define ProductId "{B80F06DA-5764-44B7-B632-68ACB4BE0330}"

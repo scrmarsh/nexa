@@ -42,3 +42,5 @@ desktop.ini
 
 # Generated compatibility-bridge installer digest
 /installer/bridge/InstallerIdentity.g.cs
+
+/docs/media/nexa035/regression/

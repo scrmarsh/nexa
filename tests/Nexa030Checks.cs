@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -12,8 +12,8 @@ internal static partial class Program
 {
     private static void Check030()
     {
-        Assert(App.AppVersion=="0.0.34" && App.VersionLabel=="nexa v0.0.34 alpha","Current refinement uses shared lowercase Alpha identity");
-        Assert(ReleaseNotes.All[0].Title=="UI Refinement, Installer Repair & Data Safety" && ReleaseNotes.All.Single(n=>n.Version=="0.0.29").Title=="NEXAWEEN: Interface Polish","New active note preserves released .29 history");
+        Assert(App.AppVersion=="0.0.35" && App.VersionLabel=="nexa v0.0.35 alpha","Current refinement uses shared lowercase Alpha identity");
+        Assert(ReleaseNotes.All[0].Title=="UI Polish, Session Flow & Nexaween Refinements" && ReleaseNotes.All.Single(n=>n.Version=="0.0.29").Title=="NEXAWEEN: Interface Polish","New active note preserves released .29 history");
         Assert(new EcosystemOptions().HitboxExpansion==1.5 && new EcosystemOptions{HitboxExpansion=double.NaN}.Safe().HitboxExpansion==1.5,"Legacy and invalid hit tolerance safely default to 1.5");
         Assert(new EcosystemOptions{HitboxExpansion=100}.Safe().HitboxExpansion==1.6,"Saved hit tolerance cannot create enormous invisible regions");
         CheckInput030();CheckPersistence030();CheckFullscreen030();CheckSpider030();Preview030();
@@ -123,13 +123,13 @@ internal static partial class Program
     }
     private static void Save030(Window window,string name)
     {
-        var folder=Path.GetFullPath("docs/media/nexa034/continuity030");Directory.CreateDirectory(folder);window.UpdateLayout();var root=(FrameworkElement)window.Content;
+        var folder=Path.GetFullPath("docs/media/nexa035/regression/continuity030");Directory.CreateDirectory(folder);window.UpdateLayout();var root=(FrameworkElement)window.Content;
         var bitmap=new RenderTargetBitmap((int)Math.Ceiling(root.ActualWidth),(int)Math.Ceiling(root.ActualHeight),96,96,PixelFormats.Pbgra32);bitmap.Render(root);
         var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));using var file=File.Create(Path.Combine(folder,name+".png"));encoder.Save(file);
     }
     private static void Preview030()
     {
-        var folder=Path.GetFullPath("docs/media/nexa034/continuity030");Directory.CreateDirectory(folder);
+        var folder=Path.GetFullPath("docs/media/nexa035/regression/continuity030");Directory.CreateDirectory(folder);
         var store=new StateStore(Path.Combine(output,"preview030.json"));
         var state=store.Load();state.Workspace=Continuity.Migrate(state,store.UserId);
         state.Workspace.Settings.SeasonalMode="On";state.Workspace.Settings.SeasonalAnimation=true;state.Workspace.Settings.SeasonalDecorations=true;

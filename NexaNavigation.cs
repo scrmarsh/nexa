@@ -1,6 +1,9 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
+using System.Windows.Media.Animation;
 namespace SessionDashboard;
 // Window construction stays on its dispatcher; only model/file preparation runs on workers.
 internal static class NexaNavigation
@@ -24,6 +27,18 @@ internal static class NexaNavigation
         var enabled=root?.IsEnabled??true;if(root!=null)root.IsEnabled=false;
         try
         {
+            // Fade a frozen source image over an already opaque destination, never the HWND.
+            BitmapSource? snapshot=null;
+            if(source is HomeWindow && root!=null && NexaMotion.Allowed(options) && root.ActualWidth>0 && root.ActualHeight>0)
+            {
+                try
+                {
+                    var dpi=VisualTreeHelper.GetDpi(root);var scale=Math.Min(1,2560/(root.ActualWidth*dpi.DpiScaleX));
+                    var bitmap=new RenderTargetBitmap(Math.Max(1,(int)Math.Ceiling(root.ActualWidth*dpi.DpiScaleX*scale)),Math.Max(1,(int)Math.Ceiling(root.ActualHeight*dpi.DpiScaleY*scale)),dpi.PixelsPerInchX*scale,dpi.PixelsPerInchY*scale,PixelFormats.Pbgra32);
+                    bitmap.Render(root);bitmap.Freeze();snapshot=bitmap;
+                }
+                catch(Exception ex) when(ex is InvalidOperationException or ArgumentException or System.Runtime.InteropServices.COMException){snapshot=null;}
+            }
             // Keep the complete source opaque throughout preparation.
             if(closed)return;
             timings["Fade out"]=phase.Elapsed.TotalMilliseconds;phase.Restart();
@@ -43,7 +58,25 @@ internal static class NexaNavigation
             timings["First complete render"]=phase.Elapsed.TotalMilliseconds;
             timings["Interactive readiness"]=request.Elapsed.TotalMilliseconds;phase.Restart();
             target.UpdateLayout();
+            Image? cover=null;
+            if(snapshot!=null && targetRoot is Grid grid)
+            {
+                cover=new Image{Source=snapshot,Stretch=Stretch.Fill,IsHitTestVisible=false};
+                Grid.SetColumnSpan(cover,Math.Max(1,grid.ColumnDefinitions.Count));Grid.SetRowSpan(cover,Math.Max(1,grid.RowDefinitions.Count));Panel.SetZIndex(cover,int.MaxValue);grid.Children.Add(cover);target.UpdateLayout();
+            }
             target.BeginAnimation(Window.OpacityProperty,null);target.Opacity=1;
+            if(cover!=null && targetRoot is Grid coverGrid)
+            {
+                var fade=System.Diagnostics.Stopwatch.StartNew();
+                try
+                {
+                    await target.Dispatcher.InvokeAsync(()=>{},DispatcherPriority.Render);
+                    cover.BeginAnimation(UIElement.OpacityProperty,new DoubleAnimation(1,0,TimeSpan.FromMilliseconds(200)){EasingFunction=new QuadraticEase{EasingMode=EasingMode.EaseInOut}});
+                    await Task.Delay(210);
+                }
+                finally{cover.BeginAnimation(UIElement.OpacityProperty,null);coverGrid.Children.Remove(cover);}
+                timings["Crossfade"]=fade.Elapsed.TotalMilliseconds;
+            }
             if(targetRoot!=null)targetRoot.IsEnabled=true;
             target.Activate();
             await target.Dispatcher.InvokeAsync(()=>{},DispatcherPriority.Render);

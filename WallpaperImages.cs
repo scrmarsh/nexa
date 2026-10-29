@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -34,8 +34,6 @@ internal sealed partial class HomeWindow
 {
     private readonly Border homeWallpaper=new(){IsHitTestVisible=false};
     private readonly Border homeWallpaperShade=new(){IsHitTestVisible=false,Background=Brushes.Black};
-    private readonly Border homeDefaultFrame=new(){IsHitTestVisible=false,BorderBrush=BugVisuals.B("#185FA5"),BorderThickness=new Thickness(16)};
-    private readonly Border homeDefaultGlow=new(){IsHitTestVisible=false,BorderBrush=BugVisuals.B("#7F77DD"),BorderThickness=new Thickness(2),Margin=new Thickness(16),Opacity=.55,Effect=new System.Windows.Media.Effects.BlurEffect{Radius=9}};
     internal void PreviewHomeWallpaper(StateStore source,SpaceBackground settings)
     {if(source.FilePath!=store.FilePath || Saved.Workspace==null)return;Saved.Workspace.Settings.HomeWallpaper=Continuity.Clone(settings);RefreshWallpaper();}
     internal void RefreshWallpaper()
@@ -45,10 +43,9 @@ internal sealed partial class HomeWindow
             if(!Theme.SeasonalEnabled)Resources[pair.Item1]=BugVisuals.B(pair.Item2);else Resources.Remove(pair.Item1);
         var settings=Saved.Workspace?.Settings.HomeWallpaper;
         var isDefault=!Theme.SeasonalEnabled && ((settings?.Mode??SpaceBackgroundMode.Default)==SpaceBackgroundMode.Default || settings?.Mode==SpaceBackgroundMode.CustomImage && WallpaperImages.Load(settings)==null);
-        homeDefaultFrame.Visibility=homeDefaultGlow.Visibility=isDefault?Visibility.Visible:Visibility.Collapsed;
         if(Theme.SeasonalEnabled){homeWallpaper.Background=null;homeWallpaper.Effect=null;homeWallpaperShade.Opacity=0;return;}
         WallpaperImages.Apply(homeWallpaper,settings);
-        if(homeWallpaper.Background==null)homeWallpaper.Background=BugVisuals.B("#171B26");
+        if(homeWallpaper.Background==null)homeWallpaper.Background=BugVisuals.B("#121620");
         homeWallpaperShade.Opacity=isDefault?0:WallpaperImages.Shade(settings,true,homeWallpaper.Background!=null);
     }
 }
@@ -135,7 +132,7 @@ internal sealed partial class SettingsDialog
         var shade=new Slider{Minimum=0,Maximum=.9,Value=settings.Overlay};Field(imageControls,"Contrast overlay",shade);
         void Refresh()
         {
-            WallpaperImages.Apply(previewLayer,settings);if(previewLayer.Background==null)previewLayer.Background=BugVisuals.B("#171B26");
+            WallpaperImages.Apply(previewLayer,settings);if(previewLayer.Background==null)previewLayer.Background=BugVisuals.B("#121620");
             previewShade.Opacity=settings.Mode==SpaceBackgroundMode.CustomImage?WallpaperImages.Shade(settings,true,previewLayer.Background is ImageBrush):0;
             imageControls.Visibility=settings.Mode==SpaceBackgroundMode.CustomImage?Visibility.Visible:Visibility.Collapsed;
             status.Text=settings.Mode switch{SpaceBackgroundMode.SolidColor=>"Solid color",SpaceBackgroundMode.CustomImage=>WallpaperImages.Load(settings)==null?"Image unavailable. nexa Default is shown; your image selection is retained.":Path.GetFileName(settings.ImagePath),_=>"nexa Default"};

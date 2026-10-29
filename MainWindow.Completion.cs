@@ -52,7 +52,7 @@ public partial class MainWindow
     {
         if(recapWindow!=null){recapWindow.Activate();return;}
         var record=Continuity.Current(state.Workspace!,store.UserId);
-        recapWindow=new SessionRecapWindow(this,record.Name,state.SpaceIcon,record.Current,Options,()=>HomeClick(this,new RoutedEventArgs()));
+        recapWindow=new SessionRecapWindow(this,record.Name,state.SpaceIcon,record.Current,Options,NavigateHome);
         recapWindow.Closed+=(_,_)=>recapWindow=null;recapWindow.Show();
     }
 }

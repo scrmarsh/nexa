@@ -32,8 +32,8 @@ internal sealed class WindowsOutputVolume : IDisposable
         catch(COMException){if(next!=null && next!=endpoint)Marshal.ReleaseComObject(next);}
         finally{if(device!=null)Marshal.ReleaseComObject(device);}
     }
-    internal void Set(float level){if(endpoint!=null){var context=Guid.Empty;endpoint.SetMasterVolumeLevelScalar(Math.Clamp(level,0,1),ref context);Level=level;}}
-    internal void ToggleMute(){if(endpoint!=null){var context=Guid.Empty;endpoint.SetMute(!Muted,ref context);Muted=!Muted;}}
+    internal void Set(float level){if(endpoint!=null){var context=Guid.Empty;if(endpoint.SetMasterVolumeLevelScalar(Math.Clamp(level,0,1),ref context)==0)Level=Math.Clamp(level,0,1);else Refresh();}}
+    internal void ToggleMute(){if(endpoint!=null){var context=Guid.Empty;if(endpoint.SetMute(!Muted,ref context)==0)Muted=!Muted;else Refresh();}}
     public void Dispose()
     {
         if(endpoint!=null){endpoint.UnregisterControlChangeNotify(callback);Marshal.ReleaseComObject(endpoint);endpoint=null;}

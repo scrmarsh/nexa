@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Windows;
@@ -11,7 +11,7 @@ using SessionDashboard;
 
 internal static partial class Program
 {
-    private static readonly string media032=Path.GetFullPath("docs/media/nexa034");
+    private static readonly string media032=Path.GetFullPath("docs/media/nexa035/regression");
     private static void Capture032(Window window,string name)
     {
         Directory.CreateDirectory(media032);window.UpdateLayout();var root=(FrameworkElement)window.Content;
@@ -35,7 +35,7 @@ internal static partial class Program
     }
     private static void Check032()
     {
-        Assert(App.VersionLabel=="nexa v0.0.34 alpha" && NexaReleaseIdentity.Current.Tag=="v0.0.34-alpha",".32 uses shared lowercase Alpha metadata");
+        Assert(App.VersionLabel=="nexa v0.0.35 alpha" && NexaReleaseIdentity.Current.Tag=="v0.0.35-alpha",".32 uses shared lowercase Alpha metadata");
         CheckAppearance032();CheckWallpaper032();CheckScrolling032();
     }
     private static void Bottom032(SettingsDialog settings,string label)
@@ -127,11 +127,10 @@ internal static partial class Program
             inner.ScrollToBottom();Pump(TimeSpan.FromMilliseconds(25));var boundary=inner.VerticalOffset;Wheel032((TextBlock)innerContent.Children[0],-120);Assert(inner.VerticalOffset==boundary && outer.VerticalOffset>0,"Parent resumes at the nested lower boundary without double scrolling");
             outer.ScrollToTop();inner.ScrollToTop();Pump(TimeSpan.FromMilliseconds(25));for(var i=0;i<10;i++)Wheel032((TextBlock)innerContent.Children[0],-12);var precise=inner.VerticalOffset;inner.ScrollToTop();Pump(TimeSpan.FromMilliseconds(20));Wheel032((TextBlock)innerContent.Children[0],-120);Assert(Math.Abs(inner.VerticalOffset-precise)<1,"Ten fine deltas travel the same distance as one physical wheel notch");
         }
-        var bar=Visual032(outer).OfType<ScrollBar>().First(b=>b.Orientation==Orientation.Vertical && b.Visibility==Visibility.Visible && ReferenceEquals(b.TemplatedParent,outer));Assert(bar.ActualWidth>=10 && bar.IsHitTestVisible,"Scrollbars retain a usable visible hit target");
-        var thumb=Visual032(bar).OfType<Thumb>().Single();Assert(thumb.IsEnabled && thumb.ActualHeight>0,"Visible scrollbar thumb remains enabled for dragging");
-        outer.ScrollToTop();Pump(TimeSpan.FromMilliseconds(20));thumb.RaiseEvent(new DragStartedEventArgs(0,0));thumb.RaiseEvent(new DragDeltaEventArgs(0,35));thumb.RaiseEvent(new DragCompletedEventArgs(0,35,false));Pump(TimeSpan.FromMilliseconds(25));Assert(outer.VerticalOffset>0,"Native scrollbar thumb drag changes the viewport");
+        Assert(outer.VerticalScrollBarVisibility==ScrollBarVisibility.Hidden && outer.ComputedVerticalScrollBarVisibility!=Visibility.Visible,"Global hidden scrollbar policy removes the visual gutter");
+        outer.ScrollToEnd();Pump(TimeSpan.FromMilliseconds(25));Assert(outer.ScrollableHeight>0 && Math.Abs(outer.VerticalOffset-outer.ScrollableHeight)<1,"Hidden bars preserve full content extent and bottom reachability");
         outer.ScrollToTop();Pump(TimeSpan.FromMilliseconds(20));outer.Focus();outer.RaiseEvent(new KeyEventArgs(Keyboard.PrimaryDevice,PresentationSource.FromVisual(window)!,Environment.TickCount,Key.PageDown){RoutedEvent=Keyboard.KeyDownEvent});Pump(TimeSpan.FromMilliseconds(25));Assert(outer.VerticalOffset>0,"Native Page Down remains functional");
         var beforeX=outer.HorizontalOffset;var beforeY=outer.VerticalOffset;Assert(NexaScrolling.Distance(0,3,16,400)==0 && outer.HorizontalOffset==beforeX && outer.VerticalOffset==beforeY,"Zero input leaves both axes unchanged");Capture032(window,"nested-scrolling");
-        var horizontal=new ScrollViewer{Content=new Border{Width=2400,Height=100},HorizontalScrollBarVisibility=ScrollBarVisibility.Auto,VerticalScrollBarVisibility=ScrollBarVisibility.Disabled,CanContentScroll=false};window.Content=horizontal;Pump(TimeSpan.FromMilliseconds(30));var horizontalBar=Visual032(horizontal).OfType<ScrollBar>().Single(b=>b.Orientation==Orientation.Horizontal);var horizontalThumb=Visual032(horizontalBar).OfType<Thumb>().Single();Assert(horizontalThumb.ActualHeight<=horizontalBar.ActualHeight && horizontalThumb.ActualWidth>=24,"Horizontal scrollbar thumb fits the track and keeps a usable minimum length");var pageRight=Visual032(horizontalBar).OfType<RepeatButton>().Single(b=>b.Name=="PageAfter");Assert(pageRight.Command==ScrollBar.PageRightCommand,"Horizontal scrollbar retains its horizontal page command");((RoutedCommand)pageRight.Command).Execute(null,pageRight);Pump(TimeSpan.FromMilliseconds(25));Assert(horizontal.HorizontalOffset>0 && horizontal.VerticalOffset==0,"Horizontal native track paging moves only the horizontal axis");window.Close();
+        var horizontal=new ScrollViewer{Content=new Border{Width=2400,Height=100},HorizontalScrollBarVisibility=ScrollBarVisibility.Auto,VerticalScrollBarVisibility=ScrollBarVisibility.Disabled,CanContentScroll=false};window.Content=horizontal;Pump(TimeSpan.FromMilliseconds(30));Assert(horizontal.HorizontalScrollBarVisibility==ScrollBarVisibility.Hidden && horizontal.ComputedHorizontalScrollBarVisibility!=Visibility.Visible,"Horizontal scrollbar visuals are hidden too");horizontal.LineRight();Pump(TimeSpan.FromMilliseconds(25));Assert(horizontal.HorizontalOffset>0 && horizontal.VerticalOffset==0,"Hidden horizontal scrolling retains native horizontal commands");window.Close();
     }
 }

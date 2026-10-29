@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using System.Windows.Documents;
 namespace SessionDashboard;
 public partial class MainWindow
 {
@@ -19,7 +20,6 @@ public partial class MainWindow
     private Slider? systemVolumeSlider;
     private bool statusListening,updatingVolume,statusBusy;
     private long statusGeneration;
-    private Popup? systemVolumePopup;
     private void ShowFullscreenNotice()
     {
         DismissFullscreenNotice();
@@ -44,7 +44,10 @@ public partial class MainWindow
         volumeStatus=new Button{Padding=new Thickness(5,3,5,3),FontSize=11,ToolTip="System output volume"};
         SystemIndicators.Children.Add(batteryStatus);SystemIndicators.Children.Add(networkStatus);SystemIndicators.Children.Add(volumeStatus);
         outputVolume=new WindowsOutputVolume();outputVolume.Changed+=QueueSystemStatus;
-        volumeStatus.Click+=(_,_)=>ShowVolumePopup();
+        volumeStatus.Click+=(_,_)=>{if(outputVolume?.Available==true){outputVolume.ToggleMute();RefreshSystemStatus();}};
+        systemVolumeSlider=new Slider{Minimum=0,Maximum=100,Width=90,SmallChange=1,LargeChange=10,IsMoveToPointEnabled=true,VerticalAlignment=VerticalAlignment.Center,Margin=new Thickness(4,0,6,0),ToolTip="Windows output volume"};
+        System.Windows.Automation.AutomationProperties.SetName(systemVolumeSlider,"Windows output volume");
+        systemVolumeSlider.ValueChanged+=(_,_)=>{if(!updatingVolume && Options.EnableVolumeSlider && outputVolume?.Available==true){outputVolume.Set((float)systemVolumeSlider.Value/100);RefreshSystemStatus();}};SystemIndicators.Children.Add(systemVolumeSlider);
         NetworkChange.NetworkAddressChanged+=NetworkStatusChanged;NetworkChange.NetworkAvailabilityChanged+=NetworkAvailabilityChanged;SystemEvents.PowerModeChanged+=StatusPowerChanged;
         systemStatusTimer.Tick+=StatusTimerTick;systemStatusTimer.Start();RefreshSystemStatus();
     }
@@ -55,19 +58,36 @@ public partial class MainWindow
     private void StatusTimerTick(object? sender,EventArgs e)=>RefreshSystemStatus();
     private async void RefreshSystemStatus()
     {
-        if(!statusListening || statusBusy)return;
+        if(!statusListening)return;
         outputVolume?.Refresh();
-        if(volumeStatus!=null){volumeStatus.Content=outputVolume?.Available==true?$"{(outputVolume.Muted?"Muted":"Vol")} {outputVolume.Level*100:0}%":"No output";volumeStatus.IsEnabled=Options.EnableVolumeSlider && outputVolume?.Available==true;}
+        if(volumeStatus!=null){volumeStatus.Content=outputVolume?.Available==true?$"{(outputVolume.Muted?"🔇":"🔊")} {outputVolume.Level*100:0}%":"No output";volumeStatus.ToolTip=outputVolume?.Muted==true?"Unmute Windows output":"Mute Windows output";volumeStatus.IsEnabled=Options.EnableVolumeSlider && outputVolume?.Available==true;System.Windows.Automation.AutomationProperties.SetName(volumeStatus,volumeStatus.ToolTip.ToString());}
+        if(systemVolumeSlider!=null){systemVolumeSlider.IsEnabled=Options.EnableVolumeSlider && outputVolume?.Available==true;}
         if(systemVolumeSlider!=null && outputVolume!=null){updatingVolume=true;systemVolumeSlider.Value=outputVolume.Level*100;updatingVolume=false;}
         if(GetSystemPowerStatus(out var power) && batteryStatus!=null)
-        {batteryStatus.Visibility=power.BatteryFlag==128 || power.BatteryFlag==255 || power.Percent==255?Visibility.Collapsed:Visibility.Visible;batteryStatus.Text=$"{power.Percent}%{((power.BatteryFlag&8)!=0?" charging":power.AC==1?" · AC":" battery")}";}
+        {
+            batteryStatus.Visibility=power.BatteryFlag==128?Visibility.Collapsed:Visibility.Visible;
+            var percent=power.Percent<=100?(int)power.Percent:-1;var charging=power.BatteryFlag!=255 && (power.BatteryFlag&8)!=0 || power.AC==1;
+            batteryStatus.Inlines.Clear();batteryStatus.Inlines.Add(new InlineUIContainer(new SystemStatusIcon{Kind="battery",Percent=percent,Charging=charging}));batteryStatus.Inlines.Add(new Run(percent>=0?$" {percent}%":" —"));batteryStatus.ToolTip=charging?"Battery · external power / charging":"Battery";
+        }
+        else if(batteryStatus!=null)batteryStatus.Visibility=Visibility.Collapsed;
+        if(statusBusy)return;
         var generation=statusGeneration;statusBusy=true;
         try
         {
-            var network=await Task.Run(ReadWindowsNetworkStatus);
-            await Dispatcher.InvokeAsync(()=>{if(statusListening && generation==statusGeneration && networkStatus!=null){networkStatus.Text=network;networkStatus.ToolTip=network;}});
+            var network=await Task.Run(ReadWirelessStatus);
+            await Dispatcher.InvokeAsync(()=>{if(statusListening && generation==statusGeneration && networkStatus!=null){networkStatus.Inlines.Clear();networkStatus.Inlines.Add(new InlineUIContainer(new SystemStatusIcon{Connected=network.Connected,Opacity=network.Available?1:.45}));networkStatus.ToolTip=network.Description;System.Windows.Automation.AutomationProperties.SetName(networkStatus,network.Description);}});
         }
         finally{statusBusy=false;}
+    }
+    internal static (bool Available,bool Connected,string Description) ReadWirelessStatus()
+    {
+        try
+        {
+            var adapters=NetworkInterface.GetAllNetworkInterfaces().Where(n=>n.NetworkInterfaceType==NetworkInterfaceType.Wireless80211).ToArray();
+            var connected=adapters.Any(n=>n.OperationalStatus==OperationalStatus.Up);
+            return(adapters.Length>0,connected,adapters.Length==0?"Wi-Fi hardware unavailable":connected?"Wi-Fi connected · signal strength unavailable":"Wi-Fi disconnected");
+        }
+        catch(NetworkInformationException){return(false,false,"Wi-Fi status unavailable");}
     }
     internal static string ReadWindowsNetworkStatus()
     {
@@ -89,25 +109,14 @@ public partial class MainWindow
         }
         catch(NetworkInformationException){return "Network unavailable";}
     }
-    private void ShowVolumePopup()
-    {
-        if(!Options.EnableVolumeSlider || outputVolume?.Available!=true)return;
-        if(systemVolumePopup!=null){systemVolumePopup.IsOpen=false;systemVolumePopup=null;return;}
-        var panel=new StackPanel{Width=190,Margin=new Thickness(12)};panel.Children.Add(new TextBlock{Text="Windows output volume"});
-        systemVolumeSlider=new Slider{Minimum=0,Maximum=100,Value=outputVolume.Level*100,Margin=new Thickness(0,12,0,8)};
-        systemVolumeSlider.ValueChanged+=(_,_)=>{if(!updatingVolume)outputVolume?.Set((float)systemVolumeSlider.Value/100);};panel.Children.Add(systemVolumeSlider);
-        var mute=new Button{Content=outputVolume.Muted?"Unmute":"Mute"};mute.Click+=(_,_)=>{outputVolume?.ToggleMute();mute.Content=outputVolume?.Muted==true?"Unmute":"Mute";RefreshSystemStatus();};panel.Children.Add(mute);
-        var border=new Border{Child=panel,CornerRadius=new CornerRadius(8)};border.SetResourceReference(Border.BackgroundProperty,"PanelBrush");
-        systemVolumePopup=new Popup{Child=border,PlacementTarget=volumeStatus,Placement=PlacementMode.Bottom,StaysOpen=false,AllowsTransparency=true};systemVolumePopup.Closed+=(_,_)=>{systemVolumePopup=null;systemVolumeSlider=null;};systemVolumePopup.IsOpen=true;
-    }
     private void DisposeSystemIndicators()
     {
         if(!statusListening)return;statusListening=false;statusGeneration++;
         systemStatusTimer.Stop();systemStatusTimer.Tick-=StatusTimerTick;
         NetworkChange.NetworkAddressChanged-=NetworkStatusChanged;NetworkChange.NetworkAvailabilityChanged-=NetworkAvailabilityChanged;SystemEvents.PowerModeChanged-=StatusPowerChanged;
         if(outputVolume!=null){outputVolume.Changed-=QueueSystemStatus;outputVolume.Dispose();outputVolume=null;}
-        if(systemVolumePopup!=null)systemVolumePopup.IsOpen=false;
         SystemIndicators.Children.Clear();
+        systemVolumeSlider=null;volumeStatus=null;networkStatus=null;batteryStatus=null;
     }
     private void FullscreenFocusChanged(object? sender,EventArgs e){if(fullscreen)Topmost=IsActive;}
     private void DisposeFullscreenStatus(){DismissFullscreenNotice();DisposeSystemIndicators();}

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Windows;
@@ -13,7 +13,7 @@ internal static partial class Program
 {
     private static void Check031()
     {
-        Assert(App.VersionLabel=="nexa v0.0.34 alpha" && NexaReleaseIdentity.Current.Tag=="v0.0.34-alpha","Shared release model owns current label/tag");
+        Assert(App.VersionLabel=="nexa v0.0.35 alpha" && NexaReleaseIdentity.Current.Tag=="v0.0.35-alpha","Shared release model owns current label/tag");
         Assert(NexaReleaseIdentity.Canonicalize(new(0,1,26),"Alpha")==new Version(0,0,26) && NexaReleaseIdentity.Canonicalize(new(0,1,26),"Beta")==new Version(0,1,26),"Explicit legacy Alpha map never rewrites genuine Beta");
         Assert(NexaReleaseIdentity.Canonicalize(new(0,1,99),"Alpha")==new Version(0,1,99),"Unconfirmed legacy-looking versions are not silently remapped");
         Assert(NexaReleaseIdentity.Parse("v0.1.0-alpha",true)==null && NexaReleaseIdentity.Parse("v0.1.0-beta",true)?.Stage=="Beta","First Beta numbering cannot masquerade as an Alpha release");
@@ -32,7 +32,7 @@ internal static partial class Program
     }
     private static void Capture031(Window window,string name)
     {
-        var folder=Path.GetFullPath("docs/media/nexa034/continuity031");Directory.CreateDirectory(folder);window.UpdateLayout();var root=(FrameworkElement)window.Content;
+        var folder=Path.GetFullPath("docs/media/nexa035/regression/continuity031");Directory.CreateDirectory(folder);window.UpdateLayout();var root=(FrameworkElement)window.Content;
         var bitmap=new RenderTargetBitmap((int)Math.Ceiling(root.ActualWidth),(int)Math.Ceiling(root.ActualHeight),96,96,PixelFormats.Pbgra32);bitmap.Render(root);
         var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));using var file=File.Create(Path.Combine(folder,name+".png"));encoder.Save(file);
     }
@@ -96,7 +96,7 @@ internal static partial class Program
     {
         Span<BugLegPose> poses=stackalloc BugLegPose[8];BugAnimation.FillLegs(BugSpecies.Spiders,.7,false,poses);
         Assert(poses.Length==8 && poses.ToArray().Count(p=>p.Root.Y<0)==4 && poses.ToArray().Count(p=>p.Root.Y>0)==4,"Shared spider has four front-body leg roots per side");
-        Assert(poses.ToArray().Select(p=>p.Root).Distinct().Count()==8 && poses.ToArray().All(p=>Math.Pow((p.Root.X-4)/4.6,2)+Math.Pow(p.Root.Y/3.7,2)<1.01),"Eight evenly spaced roots follow the rounded front-body boundary");
+        Assert(poses.ToArray().Select(p=>p.Root).Distinct().Count()==8 && poses.ToArray().All(p=>Math.Pow((p.Root.X-4)/4.5,2)+Math.Pow(p.Root.Y/4.2,2)<1.01),"Eight evenly spaced roots follow the rounded front-body boundary");
         var manager=CreateWorld(BugBehavior.Creepy);manager.Bugs.Clear();manager.Webs.Clear();manager.Resources.Clear();
         var bug=new BugEntity{Species=BugSpecies.Spiders,Position=new(510,310),Activity=BugActivity.Nesting,State=BugState.Crossing,Speed=70,Decision=10000,Scale=1};manager.Bugs.Add(bug);
         var web=new EcosystemWeb{Owner=bug.InteractionId,X=600,Y=400};BugManager.EnsureSilk(web);manager.Webs.Add(web);
@@ -124,7 +124,7 @@ internal static partial class Program
             foreach(var angle in new[]{0d,90,180,-45,135,42})
             {var bug=new BugEntity{Species=BugSpecies.Spiders,Angle=angle,Position=new(0,0),CrawlPhase=index*.6};dc.PushTransform(new TranslateTransform(95+index*200,130));dc.PushTransform(new RotateTransform(angle));dc.PushTransform(new ScaleTransform(4,4));BugVisuals.Draw(dc,bug,new EcosystemOptions{Adorable=true,AdvancedAnimations=true},false,1.3,new(100,30),1);dc.Pop();dc.Pop();dc.Pop();index++;}
         }
-        var bitmap=new RenderTargetBitmap(1200,280,96,96,PixelFormats.Pbgra32);bitmap.Render(visual);var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));Directory.CreateDirectory("docs/media/nexa034/continuity031");using var file=File.Create("docs/media/nexa034/continuity031/spider-directions.png");encoder.Save(file);
+        var bitmap=new RenderTargetBitmap(1200,280,96,96,PixelFormats.Pbgra32);bitmap.Render(visual);var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));Directory.CreateDirectory("docs/media/nexa035/regression/continuity031");using var file=File.Create("docs/media/nexa035/regression/continuity031/spider-directions.png");encoder.Save(file);
     }
     private static void CheckPackaged031(string candidate)
     {

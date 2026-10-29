@@ -76,6 +76,19 @@ internal static class NexaData
     }
     internal sealed record Entry(string Path,long Size,string SHA256);
     internal sealed record MigrationReport(int Copied,int Conflicts,int Verified,string[] Sources);
+    private static bool OtherGame(string name)=>name.Equals("LivingWorlds",StringComparison.OrdinalIgnoreCase)||name.Equals("Living Worlds",StringComparison.OrdinalIgnoreCase)||name.Equals("Living-Worlds",StringComparison.OrdinalIgnoreCase)||name.Equals("Aevoria",StringComparison.OrdinalIgnoreCase);
+    private static IEnumerable<string> LegacyFiles(string root)
+    {
+        Regular(root);
+        foreach(var item in Directory.EnumerateFileSystemEntries(root).Order(StringComparer.OrdinalIgnoreCase))
+        {
+            // Skip the other game's directory before descending into it or following its links.
+            if(OtherGame(Path.GetFileName(item)))continue;
+            Regular(item);
+            if(Directory.Exists(item)){foreach(var file in LegacyFiles(item))yield return file;}
+            else yield return item;
+        }
+    }
     // Copy originals into a verified, restart-safe inventory before adopting them. Never remove legacy data.
     internal static MigrationReport Migrate(string legacy,string documents,string destination)
     {
@@ -84,7 +97,7 @@ internal static class NexaData
         Directory.CreateDirectory(destination);
         var sources=new List<(string Source,string Relative)>();
         if(Directory.Exists(legacy))
-            foreach(var file in Files(legacy))
+            foreach(var file in LegacyFiles(legacy))
             {
                 var relative=Path.GetRelativePath(legacy,file);
                 if(relative.Split(Path.DirectorySeparatorChar).Any(x=>x.Equals("updates",StringComparison.OrdinalIgnoreCase)||x.Equals("installer-cache",StringComparison.OrdinalIgnoreCase)||x.Equals("migration-backups",StringComparison.OrdinalIgnoreCase)))continue;
@@ -178,7 +191,7 @@ internal static class NexaData
         {
             lock(SnapshotGate)
             {
-                progress?.Report("Inventorying local data…");
+                progress?.Report("Inventorying local dataâ€¦");
                 var files=Files(root).Where(f=>!f.Equals(temporary,StringComparison.OrdinalIgnoreCase)&&!f.Equals(destination,StringComparison.OrdinalIgnoreCase))
                     .Where(f=>!Path.GetRelativePath(root,f).Split(Path.DirectorySeparatorChar).Any(part=>SecretName(part)||part.StartsWith(".nexa-backup-stage-",StringComparison.OrdinalIgnoreCase)||part.Equals("Backups",StringComparison.OrdinalIgnoreCase)||part.Equals("updates",StringComparison.OrdinalIgnoreCase)||part.Equals("installer-cache",StringComparison.OrdinalIgnoreCase)||part.Equals("migration-backups",StringComparison.OrdinalIgnoreCase)))
                     .Where(f=>Path.GetExtension(f).ToLowerInvariant() is not (".exe" or ".dll" or ".tmp" or ".zip") && !Path.GetFileName(f).Contains("vault",StringComparison.OrdinalIgnoreCase) && !Path.GetRelativePath(root,f).Equals("nexa-backup-manifest.json",StringComparison.OrdinalIgnoreCase)).ToArray();
@@ -212,9 +225,9 @@ internal static class NexaData
                     if(CopyAndHash(input,output,cancel)!=expected.SHA256)throw new InvalidDataException("Checkpoint changed during export.");
                 }
                 using var manifest=archive.CreateEntry("nexa-backup-manifest.json").Open();
-                JsonSerializer.Serialize(manifest,new{Schema=1,AppVersion=App.VersionLabel,CreatedUtc=DateTimeOffset.UtcNow,Compatibility="nexa 0.0.34 Alpha; manual recovery only",Credentials="Excluded. Reconnect integrations after recovery.",Files=entries});
+                JsonSerializer.Serialize(manifest,new{Schema=1,AppVersion=App.VersionLabel,CreatedUtc=DateTimeOffset.UtcNow,Compatibility="nexa 0.0.35 Alpha; manual recovery only",Credentials="Excluded. Reconnect integrations after recovery.",Files=entries});
             }
-            cancel.ThrowIfCancellationRequested();progress?.Report("Verifying archive hashes…");
+            cancel.ThrowIfCancellationRequested();progress?.Report("Verifying archive hashesâ€¦");
             using(var archive=ZipFile.OpenRead(temporary))foreach(var expected in entries)
             {
                 cancel.ThrowIfCancellationRequested();var entry=archive.GetEntry(expected.Path)??throw new InvalidDataException("Missing archived file.");

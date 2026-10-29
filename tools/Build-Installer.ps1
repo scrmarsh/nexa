@@ -1,10 +1,10 @@
-﻿param(
+param(
  [Parameter(Mandatory=$true)][string]$PublishDir,
  [Parameter(Mandatory=$true)][string]$Compiler,
- [string]$OutputDirectory='verification/installer034',
+ [string]$OutputDirectory='verification/installer035',
  [string]$TestRoot,
  [string]$FixtureMaintenanceHelper,
- [string]$Version='0.0.34'
+ [string]$Version='0.0.35'
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot

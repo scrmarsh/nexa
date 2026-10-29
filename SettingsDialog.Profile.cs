@@ -10,8 +10,8 @@ internal sealed partial class SettingsDialog
     private UIElement BuildProfile()
     {
         var profile=store.LoadProfile();var page=Page("Profile","Your recorded activity across Spaces. Everything stays in your Windows account.");
-        var name=new TextBox{Text=profile.DisplayName,MaxLength=80};Field(page,"Display name",name);
-        name.TextChanged+=(_,_)=>QueueSave("profile",()=>{var current=store.LoadProfile();current.DisplayName=name.Text.Trim();store.SaveProfile(current);});
+        var name=new Button{Content=string.IsNullOrWhiteSpace(profile.DisplayName)?"Set display name":profile.DisplayName,HorizontalAlignment=HorizontalAlignment.Left,ToolTip="Edit display name"};Field(page,"Display name",name);
+        name.Click+=(_,_)=>new DisplayNameDialog(this,store,value=>name.Content=value).ShowDismissible();
         var sessions=(state.Workspace?.Dashboards??[]).SelectMany(d=>d.History.Append(d.Current)).ToArray();
         var events=sessions.SelectMany(s=>s.Data.Productivity.Events).Concat(state.Productivity.Events).DistinctBy(e=>e.Id).ToArray();
         var completed=ProfileActivity.Completed(sessions);
@@ -90,7 +90,7 @@ internal sealed partial class SettingsDialog
         page.Children.Add(microsoftSetup); page.Children.Add(microsoftStatus);
         page.Children.Add(new TextBlock { Text="Google and Microsoft require registered desktop/public apps. See docs/INTEGRATIONS.md. Calendar access is read-only. Disconnect removes locally saved authorization; revoke permission in the provider account if needed.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,0) });
         }
-        hedySettingsSection=new Border { Child=BuildHedy(),Margin=new Thickness(0,28,0,0),Focusable=true }; if(!future)page.Children.Add(new Expander{Header="Hedy recording notes",Content=hedySettingsSection});
+        if(!future){hedySettingsSection=new Border { Child=BuildHedy(),Margin=new Thickness(0,28,0,0),Focusable=true };page.Children.Add(hedySettingsSection);}
         return new ScrollViewer { Tag="HiddenPageScroll",Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Hidden,PanningMode=PanningMode.VerticalOnly };
     }
 }

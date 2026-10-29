@@ -1,3 +1,5 @@
+> **Local development: nexa v0.0.35 alpha (unpublished).** [Implementation status](docs/NEXA_035_STATUS.md) · [Verification](docs/NEXA_035_TEST_RESULTS.md) · [Storage compatibility](docs/NEXA_035_DATA_MIGRATION.md). The public installer below remains the approved .34 release.
+
 <div align="center">
 
 ![nexa · latest — a space for whatever comes next](docs/media/nexa-banner.svg)

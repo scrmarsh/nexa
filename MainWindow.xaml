@@ -13,16 +13,16 @@
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" MaxWidth="210" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Image x:Name="HeaderBrandIcon" Source="assets/nexa-icon-256.png" Width="24" Height="24" Margin="0,0,12,0"/>
-                    <ContentControl x:Name="SessionNameHost" MaxWidth="290" VerticalAlignment="Center"/><ContentControl x:Name="SpaceIconHost" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                    <ContentControl x:Name="SessionNameHost" MaxWidth="290" Height="28" VerticalContentAlignment="Center" VerticalAlignment="Center"/><ContentControl x:Name="SpaceIconHost" Height="28" VerticalContentAlignment="Center" Margin="8,0,0,0" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Viewbox Grid.Column="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center" Margin="8,0">
                 <StackPanel x:Name="TopNavigation" Orientation="Horizontal" VerticalAlignment="Center" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Button Content="Home" Click="HomeClick" Padding="14,5" Margin="0,0,8,0"/>
                     <Button x:Name="GlobalSettingsButton" Content="Settings" Click="GlobalSettingsClick" Padding="14,5" Margin="0,0,8,0"/>
                     <Button x:Name="SessionSettingsButton" Content="Session" Click="DashboardSettingsClick" Style="{StaticResource PrimaryButton}" Padding="14,5"/>
-                    <Button Content="Save Now" Click="ManualSaveClick" Padding="8,5" Margin="6,0,0,0" ToolTip="Nexa saves automatically. Manual saving is optional unless you&#x2019;re wrapping up right now."/>
-                    <Button x:Name="EndSessionToolbarButton" Content="End Session" Click="EndClick" Padding="10,5" Margin="6,0,0,0"/>
-                    <Button x:Name="AddWidgetButton" Content="Add Widget" Click="AddWidgetClick" Padding="14,5" Margin="8,0,0,0"/>
+                    <Button Visibility="Collapsed" Content="Save Now" Click="ManualSaveClick" Padding="8,5" Margin="6,0,0,0" ToolTip="Nexa saves automatically. Manual saving is optional unless you&#x2019;re wrapping up right now."/>
+                    <Button x:Name="EndSessionToolbarButton" Visibility="Collapsed" Content="End Session" Click="EndClick" Padding="10,5" Margin="6,0,0,0"/>
+                    <Button x:Name="AddWidgetButton" Visibility="Collapsed" Content="Add Widget" Click="AddWidgetClick" Padding="14,5" Margin="8,0,0,0"/>
                     <Button x:Name="DeveloperSplashButton" Content="Preview Splash" MinWidth="132" Padding="12,6" Click="DeveloperSplashClick" Visibility="Collapsed"/>
                     <Button x:Name="DeveloperSoundButton" Content="Play Sound" MinWidth="106" Padding="12,6" Margin="8,0,0,0" Click="DeveloperSoundClick" Visibility="Collapsed"/>
                     <Button x:Name="DeveloperResetButton" Content="Reset dev" Click="DeveloperResetClick" Visibility="Collapsed"/>
@@ -55,7 +55,6 @@
                     <TextBlock Text="Editing Space" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,18,0"/>
                     <TextBox x:Name="DashboardNameEditor" Width="220" Margin="0,0,8,0" MaxLength="100" ToolTip="Rename the current Space"/>
                     <Button Content="Rename" Click="RenameDashboardClick" Margin="0,0,8,0"/>
-                    <Button Content="Add widget" Click="AddWidgetClick" Margin="0,0,8,0"/>
                     <Button Content="Layout" Click="LayoutClick" Margin="0,0,8,0"/>
                     <Button Content="Theme" Click="ThemeClick" Margin="0,0,8,0"/>
                     <Button Content="Space settings" Click="DashboardSettingsClick" Margin="0,0,8,0"/>

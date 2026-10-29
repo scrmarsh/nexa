@@ -9,12 +9,16 @@ internal sealed class SeasonalCorners:FrameworkElement
     private NexaOptions options=new();
     internal NexaOptions Options {get=>options;set{options=value;Reconcile();InvalidateVisual();}}
     internal bool AdvancedAnimations {get;set;}=true;
+    internal EcosystemOptions Appearance {get;set;}=new();
     internal HomeSpider Companion {get;}=new();
     private readonly DispatcherTimer motion=new(DispatcherPriority.Background){Interval=TimeSpan.FromMilliseconds(50)};
     private readonly System.Diagnostics.Stopwatch clock=new();
     private double previous;
     private DrawingGroup? staticArt;private Size artSize;
     private Window? host;
+    private Rect[] lastObstacles=[];
+    private Size lastSize;
+    private void LayoutChanged(object? sender,EventArgs args)=>Configure();
     internal static double WebSize(Size size)=>Math.Min(725,Math.Min(size.Width*.46,size.Height*.62));
     // Retained geometry helper for old callers; living motion uses HomeSpider state.
     internal static Point SpiderPoint(double time,double size)=>new(75,Math.Min(size*.4,180));
@@ -23,8 +27,8 @@ internal sealed class SeasonalCorners:FrameworkElement
     internal bool IsAnimating=>motion.IsEnabled;
     internal SeasonalCorners()
     {
-        Loaded+=(_,_)=>{host=Window.GetWindow(this);if(host!=null)host.StateChanged+=HostStateChanged;Configure();Reconcile();};
-        Unloaded+=(_,_)=>{motion.Stop();clock.Stop();if(host!=null)host.StateChanged-=HostStateChanged;host=null;};
+        Loaded+=(_,_)=>{host=Window.GetWindow(this);if(host!=null){host.StateChanged+=HostStateChanged;host.LayoutUpdated+=LayoutChanged;}Configure();Reconcile();};
+        Unloaded+=(_,_)=>{motion.Stop();clock.Stop();if(host!=null){host.StateChanged-=HostStateChanged;host.LayoutUpdated-=LayoutChanged;}host=null;};
         IsVisibleChanged+=(_,_)=>Reconcile();SizeChanged+=(_,_)=>Configure();
         motion.Tick+=(_,_)=>
         {
@@ -43,11 +47,13 @@ internal sealed class SeasonalCorners:FrameworkElement
         void Visit(DependencyObject node)
         {
             if(node is FrameworkElement button && (button is Button or NexaLogo || button is TextBlock text && !string.IsNullOrWhiteSpace(text.Text)) && button.IsVisible && button.ActualWidth>0)
-            {try{var r=button.TransformToVisual(this).TransformBounds(new Rect(button.RenderSize));r.Inflate(48,48);blocked.Add(r);}catch(InvalidOperationException){}}
+            {try{var r=button.TransformToVisual(this).TransformBounds(new Rect(button.RenderSize));blocked.Add(r);}catch(InvalidOperationException){}}
             for(var i=0;i<VisualTreeHelper.GetChildrenCount(node);i++)Visit(VisualTreeHelper.GetChild(node,i));
         }
         if(window!=null)Visit(window);
-        Companion.Configure(RenderSize,blocked);staticArt=null;
+        blocked.Add(PumpkinBounds(RenderSize));
+        if(lastSize==RenderSize && lastObstacles.SequenceEqual(blocked))return;
+        lastSize=RenderSize;lastObstacles=blocked.ToArray();Companion.Configure(RenderSize,blocked);staticArt=null;InvalidateVisual();
     }
     protected override void OnRender(DrawingContext dc)
     {
@@ -60,11 +66,11 @@ internal sealed class SeasonalCorners:FrameworkElement
         if(AdvancedAnimations && Companion.Candy is {} candy)
         {dc.PushTransform(new TranslateTransform(candy.X-11,candy.Y-11));dc.PushTransform(new ScaleTransform(22/64d,22/64d));dc.DrawDrawing(NexaweenDecorations.Asset(5));dc.Pop();dc.Pop();}
         var bug=Companion.Bug;var point=bug.Position;
-        dc.PushTransform(new TranslateTransform(point.X,point.Y));dc.PushTransform(new RotateTransform(bug.Angle));dc.PushTransform(new ScaleTransform(2.7,2.7));
-        var appearance=new EcosystemOptions{Appearance=BugAppearance.Halloween,MatchAppearance=false,Adorable=true,AdvancedAnimations=true};
+        dc.PushTransform(new TranslateTransform(point.X,point.Y));dc.PushTransform(new RotateTransform(bug.Angle));dc.PushTransform(new ScaleTransform(Companion.Radius/25,Companion.Radius/25));
+        var appearance=Appearance.Safe();
         if(Motion && AdvancedAnimations)
-            BugVisuals.Draw(dc,bug,appearance,false,Companion.Age,Companion.Candy??Mouse.GetPosition(this),1,true,false);
-        else BugVisuals.Draw(dc,bug,appearance,false);
+            BugVisuals.Draw(dc,bug,appearance,appearance.EffectiveAppearance==BugAppearance.Halloween && appearance.Costumes,Companion.Age,Companion.Candy??Mouse.GetPosition(this),1,true,false);
+        else BugVisuals.Draw(dc,bug,appearance,appearance.EffectiveAppearance==BugAppearance.Halloween && appearance.Costumes);
         dc.Pop();dc.Pop();dc.Pop();
     }
     private void DrawStatic(DrawingContext dc)

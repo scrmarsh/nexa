@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -19,7 +19,7 @@ internal static partial class Program
     }
     private static void Check028()
     {
-        Assert(App.AppVersion=="0.0.34" && App.VersionLabel=="nexa v0.0.34 alpha" && ReleaseNotes.All[0].Title=="UI Refinement, Installer Repair & Data Safety","Current .28 identity uses the existing version infrastructure");
+        Assert(App.AppVersion=="0.0.35" && App.VersionLabel=="nexa v0.0.35 alpha" && ReleaseNotes.All[0].Title=="UI Polish, Session Flow & Nexaween Refinements","Current .28 identity uses the existing version infrastructure");
         CheckRecovery028();CheckSchedule028();CheckEcosystem028();CheckLargeWorkspace028();
         var at=DateTimeOffset.UtcNow;var ledger=new ProductivityLedger();
         Assert(ProductivityScoring.DirectSquash(ledger,"boost",at) && ledger.BugFrenzyUntil==at.AddSeconds(20) && ledger.EffectiveMultiplier(at)==2,"Direct squash starts the independent twenty-second 2x window");

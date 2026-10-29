@@ -11,7 +11,7 @@ internal static partial class Program
 {
     private static void Check033()
     {
-        Assert(App.AppVersion=="0.0.34" && App.VersionLabel=="nexa v0.0.34 alpha",".33 application and canonical identity agree");
+        Assert(App.AppVersion=="0.0.35" && App.VersionLabel=="nexa v0.0.35 alpha",".33 application and canonical identity agree");
         Assert(Theme.OfficialThemes.SequenceEqual(new[]{AppTheme.Nexa,AppTheme.Violet,AppTheme.Aurora,AppTheme.Ember}),"Exactly the four original global palettes are officially selectable");
         Assert(Theme.AppPalette(AppTheme.Nexa)==("#5B7CFF","#8B5CF6") && Theme.AppPalette(AppTheme.Violet)==("#A78BFA","#7C3AED") && Theme.AppPalette(AppTheme.Aurora)==("#38BDF8","#14B8A6") && Theme.AppPalette(AppTheme.Ember)==("#FB7185","#F59E0B"),"All four original global palette pairs remain unchanged");
         Assert(Theme.OfficialTheme(AppTheme.Amber)==AppTheme.Ember && Theme.OfficialTheme(AppTheme.Green)==AppTheme.Aurora,"Unpublished legacy theme enum values have explicit compatible official choices");

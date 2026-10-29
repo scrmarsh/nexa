@@ -18,6 +18,11 @@ internal static class NexaScrolling
     internal static void Initialize()
     {
         if(initialized)return;initialized=true;
+        // Coerce visible bars at the viewer, including viewers inside control templates.
+        // Hidden retains the scroll extent, keyboard, wheel and panning behavior.
+        object Hide(DependencyObject owner,object value)=>value is ScrollBarVisibility.Auto or ScrollBarVisibility.Visible?ScrollBarVisibility.Hidden:value;
+        ScrollViewer.VerticalScrollBarVisibilityProperty.OverrideMetadata(typeof(ScrollViewer),new FrameworkPropertyMetadata(ScrollBarVisibility.Hidden,null,Hide));
+        ScrollViewer.HorizontalScrollBarVisibilityProperty.OverrideMetadata(typeof(ScrollViewer),new FrameworkPropertyMetadata(ScrollBarVisibility.Hidden,null,Hide));
         EventManager.RegisterClassHandler(typeof(Window),Mouse.PreviewMouseWheelEvent,new MouseWheelEventHandler(Wheel));
         EventManager.RegisterClassHandler(typeof(ScrollViewer),Mouse.PreviewMouseWheelEvent,new MouseWheelEventHandler(Wheel));
     }
@@ -61,6 +66,7 @@ internal static class NexaScrolling
             if(node is ComboBox box && box.IsKeyboardFocusWithin && !box.IsDropDownOpen)return false;
         for(var node=source;node!=null;node=Parent(node))
         {
+            if(node is BugOverlay {ScrollTarget:{} target} && Scroll(target,delta))return true;
             if(node is ScrollViewer scroll && Scroll(scroll,delta))return true;
             if(node is TextBoxBase editor && (delta<0?editor.VerticalOffset+editor.ViewportHeight<editor.ExtentHeight-.01:editor.VerticalOffset>.01))
             {Request(editor,Math.Clamp(Starting(editor,editor.VerticalOffset,delta)-Distance(delta,SystemParameters.WheelScrollLines,editor.FontSize*1.2,editor.ViewportHeight),0,Math.Max(0,editor.ExtentHeight-editor.ViewportHeight)),delta,editor.ScrollToVerticalOffset);return true;}
