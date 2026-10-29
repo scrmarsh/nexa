@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Windows.Threading;
@@ -16,6 +16,8 @@ internal sealed partial class NexaEcosystem : IDisposable
         if (!worlds.TryGetValue(key, out var world)) worlds[key] = world = new NexaEcosystem(store);
         return world;
     }
+    internal static void ReconcileIfLoaded(StateStore store,Guid generation)
+    {if(worlds.TryGetValue(Path.GetFullPath(store.FilePath),out var world))world.ReconcileGeneration(generation);}
     internal static void FlushAll()
     { foreach (var world in worlds.Values.ToArray()) world.Dispose(); worlds.Clear(); }
     internal static void CheckpointAll()

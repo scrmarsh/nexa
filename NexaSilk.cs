@@ -1,12 +1,13 @@
-using System.Windows;
+﻿using System.Windows;
 namespace SessionDashboard;
 internal sealed partial class BugManager
 {
+    internal const int MaximumWebHelpers=32;
     internal double? WebCoordinateAspect {get;set;}
     internal Rect WebBounds(EcosystemWeb web)
     {
         var aspect=Math.Max(.1,WebCoordinateAspect??1);
-        var height=Math.Sqrt(WorldWidth*WorldHeight*.25*aspect);
+        var height=Math.Sqrt(WorldWidth*WorldHeight*.4*aspect);
         height=Math.Min(height,Math.Min(WorldHeight-48,(WorldWidth-48)*aspect));
         var width=height/aspect;
         var center=web.AnchorId is {} id && Surfaces.TryGetValue(id,out var card)?new Point(card.Right,card.Top):new Point(web.X,web.Y);
@@ -35,7 +36,7 @@ internal sealed partial class BugManager
         if(home!=null && (home.Construction<1 || random.NextDouble()<.78))
         {bug.Activity=BugActivity.Nesting;bug.Target=WebBounds(home).Location;bug.Decision=Range(5,10);return true;}
         if(home!=null)return false;
-        var shared=Webs.Where(w=>w.Construction<1 && w.Helpers.Count<96).OrderBy(w=>(WebBounds(w).Location-bug.Position).LengthSquared).FirstOrDefault();
+        var shared=Webs.Where(w=>w.Construction<1 && w.Helpers.Count<MaximumWebHelpers).OrderBy(w=>(WebBounds(w).Location-bug.Position).LengthSquared).FirstOrDefault();
         if(shared!=null)
         {shared.Helpers.Add(bug.InteractionId);bug.Activity=BugActivity.Nesting;bug.Target=WebBounds(shared).Location;bug.Decision=8;return true;}
         if(Webs.Count>=3 || Webs.Any(w=>w.Construction<1) || Webs.Count>0 && Bugs.Count(b=>IsActive(b)&&b.Species==BugSpecies.Spiders)<8*(Webs.Count+1) || random.NextDouble()>.45)return false;

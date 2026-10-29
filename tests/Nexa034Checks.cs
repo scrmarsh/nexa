@@ -32,7 +32,17 @@ internal static partial class Program
         Assert(conflict.Conflicts>=1 && File.ReadAllText(Path.Combine(target,"History","session.md"))=="Newer readable report","Mixed-root conflicts preserve the new file and retain verified originals");
         Assert(File.Exists(Path.Combine(target,"Backups","migration-inventory.json")),"Migration writes its versioned inventory and hashes");
         Directory.CreateDirectory(Path.Combine(target,"profiles","fixture","credentials"));File.WriteAllText(Path.Combine(target,"profiles","fixture","credentials","encrypted.bin"),"dpapi fixture");File.WriteAllText(Path.Combine(target,"skip.exe"),"binary fixture");
-        var zip=Path.Combine(root,"Nexa-Backup.zip");var stages=new List<string>();var count=NexaData.Export(target,zip,CancellationToken.None,new InlineProgress034(stages.Add));
+        var zip=Path.Combine(root,"Nexa-Backup.zip");var stages=new List<string>();var inspectedCheckpoint=false;
+        var count=NexaData.Export(target,zip,CancellationToken.None,new InlineProgress034(stage=>
+        {
+            stages.Add(stage);
+            if(!inspectedCheckpoint && stage.StartsWith("Archiving",StringComparison.Ordinal))
+            {
+                inspectedCheckpoint=true;Assert(!System.Threading.Monitor.IsEntered(NexaData.SnapshotGate),"Compression runs after releasing the application save lock");
+                var checkpoint=Directory.GetDirectories(root,".nexa-backup-stage-*").Single();
+                Assert(!File.ReadAllText(Path.Combine(checkpoint,"links.json")).Contains("test-managed-secret") && !Directory.Exists(Path.Combine(checkpoint,"profiles","fixture","credentials")),"Temporary checkpoint files exclude credentials before ZIP compression");
+            }
+        }));
         using(var archive=ZipFile.OpenRead(zip))
         {
             Assert(count>0 && archive.GetEntry("nexa-backup-manifest.json")!=null,"Backup creates a real ZIP with its recovery manifest");
@@ -48,6 +58,7 @@ internal static partial class Program
             }
         }
         Assert(stages.Any(s=>s.StartsWith("Archiving"))&&stages.Any(s=>s.StartsWith("Verifying")),"Backup progress describes actual inventory, copy and verification stages");
+        Assert(!Directory.GetDirectories(root,".nexa-backup-stage-*").Any(),"Successful export removes its sanitized staging folder");
         using(var cancel=new CancellationTokenSource())
         {
             var canceled=Path.Combine(root,"canceled.zip");
@@ -121,6 +132,9 @@ internal static partial class Program
         Assert(world.Manager.SessionGeneration!=generation && world.Manager.Webs.Count==0,"Changing generation clears transient web state");
         world.Manager.WebCoordinateAspect=1.8;var bounds=world.Manager.WebBounds(new(){X=800,Y=500});Assert(Math.Abs(bounds.Width*1.8/bounds.Height-1)<.01,"Large webs remain circular after viewport coordinate scaling");
         Assert(bounds.Width*bounds.Height>=BugManager.WorldWidth*BugManager.WorldHeight*.2,"Communal web uses approximately a quarter of a suitable dashboard");
+        var communal=new EcosystemWeb{Owner=Guid.NewGuid(),X=800,Y=500,Helpers=Enumerable.Range(0,BugManager.MaximumWebHelpers).Select(_=>Guid.NewGuid()).ToList()};BugManager.EnsureSilk(communal);world.Manager.Webs.Add(communal);
+        var serialized=JsonSerializer.Serialize(world.Manager.CaptureEcosystem(store.UserId));var restored=JsonSerializer.Deserialize<EcosystemDocument>(serialized)!;restored.Validate(store.UserId);
+        Assert(restored.Webs.Single().Helpers.Count==BugManager.MaximumWebHelpers,"A communal web with more than eight helpers survives serialization and validation");
         Capture034(main,"pixel-timer");main.Close();
         Assert(new NexaOptions().Use24HourClock==false,"New accounts default to 12-hour clock");
     }

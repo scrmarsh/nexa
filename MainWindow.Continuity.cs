@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
@@ -42,6 +42,7 @@ public partial class MainWindow
         autosave.Start();
         dirty = !entryAlreadyPersisted;
         if(dirty)SaveNow(); // Navigation already durably wrote the unclean marker before construction.
+        NexaEcosystem.ReconcileIfLoaded(store,state.Workspace.LiveEcosystemGeneration);
         if (recovery != null) Feedback.Text = recovery;
     }
     private void CaptureDraft()
