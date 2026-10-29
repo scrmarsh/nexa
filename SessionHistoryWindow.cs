@@ -57,6 +57,7 @@ internal sealed class SessionHistoryWindow : NexaPanel
             if (mutation) { mutationButtons.Add(button); button.IsEnabled = false; } actions.Children.Add(button); return button;
         }
         Action("Export summary", () => Export(false)); Action("Export recorded data", () => Export(true));
+        Action("Open History Folder",()=>{NexaFiles.WriteHistory(store);NexaFiles.Open(NexaFiles.History(store));});
         Action("View recap",()=>{if(list.SelectedItem is HistoryEntry {Session:{} entry})new SessionRecapWindow(this,entry.Title,entry.Data.SpaceIcon,entry,new NexaOptions()).Show();});
         Action("Edit archived notes", EditNotes, true);
         Action("Delete archived record", () =>
@@ -148,7 +149,8 @@ internal sealed class SessionHistoryWindow : NexaPanel
     private void Export(bool raw)
     {
         if (list.SelectedItem is not HistoryEntry entry) return;
-        var target = new SaveFileDialog { Filter = raw ? "Recorded JSON|*.json" : "Readable report|*.txt", FileName = raw ? "Nexa-record.json" : "Nexa-session.txt" };
+        Directory.CreateDirectory(NexaFiles.History(store));
+        var target = new SaveFileDialog { Filter = raw ? "Recorded JSON|*.json" : "Readable report|*.txt", FileName = raw ? "nexa-record.json" : "nexa-session.txt",InitialDirectory=NexaFiles.History(store) };
         if (target.ShowDialog(this) == true) File.WriteAllText(target.FileName, raw ? entry.Raw : entry.Report);
     }
     private void Change(System.Action<DashboardRecord> update, bool open = false)

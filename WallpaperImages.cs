@@ -38,6 +38,7 @@ internal sealed partial class HomeWindow
     {if(source.FilePath!=store.FilePath || Saved.Workspace==null)return;Saved.Workspace.Settings.HomeWallpaper=Continuity.Clone(settings);RefreshWallpaper();}
     internal void RefreshWallpaper()
     {
+        if(Theme.SeasonalEnabled){homeWallpaper.Background=null;homeWallpaper.Effect=null;homeWallpaperShade.Opacity=0;return;}
         var settings=Saved.Workspace?.Settings.HomeWallpaper;
         WallpaperImages.Apply(homeWallpaper,settings);
         homeWallpaperShade.Opacity=WallpaperImages.Shade(settings,true,homeWallpaper.Background!=null);

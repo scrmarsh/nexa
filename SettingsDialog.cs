@@ -49,7 +49,11 @@ internal sealed partial class SettingsDialog : NexaPanel
             AddPage(nav,"Profile",BuildProfile);
             AddPage(nav,"Sounds",BuildSounds);AddPage(nav,"Time Zone & Clock",BuildTimeZoneClock);
             AddPage(nav,"Widgets",BuildWidgetPreferences);
-            AddPage(nav,"Integrations",()=>BuildIntegrations());AddPage(nav,"Updates",BuildUpdates);
+            AddPage(nav,"Integrations",()=>BuildIntegrations());
+#if NEXA_UPDATES
+            if(NexaInstallation.UpdatesEnabled)AddPage(nav,"Updates",BuildUpdates);
+#endif
+            AddPage(nav,"Files & sharing",BuildFiles);
             AddPage(nav,"Add Bugs",BuildBugs);
             var bottom=new StackPanel {Margin=new Thickness(18,8,18,18)};DockPanel.SetDock(bottom,Dock.Bottom);navigationDock.Children.Add(bottom);
             AddPage(bottom,"Experimental Features",BuildExperimental);
@@ -110,9 +114,10 @@ internal sealed partial class SettingsDialog : NexaPanel
     {
         var page = Page("Theme Mode", "Choose Classic or nexaween above, then light mode and Theme Colors. Wallpapers remain independent.");
         store.LoadInteractionPreferences(state);
-        var selectedMode = store.LoadThemeMode(); var selectedTheme = store.LoadAppTheme();
+        var selectedMode = store.LoadThemeMode(); var selectedTheme = Theme.OfficialTheme(store.LoadAppTheme());
         var modes = new WrapPanel(); var themes = new WrapPanel();
         Field(page, "Light mode", modes); Field(page, "Theme Colors", themes);
+        var seasonalNote=new TextBlock{Text="Nexaween overrides the theme color.",Tag="SeasonalThemeOverride",Foreground=Brush("MutedBrush"),TextWrapping=TextWrapping.Wrap,Visibility=Theme.SeasonalEnabled?Visibility.Visible:Visibility.Collapsed,Margin=new Thickness(0,0,0,8)};page.Children.Add(seasonalNote);
         var note = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 12, 0, 0) }; page.Children.Add(note);
         void SaveAppearance()
         {
@@ -130,7 +135,7 @@ internal sealed partial class SettingsDialog : NexaPanel
         }
         foreach (var value in Enum.GetValues<ThemeMode>()) Choice(modes, value.ToString(), value == selectedMode, () => selectedMode = value);
         var choices=new Dictionary<AppTheme,RadioButton>();
-        foreach(var value in Enum.GetValues<AppTheme>())
+        foreach(var value in Theme.OfficialThemes)
         {
             var color=Theme.AppPalette(value).Accent;
             var content=new StackPanel{Orientation=Orientation.Horizontal};content.Children.Add(new Border{Width=24,Height=24,CornerRadius=new CornerRadius(5),Background=new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)),Margin=new Thickness(0,0,8,0)});content.Children.Add(new TextBlock{Text=AppearancePalettes.Name(value),VerticalAlignment=VerticalAlignment.Center});

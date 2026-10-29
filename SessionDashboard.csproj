@@ -12,11 +12,14 @@
     <Title>nexa</Title>
     <Description>nexa — a space for whatever comes next</Description>
     <ApplicationIcon>assets\nexa-icon.ico</ApplicationIcon>
-    <Version>0.0.32</Version>
-    <AssemblyVersion>0.0.32.0</AssemblyVersion>
-    <FileVersion>0.0.32.0</FileVersion>
+    <Version>0.0.33</Version>
+    <AssemblyVersion>0.0.33.0</AssemblyVersion>
+    <FileVersion>0.0.33.0</FileVersion>
     <InformationalVersion>$(Version)-alpha</InformationalVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <NexaDistribution Condition="'$(NexaDistribution)' == ''">Portable</NexaDistribution>
+    <DefineConstants>$(DefineConstants);NEXA_UPDATES</DefineConstants>
+    <DefineConstants Condition="'$(NexaDistribution)' == 'Checks'">$(DefineConstants);NEXA_CHECKS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +27,7 @@
     <Compile Remove="LEGACY\**\*.cs" /><Page Remove="LEGACY\**\*.xaml" /><ApplicationDefinition Remove="LEGACY\**\*.xaml" />
     <Compile Remove="verification\**\*.cs" /><Page Remove="verification\**\*.xaml" /><ApplicationDefinition Remove="verification\**\*.xaml" />
     <Compile Remove="Builds\**\*.cs" /><Page Remove="Builds\**\*.xaml" /><ApplicationDefinition Remove="Builds\**\*.xaml" />
-    <Compile Remove="tests\**\*.cs" />
+    <Compile Remove="tests\**\*.cs" /><Compile Remove="installer\**\*.cs" />
     <Compile Remove="test-output\**\*.cs" />
     <Page Remove="test-output\**\*.xaml" />
     <Compile Remove="obj\**\*.cs" />

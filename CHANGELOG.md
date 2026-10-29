@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.33 Alpha — Windows Installer, Release Integrity & Appearance Finalization
+
+- Add a current-user Windows installer with Installed Apps registration, Start menu and optional desktop shortcuts, repair and data-preserving uninstall. Removing private data requires explicit confirmation.
+- Deliver the same application in installer and portable formats, retaining updates in both. Installed updates run verified Setup with registration-aware rollback. Older compatible updaters receive an installer migration launcher; legacy .24/.26 comparison may require a one-time manual install.
+- Back up verified old portable copies and existing private saves before optional cleanup; preserve unrelated files and unverified executables. Add Files & sharing and readable history documents under Documents → nexa.
+- Hide only the Appearance scrollbar while retaining complete scrolling. Expose exactly nexa, Violet, Aurora and Ember, with independent Classic/seasonal colors and wallpapers and the seasonal override message.
+- Preserve laptop bounds, game/audio, batched saves, accounts, history and update countdown controls.
+
 ## 0.0.32 Alpha — Appearance Restoration & Scrolling Refinement (local, unpublished)
 
 - Restore complete Appearance scrolling, visible draggable scrollbars and Theme Colors in Classic and nexaween.

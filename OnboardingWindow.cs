@@ -107,15 +107,15 @@ internal sealed class OnboardingWindow : NexaDialog
             case 4:
                 var seasonal=new CheckBox{Content="Nexaween",IsChecked=NexaSeason.Active(Options,DateTimeOffset.UtcNow),FontSize=18,Margin=new Thickness(0,0,0,16)};body.Children.Add(seasonal);
                 var swatches=new WrapPanel(); body.Children.Add(swatches);
-                foreach(var theme in Enum.GetValues<AppTheme>())
+                foreach(var theme in Theme.OfficialThemes)
                 {
                     var color=theme switch { AppTheme.Violet=>"#AA80FF", AppTheme.Aurora=>"#63D8BC", AppTheme.Ember=>"#FFAA70", AppTheme.Amber=>Theme.AppPalette(AppTheme.Amber).Accent, AppTheme.Green=>Theme.AppPalette(AppTheme.Green).Accent, _=>"#7395FF" };
-                    var option=new RadioButton { GroupName="theme", IsChecked=Profile.Theme==theme, Margin=new Thickness(0,0,14,14), Content=new StackPanel { Children={ new Border { Width=112, Height=65, CornerRadius=new CornerRadius(8), Background=new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)), Child=new TextBlock { Text="00:25", FontSize=24, Foreground=Brushes.Black, HorizontalAlignment=HorizontalAlignment.Center, VerticalAlignment=VerticalAlignment.Center } },new TextBlock { Text=theme.ToString(), Margin=new Thickness(0,6,0,0) } } } };
+                    var option=new RadioButton { GroupName="theme", IsChecked=Profile.Theme==theme, Margin=new Thickness(0,0,14,14), Content=new StackPanel { Children={ new Border { Width=112, Height=65, CornerRadius=new CornerRadius(8), Background=new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)), Child=new TextBlock { Text="00:25", FontSize=24, Foreground=Brushes.Black, HorizontalAlignment=HorizontalAlignment.Center, VerticalAlignment=VerticalAlignment.Center } },new TextBlock { Text=AppearancePalettes.Name(theme), Margin=new Thickness(0,6,0,0) } } } };
                     option.Checked+=(_,_)=>Profile.Theme=theme; swatches.Children.Add(option);
                     option.SetResourceReference(Control.ForegroundProperty,"TextBrush");
                 }
                 var mode=new ComboBox { ItemsSource=Enum.GetValues<ThemeMode>(),SelectedItem=Profile.ThemeMode,Margin=new Thickness(0,0,0,14) }; mode.SelectionChanged+=(_,_)=>Profile.ThemeMode=(ThemeMode)mode.SelectedItem; body.Children.Add(mode);
-                void RefreshSeason(){var on=seasonal.IsChecked==true;swatches.Visibility=mode.Visibility=on?Visibility.Collapsed:Visibility.Visible;}
+                void RefreshSeason(){var on=seasonal.IsChecked==true;swatches.Visibility=mode.Visibility=Visibility.Visible;}
                 seasonal.Click+=(_,_)=>{Options.SeasonalMode=seasonal.IsChecked==true?"On":"Off";RefreshSeason();NexaMotion.Entrance(body,Options);};RefreshSeason();
                 Text("Enable nexa sounds?");
                 Choice("On (short, soft chimes)",Profile.Sounds,on=>Profile.Sounds=on);

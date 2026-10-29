@@ -13,6 +13,7 @@ public partial class MainWindow
     internal void ApplySpaceBackground()
     {
         state.Background ??= new();
+        if(Theme.SeasonalEnabled){SpaceBackgroundLayer.Background=null;SpaceBackgroundLayer.Effect=null;SpaceBackgroundOverlay.Opacity=0;return;}
         WallpaperImages.Apply(SpaceBackgroundLayer,state.Background);
         SpaceBackgroundOverlay.Opacity=WallpaperImages.Shade(state.Background,false,SpaceBackgroundLayer.Background!=null);
         // Wallpaper changes do not change widget geometry or saved placement.

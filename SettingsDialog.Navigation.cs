@@ -29,10 +29,10 @@ internal sealed partial class SettingsDialog
         row.Children.Add(new TextBlock { Text = "Nexaween", Foreground = (Brush)new BrushConverter().ConvertFromString("#84CC16")!, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0), FontWeight = FontWeights.SemiBold });
         row.Children.Add(MakeSeasonSwitch()); page.Children.Insert(1, row);
         page.Children.Add(BuildWallpaperControls(ReliabilityOptions.HomeWallpaper,true));
-        if (active) { var seasonal = BuildSeasonalEvents(); page.Children.Add(seasonal); }
+        if (active) { var seasonal = (ScrollViewer)BuildSeasonalEvents(); var content=(UIElement)seasonal.Content;seasonal.Content=null;page.Children.Add(content); }
         var effects=(StackPanel)BuildEffects();foreach(var child in effects.Children.Cast<UIElement>().ToArray()){effects.Children.Remove(child);page.Children.Add(child);}
         page.Children.Add(BuildDisplaySettings());
-        var scroll=new ScrollViewer{Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled,CanContentScroll=false,PanningMode=PanningMode.VerticalOnly,Tag="AppearanceScroll"};
+        var scroll=new ScrollViewer{Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Hidden,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled,CanContentScroll=false,PanningMode=PanningMode.VerticalOnly,Tag="AppearanceScroll"};
         var layout=new DockPanel();var heading=new TextBlock{Text="Appearance",FontSize=26,FontWeight=FontWeights.SemiBold,Margin=new Thickness(0,0,0,14)};DockPanel.SetDock(heading,Dock.Top);layout.Children.Add(heading);layout.Children.Add(scroll);
         return SeasonalBackdrop.Wrap(layout,()=>ReliabilityOptions);
     }

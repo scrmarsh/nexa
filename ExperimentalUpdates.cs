@@ -36,7 +36,8 @@ internal sealed record AvailableUpdate(Version Version, string Channel, string N
 {
     internal Version CanonicalVersion=>NexaReleaseIdentity.Canonicalize(Version,Channel);
     internal string DisplayLabel=>new NexaReleaseIdentity(Version,Channel).Label;
-    internal bool Portable => !Path.GetFileName(Url.AbsolutePath).EndsWith("-Setup.exe", StringComparison.OrdinalIgnoreCase);
+    internal bool Portable => !IsInstallerName(Path.GetFileName(Url.AbsolutePath));
+    internal static bool IsInstallerName(string name)=>name.Equals("NexaSetup.exe",StringComparison.OrdinalIgnoreCase)||name.EndsWith("-Setup.exe",StringComparison.OrdinalIgnoreCase);
 }
 
 internal sealed class ExperimentalUpdater(HttpClient client)
@@ -96,12 +97,12 @@ internal sealed class ExperimentalUpdater(HttpClient client)
             foreach (var asset in assets.EnumerateArray())
             {
                 var assetName = asset.GetProperty("name").GetString() ?? "";
-                if (assetName != exactName && !assetName.Equals("Nexa.exe", StringComparison.OrdinalIgnoreCase) && !assetName.Equals($"Nexa-{version.ToString(3)}-{channel}.exe", StringComparison.OrdinalIgnoreCase)) continue;
+                if (!assetName.Equals("NexaSetup.exe",StringComparison.OrdinalIgnoreCase) && assetName != exactName && !assetName.Equals("Nexa.exe", StringComparison.OrdinalIgnoreCase) && !assetName.Equals($"Nexa-{version.ToString(3)}-{channel}.exe", StringComparison.OrdinalIgnoreCase)) continue;
                 var digest = Digest.Match(asset.TryGetProperty("digest", out var hash) ? hash.GetString() ?? "" : "");
                 if (!digest.Success || !asset.TryGetProperty("size", out var length) || !length.TryGetInt64(out var size) || size is < 1 or > 500_000_000) continue;
                 if (!Uri.TryCreate(asset.GetProperty("browser_download_url").GetString(), UriKind.Absolute, out var url) || url.Scheme != "https" || url.Host != "github.com" || !url.AbsolutePath.StartsWith("/scrmarsh/nexa/releases/download/", StringComparison.OrdinalIgnoreCase) || !url.AbsolutePath.EndsWith("/" + assetName, StringComparison.Ordinal)) continue;
                 DateTimeOffset? published = release.TryGetProperty("published_at", out var date) && DateTimeOffset.TryParse(date.GetString(), out var parsed) ? parsed : null;
-                if (latest != null && latest.Version == version && latest.Channel == channel && latest.Portable && assetName.EndsWith("-Setup.exe", StringComparison.OrdinalIgnoreCase)) continue;
+                if (latest != null && latest.Version == version && latest.Channel == channel && !latest.Portable && !AvailableUpdate.IsInstallerName(assetName)) continue;
                 HasEligiblePackage=true;
                 latest = new(version, channel, release.GetProperty("name").GetString() ?? $"nexa {version} {channel}", release.TryGetProperty("body", out var body) ? body.GetString() ?? "" : "", published, url, size, digest.Groups[1].Value.ToUpperInvariant());
             }

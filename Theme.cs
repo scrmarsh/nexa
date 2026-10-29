@@ -24,6 +24,9 @@ public enum AppTheme
 
 public static class Theme
 {
+    internal static readonly AppTheme[] OfficialThemes=[AppTheme.Nexa,AppTheme.Violet,AppTheme.Aurora,AppTheme.Ember];
+    // Preserve legacy enum storage, while exposing only the original four palettes.
+    internal static AppTheme OfficialTheme(AppTheme theme)=>theme switch{AppTheme.Amber=>AppTheme.Ember,AppTheme.Green=>AppTheme.Aurora,_=>OfficialThemes.Contains(theme)?theme:AppTheme.Nexa};
     internal static bool AnimatePalette {get;private set;}
     internal static void BeginTransition(NexaOptions options)
     {
@@ -77,7 +80,7 @@ public static class Theme
         var old = PaletteBrushes(resources);
         resources["SpaceIconBrush"]=new SolidColorBrush(SeasonalEnabled?Color.FromRgb(249,115,22):Color.FromRgb(129,140,248));
         currentMode = mode;
-        currentTheme = theme;
+        currentTheme = theme = OfficialTheme(theme);
         (currentAccent, currentPixel) = AppPalette(theme);
         ApplyPalette(resources, mode, currentAccent, currentPixel);
         if (Application.Current != null)
@@ -85,10 +88,10 @@ public static class Theme
             var replacements = Replacements(old, resources);
             foreach (Window window in Application.Current.Windows)
             {
-                window.Icon=NexaChrome.Icon;if(window is HomeWindow home)home.RefreshBranding();
+                window.Icon=NexaChrome.Icon;if(window is HomeWindow home){home.RefreshBranding();home.RefreshWallpaper();}
                 Retarget(window, replacements);
                 if (window is SettingsDialog settings) settings.RefreshAppearance(replacements);
-                if (window is MainWindow space) space.RefreshThemeViews();
+                if (window is MainWindow space){space.RefreshThemeViews();space.ApplySpaceBackground();}
                 Invalidate(window);
             }
         }
@@ -165,9 +168,7 @@ public static class Theme
                 ["BackgroundBrush"]="#100D19", ["PanelBrush"]="#1C102A", ["SurfaceBrush"]="#291938", ["InputBrush"]="#180F24",
                 ["LineBrush"]="#794D34", ["TextBrush"]="#E9D5FF", ["MutedBrush"]="#CFBADE", ["AccentBrush"]="#A855F7", ["PixelBrush"]="#84CC16", ["PixelOffBrush"]="#2B2034" })
                 Set(pair.Key, (Color)ColorConverter.ConvertFromString(pair.Value));
-            // Seasonal artwork/base surfaces stay seasonal; global accent choice
-            // must remain usable instead of being hidden by a fixed purple accent.
-            Set("AccentBrush",(Color)ColorConverter.ConvertFromString(accentHex));
+            Set("AccentTextBrush",AccentText((Color)ColorConverter.ConvertFromString("#A855F7")));
             return;
         }
         var accent = (Color)ColorConverter.ConvertFromString(accentHex);

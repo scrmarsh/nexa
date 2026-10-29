@@ -11,7 +11,7 @@ using SessionDashboard;
 
 internal static partial class Program
 {
-    private static readonly string media032=Path.GetFullPath("docs/media/nexa032");
+    private static readonly string media032=Path.GetFullPath("docs/media/nexa033");
     private static void Capture032(Window window,string name)
     {
         Directory.CreateDirectory(media032);window.UpdateLayout();var root=(FrameworkElement)window.Content;
@@ -35,7 +35,7 @@ internal static partial class Program
     }
     private static void Check032()
     {
-        Assert(App.VersionLabel=="nexa v0.0.32 alpha" && NexaReleaseIdentity.Current.Tag=="v0.0.32-alpha",".32 uses shared lowercase Alpha metadata");
+        Assert(App.VersionLabel=="nexa v0.0.33 alpha" && NexaReleaseIdentity.Current.Tag=="v0.0.33-alpha",".32 uses shared lowercase Alpha metadata");
         CheckAppearance032();CheckWallpaper032();CheckScrolling032();
     }
     private static void Bottom032(SettingsDialog settings,string label)
@@ -60,15 +60,15 @@ internal static partial class Program
         }
         ((FrameworkElement)settings.Body!).LayoutTransform=Transform.Identity;settings.Width=900;settings.Height=680;settings.WindowState=WindowState.Maximized;Pump(TimeSpan.FromMilliseconds(35));Bottom032(settings,"maximized");settings.WindowState=WindowState.Normal;
         var originalHome=JsonSerializer.Serialize(home.Saved.Workspace!.Settings.HomeWallpaper);var originalSpace=JsonSerializer.Serialize(home.Saved.Background);
-        foreach(var theme in Enum.GetValues<AppTheme>())
+        foreach(var theme in Theme.OfficialThemes)
         {
             var radio=Descendants(settings).OfType<RadioButton>().Single(r=>Equals(r.Tag,theme));radio.IsChecked=true;settings.FlushPendingChanges();
             Assert(store.LoadAppTheme()==theme && ((SolidColorBrush)Application.Current.Resources["AccentBrush"]).Color==(Color)ColorConverter.ConvertFromString(Theme.AppPalette(theme).Accent),"Theme color applies immediately and persists: "+theme);Assert(((SolidColorBrush)Application.Current.Resources["AccentTextBrush"]).Color==Theme.AccentText((Color)ColorConverter.ConvertFromString(Theme.AppPalette(theme).Accent)),"Selection text uses the stronger black/white contrast for "+theme);
         }
         Assert(JsonSerializer.Serialize(home.Saved.Workspace.Settings.HomeWallpaper)==originalHome && JsonSerializer.Serialize(home.Saved.Background)==originalSpace,"Theme Colors never overwrite Home or Space wallpapers");
         var seasonal=Descendants(settings).OfType<CheckBox>().Single(c=>System.Windows.Automation.AutomationProperties.GetName(c)=="Nexaween enabled");seasonal.IsChecked=true;seasonal.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));Pump(TimeSpan.FromMilliseconds(40));settings.FlushPendingChanges();
-        Assert(Descendants(settings).OfType<RadioButton>().Count(r=>r.Tag is AppTheme)==6,"All saved themes and recovered colors stay accessible in nexaween");Bottom032(settings,"nexaween");
-        var amber=Descendants(settings).OfType<RadioButton>().Single(r=>Equals(r.Tag,AppTheme.Amber));amber.IsChecked=true;settings.FlushPendingChanges();Assert(((SolidColorBrush)Application.Current.Resources["AccentBrush"]).Color==Color.FromRgb(255,202,120),"nexaween no longer masks the selected global accent");
+        Assert(Descendants(settings).OfType<RadioButton>().Count(r=>r.Tag is AppTheme)==4,"Exactly four official themes stay accessible in nexaween");Bottom032(settings,"nexaween");
+        var amber=Descendants(settings).OfType<RadioButton>().Single(r=>Equals(r.Tag,AppTheme.Aurora));amber.IsChecked=true;settings.FlushPendingChanges();Assert(((SolidColorBrush)Application.Current.Resources["AccentBrush"]).Color==Color.FromRgb(168,85,247),"nexaween retains its seasonal accent while the Classic choice is saved");
         Button032(settings,"Restore default theme color").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));settings.FlushPendingChanges();Assert(store.LoadAppTheme()==AppTheme.Nexa,"Restore default theme color preserves the original saved theme identity");
         AppearanceScroll032(settings).ScrollToTop();Pump(TimeSpan.FromMilliseconds(25));Capture032(settings,"theme-colors");
         home.Topmost=true;NexaFullscreen.Toggle(home);Pump(TimeSpan.FromMilliseconds(30));Bottom032(settings,"fullscreen host");NexaFullscreen.Toggle(home);home.Topmost=false;

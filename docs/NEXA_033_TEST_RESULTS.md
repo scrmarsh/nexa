@@ -1,0 +1,9 @@
+# nexa .33 verification
+
+The audit extends the established suite with .33 palette/seasonal, asset-ordering, migration, cleanup and readable-history assertions. The existing .32 layout/input route remains. Current-version/title expectations were advanced to .33; historical identity assertions remain. Initial stale .32 title/file-version expectations failed in three older routes and were corrected without deleting assertions. Initial optional data-removal testing found an installer lifecycle bug; the rule was moved from installation-time evaluation to the actual uninstall step.
+
+Native installer tests run with a separate test product ID and verification-only app/data/shortcut directories. The earlier lifecycle run passed 31 checks under a non-administrator Windows 11 token. Final source and package verification, including real Setup rollback and genuine published helper migration, is recorded with the release evidence. Historical .24/.26/.29/.31 executable downloads matched their official digests and passed isolated native startup. Their embedded metadata is preserved accurately.
+
+Hardware limits: physical trackpad behavior, full actual 100/125/150% Appearance DPI matrix, mixed monitors and subjective appearance on other laptops are unverified. Synthetic layout/input checks are labeled as such. A successful Alpha verification does not establish universal device compatibility. No live data or approved install was used in destructive tests.
+
+The native upgrade audit also caught and repaired a WPF dispatcher deadlock in synchronous startup-health completion and padded Inno Setup version-resource text being rejected as a different product. Health completion is now awaited; identity fields trim padding without relaxing digest, product, architecture or numeric-version checks. Final verification uses the repaired source.

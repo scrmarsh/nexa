@@ -19,7 +19,7 @@ internal static partial class Program
     }
     private static void Check028()
     {
-        Assert(App.AppVersion=="0.0.32" && App.VersionLabel=="nexa v0.0.32 alpha" && ReleaseNotes.All[0].Title=="Appearance Restoration & Scrolling Refinement","Current .28 identity uses the existing version infrastructure");
+        Assert(App.AppVersion=="0.0.33" && App.VersionLabel=="nexa v0.0.33 alpha" && ReleaseNotes.All[0].Title=="Windows Installer, Release Integrity & Appearance Finalization","Current .28 identity uses the existing version infrastructure");
         CheckRecovery028();CheckSchedule028();CheckEcosystem028();CheckLargeWorkspace028();
         var at=DateTimeOffset.UtcNow;var ledger=new ProductivityLedger();
         Assert(ProductivityScoring.DirectSquash(ledger,"boost",at) && ledger.BugFrenzyUntil==at.AddSeconds(20) && ledger.EffectiveMultiplier(at)==2,"Direct squash starts the independent twenty-second 2x window");

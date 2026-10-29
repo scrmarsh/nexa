@@ -26,11 +26,14 @@ public partial class App : Application
             StartupVerification.Run(this, Path.GetFullPath(e.Args[1]));
             return;
         }
+#if NEXA_UPDATES
+        if (e.Args.Length > 0 && e.Args[0].StartsWith("--installer-",StringComparison.Ordinal)) { Shutdown(await InstallerMaintenance.Run(e.Args));return; }
         if (e.Args.Length == 2 && e.Args[0] == "--apply-update")
         {
             ApplyUpdateHelper(Path.GetFullPath(e.Args[1])); return;
         }
-        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SessionDashboard", "state.json");
+#endif
+        var path = NexaFiles.StatePath;
         var userId = System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value;
         workspaceMutex = new Mutex(true, "Local\\Nexa.SessionDashboard." + userId, out var firstInstance);
         if (!firstInstance)
@@ -75,6 +78,7 @@ public partial class App : Application
             Shutdown(1);
         }
     }
+#if NEXA_UPDATES
     private async void ApplyUpdateHelper(string path)
     {
         try
@@ -90,8 +94,16 @@ public partial class App : Application
         }
         catch (Exception ex) when (HistoryArchive.Recoverable(ex) || ex is TimeoutException or System.ComponentModel.Win32Exception) { Shutdown(1); }
     }
+#endif
     protected override void OnExit(ExitEventArgs e) { NexaEcosystem.FlushAll(); workspaceMutex?.Dispose(); base.OnExit(e); }
-    private static Task CheckStartupUpdatesAsync(StateStore store,Window home)=>AutomaticUpdates.For(store).StartAsync(home);
+    private static Task CheckStartupUpdatesAsync(StateStore store,Window home)
+    {
+#if NEXA_UPDATES
+        return NexaInstallation.UpdatesEnabled?AutomaticUpdates.For(store).StartAsync(home):Task.CompletedTask;
+#else
+        return Task.CompletedTask;
+#endif
+    }
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
     {
         if (MainWindow is MainWindow window && !window.SaveForClose()) e.Cancel = true;

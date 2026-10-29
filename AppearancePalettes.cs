@@ -9,5 +9,5 @@ internal static class AppearancePalettes
     internal static readonly Preset[] Backgrounds =
     [new("nexa blue","#69ACFF"),new("nexa violet","#C6A5FF"),new("nexa amber","#FFCA78"),new("nexa green","#6AE58F")];
     internal static string Name(AppTheme theme)=>theme switch
-    {AppTheme.Nexa=>"nexa blue",AppTheme.Violet=>"nexa violet",AppTheme.Amber=>"nexa amber",AppTheme.Green=>"nexa green",AppTheme.Aurora=>"Aurora",AppTheme.Ember=>"Ember",_=>theme.ToString()};
+    {AppTheme.Nexa=>"nexa",AppTheme.Violet=>"Violet",AppTheme.Amber=>"nexa amber",AppTheme.Green=>"nexa green",AppTheme.Aurora=>"Aurora",AppTheme.Ember=>"Ember",_=>theme.ToString()};
 }

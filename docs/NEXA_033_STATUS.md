@@ -1,0 +1,7 @@
+# nexa .33 audit and implementation status
+
+Starting checkpoint `a553cdc695bf482878b1b8d075fd77f00d6e6d84`; branch `codex/nexa-033-installer-release-integrity`. Latest user instruction authorizes publication only after the audit passes. All .31 laptop/game/audio work is already an ancestor and is preserved. .32 baseline evidence records 24 routes / 1,107 assertions and 17 packaged checks.
+
+Implementation: one shared application with installer and portable delivery, updates retained in both; current-user Setup with Windows registration, shortcuts, repair/uninstall, backed-up portable migration and registration-aware upgrades. Files & sharing exposes private saves, Space exports and readable history. Appearance has a hidden bar, four official themes and independent seasonal styling. See [installer/data guide](NEXA_033_INSTALLER.md), [appearance](NEXA_033_APPEARANCE.md), [release audit](NEXA_033_RELEASE_CLEANUP.md) and [results](NEXA_033_TEST_RESULTS.md).
+
+Release gate: full regression, native installer lifecycle, upgrade/rollback, legacy-helper migration, exact final package identity, clean source checkpoint and remote upload verification. Until the publication receipt exists, .33 is a local candidate. Physical trackpad and multi-monitor acceptance remain open hardware checks. Historical .24/.26 need a one-time direct installer due to their immutable comparators. No historical binary/tag replacement is proposed.

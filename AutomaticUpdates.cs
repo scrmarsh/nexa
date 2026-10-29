@@ -88,11 +88,12 @@ internal sealed class AutomaticUpdates
     private async Task<string> Prepare(AvailableUpdate release,IProgress<double> progress,CancellationToken cancellation)
     {
         var target=Environment.ProcessPath??throw new IOException("Application path unavailable.");
-        if(!Path.GetFileName(target).Equals("Nexa.exe",StringComparison.OrdinalIgnoreCase))throw new IOException("Automatic installation is available in the portable Nexa.exe release, not this development host.");
+        if(System.Diagnostics.FileVersionInfo.GetVersionInfo(target).ProductName!="Nexa")throw new IOException("Run the packaged nexa app to install updates.");
         using var client=new HttpClient{Timeout=TimeSpan.FromMinutes(10)};
         var candidate=await new ExperimentalUpdater(client).DownloadAsync(release,Path.Combine(store.UserPreferencesDirectory,"updates","downloads"),progress,cancellation);
         cancellation.ThrowIfCancellationRequested();
-        return await Task.Run(()=>UpdateTransaction.Prepare(store,target,candidate,release.Sha256,release.Version.ToString(3)),cancellation);
+        if(release.Portable)throw new IOException("This release has no verified official installer. Try again when the official installer is available.");
+        return await Task.Run(()=>InstallerUpdates.Prepare(store,target,candidate,release.Sha256,release.Version.ToString(3)),cancellation);
     }
     private async Task<bool> Restart(string prepared)
     {

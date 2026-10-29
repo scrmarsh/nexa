@@ -2,17 +2,27 @@
 
 ![nexa · latest — a space for whatever comes next](docs/media/nexa-banner.svg)
 
-![version: 0.0.32 Alpha development](https://img.shields.io/badge/version-0.0.32%20Alpha%20development-84CC16?style=flat-square&labelColor=1C102A)
+![version: 0.0.33 Alpha](https://img.shields.io/badge/version-0.0.33%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
 ![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-185FA5?style=flat-square&labelColor=111827)
 ![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-7F77DD?style=flat-square&labelColor=111827)
 
 **a space for whatever comes next**
 
-[nexaween prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Development status](docs/NEXA_032_STATUS.md)
+[**Download nexa for Windows — installer**](https://github.com/scrmarsh/nexa/releases/download/v0.0.33-alpha/NexaSetup.exe) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Development status](docs/NEXA_033_STATUS.md)
 
 </div>
 
-> **nexa v0.0.32 alpha — Appearance Restoration & Scrolling Refinement (local development).** Full Appearance access, restored Theme Colors, independent Home/Space backgrounds, repaired image selection and proportional scrolling. See the [audit](docs/NEXA_032_AUDIT.md), [status](docs/NEXA_032_STATUS.md) and [test results](docs/NEXA_032_TEST_RESULTS.md). The public download remains the approved .31 release; .32 is not published.
+> **nexa v0.0.33 alpha — Windows Installer, Release Integrity & Appearance Finalization.** The recommended installer adds nexa to Windows Installed Apps and the Start menu, offers a desktop shortcut, preserves existing saves and supports repair and uninstall. One app, with updates retained in both installed and portable use. [Installer and data guide](docs/NEXA_033_INSTALLER.md) · [Verification](docs/NEXA_033_TEST_RESULTS.md).
+
+<details>
+<summary>Portable download, checksums, source and technical documentation</summary>
+
+- [Portable nexa executable](https://github.com/scrmarsh/nexa/releases/download/v0.0.33-alpha/nexa-portable.exe) — the same application as the installer payload, with update support.
+- [Checksums](https://github.com/scrmarsh/nexa/releases/download/v0.0.33-alpha/SHA256SUMS.txt) and [release notes](https://github.com/scrmarsh/nexa/releases/tag/v0.0.33-alpha).
+- [Source code](https://github.com/scrmarsh/nexa/tree/v0.0.33-alpha), [installer audit](docs/NEXA_033_AUDIT.md), [appearance](docs/NEXA_033_APPEARANCE.md), [historical release audit](docs/NEXA_033_RELEASE_CLEANUP.md).
+- `Nexa.exe` on the release is a compatibility installer launcher for old updaters; use the installer above or the explicitly labeled portable download.
+
+</details>
 
 Alpha development now uses **v0.0.X Alpha**, Beta will use **v0.1.X Beta**, and
 the first stable release is planned as **v1.0.0**. This Nexaween build is an

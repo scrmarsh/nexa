@@ -49,7 +49,6 @@ internal sealed class UpdateFlow
         Busy=true;NoticeVisible=true;postponed=false;
         try
         {
-            if(!release.Portable)throw new System.IO.InvalidDataException("This older installer cannot be installed automatically. Use the official release download.");
             Publish("Downloading and verifying "+release.DisplayLabel+"…");
             var progress=new Progress<double>(fraction=>{if(Busy)Publish($"Downloading update… {Math.Clamp(fraction,0,1):P0}");});
             Prepared=await prepare(release,progress,cancellation.Token);

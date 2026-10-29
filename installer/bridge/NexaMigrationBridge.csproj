@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Nexa</AssemblyName><Product>Nexa</Product><Title>nexa installer migration bridge</Title><AssemblyTitle>nexa installer migration bridge</AssemblyTitle>
+    <Description>nexa installer migration bridge</Description><Version>0.0.33</Version><FileVersion>0.0.33.0</FileVersion><AssemblyVersion>0.0.33.0</AssemblyVersion>
+    <ApplicationIcon>../../assets/nexa-icon.ico</ApplicationIcon><ApplicationManifest>../../app.manifest</ApplicationManifest>
+    <PublishSingleFile>true</PublishSingleFile><SelfContained>true</SelfContained><RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <DefineConstants Condition="'$(BridgeTest)' == 'true'">$(DefineConstants);BRIDGE_TEST</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup><EmbeddedResource Include="$(InstallerPath)" LogicalName="nexa.official-setup" /></ItemGroup>
+  <Target Name="ValidateInstaller" BeforeTargets="PrepareForBuild"><Error Condition="!Exists('$(InstallerPath)')" Text="InstallerPath must name the verified NexaSetup.exe" /></Target>
+</Project>

@@ -44,7 +44,7 @@ public partial class MainWindow
     private DateTimeOffset flashUntil;
     private bool completionDismissed;
 
-    public MainWindow() : this(new StateStore(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SessionDashboard", "state.json"))) { }
+    public MainWindow() : this(new StateStore(NexaFiles.StatePath)) { }
 
     internal MainWindow(StateStore store, StateStore? previewHomeStore = null,AppState? loadedState=null,bool entryAlreadyPersisted=false)
     {

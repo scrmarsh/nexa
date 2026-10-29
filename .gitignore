@@ -39,3 +39,6 @@ desktop.ini
 /Builds/
 
 /LEGACY/build-artifacts/
+
+# Generated compatibility-bridge installer digest
+/installer/bridge/InstallerIdentity.g.cs

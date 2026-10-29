@@ -14,6 +14,10 @@ internal sealed class UpdatePlan
     public string PreviousHash { get; set; } = "";
     public string Version { get; set; } = "";
     public bool VerificationOnly {get;set;}
+    public bool Installer {get;set;}
+    public bool MigratePortable {get;set;}
+    public string PortableSource {get;set;}="";
+    public string PreviousSetupHash {get;set;}="";
     public int ParentPid { get; set; }
     public string State { get; set; } = "Prepared";
     public string Error { get; set; } = "";
@@ -23,7 +27,7 @@ internal sealed class UpdatePlan
 internal static class UpdateTransaction
 {
     internal static string Hash(string path) { using var stream = File.OpenRead(path); return Convert.ToHexString(SHA256.HashData(stream)); }
-    internal static void ValidateBinary(string path, string expectedHash, string? version = null)
+    internal static void ValidateBinary(string path, string expectedHash, string? version = null,string productName="Nexa")
     {
         if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0 || !CryptographicOperations.FixedTimeEquals(Convert.FromHexString(expectedHash), Convert.FromHexString(Hash(path)))) throw new InvalidDataException("Update checksum changed.");
         using var stream = File.OpenRead(path); using var reader = new BinaryReader(stream);
@@ -31,7 +35,7 @@ internal static class UpdateTransaction
         stream.Position = 0x3c; var pe = reader.ReadInt32(); if (pe < 64 || pe > stream.Length - 6) throw new InvalidDataException("Invalid executable header.");
         stream.Position = pe; if (reader.ReadUInt32() != 0x4550 || reader.ReadUInt16() != 0x8664) throw new InvalidDataException("nexa updates require Windows x64.");
         var info = FileVersionInfo.GetVersionInfo(path);
-        if (info.ProductName != "Nexa" || version != null && (!Version.TryParse(info.FileVersion?.Split('+')[0], out var installed) || installed.ToString(3) != version)) throw new InvalidDataException("Unexpected nexa package identity/version.");
+        if (info.ProductName?.Trim() != productName || version != null && (!Version.TryParse(info.FileVersion?.Trim().Split('+')[0], out var installed) || installed.ToString(3) != version)) throw new InvalidDataException("Unexpected nexa package identity/version.");
     }
     internal static async Task<string> Prepare(StateStore store, string target, string candidate, string sha256, string version)
     {
@@ -55,7 +59,7 @@ internal static class UpdateTransaction
             foreach (var child in Directory.EnumerateDirectories(current))
             {
                 var name = Path.GetFileName(child);
-                if ((File.GetAttributes(child) & FileAttributes.ReparsePoint) != 0 || name.Equals("updates", StringComparison.OrdinalIgnoreCase) || name.Equals("bin", StringComparison.OrdinalIgnoreCase) || name.Equals("obj", StringComparison.OrdinalIgnoreCase) || IsWithin(backup, child)) continue;
+                if ((File.GetAttributes(child) & FileAttributes.ReparsePoint) != 0 || name.Equals("migration-backups", StringComparison.OrdinalIgnoreCase) || name.Equals("updates", StringComparison.OrdinalIgnoreCase) || name.Equals("bin", StringComparison.OrdinalIgnoreCase) || name.Equals("obj", StringComparison.OrdinalIgnoreCase) || IsWithin(backup, child)) continue;
                 pending.Push(child);
             }
             foreach (var file in Directory.EnumerateFiles(current))
@@ -74,7 +78,7 @@ internal static class UpdateTransaction
     }
     internal static void Save(string path, UpdatePlan plan) => StateStore.AtomicWrite(path, JsonSerializer.Serialize(plan, new JsonSerializerOptions { WriteIndented = true }), false);
     internal static bool IsWithin(string root, string path) => Path.GetFullPath(path).StartsWith(Path.TrimEndingDirectorySeparator(Path.GetFullPath(root)) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) || Path.GetFullPath(path).Equals(Path.GetFullPath(root), StringComparison.OrdinalIgnoreCase);
-    private static void RejectLinks(string path)
+    internal static void RejectLinks(string path)
     {
         for (var current = Path.GetFullPath(path); current != null; current = Path.GetDirectoryName(current))
             if ((File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0) throw new InvalidDataException("Linked update paths are not supported.");
@@ -83,6 +87,7 @@ internal static class UpdateTransaction
     {
         var plan = JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(path)) ?? throw new InvalidDataException("Missing update plan.");
         var directory = Path.GetDirectoryName(Path.GetFullPath(path))!;
+        if(plan.Installer){await InstallerUpdates.Apply(path,plan,health,restart,waitForParent);return;}
         if (plan.UserId != System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value || !Path.GetFullPath(plan.Candidate).Equals(Path.Combine(directory, "candidate.exe"), StringComparison.OrdinalIgnoreCase) || !Path.IsPathFullyQualified(plan.Target) || !Path.GetFileName(plan.Target).Equals("Nexa.exe", StringComparison.OrdinalIgnoreCase) || IsWithin(directory, plan.Target)) throw new UnauthorizedAccessException("Invalid update ownership or target.");
         RejectLinks(path); RejectLinks(plan.Candidate); RejectLinks(plan.Target);
         // An exclusive file handle survives asynchronous continuations; a thread-owned mutex does not.

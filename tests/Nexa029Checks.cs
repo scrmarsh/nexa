@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void Check029()
     {
-        Assert(App.AppVersion=="0.0.32" && App.VersionLabel=="nexa v0.0.32 alpha","Current candidate has lowercase Alpha identity");
+        Assert(App.AppVersion=="0.0.33" && App.VersionLabel=="nexa v0.0.33 alpha","Current candidate has lowercase Alpha identity");
         var old=JsonSerializer.Deserialize<NexaOptions>("{}")!;
         Assert(old.EnableF11 && old.FullscreenNotification && old.ShowSystemIndicators && old.EnableVolumeSlider && old.EscExitsFullscreen,"Old settings acquire all five display defaults");
         Assert(old.HomeWallpaper.Mode==SpaceBackgroundMode.Default && !new SpaceBackground().FitImage,"Old wallpaper saves preserve default fill behavior");
