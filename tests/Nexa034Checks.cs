@@ -20,6 +20,13 @@ internal static partial class Program
         Directory.CreateDirectory(Path.Combine(legacy,"Recordings"));Directory.CreateDirectory(Path.Combine(docs,"History"));
         File.WriteAllText(Path.Combine(legacy,"Recordings","session.wav"),"fixture audio");
         var source=new StateStore(Path.Combine(legacy,"state.json"));var state=source.Load();state.Notes="Preserve private session notes";source.Save(state);
+        var protectedMigration=false;var connection=new IntegrationCredential{AccessToken="fixture-only-todoist-secret"};
+        try
+        {
+            state.HedyProtectedKey=SecretStorage.Protect("fixture-only-hedy-secret");source.Save(state);new IntegrationVault(source).Write("Todoist",connection);protectedMigration=true;
+        }
+        catch(Exception ex)when(ex is System.Security.Cryptography.CryptographicException or UnauthorizedAccessException or PlatformNotSupportedException or IntegrationException)
+        {Console.WriteLine("UNVERIFIED: This token does not support the isolated DPAPI migration fixture.");}
         File.WriteAllText(Path.Combine(legacy,"links.json"),JsonSerializer.Serialize(new{AudioPath=Path.Combine(legacy,"Recordings","session.wav"),HedyProtectedKey="test-managed-secret",Nested=new{AccessToken="private-access",RefreshToken="private-refresh",ClientSecret="private-client"}}));
         File.WriteAllText(Path.Combine(docs,"History","session.md"),"Readable session history");var original=NexaData.Hash(source.FilePath);
         var first=NexaData.Migrate(legacy,docs,target);
@@ -27,6 +34,12 @@ internal static partial class Program
         Assert(NexaData.Hash(source.FilePath)==original,"Migration leaves original private save bytes intact");
         Assert(File.ReadAllText(Path.Combine(target,"links.json")).Contains(Path.Combine(target,"Recordings","session.wav").Replace("\\","\\\\")),"Migrated structured recording links point to the copied recording");
         Assert(new StateStore(Path.Combine(target,"state.json")).Load().Notes=="Preserve private session notes","Migrated actual workspace can be loaded");
+        if(protectedMigration)
+        {
+            var migrated=new StateStore(Path.Combine(target,"state.json"));
+            Assert(SecretStorage.Unprotect(migrated.Load().HedyProtectedKey)=="fixture-only-hedy-secret","Hedy's Windows-protected fixture key remains readable after migration");
+            var restoredCredential=new IntegrationVault(migrated).Read("Todoist");Assert(restoredCredential?.AccessToken==connection.AccessToken && restoredCredential.ConnectionId==connection.ConnectionId,"DPAPI-protected integration token and connection identity survive the root change");
+        }
         var second=NexaData.Migrate(legacy,docs,target);Assert(second.Copied==0,"Repeating migration adds no duplicate files");
         File.WriteAllText(Path.Combine(target,"History","session.md"),"Newer readable report");var conflict=NexaData.Migrate(legacy,docs,target);
         Assert(conflict.Conflicts>=1 && File.ReadAllText(Path.Combine(target,"History","session.md"))=="Newer readable report","Mixed-root conflicts preserve the new file and retain verified originals");
@@ -123,6 +136,7 @@ internal static partial class Program
             Assert(((Border)wallpaperField.GetValue(home)!).Background is SolidColorBrush brush && brush.Color==Color.FromRgb(23,27,38),"Default Home stays charcoal under "+mode+" / "+palette);
         }
         Assert(home.FindResource("TextBrush") is SolidColorBrush textBrush && textBrush.Color==Color.FromRgb(240,242,255),"The fixed charcoal Home retains readable text independently of the application mode");
+        store.SavePreferences(SessionDashboard.ThemeMode.System,AppTheme.Nexa);Theme.Apply(Application.Current.Resources,SessionDashboard.ThemeMode.System,AppTheme.Nexa);
         Assert(Descendants(settings).OfType<Slider>().All(s=>s.IsMoveToPointEnabled),"Appearance sliders support click-to-point as well as dragging");
         Capture034(settings,"appearance");settings.Close();
         foreach(var section in new[]{"Profile","Sounds","Add Bugs","Files & sharing","Updates"})

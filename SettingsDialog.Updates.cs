@@ -14,6 +14,7 @@ internal sealed partial class SettingsDialog
         automatic.Click+=(_,_)=>
         {
             try{var latest=store.LoadUpdatePreferences();latest.AutomaticUpdates=automatic.IsChecked==true;latest.UpdateChoiceMade=true;latest.CheckOnStartup=true;store.SaveUpdatePreferences(latest);if(!latest.AutomaticUpdates)flow.AutomaticDisabled();}
+            catch(OperationCanceledException){status.Text="Installer repair was canceled or timed out. Your data is unchanged.";}
             catch(Exception ex)when(ex is System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException){error.Text="Could not save update choice: "+ex.Message;}
         };
         var check=new Button{Content="Check for updates",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,12,0,0)};page.Children.Add(check);
@@ -41,6 +42,7 @@ internal sealed partial class SettingsDialog
             try
             {
                 status.Text="Verifying the official installer…";var setup=await InstallerRepair.Resolve(store);
+                if(!IsVisible)return;
                 if(!FlushPendingChanges())return;
                 foreach(var window in Application.Current.Windows.OfType<MainWindow>().Where(w=>w.SettingsStore.FilePath==store.FilePath).ToArray())if(!window.PrepareForUpdateRestart())return;
                 NexaEcosystem.CheckpointAll();
@@ -49,6 +51,7 @@ internal sealed partial class SettingsDialog
                 using var process=System.Diagnostics.Process.Start(start)??throw new System.IO.IOException("The installer could not start.");
                 Application.Current.Shutdown();
             }
+            catch(OperationCanceledException){status.Text="Installer repair was canceled or timed out. Your data is unchanged.";}
             catch(Exception ex)when(ex is System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException or System.Net.Http.HttpRequestException or System.Text.Json.JsonException or System.ComponentModel.Win32Exception or InvalidOperationException){status.Text="Could not rerun the installer: "+ex.Message;}
             finally{launching=false;repair.IsEnabled=true;}
         };
