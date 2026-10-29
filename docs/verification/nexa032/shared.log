@@ -1,0 +1,11 @@
+PASS: Pixel Timer uses the normal card edge and meets its neighbor across one widget gap
+PASS: Pixel and Clock trade width during the drag without moving rows
+PASS: Shared Pixel/Clock width persists without a gap
+PASS: Adjacent normal widgets begin as a continuous row
+PASS: Dragging a shared widget edge resizes both cards live
+PASS: Normal shared-edge resize saves a gap-free row
+PASS: Canceling a shared resize restores both cards without moving them
+PASS: Changing the global theme applies the chosen palette immediately in a Space
+PASS: Selected global theme is saved
+PASS: Saved shared layout reloads with existing Space data; details: shared-restart.json
+PASS: 10 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-215029

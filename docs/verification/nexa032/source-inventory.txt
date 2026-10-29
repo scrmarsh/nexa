@@ -1,0 +1,39 @@
+Starting commit: 6f729f4633c64b70a804cbf103e54adea0b3d3a0
+Ending application/test commit: 3262017b0d164058c22359f8c071e952757f276b
+
+M	App.xaml
+M	App.xaml.cs
+A	AppearancePalettes.cs
+M	CHANGELOG.md
+M	MainWindow.SpaceBackground.cs
+M	MainWindow.xaml
+M	MainWindow.xaml.cs
+A	NexaScrolling.cs
+M	NexaSelection.cs
+M	OnboardingWindow.cs
+M	README.md
+M	ReleaseNotes.cs
+M	SessionDashboard.csproj
+M	SettingsDialog.Navigation.cs
+M	SettingsDialog.cs
+M	Theme.cs
+M	UserProfile.cs
+M	WallpaperImages.cs
+A	WallpaperPicker.cs
+M	app.manifest
+A	docs/NEXA_032_AUDIT.md
+A	docs/NEXA_032_SCROLLING.md
+M	tests/Nexa024Runner.cs
+M	tests/Nexa026Checks.cs
+M	tests/Nexa027Checks.cs
+M	tests/Nexa028Checks.cs
+M	tests/Nexa029Checks.cs
+M	tests/Nexa030Checks.cs
+M	tests/Nexa031Checks.cs
+A	tests/Nexa032Checks.cs
+M	tests/NexaweenMoreChecks.cs
+M	tests/SessionDashboard.Checks.csproj
+M	tests/Shared012Checks.cs
+M	tools/Verify.ps1
+
+Documentation and nine docs/media/nexa032 PNG captures follow in the evidence commit.

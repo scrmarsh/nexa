@@ -1,0 +1,39 @@
+5fba224:Theme.cs lines 1-13
+1: namespace SessionDashboard;
+2: 
+3: public static class Theme
+4: {
+5:     public static (string Accent, string Pixel) ForName(string name) => name.ToLowerInvariant() switch
+6:     {
+7:         "lecture" => ("#69ACFF", "#2786FF"),
+8:         "focused work" => ("#6AE58F", "#1DB954"),
+9:         "meeting" => ("#FFCA78", "#E6A441"),
+10:         "studying" => ("#C6A5FF", "#A67AF2"),
+11:         _ => ("#6AE58F", "#2786FF")
+12:     };
+13: }
+
+5fba224:MainWindow.xaml lines 108-111
+108:                             <TextBlock Text="Preset theme" Style="{StaticResource FieldLabel}"/>
+109:                             <ComboBox x:Name="ThemePicker" SelectionChanged="ThemeSelected" AutomationProperties.Name="Preset theme">
+110:                                 <ComboBoxItem Content="Blue · lecture"/><ComboBoxItem Content="Green · work"/><ComboBoxItem Content="Amber · meeting"/><ComboBoxItem Content="Violet · studying"/>
+111:                             </ComboBox>
+
+7d3e3f5:Theme.cs lines 14-21
+14: 
+15: public enum AppTheme
+16: {
+17:     Nexa,
+18:     Violet,
+19:     Aurora,
+20:     Ember
+21: }
+
+7d3e3f5:Theme.cs lines 41-47
+41:     public static (string Accent, string Pixel) AppPalette(AppTheme theme) => theme switch
+42:     {
+43:         AppTheme.Violet => ("#A78BFA", "#7C3AED"),
+44:         AppTheme.Aurora => ("#38BDF8", "#14B8A6"),
+45:         AppTheme.Ember => ("#FB7185", "#F59E0B"),
+46:         _ => ("#5B7CFF", "#8B5CF6")
+47:     };

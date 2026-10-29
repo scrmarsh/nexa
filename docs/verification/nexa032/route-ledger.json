@@ -1,0 +1,151 @@
+{
+  "source": "3262017b0d164058c22359f8c071e952757f276b",
+  "routes": [
+    {
+      "route": "alpha026",
+      "checks": 30,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214853"
+    },
+    {
+      "route": "animation",
+      "checks": 50,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-215044"
+    },
+    {
+      "route": "arrivals",
+      "checks": 32,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214856"
+    },
+    {
+      "route": "audit025",
+      "checks": 38,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214900"
+    },
+    {
+      "route": "continuity",
+      "checks": 43,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214946"
+    },
+    {
+      "route": "core",
+      "checks": 64,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214938"
+    },
+    {
+      "route": "ecosystem",
+      "checks": 48,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-215039"
+    },
+    {
+      "route": "final",
+      "checks": 36,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214905"
+    },
+    {
+      "route": "followup-design",
+      "checks": 31,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214914"
+    },
+    {
+      "route": "followup",
+      "checks": 46,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214924"
+    },
+    {
+      "route": "handoff026",
+      "checks": 95,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214822"
+    },
+    {
+      "route": "laptop-audio",
+      "checks": 93,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214722"
+    },
+    {
+      "route": "master",
+      "checks": 23,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214927"
+    },
+    {
+      "route": "menus",
+      "checks": 9,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-215034"
+    },
+    {
+      "route": "nexa029",
+      "checks": 87,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214757"
+    },
+    {
+      "route": "nexa030",
+      "checks": 63,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214742"
+    },
+    {
+      "route": "nexa031",
+      "checks": 33,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214734"
+    },
+    {
+      "route": "nexa032",
+      "checks": 83,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214712"
+    },
+    {
+      "route": "nexaween027",
+      "checks": 51,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214812"
+    },
+    {
+      "route": "nexaween028",
+      "checks": 39,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214805"
+    },
+    {
+      "route": "pass026",
+      "checks": 36,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214844"
+    },
+    {
+      "route": "reliability",
+      "checks": 19,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214933"
+    },
+    {
+      "route": "shared",
+      "checks": 10,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-215029"
+    },
+    {
+      "route": "update-automation",
+      "checks": 48,
+      "result": "PASS",
+      "artifacts": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\20261028-214730"
+    }
+  ],
+  "routeCount": 24,
+  "assertions": 1107
+}

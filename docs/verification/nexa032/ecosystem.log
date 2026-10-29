@@ -1,0 +1,49 @@
+PASS: Cozy ecosystem reaches its bounded population with all six species
+PASS: Cozy does not default to continuous combat
+PASS: Species actually gather resources, deliver them and build nests
+PASS: Cozy includes functional carrying, rest, social and grooming activities
+PASS: Spiders construct bounded persistent webs without a battle loop
+PASS: Pausing the world freezes authoritative creature positions
+PASS: World identity, creature identity and positions survive complete serialization
+PASS: Nests, resources and webs survive reload together
+PASS: An ecosystem cannot be loaded by an unverified owner
+PASS: Non-finite creature coordinates are rejected before restoration
+PASS: Restored Creepy behavior preserves its appearance and avoids territorial raids
+PASS: Combative behavior causes actual territorial encounters and casualties
+PASS: Changing behavior preserves the world and immediately ends obsolete attack orders
+PASS: Legacy matched textures remain readable while explicit appearance is independent
+PASS: Default size is 200 percent with Adorable Mode enabled and bounded size settings
+PASS: Ants has distinct cached native appearances
+PASS: Ants has its own seasonal costume overlay
+PASS: Roaches has distinct cached native appearances
+PASS: Roaches has its own seasonal costume overlay
+PASS: Flies has distinct cached native appearances
+PASS: Flies has its own seasonal costume overlay
+PASS: Spiders has distinct cached native appearances
+PASS: Spiders has its own seasonal costume overlay
+PASS: Ladybugs has distinct cached native appearances
+PASS: Ladybugs has its own seasonal costume overlay
+PASS: Centipedes has distinct cached native appearances
+PASS: Centipedes has its own seasonal costume overlay
+PASS: Dashboard and ecosystem view obtain one authoritative world per workspace
+PASS: A populated ecosystem is saved atomically
+PASS: Explicit backup restoration succeeds on valid same-owner data
+PASS: Backup restoration restores the previous world without replacing its identity
+PASS: A failed ecosystem reset cannot replace the live world
+PASS: Explicit reset creates a new world and preserves a recovery copy
+PASS: Manual Nexaween activation enables costumes and candy outside calendar restrictions
+PASS: Disabling Halloween preserves the manually selected underlying appearance
+PASS: Unreadable ecosystem files are preserved instead of silently overwritten
+PASS: A direct ant squash is accepted exactly once
+PASS: A failed session-history write leaves a durable squash event in the ecosystem
+PASS: Recovered storage commits pending squash statistics once and clears the durable queue
+PASS: Replaying an acknowledged squash never duplicates all-time totals
+PASS: Performance quality changes cadence without resetting the population
+PASS: Dashboard bugs use the same authoritative manager as the ecosystem service
+PASS: Actual Add Bugs settings expose behavior, appearance and Adorable Mode controls
+PASS: Real size and behavior controls apply immediately and persist
+PASS: Only the dashboard overlay owns a simulation view
+PASS: The retired map and world-reset controls are absent from bug settings
+PASS: Appearance selection applies and persists without replacing the chosen behavior
+PASS: Closing the overlay releases its simulation subscription
+PASS: 48 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-215039

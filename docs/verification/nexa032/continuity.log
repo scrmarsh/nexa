@@ -1,0 +1,44 @@
+PASS: Dashboard and history payloads exclude credentials; separate account credential round-trips
+PASS: Recovery snapshots are capped at three generations per current dashboard
+PASS: Reset archives current content and preserves dashboard identity
+PASS: Reset clears session data while preserving colors and panel layout
+PASS: Archived sessions retain final content without redundant snapshots
+PASS: Merge retains current notes and imports labelled historical notes and transcript
+PASS: Merge deduplicates tasks and preserves layout with provenance
+PASS: Repeated merges do not duplicate content or mutate historical data
+PASS: Continue makes editable copy and archives displaced current session
+PASS: Continued session never aliases its history data
+PASS: Configuration-only export excludes private session data, user IDs and secrets
+PASS: Configuration import creates owned dashboard with new identity and retained configuration
+PASS: Private session import requires explicit acceptance
+PASS: Explicit private data import preserves session content
+PASS: Unsupported export versions rejected
+PASS: Unknown credential fields in import are rejected
+PASS: Malformed collection data rejected before import
+PASS: Another user cannot query the workspace
+PASS: Another user cannot continue history
+PASS: Another user cannot merge history
+PASS: Another user's store cannot load existing autosaves
+PASS: History from a different dashboard cannot be continued
+PASS: Unclean shutdown restores latest saved data with recovery message
+PASS: Clean shutdown suppresses crash recovery message
+PASS: Damaged current state recovers the latest valid snapshot before older file backup
+PASS: WPF default checkpoint interval is five minutes
+PASS: Successful save displays the local save time
+PASS: Switching to a new dashboard starts with isolated content
+PASS: Animated dashboard switch reaches the selected saved Space
+PASS: Dashboard switch saves outgoing state and restores notes and input drafts independently
+PASS: Committed reset clears visible notes and stale timer UI
+PASS: Read-only history preview leaves current editor untouched
+PASS: Continue restores historical content into editable controls
+PASS: Debounced edit saves on background worker and clears dirty state
+PASS: Success time remains readable with spinner stopped
+PASS: Clean background autosave performs no disk write
+PASS: Real 30-second autosave persists changes even during continuous typing
+PASS: Edits made during a background write stay dirty after the older capture completes
+PASS: Close flushes pending edits and reopening continues the same session
+PASS: I/O failure retains dirty edits and never shows a false saved indicator
+PASS: Actual I/O failure retains last successful timestamp and stops spinner
+PASS: Failed reset commit leaves current editor intact
+PASS: Saving retries successfully when storage recovers
+PASS: 43 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-214946

@@ -1,0 +1,47 @@
+PASS: Class begins with zero completed pixels
+PASS: Active 9–10 class immediately reads 50% at 9:30
+PASS: Class completion immediately begins the full intersession countdown
+PASS: The last bottom-right-clearing prefix empties exactly at the next start
+PASS: A missed week's countdown uses its latest occurrence end
+PASS: Edited start/end change authoritative progress immediately
+PASS: Session-linked Progress Bar shares Pixel Timer progress
+PASS: An independent Progress Bar keeps its own timestamps
+PASS: Refresh scheduling aligns to actual UTC second boundaries
+PASS: Central and Eastern displays represent the same UTC instant without a one-hour conversion error
+PASS: One wheel notch produces one controlled selection increment
+PASS: Trackpad sub-notch deltas accumulate without jumping values
+PASS: A large wheel event cannot skip several time values
+PASS: Clicking a dropdown item cannot initiate panel dragging
+PASS: Clicking a list item cannot initiate panel dragging
+PASS: The optional updater uses the canonical Nexa GitHub repository
+PASS: Release URL validation accepts the canonical Nexa repository
+PASS: Foreign repository assets are rejected with an explicit invalid-package result
+PASS: First direct squash starts a two-minute 1.5× streak
+PASS: A valid later squash adds 0.5 and refreshes two minutes
+PASS: Configured multiplier cap bounds a long streak
+PASS: Central scoring uses the actual capped multiplier
+PASS: A delayed historical squash cannot overwrite newer streak timestamps
+PASS: Elapsed real time ends a streak after resume, and actions before it have no bonus
+PASS: Replaying a squash cannot extend or farm a streak
+PASS: Only configured negative categories deduct points
+PASS: A distraction has no negative score unless the user enables a rule
+PASS: Fresh nonseasonal setup defaults to Classic
+PASS: Fresh Nexaween setup defaults to Cozy and Adorable
+PASS: Season toggling restores each saved behavior without forcing Cozy
+PASS: Cozy preserves the independently selected Creepy appearance
+PASS: Creepy preserves the independently selected Creepy appearance
+PASS: Combative preserves the independently selected Creepy appearance
+PASS: Classic preserves the independently selected Creepy appearance
+PASS: Lowering density immediately trims the maintained population without resetting world identity
+PASS: Selecting a species immediately replaces incompatible population and spawns the selected type
+PASS: Ground paths route around opaque widget surfaces
+PASS: A widget moved over a creature provides a free-edge recovery target
+PASS: Pixel Timer label and embedded bar immediately share 50% elapsed
+PASS: Standalone linked bar agrees with the Pixel Timer at the same captured instant
+PASS: Global navigation has one Appearance and Sounds, with no duplicate Session/Seasonal tabs
+PASS: Redundant appearance override controls are absent
+PASS: Classic, Cozy, Creepy and Combative are available with independent appearance
+PASS: The first-open behavior selector reflects the effective seasonal world mode
+PASS: The Session interface contains history and the Tips setting
+PASS: Session interface has no duplicate weekday or summary-interval selection
+PASS: 46 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-214924
