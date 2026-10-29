@@ -14,7 +14,6 @@ internal sealed partial class SettingsDialog
         automatic.Click+=(_,_)=>
         {
             try{var latest=store.LoadUpdatePreferences();latest.AutomaticUpdates=automatic.IsChecked==true;latest.UpdateChoiceMade=true;latest.CheckOnStartup=true;store.SaveUpdatePreferences(latest);if(!latest.AutomaticUpdates)flow.AutomaticDisabled();}
-            catch(OperationCanceledException){status.Text="Installer repair was canceled or timed out. Your data is unchanged.";}
             catch(Exception ex)when(ex is System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException){error.Text="Could not save update choice: "+ex.Message;}
         };
         var check=new Button{Content="Check for updates",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,12,0,0)};page.Children.Add(check);
