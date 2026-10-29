@@ -33,7 +33,7 @@ internal static class InstallerUpdates
     {
         var info=new ProcessStartInfo(setup){UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden};
         foreach(var arg in new[]{"/CURRENTUSER","/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/UPGRADE=1","/DIR="+Path.GetDirectoryName(target),"/LOG="+log})info.ArgumentList.Add(arg);
-        if(!string.IsNullOrWhiteSpace(portable))info.ArgumentList.Add("/LEGACYSOURCE="+portable);
+        if(!string.IsNullOrWhiteSpace(portable)){info.ArgumentList.Add("/LEGACYSOURCE="+portable);info.ArgumentList.Add("/MERGETASKS=oldcopies");}
         using var process=Process.Start(info)??throw new IOException("Could not start official Setup.");
         await process.WaitForExitAsync().WaitAsync(TimeSpan.FromMinutes(10));
         if(process.ExitCode!=0)throw new IOException("Setup failed with exit code "+process.ExitCode+". See "+log);

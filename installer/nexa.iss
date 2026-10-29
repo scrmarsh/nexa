@@ -61,7 +61,7 @@ ChangesAssociations=no
 
 [Tasks]
 Name: desktopicon; Description: "Create a desktop shortcut"; GroupDescription: "Shortcuts:"; Flags: checkedonce
-Name: oldcopies; Description: "Find and clean up verified old portable copies after backing them up"; GroupDescription: "Previous versions:"; Flags: checkedonce
+Name: oldcopies; Description: "Find and clean up verified old portable copies after backing them up"; GroupDescription: "Previous versions:"
 #ifndef TestRoot
 Name: fullscan; Description: "Also search local drives (may take several minutes)"; GroupDescription: "Previous versions:"; Flags: unchecked
 #endif

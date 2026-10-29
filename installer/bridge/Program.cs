@@ -34,7 +34,7 @@ internal static class Program
             if(args.Length==2 && args[0]=="--verify-startup")
             {Directory.CreateDirectory(args[1]);File.WriteAllText(Path.Combine(args[1],"startup.json"),JsonSerializer.Serialize(new{Success=true,Version="0.0.33",Role="Legacy installer migration bridge",InstallerSHA256=expected}));return 0;}
             var start=new ProcessStartInfo(setup){UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden};
-            start.ArgumentList.Add("/CURRENTUSER");start.ArgumentList.Add("/LEGACYSOURCE="+Environment.ProcessPath);
+            start.ArgumentList.Add("/CURRENTUSER");start.ArgumentList.Add("/MERGETASKS=oldcopies");start.ArgumentList.Add("/LEGACYSOURCE="+Environment.ProcessPath);
 #if BRIDGE_TEST
             foreach(var arg in new[]{"/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART"})start.ArgumentList.Add(arg);
 #endif
