@@ -13,7 +13,7 @@
   #define OutputDirPath "..\verification\installer035"
 #endif
 #ifndef AppVersion
-  #define AppVersion "0.1.1"
+  #define AppVersion "0.1.2"
 #endif
 #ifdef TestRoot
   #define ProductId "{B80F06DA-5764-44B7-B632-68ACB4BE0330}"
@@ -185,8 +185,10 @@ procedure SetBlueProgress(Current, Total: Integer);
 begin
   if Total < 1 then Total := 1;
   if Current > Total then Current := Total;
+  BlueTrack.SetBounds(SearchProgress.ProgressBar.Left, SearchProgress.SurfaceHeight - ScaleY(28), SearchProgress.ProgressBar.Width, ScaleY(12));
   BlueFill.Width := (BlueTrack.Width * Current) div Total;
-  SearchProgress.SetProgress(Current, Total);
+  // SetProgress re-shows Inno's native bar on each callback. Only the custom bar is rendered.
+  SearchProgress.ProgressBar.Visible := False;
 end;
 
 procedure PreparationLog(const S: String; const Error, FirstLine: Boolean);
@@ -236,6 +238,29 @@ begin
   StringChangeEx(Result, #10, #13#10, True);
 end;
 
+function EnsureNexaClosed(const Context: String): Boolean;
+var Code: Integer; Report, Detail: String; Form: TSetupForm; MessageLabel: TNewStaticText; CloseApp, Cancel: TNewButton;
+begin
+  Result := False;
+  Report := ExpandConstant('{tmp}\running-apps.json');
+  if not Exec(ExpandConstant('{tmp}\{#PrepareHelper}'), '--installer-running-apps ' + Quoted(Report) + ' ' + Quoted(Context), '', SW_HIDE, ewWaitUntilTerminated, Code) then Exit;
+  if Code = 0 then begin Result := True; Exit; end;
+  if Code <> 3 then begin MsgBox('Setup could not verify the blocking application. No application was closed. Review file access and try again.', mbError, MB_OK); Exit; end;
+  if WizardSilent then begin Log('A verified application must close before this operation. Silent Setup does not close applications without consent.'); Exit; end;
+  Detail := ReadCleanupReport(Report + '.txt');
+  Form := CreateCustomForm(ScaleX(530), ScaleY(280), False, False);
+  try
+    Form.Caption := 'Nexa Is Currently Running';
+    MessageLabel := TNewStaticText.Create(Form); MessageLabel.Parent := Form;
+    MessageLabel.SetBounds(ScaleX(22), ScaleY(22), ScaleX(486), ScaleY(175)); MessageLabel.WordWrap := True;
+    MessageLabel.Caption := 'Nexa needs to be closed before continuing. Would you like Setup to close Nexa for you?' + #13#10 + #13#10 + Detail;
+    CloseApp := TNewButton.Create(Form); CloseApp.Parent := Form; CloseApp.Caption := 'Close Nexa'; CloseApp.SetBounds(ScaleX(260), ScaleY(218), ScaleX(120), ScaleY(32)); CloseApp.ModalResult := mrOK;
+    Cancel := TNewButton.Create(Form); Cancel.Parent := Form; Cancel.Caption := 'Cancel'; Cancel.SetBounds(ScaleX(390), ScaleY(218), ScaleX(118), ScaleY(32)); Cancel.ModalResult := mrCancel; Cancel.Cancel := True; Cancel.Default := True;
+    if Form.ShowModal <> mrOK then Exit;
+  finally Form.Free; end;
+  Result := Exec(ExpandConstant('{tmp}\{#PrepareHelper}'), '--installer-close-apps ' + Quoted(Report), '', SW_HIDE, ewWaitUntilTerminated, Code) and (Code = 0);
+  if not Result then MsgBox('Nexa did not close. Finish any save or confirmation in Nexa, then retry. Setup has not force-terminated any application.', mbError, MB_OK);
+end;
 function RunLegacyCleanup(OnlyScan: Boolean): Boolean;
 var Code: Integer; Args, Roots, Mode, Inventory, Target, Report: String;
 begin
@@ -264,6 +289,7 @@ begin
 #endif
   SearchProgress.SetText('Scanning for old Nexa versions', 'Identifying trusted obsolete installations and preserving unknown files.');
   SetBlueProgress(0, 1); SearchProgress.Show; SearchProgress.ProgressBar.Visible := False;
+  BlueTrack.SetBounds(SearchProgress.ProgressBar.Left, SearchProgress.SurfaceHeight - ScaleY(28), SearchProgress.ProgressBar.Width, ScaleY(12)); BlueTrack.BringToFront;
   try
     if not ExecAndLogOutput(ExpandConstant('{tmp}\{#PrepareHelper}'), Args, '', SW_HIDE, ewWaitUntilTerminated, Code, @PreparationLog) or (Code <> 0) then Exit;
     Report := ReadCleanupReport(Inventory + '.report.txt'); DiscoveryMemo.Lines.Add(Report);
@@ -271,8 +297,10 @@ begin
   if OnlyScan then begin
     if not ReviewCleanup(Report, True) then begin Result := True; Exit; end;
   end;
+  if not EnsureNexaClosed(Inventory) then Exit;
   SearchProgress.SetText('Removing old Nexa versions', 'Recovery copies are verified before obsolete binaries are removed.');
   SetBlueProgress(0, 1); SearchProgress.Show; SearchProgress.ProgressBar.Visible := False;
+  BlueTrack.SetBounds(SearchProgress.ProgressBar.Left, SearchProgress.SurfaceHeight - ScaleY(28), SearchProgress.ProgressBar.Width, ScaleY(12)); BlueTrack.BringToFront;
   try
     Result := ExecAndLogOutput(ExpandConstant('{tmp}\{#PrepareHelper}'), '--installer-legacy-remove ' + Quoted(Inventory), '', SW_HIDE, ewWaitUntilTerminated, Code, @PreparationLog) and (Code = 0);
     Report := ReadCleanupReport(Inventory + '.report.txt'); DiscoveryMemo.Lines.Add(Report);
@@ -285,7 +313,7 @@ begin
   if CleanupBusy then Exit;
   CleanupBusy := True; CleanupButton.Enabled := False; WizardForm.NextButton.Enabled := False;
   try
-    if not RunLegacyCleanup(True) then MsgBox('Cleanup could not finish. Close running Nexa copies and check access to the reported locations, then scan again. No new application was installed.', mbError, MB_OK);
+    if not RunLegacyCleanup(True) then MsgBox('Cleanup could not finish. Review the reported locations for locked files or access problems, resolve them, then scan again. No new application was installed.', mbError, MB_OK);
   finally CleanupBusy := False; CleanupButton.Enabled := True; WizardForm.NextButton.Enabled := True; end;
 end;
 
@@ -309,11 +337,14 @@ begin
   PreparationError := ''; Prepared := False;
   if ModePage.SelectedValueIndex <> 1 then begin
     if not RunLegacyCleanup(False) then begin
-      PreparationError := 'Legacy cleanup could not complete. Close old Nexa copies, resolve the reported access problem, and try again. Setup has not installed new application files.';
+      PreparationError := 'Legacy cleanup could not complete. Review the cleanup report, resolve any locked files or access problems, and try again. Setup has not installed new application files.';
       Preparing := False; Exit;
     end;
   end;
   if not FileExists(ExpandConstant('{tmp}\{#PrepareHelper}')) then ExtractTemporaryFile('{#PrepareHelper}');
+#ifndef TestRoot
+  if not EnsureNexaClosed('workspace') then begin PreparationError := 'Installation paused. Nexa was not closed; no new application files were installed.'; Preparing := False; Exit; end;
+#endif
   PlanPath := ExpandConstant('{tmp}\migration-plan.json');
   if ModePage.SelectedValueIndex = 1 then begin
     if not Exec(ExpandConstant('{tmp}\{#PrepareHelper}'), '--installer-repair-validate ' + Quoted(ExpandConstant('{app}')), '', SW_HIDE, ewWaitUntilTerminated, Code) or (Code <> 0) then begin
@@ -338,6 +369,7 @@ begin
   SearchProgress.SetText('Checking registered installation and saved data', 'Preparing verified backups');
   SetBlueProgress(0, 1);
   SearchProgress.Show; SearchProgress.ProgressBar.Visible := False;
+  BlueTrack.SetBounds(SearchProgress.ProgressBar.Left, SearchProgress.SurfaceHeight - ScaleY(28), SearchProgress.ProgressBar.Width, ScaleY(12)); BlueTrack.BringToFront;
   try
     if not ExecAndLogOutput(ExpandConstant('{tmp}\{#PrepareHelper}'), Args, '', SW_HIDE, ewWaitUntilTerminated, Code, @PreparationLog) then
       PreparationError := 'Could not start installation checks. Existing saves and portable copies are unchanged.'
@@ -398,7 +430,7 @@ begin
   SearchProgress := CreateOutputProgressPage('Nexa maintenance', 'Scanning, cleaning and verifying installation files');
   SearchProgress.ProgressBar.Visible := False;
   BlueTrack := TPanel.Create(WizardForm); BlueTrack.Parent := SearchProgress.Surface;
-  BlueTrack.SetBounds(SearchProgress.ProgressBar.Left, SearchProgress.ProgressBar.Top, SearchProgress.ProgressBar.Width, ScaleY(12));
+  BlueTrack.SetBounds(SearchProgress.ProgressBar.Left, SearchProgress.SurfaceHeight - ScaleY(28), SearchProgress.ProgressBar.Width, ScaleY(12));
   BlueTrack.StyleElements := []; BlueTrack.Color := StrToColor('#30364A'); BlueTrack.BevelOuter := bvNone;
   BlueFill := TPanel.Create(WizardForm); BlueFill.Parent := BlueTrack; BlueFill.SetBounds(0, 0, 0, BlueTrack.Height);
   BlueFill.StyleElements := []; BlueFill.Color := StrToColor('#5B7CFF'); BlueFill.BevelOuter := bvNone;
@@ -420,6 +452,11 @@ begin
   if (CurPageID = wpFinished) and PostInstallFailed then begin
     WizardForm.FinishedHeadingLabel.Caption := 'Nexa Setup needs attention';
     WizardForm.FinishedLabel.Caption := PostInstallError + ' Existing data and recovery copies were preserved. Inspect the installation report and rerun Setup.';
+  end;
+  if CurPageID = wpInstalling then begin
+    WizardForm.ProgressGauge.Visible := False;
+    InstallBlueTrack.SetBounds(WizardForm.ProgressGauge.Left, WizardForm.ProgressGauge.Top, WizardForm.ProgressGauge.Width, WizardForm.ProgressGauge.Height);
+    InstallBlueTrack.BringToFront;
   end;
   if CurPageID = wpSelectTasks then begin
     UpdatingShortcutChoices := True;
@@ -581,5 +618,6 @@ end;
 
 procedure CurInstallProgressChanged(CurProgress, MaxProgress: Integer);
 begin
+  WizardForm.ProgressGauge.Visible := False;
   if MaxProgress > 0 then InstallBlueFill.Width := (InstallBlueTrack.Width * CurProgress) div MaxProgress;
 end;

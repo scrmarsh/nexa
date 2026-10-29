@@ -10,129 +10,102 @@ internal sealed class OnboardingWindow : NexaDialog
     private readonly StateStore store;
     internal readonly UserProfile Profile;
     internal DashboardRecord? Result;
-    internal int Step { get; private set; }
-    private readonly StackPanel body = new();
-    private readonly TextBlock title = new() { FontSize=30, FontWeight=FontWeights.SemiBold, Margin=new Thickness(0,0,0,12) };
-    private readonly TextBlock error = new() { TextWrapping=TextWrapping.Wrap, Foreground=Brushes.IndianRed };
-    private readonly Button back = new() { Content="Back", Margin=new Thickness(0,0,10,0) };
-    private readonly Button next = new() { Content="Continue" };
-    private HashSet<string> tools;
-    private string name = "Class space";
-    private string spaceIcon="";
+    internal int Step {get;private set;}
+    private readonly StackPanel body=new();
+    private readonly TextBlock title=new(){FontSize=28,FontWeight=FontWeights.SemiBold,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,14)};
+    private readonly TextBlock error=new(){TextWrapping=TextWrapping.Wrap,Foreground=Brushes.IndianRed};
+    private readonly Button back=new(){Content="Back",Margin=new Thickness(0,0,12,0)};
+    private readonly Button next=new(){Content="Continue"};
+    private readonly ThemeMode originalMode=Theme.CurrentMode;
+    private readonly AppTheme originalTheme=Theme.CurrentTheme;
+    private readonly bool originalSeason=Theme.SeasonalEnabled;
+    private readonly HashSet<string> tools;
+    private string name="My Space",spaceIcon="";
+    private bool finishing,seasonAsked;
     internal NexaOptions Options {get;}
-    private bool finishing;
-    internal OnboardingWindow(StateStore store)
+    internal static readonly string[] FeaturedWidgets=["Pixel timer","Clock","Focus Reset","Task List","Notes","Hedy Notes","Water Bottle Counter"];
+    internal OnboardingWindow(StateStore store,UserProfile? initialProfile=null)
     {
-        this.store=store; Profile=Continuity.Clone(store.LoadProfile());
-        Options=File.Exists(store.FilePath)?Continuity.Clone(store.Load().Workspace?.Settings??new()):new NexaOptions{SeasonalMode="On"};
-        if(!GuidedSetup.Types.Contains(Profile.PreferredDashboard)) Profile.PreferredDashboard="Class";
+        this.store=store;Profile=Continuity.Clone(initialProfile??store.LoadProfile());
+        Options=File.Exists(store.FilePath)?Continuity.Clone(store.Load().Workspace?.Settings??new()):new NexaOptions{SeasonalMode="Off"};
+        if(!GuidedSetup.Types.Contains(Profile.PreferredDashboard))Profile.PreferredDashboard="Class";
         name=Profile.PreferredDashboard+" space";
-        var available=GuidedSetup.Recommendations(Profile.PreferredDashboard).Concat(new[] { "Tasks","Calendar","Focus Reset","Flashcards","Session timeline" }).ToHashSet();
-        tools=Profile.PreferredWidgets.Count>0?Profile.PreferredWidgets.Where(available.Contains).ToHashSet():GuidedSetup.Recommendations(Profile.PreferredDashboard).ToHashSet();
-        var inputStyle=new Style(typeof(TextBox),Application.Current.TryFindResource(typeof(TextBox)) as Style);
-        var template=new ControlTemplate(typeof(TextBox));var border=new FrameworkElementFactory(typeof(Border));border.Name="InputOutline";border.SetValue(Border.CornerRadiusProperty,new CornerRadius(12));border.SetResourceReference(Border.BackgroundProperty,"PanelBrush");border.SetResourceReference(Border.BorderBrushProperty,"LineBrush");border.SetValue(Border.BorderThicknessProperty,new Thickness(1));
-        var content=new FrameworkElementFactory(typeof(ScrollViewer));content.Name="PART_ContentHost";content.SetValue(FrameworkElement.MarginProperty,new Thickness(12));border.AppendChild(content);template.VisualTree=border;var focus=new Trigger{Property=UIElement.IsKeyboardFocusWithinProperty,Value=true};focus.Setters.Add(new Setter(Border.BorderBrushProperty,new DynamicResourceExtension("AccentBrush"),"InputOutline"));template.Triggers.Add(focus);
-        inputStyle.Setters.Add(new Setter(Control.TemplateProperty,template));Resources[typeof(TextBox)]=inputStyle;
-        Title="Welcome to nexa"; Width=740; Height=640; MinWidth=620; MinHeight=540; WindowStartupLocation=WindowStartupLocation.CenterScreen;
-        var root=new DockPanel { Margin=new Thickness(34) };
-        var actions=new StackPanel { Orientation=Orientation.Horizontal, HorizontalAlignment=HorizontalAlignment.Right, Margin=new Thickness(0,18,0,0) };
-        actions.Children.Add(back); actions.Children.Add(next); DockPanel.SetDock(actions,Dock.Bottom); root.Children.Add(actions);
-        var skip=new Button { Content="Skip setup for now", HorizontalAlignment=HorizontalAlignment.Left, Margin=new Thickness(0,10,0,0) };
-        skip.Click+=(_,_)=> { Profile.OnboardingCompleted=true; try { store.SaveProfile(Profile); DialogResult=false; } catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) { error.Text="Could not save setup. Try again."; } };
-        DockPanel.SetDock(skip,Dock.Bottom); root.Children.Add(skip);
-        var panel=new StackPanel(); panel.Children.Add(title); panel.Children.Add(body); panel.Children.Add(error);
-        root.Children.Add(new ScrollViewer { Content=panel, VerticalScrollBarVisibility=ScrollBarVisibility.Auto }); Content=root;
-        back.Click+=(_,_)=> { Step=Step==3?1:Step-1; Render(); };
-        next.Click+=(_,_)=>Advance(); Render();
+        if(!Profile.OnboardingCompleted)Options.SeasonalMode="Off";
+        var available=WidgetLibrary.Definitions.Select(d=>d.Name).ToHashSet();
+        tools=(Profile.PreferredWidgets.Count>0?Profile.PreferredWidgets:GuidedSetup.Recommendations(Profile.PreferredDashboard).ToList()).Where(available.Contains).ToHashSet();
+        Title="Welcome to Nexa";Width=790;Height=720;MinWidth=620;MinHeight=500;WindowStartupLocation=WindowStartupLocation.CenterOwner;
+        NexaWindowBounds.RequestInitialPlacement(this,true);
+        var root=new DockPanel{Margin=new Thickness(24)};
+        var actions=new StackPanel{Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(0,16,0,0)};
+        actions.Children.Add(back);actions.Children.Add(next);DockPanel.SetDock(actions,Dock.Bottom);root.Children.Add(actions);
+        var content=new StackPanel();content.Children.Add(title);content.Children.Add(body);content.Children.Add(error);
+        root.Children.Add(new ScrollViewer{Content=content,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled});Content=root;
+        back.Click+=(_,_)=>{if(Step>0){Step--;Render();}};next.Click+=(_,_)=>Advance();
+        Closed+=(_,_)=>{if(DialogResult!=true){Theme.SetSeasonalEnabled(originalSeason);Theme.Apply(Application.Current.Resources,originalMode,originalTheme);}};
+        if(!Profile.OnboardingCompleted)Preview();Render();
     }
-    private void Text(string text) => body.Children.Add(new TextBlock { Text=text, TextWrapping=TextWrapping.Wrap, Margin=new Thickness(0,0,0,18) });
-    private void Choice(string text,bool selected,Action<bool> change)
-    {
-        var box=new CheckBox { Content=text, IsChecked=selected, Margin=new Thickness(0,7,0,7),FontSize=16 };
-        if(WidgetLibrary.Definitions.Any(d=>d.Name==text)){var row=new StackPanel{Orientation=Orientation.Horizontal};row.Children.Add(MainWindow.ToolPreview(text));row.Children.Add(new TextBlock{Text=text,Margin=new Thickness(12,0,0,0),VerticalAlignment=VerticalAlignment.Center});box.Content=row;}
-        var card=new Border{Child=box,Padding=new Thickness(12),CornerRadius=new CornerRadius(12),BorderThickness=new Thickness(1),Margin=new Thickness(0,0,0,8)};
-        card.SetResourceReference(Border.BorderBrushProperty,selected?"AccentBrush":"LineBrush");
-        box.Click+=(_,_)=>{change(box.IsChecked==true);card.SetResourceReference(Border.BorderBrushProperty,box.IsChecked==true?"AccentBrush":"LineBrush");NexaMotion.Pop(card,Options);};
-        body.Children.Add(card);
-    }
+    private void Text(string value)=>body.Children.Add(new TextBlock{Text=value,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,14)});
+    private void Preview(){Theme.SetSeasonalEnabled(NexaSeason.Active(Options,DateTimeOffset.UtcNow));Theme.Apply(Application.Current.Resources,Profile.ThemeMode,Profile.Theme);}
+    internal void ChooseSeason(bool enabled){Options.SeasonalMode=enabled?"On":"Off";if(enabled)Profile.ThemeMode=SessionDashboard.ThemeMode.Dark;Preview();Render();}
     internal void Advance()
     {
-        if(Step<5)
-        {
-            if(Step==1 && Profile.UseCases.Count>0)
-            {
-                Profile.PreferredDashboard=Profile.UseCases[0] switch { "Studying / Focus"=>"Study","Church / Small Group"=>"Church","Meetings" or "Work"=>"Meeting","Personal use" or "Other"=>"Custom",_=>"Class" };
-                tools=GuidedSetup.Recommendations(Profile.PreferredDashboard).ToHashSet(); name=Profile.PreferredDashboard+" space";
-            }
-            Step=Step==1?3:Step+1; Render(); return;
-        }
+        if(Step<4){Step++;Render();return;}
         if(finishing)return;
-        if(string.IsNullOrWhiteSpace(name)){error.Text="Name your space before continuing.";return;}
+        if(string.IsNullOrWhiteSpace(name)){error.Text="Name your Space before continuing.";return;}
         finishing=true;
-        try
-        {
-            Profile.PreferredWidgets=tools.ToList(); Profile.OnboardingCompleted=true;
-            Result=GuidedSetup.Create(Profile,name,tools,store.UserId);Result.Current.Data.OfferQuickStart=true;Result.Current.Data.SpaceIcon=SpaceIcons.Resolve(spaceIcon,Profile.PreferredDashboard);
-            DialogResult=true;
-        }
-        catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or ArgumentException) { finishing=false; error.Text="Could not finish setup. Your existing spaces are safe. "+ex.Message; }
+        try{Profile.PreferredWidgets=tools.ToList();Profile.OnboardingCompleted=true;Result=GuidedSetup.Create(Profile,name,tools,store.UserId);Result.Current.Data.OfferQuickStart=true;Result.Current.Data.SpaceIcon=SpaceIcons.Resolve(spaceIcon,Profile.PreferredDashboard);DialogResult=true;}
+        catch(Exception ex)when(ex is IOException or UnauthorizedAccessException or ArgumentException){finishing=false;error.Text="Could not finish setup. Your existing Spaces are safe. "+ex.Message;}
+    }
+    private void OfferSeason()
+    {
+        if(seasonAsked||Step!=4||!IsVisible)return;seasonAsked=true;
+        var prompt=new NexaDialog{Owner=this,Title="Nexaween",Width=440,Height=230,MinWidth=320,MinHeight=200,ResizeMode=ResizeMode.NoResize,WindowStartupLocation=WindowStartupLocation.CenterOwner};
+        var panel=new StackPanel{Margin=new Thickness(24)};panel.Children.Add(new TextBlock{Text="Would you like to enable the Nexaween theme?",TextAlignment=TextAlignment.Center,TextWrapping=TextWrapping.Wrap,FontSize=20,Margin=new Thickness(0,0,0,22)});
+        var actions=new WrapPanel{HorizontalAlignment=HorizontalAlignment.Center};var yes=new Button{Content="OK",MinWidth=100,Margin=new Thickness(0,0,12,0)};var no=new Button{Content="No Thanks",MinWidth=100,IsCancel=true};actions.Children.Add(yes);actions.Children.Add(no);panel.Children.Add(actions);prompt.Content=panel;
+        yes.Click+=(_,_)=>prompt.DialogResult=true;no.Click+=(_,_)=>prompt.DialogResult=false;
+        ChooseSeason(prompt.ShowDialog()==true);
     }
     private void Render()
     {
-        body.Children.Clear(); NexaMotion.Entrance(body,Options); error.Text=""; back.Visibility=Step==0?Visibility.Collapsed:Visibility.Visible; next.Content=Step==5?"Create My Space":"Continue";
-        title.Text=new[] { "Welcome to nexa", "What will you use nexa for?", "What are you doing?", "Pick your tools", "Make it feel like you", "Your space is ready!" }[Step];
+        body.Children.Clear();error.Text="";back.Visibility=Step==0?Visibility.Collapsed:Visibility.Visible;next.Content=Step==4?"Create My Space":"Continue";
+        title.Text=new[]{"Welcome to Nexa","What are you doing?","Pick Your Tools","Make It Feel Like You","Your Space Is Ready"}[Step];
         switch(Step)
         {
             case 0:
-                Text("A little space to stay present. Five quick steps, no account needed."); Text("What should we call you? (optional)");
-                var display=new TextBox { Text=Profile.DisplayName, TextAlignment=TextAlignment.Center, MaxLength=80, FontSize=22,MinHeight=52,Padding=new Thickness(14) }; display.TextChanged+=(_,_)=>Profile.DisplayName=display.Text.Trim(); body.Children.Add(display); break;
+                Text("A little space to stay present. Make it yours in a few quick steps.");Text("What should we call you? (optional)");
+                var display=new TextBox{Text=Profile.DisplayName,TextAlignment=TextAlignment.Center,MaxLength=80,FontSize=22,MinHeight=48};display.TextChanged+=(_,_)=>Profile.DisplayName=display.Text.Trim();body.Children.Add(display);break;
             case 1:
-                Text("Pick any that fit.");
-                foreach(var use in GuidedSetup.UseCases) Choice(use,Profile.UseCases.Contains(use),on=> { if(on && !Profile.UseCases.Contains(use)) Profile.UseCases.Add(use); else if(!on) Profile.UseCases.Remove(use); });
-                Choice("Usually start a timed session",Profile.TimedSessions,on=>Profile.TimedSessions=on);
-                Choice("Gentle focus reminders",Profile.FocusNudges,on=>Profile.FocusNudges=on); break;
+                foreach(var type in GuidedSetup.Types){var option=new RadioButton{Content=type,IsChecked=Profile.PreferredDashboard==type,GroupName="spaceType",Margin=new Thickness(0,10,0,10),FontSize=18};option.Checked+=(_,_)=>{Profile.PreferredDashboard=type;};body.Children.Add(option);}break;
             case 2:
-                foreach(var type in GuidedSetup.Types)
-                {
-                    var option=new RadioButton { Content=type switch { "Study"=>"Study / Focus", "Church"=>"Church / Small Group", "Meeting"=>"Meeting / Work", _=>type }, IsChecked=Profile.PreferredDashboard==type, GroupName="spaceType", Margin=new Thickness(0,10,0,10), FontSize=18 };
-                    option.Checked+=(_,_)=> { if(Profile.PreferredDashboard!=type) { Profile.PreferredDashboard=type; tools=GuidedSetup.Recommendations(type).ToHashSet(); name=type+" space"; } }; body.Children.Add(option);
-                    option.SetResourceReference(Control.ForegroundProperty,"TextBrush");
-                }
-                break;
+                Text("Choose the widgets for your Space. Connected tools can be configured later in Settings.");
+                void Widgets(string heading,IEnumerable<string> names){Text(heading);var grid=new WrapPanel();foreach(var id in names){var definition=WidgetLibrary.Definition(id);var box=new CheckBox{Content=id switch{"Pixel timer"=>"Pixel Timer","Task List"=>"To-Do List","Hedy Notes"=>"HEDY Notes",_=>id},Tag=id,IsChecked=tools.Contains(id),Width=195,Margin=new Thickness(0,0,14,14),ToolTip=definition.Description};System.Windows.Automation.AutomationProperties.SetName(box,id);box.Click+=(_,_)=>{if(box.IsChecked==true)tools.Add(id);else tools.Remove(id);};grid.Children.Add(box);}body.Children.Add(grid);}
+                Widgets("Featured Widgets",FeaturedWidgets);Widgets("All Widgets",WidgetLibrary.Definitions.Select(d=>d.Name).Distinct().Except(FeaturedWidgets));break;
             case 3:
-                Text("A few useful tools. You can add anything else later.");
-                foreach(var tool in GuidedSetup.Recommendations(Profile.PreferredDashboard).Concat(new[] { "Tasks", "Calendar", "Focus Reset", "Flashcards", "Session timeline" }).Distinct())
-                    Choice(tool=="Session timeline"?"Session / Hedy Notes":tool,tools.Contains(tool),on=> { if(on) tools.Add(tool); else tools.Remove(tool); });
-                break;
-            case 4:
-                var seasonal=new CheckBox{Content="Nexaween",IsChecked=NexaSeason.Active(Options,DateTimeOffset.UtcNow),FontSize=18,Margin=new Thickness(0,0,0,16)};body.Children.Add(seasonal);
-                var swatches=new WrapPanel(); body.Children.Add(swatches);
-                foreach(var theme in Theme.OfficialThemes)
+                Text("Choose a standard appearance. See it immediately, and fine-tune colors and sounds later in Settings.");
+                var modes=new WrapPanel();foreach(var mode in new[]{SessionDashboard.ThemeMode.Light,SessionDashboard.ThemeMode.Dark}){var choice=new RadioButton{Content=mode+" Mode",GroupName="setupTheme",IsChecked=(Profile.ThemeMode==SessionDashboard.ThemeMode.System?(Theme.IsLightMode?SessionDashboard.ThemeMode.Light:SessionDashboard.ThemeMode.Dark):Profile.ThemeMode)==mode,FontSize=18,Margin=new Thickness(0,0,24,16)};choice.Checked+=(_,_)=>{Profile.ThemeMode=mode;Options.SeasonalMode="Off";Preview();};modes.Children.Add(choice);}body.Children.Add(modes);
+                Text("Theme Colors");var palettes=new WrapPanel();
+                foreach(var palette in Theme.OfficialThemes)
                 {
-                    var color=theme switch { AppTheme.Violet=>"#AA80FF", AppTheme.Aurora=>"#63D8BC", AppTheme.Ember=>"#FFAA70", AppTheme.Amber=>Theme.AppPalette(AppTheme.Amber).Accent, AppTheme.Green=>Theme.AppPalette(AppTheme.Green).Accent, _=>"#7395FF" };
-                    var option=new RadioButton { GroupName="theme", IsChecked=Profile.Theme==theme, Margin=new Thickness(0,0,14,14), Content=new StackPanel { Children={ new Border { Width=112, Height=65, CornerRadius=new CornerRadius(8), Background=new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)), Child=new TextBlock { Text="00:25", FontSize=24, Foreground=Brushes.Black, HorizontalAlignment=HorizontalAlignment.Center, VerticalAlignment=VerticalAlignment.Center } },new TextBlock { Text=AppearancePalettes.Name(theme), Margin=new Thickness(0,6,0,0) } } } };
-                    option.Checked+=(_,_)=>Profile.Theme=theme; swatches.Children.Add(option);
-                    option.SetResourceReference(Control.ForegroundProperty,"TextBrush");
+                    var card=new StackPanel();card.Children.Add(new Border{Width=124,Height=64,CornerRadius=new CornerRadius(10),Background=new SolidColorBrush((Color)ColorConverter.ConvertFromString(Theme.AppPalette(palette).Accent)),Child=new TextBlock{Text="00:25",Foreground=Brushes.Black,FontSize=23,HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center}});card.Children.Add(new TextBlock{Text=AppearancePalettes.Name(palette),Margin=new Thickness(0,7,0,0)});
+                    var choice=new RadioButton{Content=card,GroupName="setupPalette",IsChecked=Theme.OfficialTheme(Profile.Theme)==palette,Margin=new Thickness(0,0,18,18),ToolTip=AppearancePalettes.Name(palette)};System.Windows.Automation.AutomationProperties.SetName(choice,AppearancePalettes.Name(palette));choice.Checked+=(_,_)=>{Profile.Theme=palette;Preview();};palettes.Children.Add(choice);
                 }
-                var mode=new ComboBox { ItemsSource=Enum.GetValues<ThemeMode>(),SelectedItem=Profile.ThemeMode,Margin=new Thickness(0,0,0,14) }; mode.SelectionChanged+=(_,_)=>Profile.ThemeMode=(ThemeMode)mode.SelectedItem; body.Children.Add(mode);
-                void RefreshSeason(){var on=seasonal.IsChecked==true;swatches.Visibility=mode.Visibility=Visibility.Visible;}
-                seasonal.Click+=(_,_)=>{Options.SeasonalMode=seasonal.IsChecked==true?"On":"Off";RefreshSeason();NexaMotion.Entrance(body,Options);};RefreshSeason();
-                Text("Enable nexa sounds?");
-                Choice("On (short, soft chimes)",Profile.Sounds,on=>Profile.Sounds=on);
-                var preview=new Button { Content="Preview sound", HorizontalAlignment=HorizontalAlignment.Left };
-                preview.Click+=(_,_)=> { if(Profile.Sounds) InterfaceAudio.Preview(Profile.Volume); else error.Text="Turn sounds on first to preview."; }; body.Children.Add(preview);
-                break;
-            case 5:
-                Text("Name Your Space");
-                var spaceName=new TextBox { Text=name,TextAlignment=TextAlignment.Center,FontSize=24,MinHeight=56,Padding=new Thickness(14), MaxLength=100, Margin=new Thickness(0,0,0,18) }; spaceName.TextChanged+=(_,_)=>name=spaceName.Text.Trim(); body.Children.Add(spaceName);
-                body.Children.Add(SpaceIcons.Picker(SpaceIcons.Resolve(spaceIcon,Profile.PreferredDashboard),icon=>spaceIcon=icon));
-                var selectedTools=new WrapPanel();foreach(var tool in tools){var previewRow=new StackPanel{Orientation=Orientation.Horizontal};previewRow.Children.Add(MainWindow.ToolPreview(tool));previewRow.Children.Add(new TextBlock{Text=tool,Margin=new Thickness(10,0,0,0),VerticalAlignment=VerticalAlignment.Center});var card=new Border{CornerRadius=new CornerRadius(10),Padding=new Thickness(14),Margin=new Thickness(0,8,8,0),BorderThickness=new Thickness(1),Child=previewRow};card.SetResourceReference(Border.BorderBrushProperty,"LineBrush");selectedTools.Children.Add(card);}body.Children.Add(selectedTools);
-                Text("Nexaween: "+(NexaSeason.Active(Options,DateTimeOffset.UtcNow)?"On":"Off")); Text($"Theme: {AppearancePalettes.Name(Theme.OfficialTheme(Profile.Theme))}\nSounds: {(Profile.Sounds?"On":"Off")}\nSession: {(Profile.TimedSessions?$"{Profile.DefaultMinutes} minutes":"Untimed")}");
-                Text("Ready when you are. Every tool can be changed later."); break;
+                body.Children.Add(palettes);var sounds=new CheckBox{Content="Enable interface sounds",IsChecked=Profile.Sounds,Margin=new Thickness(0,8,0,0)};sounds.Click+=(_,_)=>Profile.Sounds=sounds.IsChecked==true;body.Children.Add(sounds);break;
+            case 4:
+                Text("Name Your Space");var input=new TextBox{Text=name,MaxLength=100,FontSize=23,TextAlignment=TextAlignment.Center,MinHeight=48,Margin=new Thickness(0,0,0,16)};input.TextChanged+=(_,_)=>name=input.Text.Trim();body.Children.Add(input);
+                Text("Choose an Icon");body.Children.Add(SpaceIcons.Picker(SpaceIcons.Resolve(spaceIcon,Profile.PreferredDashboard),value=>spaceIcon=value));
+                var selected=new WrapPanel{Margin=new Thickness(0,16,0,0)};foreach(var tool in tools){var chip=new Border{Padding=new Thickness(10),Margin=new Thickness(0,0,8,8),CornerRadius=new CornerRadius(8),BorderThickness=new Thickness(1),Child=new TextBlock{Text=tool}};chip.SetResourceReference(Border.BorderBrushProperty,"LineBrush");selected.Children.Add(chip);}body.Children.Add(selected);
+                Text("Nexaween: "+(NexaSeason.Active(Options,DateTimeOffset.UtcNow)?"On":"Off"));Text("Ready when you are. Every tool can be changed later.");
+                if(NexaSeason.Active(Options,DateTimeOffset.UtcNow))
+                {
+                    var decoration=new NexaweenDecorations{Height=80,IsHitTestVisible=false};body.Children.Add(decoration);
+                    var quiet=Continuity.Clone(Options);quiet.SeasonalAnimation=false;
+                    void Decorate(){var width=Math.Max(1,body.ActualWidth);decoration.ConfigureAnimation(quiet,new Rect(0,0,width,80));decoration.Update(width,80,[],"Low");}
+                    decoration.Loaded+=(_,_)=>Decorate();decoration.SizeChanged+=(_,_)=>Decorate();Decorate();
+                }
+                Dispatcher.BeginInvoke(new Action(OfferSeason));break;
         }
     }
 }
-
 internal static class SetupNavigation
 {
     internal static void TryRun(Window owner,StateStore store,MainWindow? space=null)

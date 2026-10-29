@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 namespace SessionDashboard;
 internal sealed partial class SettingsDialog
@@ -40,7 +40,12 @@ internal sealed partial class SettingsDialog
             if(launching)return;launching=true;repair.IsEnabled=false;
             try
             {
-                status.Text="Verifying the official installer…";var setup=await InstallerRepair.Resolve(store);
+                status.Text="Verifying the official installer…";string? setup=null;
+                try{setup=InstallerRepair.Cached(Environment.ProcessPath!);}catch(Exception ex)when(ex is System.IO.IOException or UnauthorizedAccessException or System.Text.Json.JsonException){status.Text="The cached installer could not be verified.";}
+                if(setup==null){if(NexaChoices.Show(this,"Nexa Installer Not Found","The official Nexa installer could not be found on this computer. Would you like to download it?","Download Installer","Cancel")!="Download Installer")return;
+                    var progress=new Progress<double>(value=>status.Text=$"Downloading official installer: {value:P0}");setup=await InstallerRepair.Resolve(store,progress:progress);
+                    if(!IsVisible)return;
+                    if(NexaChoices.Show(this,"Installer Verified","The official installer is verified. Open Setup now?","Launch Installer","Cancel")!="Launch Installer")return;}
                 if(!IsVisible)return;
                 if(!FlushPendingChanges())return;
                 foreach(var window in Application.Current.Windows.OfType<MainWindow>().Where(w=>w.SettingsStore.FilePath==store.FilePath).ToArray())if(!window.PrepareForUpdateRestart())return;

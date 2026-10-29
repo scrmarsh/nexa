@@ -28,9 +28,16 @@ internal static class NexaChrome
         window.SourceInitialized += (_, _) =>
         {
             var hwnd = new WindowInteropHelper(window).Handle;
-            var dark = 1; DwmSetWindowAttribute(hwnd, 20, ref dark, sizeof(int));
-            var border = 0x00261B17; DwmSetWindowAttribute(hwnd, 34, ref border, sizeof(int));
+            RefreshNativeFrame(window);
         };
+    }
+    internal static void RefreshNativeFrame(Window window)
+    {
+        var hwnd=new WindowInteropHelper(window).Handle;if(hwnd==IntPtr.Zero)return;
+        var color=(window.TryFindResource("BackgroundBrush") as SolidColorBrush)?.Color??Colors.Black;
+        var dark=color.R+color.G+color.B<384?1:0;DwmSetWindowAttribute(hwnd,20,ref dark,sizeof(int));
+        var border=unchecked((int)0xFFFFFFFE);DwmSetWindowAttribute(hwnd,34,ref border,sizeof(int));
+        var corners=window.WindowState==WindowState.Maximized||NexaFullscreen.IsFullscreen(window)?1:2;DwmSetWindowAttribute(hwnd,33,ref corners,sizeof(int));
     }
     private static bool MotionAllowed(Window window)=>NexaMotion.Allowed(window switch{HomeWindow home=>home.Saved?.Workspace?.Settings??new(),MainWindow main=>main.state?.Workspace?.Settings??new(),_=>new()});
     internal static void FadeIn(Window window)
@@ -81,7 +88,7 @@ internal static class NexaChrome
         brandImage.Loaded+=(_,_)=>{Theme.SeasonalChanged-=RefreshBrand;Theme.SeasonalChanged+=RefreshBrand;RefreshBrand(null,EventArgs.Empty);};
         brandImage.Unloaded+=(_,_)=>Theme.SeasonalChanged-=RefreshBrand;
         brand.Children.Add(new TextBlock { Text = window.Title, VerticalAlignment = VerticalAlignment.Center, FontWeight = FontWeights.SemiBold }); dock.Children.Add(brand);
-        var caption = new Border { Tag = "WindowCaption", Height = 44, BorderThickness = new Thickness(0, 0, 0, 1), Child = dock }; caption.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); caption.SetResourceReference(Border.BorderBrushProperty, "LineBrush"); return caption;
+        var caption = new Border { Tag = "WindowCaption", Height = 44, BorderThickness = new Thickness(0, 0, 0, 1), Child = dock }; caption.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); caption.SetResourceReference(Border.BorderBrushProperty, "WindowFrameBrush"); return caption;
     }
     internal static void TransferBounds(Window source, Window target)
     {
@@ -188,7 +195,9 @@ internal class NexaDialog : Window
         var frame = new Border { Child = dock, Padding = new Thickness(1), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(8), SnapsToDevicePixels = true };
         frame.SetResourceReference(Border.BackgroundProperty, "BackgroundBrush");
         dock.SizeChanged += (_, _) => dock.Clip = new RectangleGeometry(new Rect(0, 0, Math.Max(0, dock.ActualWidth), Math.Max(0, dock.ActualHeight)), 7, 7);
-        frame.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+        frame.SetResourceReference(Border.BorderBrushProperty, "WindowFrameBrush");
+        void UpdateCorners(){var radius=WindowState==WindowState.Maximized||NexaFullscreen.IsFullscreen(this)?0:8;frame.CornerRadius=new CornerRadius(radius);frame.Clip=new RectangleGeometry(new Rect(frame.RenderSize),radius,radius);dock.Clip=new RectangleGeometry(new Rect(dock.RenderSize),Math.Max(0,radius-1),Math.Max(0,radius-1));NexaChrome.RefreshNativeFrame(this);}
+        frame.SizeChanged+=(_,_)=>UpdateCorners();StateChanged+=(_,_)=>UpdateCorners();
         Content = frame; wrapping = false;
     }
 }

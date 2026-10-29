@@ -45,8 +45,8 @@ internal sealed class DashboardCreation : NexaPanel
         panel.Children.Add(templateGrid);
 
         void Field(string label, UIElement control) { panel.Children.Add(new TextBlock { Text = label, Margin = new Thickness(0, 12, 0, 6) }); panel.Children.Add(control); }
-        Field("Space name", NameInput);
-        var chosenIcon="";Field("Space icon",SpaceIcons.Picker("",icon=>chosenIcon=icon));
+        Field("Name Your Space", NameInput);
+        var chosenIcon="";Field("Choose an Icon",SpaceIcons.Picker("",icon=>chosenIcon=icon));
         Field("Accent color", AccentPicker);
         panel.Children.Add(Schedule);
         Field("Start time", Start); Field("End time", End);
@@ -111,7 +111,7 @@ internal sealed class DashboardCreation : NexaPanel
             if(profile.PreferredWidgets.Count>0) foreach(var pair in widgetChecks) pair.Value.IsChecked=profile.PreferredWidgets.Contains(pair.Key);
             Schedule.IsChecked=profile.TimedSessions; End.Value=TimeSpan.FromMinutes((Start.Value.TotalMinutes+profile.DefaultMinutes)%1440);
         }
-        Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled };
     }
 
     internal void Back() => CloseWithFade(false);

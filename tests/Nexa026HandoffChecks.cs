@@ -150,8 +150,8 @@ internal static partial class Program
         var welcome=OffscreenHandoff(new OnboardingWindow(store){Owner=main});welcome.Show();Pump(TimeSpan.FromMilliseconds(40));Capture026(welcome,"handoff-onboarding-welcome");
         welcome.Advance();welcome.Advance();welcome.Advance();
         Assert(!Descendants(welcome).OfType<TextBlock>().Any(t=>t.Text.Contains("Optional accounts can be connected later")),"Appearance onboarding omits unrelated account copy");Capture026(welcome,"handoff-onboarding-appearance");
-        welcome.Advance();Assert(welcome.Step==5,"Welcome reaches the single final Space naming step");
-        Assert(Descendants(welcome).OfType<TextBox>().Single().TextAlignment==TextAlignment.Center && Descendants(welcome).OfType<Border>().Count(b=>b.CornerRadius==new CornerRadius(10) && b.Child is StackPanel)>=3,"Final naming screen retains centered large input and illustrated selected-tool cards");
+        welcome.Advance();Assert(welcome.Step==4,"Welcome reaches the single final Space naming step");
+        Assert(Descendants(welcome).OfType<TextBox>().Single().TextAlignment==TextAlignment.Center && Descendants(welcome).OfType<Border>().Count(b=>b.CornerRadius==new CornerRadius(8) && b.Child is TextBlock)>=3,"Final naming screen retains centered large input and illustrated selected-tool cards");
         Assert(ReferenceEquals(((System.Windows.Shapes.Path)MainWindow.ToolPreview("Productivity")).Stroke,ProductivityRing.LightningBrush),"Productivity tool previews also use the shared gold lightning");
         Capture026(welcome,"handoff-onboarding-name");welcome.Close();
         main.StartQuickStart();Pump(TimeSpan.FromMilliseconds(40));Capture026(main,"handoff-guide-introduction");

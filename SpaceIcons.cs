@@ -31,11 +31,21 @@ internal static class SpaceIcons
         var icon=new System.Windows.Shapes.Path{Data=Geometry.Parse(Paths.GetValueOrDefault(id,Paths["Sparkle"])),Width=size,Height=size,Stretch=Stretch.Uniform,StrokeThickness=1.5,Margin=new Thickness(0,0,0,5)};
         icon.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty,"SpaceIconBrush");System.Windows.Automation.AutomationProperties.SetName(icon,id+" space icon");return icon;
     }
-    internal static ComboBox Picker(string selected,Action<string> change)
+    internal static FrameworkElement Picker(string selected,Action<string> change)
     {
-        var picker=new ComboBox{MinHeight=38,MaxDropDownHeight=300};
-        foreach(var name in Paths.Keys){var row=new StackPanel{Orientation=Orientation.Horizontal};var icon=Create(name);icon.Margin=new Thickness(0,0,12,0);row.Children.Add(icon);row.Children.Add(new TextBlock{Text=name});picker.Items.Add(new ComboBoxItem{Tag=name,Content=row});}
-        picker.SelectedIndex=Math.Max(0,Paths.Keys.ToList().IndexOf(selected));picker.SelectionChanged+=(_,_)=>{if(picker.SelectedItem is ComboBoxItem item)change((string)item.Tag);};
-        System.Windows.Automation.AutomationProperties.SetName(picker,"Space icon");return picker;
+        var host=new Grid{HorizontalAlignment=HorizontalAlignment.Left};
+        var selector=new Button{MinWidth=84,MinHeight=42,ToolTip="Choose an Icon"};
+        System.Windows.Automation.AutomationProperties.SetName(selector,"Choose an Icon");
+        var grid=new System.Windows.Controls.Primitives.UniformGrid{Columns=5};
+        var scroll=new ScrollViewer{Content=grid,MaxHeight=260,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};
+        var frame=new Border{Child=scroll,Width=300,Padding=new Thickness(10),CornerRadius=new CornerRadius(12),BorderThickness=new Thickness(1)};
+        frame.SetResourceReference(Border.BackgroundProperty,"PanelBrush");frame.SetResourceReference(Border.BorderBrushProperty,"LineBrush");
+        var popup=new System.Windows.Controls.Primitives.Popup{PlacementTarget=selector,Placement=System.Windows.Controls.Primitives.PlacementMode.Bottom,StaysOpen=false,AllowsTransparency=true,Child=frame};
+        var buttons=new List<Button>();
+        void Refresh(){var row=new StackPanel{Orientation=Orientation.Horizontal};var icon=Create(Resolve(selected,""),24);icon.Margin=new Thickness(0,0,12,0);row.Children.Add(icon);row.Children.Add(new TextBlock{Text="▾",VerticalAlignment=VerticalAlignment.Center});selector.Content=row;foreach(var button in buttons){button.BorderThickness=new Thickness(Equals(button.Tag,selected)?2:1);button.SetResourceReference(Control.BorderBrushProperty,Equals(button.Tag,selected)?"AccentBrush":"LineBrush");}}
+        foreach(var name in Paths.Keys){var button=new Button{Tag=name,Content=Create(name,23),Width=50,Height=46,Padding=new Thickness(9),Margin=new Thickness(2),ToolTip=name};System.Windows.Automation.AutomationProperties.SetName(button,name+" space icon");button.Click+=(_,_)=>{selected=name;change(name);Refresh();popup.IsOpen=false;selector.Focus();};buttons.Add(button);grid.Children.Add(button);}
+        selector.Click+=(_,_)=>{popup.IsOpen=!popup.IsOpen;if(popup.IsOpen){frame.Width=Math.Min(300,Math.Max(240,(Window.GetWindow(host)?.ActualWidth??340)-40));buttons.FirstOrDefault(b=>Equals(b.Tag,selected))?.Focus();}};
+        frame.PreviewKeyDown+=(_,e)=>{if(e.Key==System.Windows.Input.Key.Escape){popup.IsOpen=false;selector.Focus();e.Handled=true;return;}var delta=e.Key switch{System.Windows.Input.Key.Right=>1,System.Windows.Input.Key.Left=>-1,System.Windows.Input.Key.Down=>5,System.Windows.Input.Key.Up=>-5,_=>0};if(delta!=0){var index=buttons.FindIndex(b=>b.IsKeyboardFocusWithin);buttons[Math.Clamp(index+delta,0,buttons.Count-1)].Focus();e.Handled=true;}};
+        host.Children.Add(selector);host.Children.Add(popup);Refresh();return host;
     }
 }

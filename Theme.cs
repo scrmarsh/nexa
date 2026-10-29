@@ -50,6 +50,8 @@ public static class Theme
         SeasonalChanged?.Invoke(null,EventArgs.Empty);
     }
     private static ThemeMode currentMode = ThemeMode.System;
+    internal static ThemeMode CurrentMode=>currentMode;
+    internal static AppTheme CurrentTheme=>currentTheme;
     internal static bool IsLightMode => currentMode == ThemeMode.Light || (currentMode == ThemeMode.System && IsWindowsAppThemeLight());
     private static string currentAccent = "#5B7CFF";
     private static string currentPixel = "#8B5CF6";
@@ -79,17 +81,19 @@ public static class Theme
     public static void Apply(ResourceDictionary resources, ThemeMode mode, AppTheme theme = AppTheme.Nexa)
     {
         var old = PaletteBrushes(resources);
-        resources["SpaceIconBrush"]=new SolidColorBrush(SeasonalEnabled?Color.FromRgb(249,115,22):Color.FromRgb(129,140,248));
+        resources["SpaceIconBrush"]=new SolidColorBrush(SeasonalEnabled?Color.FromRgb(249,115,22):mode==ThemeMode.Light || mode==ThemeMode.System && IsWindowsAppThemeLight()?Color.FromRgb(47,57,99):Color.FromRgb(129,140,248));
         currentMode = mode;
         currentTheme = theme = OfficialTheme(theme);
         (currentAccent, currentPixel) = AppPalette(theme);
         ApplyPalette(resources, mode, currentAccent, currentPixel);
+        var background=((SolidColorBrush)resources["BackgroundBrush"]).Color;
+        resources["WindowFrameBrush"]=new SolidColorBrush(background.R+background.G+background.B>384?Color.FromRgb(186,197,209):Color.FromRgb(48,54,74));
         if (Application.Current != null)
         {
             var replacements = Replacements(old, resources);
             foreach (Window window in Application.Current.Windows)
             {
-                window.Icon=NexaChrome.Icon;if(window is HomeWindow home){home.RefreshBranding();home.RefreshWallpaper();}
+                NexaChrome.RefreshNativeFrame(window);window.Icon=NexaChrome.Icon;if(window is HomeWindow home){home.RefreshBranding();home.RefreshWallpaper();}
                 Retarget(window, replacements);
                 if (window is SettingsDialog settings) settings.RefreshAppearance(replacements);
                 if (window is MainWindow space){space.RefreshThemeViews();space.ApplySpaceBackground();}
@@ -122,7 +126,7 @@ public static class Theme
     }
 
     private static Dictionary<string, Brush> PaletteBrushes(ResourceDictionary resources, string prefix = "") =>
-        new[] { "AccentBrush", "PixelBrush", "BackgroundBrush", "PanelBrush", "LineBrush", "TextBrush", "MutedBrush", "SurfaceBrush", "PixelOffBrush", "InputBrush", "AccentTextBrush" }
+        new[] { "AccentBrush", "PixelBrush", "BackgroundBrush", "PanelBrush", "LineBrush", "TextBrush", "MutedBrush", "SurfaceBrush", "PixelOffBrush", "InputBrush", "AccentTextBrush", "SpaceIconBrush", "WindowFrameBrush" }
             .Where(key => resources[prefix + key] is Brush)
             .ToDictionary(key => prefix + key, key => (Brush)resources[prefix + key]);
     private static Dictionary<Brush, Brush> Replacements(Dictionary<string, Brush> before, ResourceDictionary resources) =>

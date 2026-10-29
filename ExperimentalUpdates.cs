@@ -66,7 +66,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
         LatestEligible=latest;
         return latest != null && IsNewer(latest.Version, latest.Channel, current, currentChannel) ? latest : null;
     }
-    internal async Task<AvailableUpdate?> DiscoverAsync(CancellationToken cancellationToken = default, string currentChannel = "Alpha")
+    internal async Task<AvailableUpdate?> DiscoverAsync(CancellationToken cancellationToken = default, string currentChannel = "Alpha",Version? requiredVersion=null)
     {
         AvailableUpdate? latest = null;newestRejected=null;HasEligiblePackage=false;
         for (var page = 1; page <= 10; page++)
@@ -88,7 +88,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
             if (release.TryGetProperty("draft", out var draft) && draft.GetBoolean()) continue;
             var tag = release.GetProperty("tag_name").GetString() ?? "";
             var identity=NexaReleaseIdentity.Parse(tag,release.TryGetProperty("prerelease",out var pre) && pre.GetBoolean());
-            if(identity==null)continue;var version=identity.Version;var channel=identity.Stage;
+            if(identity==null || requiredVersion!=null && identity.Canonical!=requiredVersion)continue;var version=identity.Version;var channel=identity.Stage;
             if(ChannelRank(channel)<ChannelRank(currentChannel))continue;
             if(newestRejected==null || IsNewer(version,channel,newestRejected.Version,newestRejected.Stage))newestRejected=identity;
             if(latest!=null && !IsNewer(version,channel,latest.Version,latest.Channel))continue;

@@ -15,12 +15,13 @@ public sealed class ClockPicker : UserControl
     private readonly ComboBox period = new() { Width = 64 };
     private readonly Line hand = new() { X1 = 104, Y1 = 104, StrokeThickness = 2, IsHitTestVisible = false };
     private readonly Popup popup;
+    private bool updating;
     internal FrameworkElement ClockMenu => (FrameworkElement)popup.Child;
     public event EventHandler? TimeChanged;
     public TimeSpan Value
     {
         get => new((hours.SelectedIndex + 1) % 12 + (period.SelectedIndex == 1 ? 12 : 0), Math.Max(0, minutes.SelectedIndex), 0);
-        set { hours.SelectedIndex = (value.Hours + 11) % 12; minutes.SelectedIndex = value.Minutes; period.SelectedIndex = value.Hours >= 12 ? 1 : 0; Update(); }
+        set { if(hours.SelectedIndex>=0 && minutes.SelectedIndex>=0 && period.SelectedIndex>=0 && Value==value)return;updating=true;try{hours.SelectedIndex=(value.Hours+11)%12;minutes.SelectedIndex=value.Minutes;period.SelectedIndex=value.Hours>=12?1:0;}finally{updating=false;}Update(); }
     }
     public string Text
     {
@@ -66,6 +67,7 @@ public sealed class ClockPicker : UserControl
     }
     private void Update()
     {
+        if(updating)return;
         display.Content = DateTime.Today.Add(Value).ToString("h:mm tt") + " ▾";
         var angle = (Value.Hours + Value.Minutes / 60.0) * Math.PI / 6;
         hand.X2 = 104 + Math.Sin(angle) * 51; hand.Y2 = 104 - Math.Cos(angle) * 51;

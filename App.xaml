@@ -6,6 +6,7 @@
         <FontFamily x:Key="NexaUiFont">Segoe UI</FontFamily>
         <Style TargetType="TextBlock"><Setter Property="FontFamily" Value="{DynamicResource NexaUiFont}"/></Style>
         <Style TargetType="Window"><Setter Property="FontFamily" Value="{DynamicResource NexaUiFont}"/><Setter Property="TextOptions.TextFormattingMode" Value="Display"/></Style>
+        <SolidColorBrush x:Key="WindowFrameBrush" Color="#30364A"/>
         <SolidColorBrush x:Key="SpaceIconBrush" Color="#818CF8"/>
 
         <SolidColorBrush x:Key="BackgroundBrush" Color="#080B16"/>
@@ -26,7 +27,7 @@
             <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Padding" Value="12,9"/><Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" RecognizesAccessKey="True"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource PixelBrush}"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="Surface" Property="Opacity" Value="0.7"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter TargetName="Surface" Property="Opacity" Value="0.4"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
         </Style>
-        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Background" Value="{DynamicResource AccentBrush}"/><Setter Property="Foreground" Value="#07110B"/><Setter Property="FontWeight" Value="Bold"/></Style>
+        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Background" Value="{DynamicResource AccentBrush}"/><Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/><Setter Property="FontWeight" Value="Bold"/></Style>
         <Style x:Key="DestructiveButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Background" Value="#A52D36"/><Setter Property="Foreground" Value="White"/><Setter Property="BorderBrush" Value="#C9454F"/></Style>
         <Style x:Key="CaptionControlButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="Width" Value="42"/><Setter Property="Height" Value="36"/><Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="1,4"/>

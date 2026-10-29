@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2 Beta — local candidate
+
+- Welcome-first onboarding, complete widget selection, live appearance and final Nexaween confirmation.
+- Rounded neutral chrome, compact icon grid, Create Space layout and readable light icons.
+- Atomic clock changes, recoverable Settings saves and Triangle, Octagon and Hearts pixel shapes.
+- Verified graceful application closure, trusted installer relaunch, and single blue setup progress.
+- No Bug Battle expansion or Nexy; local builds only.
+
 ## 0.1.1 Beta — UI Restoration, Installer Cleanup & Window Fixes (local, unpublished)
 
 - Centered inline Profile rename with Save/Cancel and keyboard handling; shared Rerun Setup in Profile and Developer Mode.

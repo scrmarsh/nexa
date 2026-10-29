@@ -84,7 +84,7 @@ internal static class InstallerMaintenance
         }
         if(!isolatedFixture)
         using(var running=new System.Threading.Mutex(false,"Local\\Nexa.SessionDashboard."+System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value))
-        {if(!running.WaitOne(0))throw new IOException("Close nexa before installing so all saves can be backed up safely.");running.ReleaseMutex();}
+        {if(!running.WaitOne(0))throw new IOException("The workspace is still busy. No verified application window could be closed. Wait for startup or shutdown to finish, then retry; a locked workspace is not proof that Nexa Setup is the application.");running.ReleaseMutex();}
         if(UpdateTransaction.IsWithin(installRoot,dataRoot)||UpdateTransaction.IsWithin(dataRoot,installRoot))throw new InvalidDataException("Application and data folders must be separate.");
         Progress("Checking workspace ownership and preparing verified backups");
         if(dataRoot.Equals(NexaData.Root,StringComparison.OrdinalIgnoreCase) && !File.Exists(Path.Combine(dataRoot,"Backups","migration-inventory.json")) && !File.Exists(Path.Combine(dataRoot,"Settings","legacy-import-disabled")))
@@ -255,6 +255,7 @@ internal static class InstallerMaintenance
     {
         try
         {
+            if(args[0] is "--installer-running-apps" or "--installer-close-apps")return NexaProcesses.Run(args);
             if(args[0]=="--installer-repair-validate" && args.Length==2)
             {
                 var root=Path.TrimEndingDirectorySeparator(Path.GetFullPath(args[1]));UpdateTransaction.RejectLinks(root);

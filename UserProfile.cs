@@ -100,6 +100,8 @@ internal static class GuidedSetup
         foreach(var kind in tools.Distinct()) data.Widgets.Add(WidgetLibrary.Create(kind,kind switch { "Pixel timer"=>"pixels", "Notes"=>"notes", "Tasks" or "Task List"=>"tasks", "Session timeline"=>"timeline", _=>"" }));
         WidgetLibrary.Arrange(data.Widgets,false);
         if(profile.TimedSessions) { var now=DateTimeOffset.Now; data.Session=new Session { Title=name, Start=now, End=now.AddMinutes(profile.DefaultMinutes), ConfiguredDurationMinutes=profile.DefaultMinutes, IntervalMinutes=5 }; }
+        var start=data.Session?.Start??DateTimeOffset.Now;var end=data.Session?.End??start.AddMinutes(profile.DefaultMinutes);
+        data.Draft=new DashboardDraft{Initialized=true,Title=name,Duration=profile.DefaultMinutes.ToString(System.Globalization.CultureInfo.InvariantCulture),Interval="5",StartDate=start.LocalDateTime.Date,EndDate=end.LocalDateTime.Date,StartMinutes=(int)start.LocalDateTime.TimeOfDay.TotalMinutes,EndMinutes=(int)end.LocalDateTime.TimeOfDay.TotalMinutes};
         return Continuity.NewDashboard(name,profile.PreferredDashboard,data,userId);
     }
 }

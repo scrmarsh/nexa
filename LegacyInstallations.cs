@@ -35,12 +35,14 @@ internal static class LegacyInstallations
     private static readonly HashSet<string> Releases=new(StringComparer.OrdinalIgnoreCase)
     {
         "67081BDD1415A38B5FEFB277FF8996440616963CED058A125F3CAA35FEF18F5C", // public Beta .1.0 application
+        "17C919C04A3BED4D11880490002CB71FFB8FF47C2E77F30EE9BEBB683DCBDAB9", // verified local Beta .1.1
         "000641ADDE33ED75F3D55EA32703393036A6DA339BFF2AF10E8B7D0142CC08BA", // public .34
         "D836DE09B79E873E232ED6E9FAE67F9E1F73D5D6B2A62EFCCE1AB31C2E75B420",
         "1D08B896653932F0470BF09EEF5464887BC9ABB0C539E8E91AC549B227E0868C",
         "BADBDB24FC0345CC6ED00C27CC873BB92068F27194CA23F25452CBA0F57CD9CD",
         "A4AF062CFBA9AB946568E6F823B0BC8CF06FF68CEB9A95E9B2CC909CA60681F8"
     };
+    internal static bool ApprovedHash(string hash)=>Releases.Contains(hash);
     internal static Version? IdentifyVersion(Version numeric,string? product,string hash)
     {
         var simple=new Version(numeric.Major,numeric.Minor,Math.Max(0,numeric.Build));
@@ -147,7 +149,7 @@ internal static class LegacyInstallations
                 if(Directory.Exists(Path.Combine(path,".git")))continue;
                 foreach(var file in Directory.GetFiles(path,"*.exe"))if(Path.GetFileName(file).StartsWith("nexa",StringComparison.OrdinalIgnoreCase))files.Add(file);
                 if(item.Depth<3)foreach(var child in Directory.GetDirectories(path))
-                    if(Path.GetFileName(child) is not (".git" or "node_modules" or "updates" or "migration-backups" or "installer-cleanup-backups" or "setup-cache"))pending.Enqueue((child,item.Depth+1));
+                    if(Path.GetFileName(child) is not (".git" or "verification" or "bin" or "obj" or "Builds" or "LEGACY" or "node_modules" or "updates" or "migration-backups" or "installer-cleanup-backups" or "setup-cache"))pending.Enqueue((child,item.Depth+1));
             }
             catch(Exception ex)when(ex is IOException or UnauthorizedAccessException){plan.Issues.Add("Could not inspect "+path+": "+ex.Message);}
         }

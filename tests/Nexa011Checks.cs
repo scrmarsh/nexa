@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void Check011()
     {
-        Assert(App.AppVersion=="0.1.1" && NexaReleaseIdentity.Current.Stage=="Beta","Application identifies as Beta 0.1.1");
+        Assert(App.AppVersion=="0.1.2" && NexaReleaseIdentity.Current.Stage=="Beta","Application identifies as Beta 0.1.2");
         Assert(NexaReleaseIdentity.Newer(new(0,1,1),"Beta",new(0,1,0),"Beta"),"Beta .1.1 is offered after .1.0 without Alpha remapping");
         var store=Store035("beta011");var profile=store.LoadProfile();profile.DisplayName="Before";store.SaveProfile(profile);
         var home=new HomeWindow(store){Width=1000,Height=760};home.Show();Pump(TimeSpan.FromMilliseconds(80));

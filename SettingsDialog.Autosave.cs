@@ -22,9 +22,11 @@ internal sealed partial class SettingsDialog
         if (success) { savedFeedbackClock.Start(); savedNotice.Interval = TimeSpan.FromSeconds(2); saveStatus.BeginAnimation(OpacityProperty, new System.Windows.Media.Animation.DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(120))); savedNotice.Start(); }
     }
     internal TextBlock AutoSaveStatus => saveStatus;
-    private bool flushing;
+    private bool flushing,discardClose,closePrompt;
+    private AppState? lastSavedSettings;
     private void InitializeAutosave()
     {
+        lastSavedSettings=Continuity.Clone(state);
         // Pages are constructed before listeners run, so opening Settings is read-only.
         autosave.Tick += (_, _) => FlushPendingChanges();
         savedNotice.Tick += (_, _) =>
@@ -42,7 +44,15 @@ internal sealed partial class SettingsDialog
             // A dispatcher deadline also clears the base value when composition is occluded.
             savedNotice.Interval = remaining;
         };
-        Closing += (_, e) => { if (!FlushPendingChanges()) e.Cancel = true; };
+        Closing += (_, e) => {
+            if(discardClose || FlushPendingChanges())return;
+            e.Cancel=true;if(closePrompt)return;closePrompt=true;
+            try{var choice=NexaChoices.Show(this,"Unsaved Settings","Your changes could not be saved. Retry, discard unsaved Settings edits, or cancel to keep editing.","Retry","Discard","Cancel");
+                if(choice=="Retry" && FlushPendingChanges())Dispatcher.BeginInvoke(new Action(Close));
+                if(choice=="Discard"){DiscardPendingChanges();discardClose=true;Dispatcher.BeginInvoke(new Action(Close));}}
+            catch(Exception ex)when(HistoryArchive.Recoverable(ex)){SettingsFeedback("Could not close Settings safely: "+ex.Message);}
+            finally{closePrompt=false;}
+        };
         Closed += (_, _) => { autosave.Stop(); savedNotice.Stop(); savedFeedbackClock.Stop(); pendingChanges.Clear(); };
     }
     private void QueueSave(string key, Action change)
@@ -66,23 +76,31 @@ internal sealed partial class SettingsDialog
                 entry.Value();
                 pendingChanges.Remove(entry.Key);
             }
-            SettingsFeedback("Changes saved.", true);
+            lastSavedSettings=Continuity.Clone(state);SettingsFeedback("Changes saved.", true);
             return true;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or CryptographicException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or CryptographicException or System.Text.Json.JsonException or InvalidOperationException or ArgumentException)
         {
             // Keep pending edits for retry. Closing cannot silently discard a failed save.
-            SettingsFeedback("Could not save changes. Close Settings to retry.");
+            SettingsFeedback("Could not save changes: "+ex.Message+" Retry or close Settings for recovery options.");
             return false;
         }
         finally { flushing = false; }
+    }
+    internal void DiscardPendingChanges()
+    {
+        AppState saved;try{saved=store.Load();store.LoadInteractionPreferences(saved);}catch(Exception ex)when(HistoryArchive.Recoverable(ex)){saved=lastSavedSettings??throw new IOException("Saved Settings are unavailable. Cancel and retry when storage is accessible.",ex);}
+        foreach(var name in new[]{"AccentColor","PixelColor","PixelShape","SpaceIcon","ManualTimerDraft","ScheduleTimerDraft","FocusPulseEnabled","FocusPulseIntensity","DistractionEscalationEnabled","FocusNudgesEnabled","InterfaceSoundsEnabled","GameSoundsEnabled","BugSoundsEnabled","PositiveFeedbackSound","NegativeFeedbackSound","InterfaceSoundVolume","Background","HedyRegion","HedyProtectedKey"})
+        {var property=typeof(AppState).GetProperty(name);if(property?.CanWrite==true)property.SetValue(state,property.GetValue(saved));}
+        if(state.Workspace!=null && saved.Workspace!=null)state.Workspace.Settings=Continuity.Clone(saved.Workspace.Settings);
+        pendingChanges.Clear();autosave.Stop();Theme.SetSeasonalEnabled(NexaSeason.Active(ReliabilityOptions,DateTimeOffset.UtcNow));Theme.Apply(Application.Current.Resources,store.LoadThemeMode(),store.LoadAppTheme());space?.SettingsChanged();space?.RefreshWidgetPreferences();
     }
     private void SaveState()
     {
         if (space != null)
         {
             space.SettingsChanged();
-            if (!space.SaveNow()) throw new IOException("Could not save Space settings.");
+            if (!space.SaveNow()) throw new IOException("Could not save Space settings. "+space.Feedback.Text);
         }
         else store.Save(state);
     }

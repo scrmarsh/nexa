@@ -11,9 +11,10 @@ internal sealed partial class SettingsDialog
         var page=Page("Widgets","Global widget behavior. Click widget titles or content to edit each Space directly.");
         if(space!=null){var guide=new Button{Content="Replay Quick Start",HorizontalAlignment=HorizontalAlignment.Left};guide.Click+=(_,_)=>{Close();space.StartQuickStart();};page.Children.Add(guide);}
         page.Children.Add(new TextBlock { Text="Pixel Timer",FontSize=20,FontWeight=FontWeights.SemiBold });
-        var shape=new ComboBox { ItemsSource=new[] { "Square","Circle" },SelectedItem=state.PixelShape,MinHeight=40 };
-        Field(page,"Pixel shape",shape);
-        shape.SelectionChanged+=(_,_)=> QueueSave("shape", () => { state.PixelShape=shape.SelectedItem?.ToString()??"Square"; SaveInteractionOptions(); space?.RefreshWidgetPreferences(); });
+        var shape=new ComboBox { ItemsSource=PixelShapes.Names,SelectedItem=state.PixelShape,MinHeight=40 };
+        Field(page,"Pixel Timer Shapes",shape);
+        var shapePreview=new ContentControl{Content=PixelShapes.Preview(state.PixelShape),HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,12,0,0)};page.Children.Add(shapePreview);
+        shape.SelectionChanged+=(_,_)=>{state.PixelShape=PixelShapes.Normalize(shape.SelectedItem?.ToString());shapePreview.Content=PixelShapes.Preview(state.PixelShape);space?.RefreshWidgetPreferences();QueueSave("shape",SaveInteractionOptions);};
         page.Children.Add(new TextBlock { Text="Focus",FontSize=20,FontWeight=FontWeights.SemiBold,Margin=new Thickness(0,24,0,8) });
         var pulse=new CheckBox { Content="Gently pulse the focus backdrop",IsChecked=state.FocusPulseEnabled }; page.Children.Add(pulse);
         var intensity=new Slider { Minimum=.5,Maximum=.95,Value=state.FocusPulseIntensity };

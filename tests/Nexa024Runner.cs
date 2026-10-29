@@ -19,6 +19,8 @@ internal static partial class Program
             Theme.Apply(app.Resources,SessionDashboard.ThemeMode.Dark,AppTheme.Nexa);
             if(args.Contains("--installer-art034")){InstallerArtwork034();return 0;}
             if(args.Contains("--installer-art035")){InstallerArtwork035();return 0;}
+            if(args.Contains("--installer-cache012")){CheckInstallerCache012(args[Array.IndexOf(args,"--installer-cache012")+1]);return 0;}
+            if(args.Contains("--beta012")){Check012();return 0;}
             if(args.Contains("--beta011")){Check011();return 0;}
             if(args.Contains("--home-light035")){CheckHomeLight035();return 0;}
             if(args.Contains("--ui034"))

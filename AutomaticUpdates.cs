@@ -75,7 +75,7 @@ internal sealed class AutomaticUpdates
             catch(Exception ex)when(ex is IOException or UnauthorizedAccessException){error.Text="Could not save your choice: "+ex.Message;}
         };
         // Closing without choosing leaves consent unset; notices still work, no auto install.
-        dialog.Content=new ScrollViewer{Content=body,VerticalScrollBarVisibility=ScrollBarVisibility.Auto};return dialog;
+        dialog.Content=new ScrollViewer{Content=body,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled};return dialog;
     }
     private async Task<AvailableUpdate?> Check(UpdatePreferences prefs,CancellationToken cancellation)
     {

@@ -8,6 +8,8 @@ internal static class ReleaseNotes
     internal const string UseCases = "Use nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
+        new("0.1.2", "October 29, 2026", "UI, Onboarding, Settings & Installer Reliability", "Local Beta candidate; not published.",
+        ["Cleaner rounded chrome, readable light icons and compact Space icon grids.","Welcome-first setup, complete widget choices and live appearance previews with final Nexaween confirmation.","Session Settings recovery, atomic clock updates and three new pixel timer shapes.","Verified graceful application closure, trusted installer relaunch and a single blue progress bar."], "Beta"),
         new("0.1.1", "October 29, 2026", "UI Restoration, Installer Cleanup & Window Fixes", "Local Beta candidate; not published.",
         ["Inline Profile name editing, shared Rerun Setup, and responsive Settings pages.","One-time fresh-launch window fitting with unrestricted subsequent dragging.","Retired duplicate provider UI removed while Hedy credentials and behavior remain unchanged.","Shared legacy installation cleanup, independent cleanup-only and streamlined repair workflows.","Eight evenly spaced spider legs attached to the rear body across shared renderers."], "Beta"),
         new("0.1.0", "October 29, 2026", "Jump into Nexa for Halloween!", "Our first public Beta brings flexible Spaces, saved sessions and a playful Nexaween desktop together.",

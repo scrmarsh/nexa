@@ -27,7 +27,7 @@ internal static partial class Program
     }
     private static void Check026()
     {
-        Assert(App.VersionLabel=="nexa v0.1.1 beta","Current Alpha version comes from assembly metadata");
+        Assert(App.VersionLabel=="nexa v0.1.2 beta","Current Alpha version comes from assembly metadata");
         var store=new StateStore(Path.Combine(output,"alpha026.json"));
         var spaces=Enumerable.Range(0,10).Select(i=>Continuity.NewDashboard("Space "+i,"Study",new DashboardData{SpaceIcon="Palette",WidgetLayoutInitialized=true,Widgets=[WidgetLibrary.Create("Notes","notes")]},store.UserId)).ToList();
         var model=Continuity.Activate(new WorkspaceDocument{UserId=store.UserId,ActiveDashboardId=spaces[0].DashboardId,Dashboards=spaces},store.UserId);model.Workspace!.Settings.ReduceMotion=true;store.Save(model);
@@ -47,7 +47,7 @@ internal static partial class Program
         var motion=new Border{Opacity=1};var fade=NexaMotion.Fade(motion,0,new NexaOptions{ReduceMotion=true});Assert(fade.IsCompleted && motion.Opacity==0,"Reduced motion completes fades immediately");
         var splash=new SplashWindow(new NexaOptions{ReduceMotion=true});Assert(splash.Loading.Visibility==Visibility.Collapsed && Descendants(splash).OfType<TextBlock>().Any(t=>t.Text==App.VersionLabel && t.Visibility==Visibility.Visible),"Splash version precedes the progress track");splash.Show();Pump(TimeSpan.FromMilliseconds(30));Assert(splash.TaglineComplete && splash.Loading.Visibility==(Theme.SeasonalEnabled?Visibility.Collapsed:Visibility.Visible),"Reduced motion completes tagline while seasonal loading bar stays hidden");splash.Report(.6,"Fixture ready");splash.Report(.3,"Another milestone");Assert(splash.Loading.Value==.6,"Startup progress cannot move backward");splash.Close();
         var wizard=new OnboardingWindow(store){Owner=home};Assert(wizard.Options.SeasonalMode==model.Workspace.Settings.SeasonalMode,"Replayed setup preserves an existing seasonal preference");
-        wizard.Advance();wizard.Advance();Assert(wizard.Step==3,"Onboarding skips the redundant activity page");wizard.Advance();wizard.Advance();Assert(wizard.Step==5,"Setup retains tools, customization and the final naming screen");wizard.Close();
+        wizard.Advance();wizard.Advance();Assert(wizard.Step==2,"Onboarding skips the redundant activity page");wizard.Advance();wizard.Advance();Assert(wizard.Step==4,"Setup retains tools, customization and the final naming screen");wizard.Close();
         Capture026(home,"home-026");
         var oldWindow=Application.Current.MainWindow;
         var navigation=NexaNavigation.Change(home,()=>Task.FromException<Window>(new IOException("Synthetic read failure")),model.Workspace.Settings);while(!navigation.IsCompleted)Pump(TimeSpan.FromMilliseconds(10));

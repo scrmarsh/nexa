@@ -46,29 +46,27 @@ public partial class App : Application
             if(NexaInstallation.FixtureDataRoot==null && !File.Exists(Path.Combine(NexaData.Root,"Settings","legacy-import-disabled")) && !File.Exists(Path.Combine(NexaData.Root,"Backups","migration-inventory.json")))
                 await Task.Run(()=>NexaData.Migrate(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"SessionDashboard"),Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),"nexa"),NexaData.Root));
             var store = new StateStore(path);
+            var firstProfile=await Task.Run(()=>store.LoadProfile());
             var loaded=await Task.Run(()=>(state:store.Load(),mode:store.LoadThemeMode(),theme:store.LoadAppTheme()));
             var options=loaded.state.Workspace?.Settings??new NexaOptions{SeasonalMode="On"};
             Theme.SetSeasonalEnabled(NexaSeason.Active(options,DateTimeOffset.UtcNow));Theme.Apply(Resources,loaded.mode,loaded.theme);
+            if(!firstProfile.OnboardingCompleted)
+            {
+                ShutdownMode=ShutdownMode.OnExplicitShutdown;
+                var welcome=new OnboardingWindow(store,firstProfile);MainWindow=welcome;
+                if(welcome.ShowDialog()!=true || welcome.Result==null){Shutdown();return;}
+                var workspace=new WorkspaceDocument{UserId=store.UserId,Settings=welcome.Options,ActiveDashboardId=welcome.Result.DashboardId,Dashboards=[welcome.Result]};
+                store.Save(Continuity.Activate(workspace,store.UserId));store.SaveProfile(welcome.Profile);
+                Theme.SetSeasonalEnabled(NexaSeason.Active(welcome.Options,DateTimeOffset.UtcNow));Theme.Apply(Resources,welcome.Profile.ThemeMode,welcome.Profile.Theme);
+                var firstSpace=new MainWindow(store);MainWindow=firstSpace;ShutdownMode=ShutdownMode.OnMainWindowClose;firstSpace.Show();_ = CheckStartupUpdatesAsync(store,firstSpace);return;
+            }
             var splash = new SplashWindow(options); MainWindow = splash;
             splash.ContentRendered += async (_, _) =>
             {
                 try
                 {
-                    var profile=await Task.Run(()=>store.LoadProfile());splash.Report(.2,"Profile settings loaded");
-                    if(profile.OnboardingCompleted) { var home = await splash.EnterHome(store,initialState:loaded.state); _ = CheckStartupUpdatesAsync(store, home); return; }
-                    await splash.WaitForLogoAsync();
-                    await splash.WaitForMinimumDisplayAsync();
-                    var welcome=new OnboardingWindow(store) { Owner=splash };
-                    splash.Hide();
-                    var accepted=welcome.ShowDialog();
-                    Window next;
-                    if(accepted==true && welcome.Result!=null)
-                    {
-                        var workspace=new WorkspaceDocument { UserId=store.UserId, Settings=welcome.Options, ActiveDashboardId=welcome.Result.DashboardId, Dashboards=[welcome.Result] };
-                        store.Save(Continuity.Activate(workspace,store.UserId)); store.SaveProfile(welcome.Profile); Theme.Apply(Resources,welcome.Profile.ThemeMode,welcome.Profile.Theme); next=new MainWindow(store);
-                    }
-                    else next=new HomeWindow(store);
-                    MainWindow=next; next.Show(); splash.Close(); _=CheckStartupUpdatesAsync(store,next);
+                    splash.Report(.2,"Profile settings loaded");
+                    var home=await splash.EnterHome(store,initialState:loaded.state);_ = CheckStartupUpdatesAsync(store,home);
                 }
                 catch (Exception ex) { MessageBox.Show("nexa could not open your workspace. No data was overwritten.\n\n" + ex.Message, "nexa"); Shutdown(1); }
             };

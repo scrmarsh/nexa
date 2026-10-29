@@ -12,7 +12,7 @@ try {
  foreach($name in @('SessionDashboard.Checks.exe','SessionDashboard.Checks.dll','Nexa.dll')){$fingerprints[$name]=(Get-FileHash -LiteralPath (Join-Path (Split-Path -Parent $runner) $name) -Algorithm SHA256).Hash}
  [ordered]@{SourceCommit=(& git rev-parse HEAD);StartedUtc=[DateTimeOffset]::UtcNow;Binaries=$fingerprints} | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $logs 'binary-identity.json')
 
- foreach($route in @('beta011','nexa035','nexa034','nexa033','nexa032','laptop-audio','update-automation','nexa031','nexa030','nexa029','nexaween028','nexaween027','handoff026','pass026','alpha026','arrivals','audit025','final','followup-design','followup','master','reliability','core','continuity','shared','menus','ecosystem','animation')){
+ foreach($route in @('beta012','beta011','nexa035','nexa034','nexa033','nexa032','laptop-audio','update-automation','nexa031','nexa030','nexa029','nexaween028','nexaween027','handoff026','pass026','alpha026','arrivals','audit025','final','followup-design','followup','master','reliability','core','continuity','shared','menus','ecosystem','animation')){
   $start=[Diagnostics.ProcessStartInfo]::new($runner)
   $start.UseShellExecute=$false;$start.CreateNoWindow=$true;$start.RedirectStandardOutput=$true;$start.RedirectStandardError=$true
   if($route -ne 'master'){$start.ArgumentList.Add('--'+$route)}

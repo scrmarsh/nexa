@@ -18,16 +18,16 @@ internal static class InstallerRepair
         if(identity.Schema!=1 || identity.Version!=App.AppVersion)throw new InvalidDataException("The cached installer belongs to a different version.");
         UpdateTransaction.ValidateBinary(setup,identity.SetupSHA256,identity.Version,"nexa installer");return setup;
     }
-    internal static async Task<string> Resolve(StateStore store,CancellationToken token=default)
+    internal static async Task<string> Resolve(StateStore store,CancellationToken token=default,IProgress<double>? progress=null)
     {
         string? cached=null;
         try{cached=Cached(Environment.ProcessPath??throw new IOException("Application path unavailable."));}
         catch(Exception ex)when(ex is IOException or InvalidDataException or UnauthorizedAccessException or JsonException){/* Fetch a digest-verified published installer when the local cache is unusable. */}
         if(cached!=null)return cached;
         using var client=new HttpClient{Timeout=TimeSpan.FromMinutes(10)};
-        var updater=new ExperimentalUpdater(client);var release=await updater.DiscoverAsync(token,"Alpha");
+        var updater=new ExperimentalUpdater(client);var release=await updater.DiscoverAsync(token,NexaReleaseIdentity.Current.Stage,new Version(App.AppVersion));
         if(release==null || release.Portable || release.CanonicalVersion!=new Version(App.AppVersion))throw new IOException("No verified published installer for this version is available. Use the official release installer when it is published.");
-        var setup=await updater.DownloadAsync(release,Path.Combine(store.UserPreferencesDirectory,"updates","repair"),cancellationToken:token);
+        var setup=await updater.DownloadAsync(release,Path.Combine(store.UserPreferencesDirectory,"updates","repair"),progress:progress,cancellationToken:token);
         UpdateTransaction.ValidateBinary(setup,release.Sha256,release.Version.ToString(3),"nexa installer");return setup;
     }
 }

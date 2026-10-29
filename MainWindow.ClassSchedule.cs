@@ -9,90 +9,51 @@ public partial class MainWindow
     private void OpenClassSchedule() => OpenMainSettings("Session");
     internal FrameworkElement BuildTimerSettings(Action? draftChanged=null)
     {
-
-        var page = new StackPanel { Margin = new Thickness(0,0,0,18) };
-        page.Children.Add(new TextBlock { Text = "Pixel Timer", FontSize = 23, FontWeight = FontWeights.SemiBold });
-        page.Children.Add(new TextBlock { Text = "Count down to session end, track elapsed session time, then count down to the next class. Session pixels fill from the top-left; between classes they clear from the bottom-right.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 18) });
-        var name = new TextBox { Text = state.Session?.Title ?? (string.IsNullOrWhiteSpace(state.Draft.Title) ? "Class" : state.Draft.Title), MaxLength = 100 };
-        page.Children.Add(new TextBlock { Text = "Class / preset name" }); page.Children.Add(name);
-        var chosen = state.Session?.ScheduledDays ?? state.Draft.ScheduledDays;
-        var days = new WrapPanel { Margin = new Thickness(0, 12, 0, 10) };
-        foreach (var day in new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday })
-            days.Children.Add(new CheckBox { Content = day.ToString()[..3], Tag = day, IsChecked = chosen.Contains(day), Margin = new Thickness(0, 0, 12, 8) });
-        page.Children.Add(new TextBlock { Text = "Recurring weekdays", Margin = new Thickness(0, 14, 0, 0) }); page.Children.Add(days);
-        var shortcuts = new WrapPanel();
-        void Shortcut(string label, params DayOfWeek[] selection)
+        var page=new StackPanel{Margin=new Thickness(0,0,0,18)};
+        page.Children.Add(new TextBlock{Text="Pixel Timer",FontSize=23,FontWeight=FontWeights.SemiBold});
+        page.Children.Add(new TextBlock{Text="Edits are saved as a draft. Apply timer settings updates the active Space's timer. Recurring weekdays do not multiply session duration.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,8,0,16)});
+        var zone=Options.TimeZoneId;var initial=state.Session;
+        var mode=new ComboBox{ItemsSource=new[]{"Manual Mode","Schedule Mode"},SelectedIndex=initial?.AutomaticScheduling==true?1:0};System.Windows.Automation.AutomationProperties.SetName(mode,"Pixel Timer operating mode");page.Children.Add(mode);
+        var name=new TextBox{Text=initial?.Title??state.Draft.Title,MaxLength=100,Margin=new Thickness(0,8,0,12)};page.Children.Add(new TextBlock{Text="Session name"});page.Children.Add(name);
+        var start=new ClockPicker{Value=initial is {} from?TimeSpan.FromMinutes(from.RecurringStartMinutes??(int)NexaTime.Local(from.Start,zone).TimeOfDay.TotalMinutes):TimeSpan.FromMinutes(state.Draft.StartMinutes)};
+        var end=new ClockPicker{Value=initial is {} to?TimeSpan.FromMinutes(to.RecurringEndMinutes??(int)NexaTime.Local(to.End,zone).TimeOfDay.TotalMinutes):TimeSpan.FromMinutes(state.Draft.EndMinutes)};
+        var times=new Grid();times.ColumnDefinitions.Add(new());times.ColumnDefinitions.Add(new());var left=new StackPanel{Margin=new Thickness(0,0,8,0)};left.Children.Add(new TextBlock{Text="Starts (AM / PM)"});left.Children.Add(start);var right=new StackPanel{Margin=new Thickness(8,0,0,0)};right.Children.Add(new TextBlock{Text="Ends (AM / PM)"});right.Children.Add(end);Grid.SetColumn(right,1);times.Children.Add(left);times.Children.Add(right);page.Children.Add(times);
+        var startDate=new DarkDatePicker{SelectedDate=initial is {} a?NexaTime.Local(a.Start,zone).Date:NexaTime.Local(DateTimeOffset.UtcNow,zone).Date};var endDate=new DarkDatePicker{SelectedDate=initial is {} b?NexaTime.Local(b.End,zone).Date:startDate.SelectedDate};
+        var dates=new StackPanel{Margin=new Thickness(0,10,0,10)};dates.Children.Add(new TextBlock{Text="One-time start date"});dates.Children.Add(startDate);dates.Children.Add(new TextBlock{Text="One-time end date"});dates.Children.Add(endDate);page.Children.Add(dates);
+        var days=new WrapPanel{Margin=new Thickness(0,10,0,10)};foreach(var day in new[]{DayOfWeek.Monday,DayOfWeek.Tuesday,DayOfWeek.Wednesday,DayOfWeek.Thursday,DayOfWeek.Friday,DayOfWeek.Saturday,DayOfWeek.Sunday})days.Children.Add(new CheckBox{Content=day.ToString()[..3],Tag=day,IsChecked=(initial?.ScheduledDays??state.Draft.ScheduledDays).Contains(day),Margin=new Thickness(0,0,12,8)});
+        var dayLabel=new TextBlock{Text="Recurring weekdays"};page.Children.Add(dayLabel);page.Children.Add(days);var shortcuts=new WrapPanel();page.Children.Add(shortcuts);
+        var duration=new TextBlock{TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,12)};page.Children.Add(duration);
+        var durationInput=new TextBox{Width=110,HorizontalAlignment=HorizontalAlignment.Left};page.Children.Add(new TextBlock{Text="Duration (minutes)"});page.Children.Add(durationInput);
+        var useDuration=new Button{Content="Use duration",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,6,0,12)};page.Children.Add(useDuration);
+        var savePreset=new CheckBox{Content="Save this schedule as a reusable preset",IsChecked=true};page.Children.Add(savePreset);
+        var status=new TextBlock{TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,12)};page.Children.Add(status);
+        var apply=new Button{Content="Apply timer settings",HorizontalAlignment=HorizontalAlignment.Left};page.Children.Add(apply);
+        var editingSchedule=mode.SelectedIndex==1;var restoring=false;
+        List<DayOfWeek> SelectedDays()=>days.Children.OfType<CheckBox>().Where(c=>c.IsChecked==true).Select(c=>(DayOfWeek)c.Tag).ToList();
+        Session Capture(bool scheduled)
         {
-            var button = new Button { Content = label, Padding = new Thickness(8, 4, 8, 4), Margin = new Thickness(0, 0, 8, 8) };
-            button.Click += (_, _) => { foreach (var check in days.Children.OfType<CheckBox>()) check.IsChecked = selection.Contains((DayOfWeek)check.Tag); };
-            shortcuts.Children.Add(button);
+            var from=(startDate.SelectedDate??DateTime.Today)+start.Value;var to=(endDate.SelectedDate??from.Date)+end.Value;
+            if(to.Date==from.Date && end.Value<start.Value)to=to.AddDays(1);
+            return new Session{Title=name.Text.Trim(),Start=NexaTime.Instant(from,zone),End=NexaTime.Instant(to,zone),ScheduledDays=SelectedDays(),AutomaticScheduling=scheduled,TimeZoneId=zone,ScheduleTimeZoneId=zone,BeforeSessionCountdownFrom=DateTimeOffset.UtcNow};
         }
-        Shortcut("M/W", DayOfWeek.Monday, DayOfWeek.Wednesday);
-        Shortcut("M/W/F", DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday);
-        Shortcut("T/Th", DayOfWeek.Tuesday, DayOfWeek.Thursday);
-        Shortcut("Weekdays", DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday);
-        page.Children.Add(shortcuts);
-        var zone = Options.TimeZoneId;
-        var start = new ClockPicker { Value = state.Session is { } current ? TimeSpan.FromMinutes(current.RecurringStartMinutes ?? (int)NexaTime.Local(current.Start, current.TimeZoneId).TimeOfDay.TotalMinutes) : TimeSpan.FromMinutes(state.Draft.StartMinutes) };
-        var end = new ClockPicker { Value = state.Session is { } currentEnd ? TimeSpan.FromMinutes(currentEnd.RecurringEndMinutes ?? (int)NexaTime.Local(currentEnd.End, currentEnd.TimeZoneId).TimeOfDay.TotalMinutes) : TimeSpan.FromMinutes(state.Draft.EndMinutes) };
-        var times = new Grid(); times.ColumnDefinitions.Add(new()); times.ColumnDefinitions.Add(new());
-        var first = new StackPanel { Margin = new Thickness(0, 0, 8, 0) }; first.Children.Add(new TextBlock { Text = "Class starts" }); first.Children.Add(start);
-        var second = new StackPanel { Margin = new Thickness(8, 0, 0, 0) }; second.Children.Add(new TextBlock { Text = "Class ends" }); second.Children.Add(end);
-        Grid.SetColumn(second, 1); times.Children.Add(first); times.Children.Add(second); page.Children.Add(times);
-        var duration = new TextBlock { Margin = new Thickness(0, 8, 0, 12), TextWrapping = TextWrapping.Wrap };
-        void RefreshDuration() { var span = end.Value - start.Value; if (span <= TimeSpan.Zero) span += TimeSpan.FromDays(1); duration.Text = $"Duration: {span.TotalMinutes:0} minutes · {NexaTime.Zone(zone).DisplayName}"; }
-        start.TimeChanged += (_, _) => RefreshDuration(); end.TimeChanged += (_, _) => RefreshDuration(); RefreshDuration(); page.Children.Add(duration);
-        var mode = new ComboBox { ItemsSource = new[] { "Manual Mode", "Schedule Mode" }, SelectedIndex = state.Session?.AutomaticScheduling == true ? 1 : 0, Margin = new Thickness(0, 8, 0, 8) };
-        System.Windows.Automation.AutomationProperties.SetName(mode, "Pixel Timer operating mode");
-        page.Children.Insert(1, mode);
-        var startDate=new DarkDatePicker{SelectedDate=state.Session is {} original?NexaTime.Local(original.Start,zone).Date:NexaTime.Local(DateTimeOffset.UtcNow,zone).Date};
-        var endDate=new DarkDatePicker{SelectedDate=state.Session is {} ending?NexaTime.Local(ending.End,zone).Date:startDate.SelectedDate};
-        var dates=new StackPanel{Margin=new Thickness(0,8,0,8),Visibility=mode.SelectedIndex!=1?Visibility.Visible:Visibility.Collapsed};dates.Children.Add(new TextBlock{Text="One-time start date"});dates.Children.Add(startDate);dates.Children.Add(new TextBlock{Text="One-time end date"});dates.Children.Add(endDate);page.Children.Add(dates);
-        var editingSchedule=mode.SelectedIndex==1;
-        void SaveDraft()
+        void RefreshPreview()
         {
-            var draft=new Session{Title=name.Text,Start=NexaTime.Instant((startDate.SelectedDate??DateTime.Today)+start.Value,zone),End=NexaTime.Instant((endDate.SelectedDate??DateTime.Today)+end.Value,zone),ScheduledDays=days.Children.OfType<CheckBox>().Where(c=>c.IsChecked==true).Select(c=>(DayOfWeek)c.Tag).ToList(),AutomaticScheduling=editingSchedule,TimeZoneId=zone};
-            if(editingSchedule)state.ScheduleTimerDraft=draft;else state.ManualTimerDraft=draft;
+            var span=editingSchedule?end.Value-start.Value:Capture(false).End-Capture(false).Start;
+            var overnight=editingSchedule?end.Value<start.Value:(Capture(false).End-Capture(false).Start).TotalHours>=24 || end.Value<start.Value;
+            if(editingSchedule && span<TimeSpan.Zero)span+=TimeSpan.FromDays(1);
+            duration.Text=$"{DateTime.Today.Add(start.Value):h:mm tt} → {DateTime.Today.Add(end.Value):h:mm tt} · Duration: {span.TotalMinutes:0} minutes"+(overnight?" · Crosses midnight":"")+$" · {NexaTime.Zone(zone).DisplayName}";
+            durationInput.Text=span.TotalMinutes.ToString("0",System.Globalization.CultureInfo.InvariantCulture);
+            dates.Visibility=editingSchedule?Visibility.Collapsed:Visibility.Visible;days.Visibility=shortcuts.Visibility=dayLabel.Visibility=editingSchedule?Visibility.Visible:Visibility.Collapsed;
         }
-        void RefreshMode()
-        {
-            dates.Visibility = mode.SelectedIndex != 1 ? Visibility.Visible : Visibility.Collapsed;
-            days.Visibility = shortcuts.Visibility = mode.SelectedIndex == 1 ? Visibility.Visible : Visibility.Collapsed;
-            NexaMotion.Entrance(page,Options);
-        }
-        mode.SelectionChanged+=(_,_)=>{
-            SaveDraft();editingSchedule=mode.SelectedIndex==1;
-            var draft=editingSchedule?state.ScheduleTimerDraft:state.ManualTimerDraft;
-            if(draft!=null){name.Text=draft.Title;startDate.SelectedDate=NexaTime.Local(draft.Start,zone).Date;endDate.SelectedDate=NexaTime.Local(draft.End,zone).Date;start.Value=NexaTime.Local(draft.Start,zone).TimeOfDay;end.Value=NexaTime.Local(draft.End,zone).TimeOfDay;foreach(var check in days.Children.OfType<CheckBox>())check.IsChecked=draft.ScheduledDays.Contains((DayOfWeek)check.Tag);}
-            RefreshMode();Changed();SaveNow();
-        };RefreshMode();
-        var durationInput=new TextBox{Text=state.Session?.ConfiguredDurationMinutes.ToString("0")??"75",Width=100,HorizontalAlignment=HorizontalAlignment.Left};page.Children.Add(new TextBlock{Text="Duration (minutes)"});page.Children.Add(durationInput);
-        var setDuration=new Button{Content="Use duration",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,4,0,10)};page.Children.Add(setDuration);
-        setDuration.Click+=(_,_)=>{if(int.TryParse(durationInput.Text,out var minutes) && minutes>0 && minutes<=(mode.SelectedIndex==1?1439:10080)){var finish=(startDate.SelectedDate??NexaTime.Local(DateTimeOffset.UtcNow,zone).Date)+start.Value+TimeSpan.FromMinutes(minutes);end.Value=finish.TimeOfDay;endDate.SelectedDate=finish.Date;}};
-        var savePreset = new CheckBox { Content = "Save this schedule as a reusable preset", IsChecked = true }; page.Children.Add(savePreset);
-        var status = new TextBlock { Margin = new Thickness(0, 12, 0, 12), TextWrapping = TextWrapping.Wrap }; page.Children.Add(status);
-        var apply = new Button { Content = "Apply timer settings", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 12) };
-        apply.Click += (_, _) =>
-        {
-            try
-            {
-                var selected=days.Children.OfType<CheckBox>().Where(c=>c.IsChecked==true).Select(c=>(DayOfWeek)c.Tag).ToList();
-                var schedule=mode.SelectedIndex==1?PixelTiming.WeeklyClass(name.Text,selected,start.Value,end.Value,zone,DateTimeOffset.UtcNow):new Session{Title=name.Text.Trim(),Start=NexaTime.Instant((startDate.SelectedDate??DateTime.Today)+start.Value,zone),End=NexaTime.Instant((endDate.SelectedDate??DateTime.Today)+end.Value,zone),TimeZoneId=zone,ScheduleTimeZoneId=zone,ScheduledDays=selected,BeforeSessionCountdownFrom=DateTimeOffset.UtcNow};
-                if(string.IsNullOrWhiteSpace(schedule.Title)||schedule.End<=schedule.Start||schedule.End-schedule.Start>TimeSpan.FromDays(7))throw new ArgumentException("Choose an end after start, within seven days.");
-                schedule.ConfiguredDurationMinutes=(schedule.End-schedule.Start).TotalMinutes;
-                schedule.IntervalMinutes=state.Session?.IntervalMinutes??10;
-                schedule.AutomaticScheduling = mode.SelectedIndex == 1;
-                SaveDraft();
-                if (ApplyClassSchedule(schedule, savePreset.IsChecked == true)) status.Text="Session Settings saved.";
-                else status.Text = "The schedule could not be saved. Your current dashboard is unchanged.";
-            }
-            catch (ArgumentException ex) { status.Text = ex.Message; }
-        };
-        page.Children.Add(apply);
-        void DraftEdited(){SaveDraft();Changed();draftChanged?.Invoke();}
-        name.TextChanged+=(_,_)=>DraftEdited();start.TimeChanged+=(_,_)=>DraftEdited();end.TimeChanged+=(_,_)=>DraftEdited();
-        startDate.SelectedDateChanged+=(_,_)=>DraftEdited();endDate.SelectedDateChanged+=(_,_)=>DraftEdited();
-        return page;
+        void SaveDraft(){var draft=Capture(editingSchedule);if(editingSchedule)state.ScheduleTimerDraft=draft;else state.ManualTimerDraft=draft;}
+        void Edited(){if(restoring)return;try{SaveDraft();RefreshPreview();Changed();draftChanged?.Invoke();}catch(ArgumentException ex){status.Text=ex.Message;}}
+        void Shortcut(string label,params DayOfWeek[] selected){var button=new Button{Content=label,Padding=new Thickness(8,4,8,4),Margin=new Thickness(0,0,8,8)};button.Click+=(_,_)=>{foreach(var check in days.Children.OfType<CheckBox>())check.IsChecked=selected.Contains((DayOfWeek)check.Tag);Edited();};shortcuts.Children.Add(button);}
+        Shortcut("M/W",DayOfWeek.Monday,DayOfWeek.Wednesday);Shortcut("M/W/F",DayOfWeek.Monday,DayOfWeek.Wednesday,DayOfWeek.Friday);Shortcut("T/Th",DayOfWeek.Tuesday,DayOfWeek.Thursday);Shortcut("Weekdays",DayOfWeek.Monday,DayOfWeek.Tuesday,DayOfWeek.Wednesday,DayOfWeek.Thursday,DayOfWeek.Friday);
+        mode.SelectionChanged+=(_,_)=>{SaveDraft();editingSchedule=mode.SelectedIndex==1;var draft=editingSchedule?state.ScheduleTimerDraft:state.ManualTimerDraft;restoring=true;try{if(draft!=null){name.Text=draft.Title;startDate.SelectedDate=NexaTime.Local(draft.Start,zone).Date;endDate.SelectedDate=NexaTime.Local(draft.End,zone).Date;start.Value=NexaTime.Local(draft.Start,zone).TimeOfDay;end.Value=NexaTime.Local(draft.End,zone).TimeOfDay;foreach(var check in days.Children.OfType<CheckBox>())check.IsChecked=draft.ScheduledDays.Contains((DayOfWeek)check.Tag);}}finally{restoring=false;}Edited();};
+        name.TextChanged+=(_,_)=>Edited();start.TimeChanged+=(_,_)=>Edited();end.TimeChanged+=(_,_)=>Edited();startDate.SelectedDateChanged+=(_,_)=>Edited();endDate.SelectedDateChanged+=(_,_)=>Edited();foreach(var check in days.Children.OfType<CheckBox>())check.Click+=(_,_)=>Edited();
+        useDuration.Click+=(_,_)=>{if(!int.TryParse(durationInput.Text,out var minutes)||minutes<=0||minutes>(editingSchedule?1439:10080)){status.Text="Enter a positive duration within "+(editingSchedule?"one day.":"seven days.");return;}var finish=(startDate.SelectedDate??DateTime.Today)+start.Value+TimeSpan.FromMinutes(minutes);restoring=true;end.Value=finish.TimeOfDay;endDate.SelectedDate=finish.Date;restoring=false;Edited();};
+        apply.Click+=(_,_)=>{try{var session=editingSchedule?PixelTiming.WeeklyClass(name.Text,SelectedDays(),start.Value,end.Value,zone,DateTimeOffset.UtcNow):Capture(false);if(string.IsNullOrWhiteSpace(session.Title)||session.End<=session.Start||session.End-session.Start>TimeSpan.FromDays(7))throw new ArgumentException("Choose a name and an end after start, within seven days.");session.ConfiguredDurationMinutes=(session.End-session.Start).TotalMinutes;session.IntervalMinutes=state.Session?.IntervalMinutes??10;SaveDraft();status.Text=ApplyClassSchedule(session,savePreset.IsChecked==true)?"Session Settings saved.":"The schedule could not be saved. Your active timer is unchanged.";}catch(ArgumentException ex){status.Text=ex.Message;}};
+        RefreshPreview();return page;
     }
     internal bool ApplyClassSchedule(Session schedule, bool savePreset)
     {

@@ -159,6 +159,7 @@ public partial class MainWindow
         {
             var pixel = pixels[i]; pixel.Width = pixel.Height = size;
             pixel.CornerRadius = new CornerRadius(state.PixelShape == "Circle" ? size / 2 : 0);
+            pixel.Clip=PixelShapes.Clip(state.PixelShape,size);
             Canvas.SetLeft(pixel, i % columns * (size + gap)); Canvas.SetTop(pixel, i / columns * (size + gap));
         }
         if (ready) UpdateClock();

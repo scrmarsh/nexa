@@ -170,7 +170,7 @@ public sealed partial class StateStore
             state.GameSoundsEnabled=preferences.GameSounds; state.BugSoundsEnabled=preferences.BugSounds;
             state.InterfaceSoundsEnabled=preferences.Sounds; state.FocusNudgesEnabled=preferences.Nudges;
             state.InterfaceSoundVolume=double.IsFinite(preferences.Volume) ? Math.Clamp(preferences.Volume,0,1) : .25;
-            state.PixelShape=preferences.PixelShape == "Circle" ? "Circle" : "Square";
+            state.PixelShape=PixelShapes.Normalize(preferences.PixelShape);
             state.DistractionEscalationEnabled=preferences.DistractionEscalation;
             state.FocusPulseEnabled=preferences.FocusPulse;
             state.FocusPulseIntensity=double.IsFinite(preferences.PulseIntensity) ? Math.Clamp(preferences.PulseIntensity,.5,.95) : .85;

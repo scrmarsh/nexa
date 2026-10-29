@@ -11,6 +11,7 @@ internal sealed partial class SettingsDialog
     {
         var profile=store.LoadProfile();var page=Page("Profile","Your recorded activity across Spaces. Everything stays in your Windows account.");
         var name=new Button{Content=string.IsNullOrWhiteSpace(profile.DisplayName)?"Set display name":profile.DisplayName,HorizontalAlignment=HorizontalAlignment.Left,ToolTip="Edit display name"};name.FontSize=24;name.FontWeight=FontWeights.SemiBold;name.HorizontalAlignment=HorizontalAlignment.Center;
+        name.BorderThickness=new Thickness(0);name.Background=System.Windows.Media.Brushes.Transparent;
         var editor=new StackPanel{MaxWidth=360,HorizontalAlignment=HorizontalAlignment.Center,Visibility=Visibility.Collapsed};
         var input=new TextBox{Text=profile.DisplayName,MaxLength=80,FontSize=21,TextAlignment=TextAlignment.Center,Tag="InlineProfileName"};
         System.Windows.Automation.AutomationProperties.SetName(input,"Profile display name");
