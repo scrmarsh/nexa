@@ -57,6 +57,16 @@ Check ($integrity.PayloadSHA256 -eq $payloadDigest) 'Installed integrity manifes
 $beforeRepair=(Get-Item -LiteralPath (Join-Path $app 'Nexa.exe')).LastWriteTimeUtc
 Install
 Check ((Get-Item -LiteralPath (Join-Path $app 'Nexa.exe')).LastWriteTimeUtc -eq $beforeRepair) 'Repair keeps an already correct payload without replacing it'
+$repairLegacy=Join-Path $fixture 'legacy/repair-preserved/Nexa.exe'
+New-Item -ItemType Directory -Force -Path (Split-Path -Parent $repairLegacy) | Out-Null
+Copy-Item -LiteralPath (Join-Path $repoRoot 'verification/release010-beta/Application/Nexa.exe') -Destination $repairLegacy
+$shortcutBefore=@{};foreach($name in @('desktop','start-menu')){$shortcutBefore[$name]=(Get-FileHash -LiteralPath (Join-Path $fixture ($name+'/nexa.lnk'))).Hash}
+$repairLog=Join-Path $fixture 'explicit-repair.log'
+$repairProcess=Start-Process -FilePath $setupPath -ArgumentList @('/CURRENTUSER','/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/MAINTENANCE=repair','/TASKS=!desktopicon,!startmenu',('/LOG="'+$repairLog+'"')) -WindowStyle Hidden -Wait -PassThru
+Check ($repairProcess.ExitCode -eq 0) 'Explicit Repair Files completes through the registered-install validation path'
+Check (Test-Path -LiteralPath $repairLegacy) 'Explicit repair does not invoke legacy cleanup'
+foreach($name in @('desktop','start-menu')){Check ((Get-FileHash -LiteralPath (Join-Path $fixture ($name+'/nexa.lnk'))).Hash -eq $shortcutBefore[$name]) 'Repair skips shortcut creation/removal even when task switches are supplied'}
+Check ([IO.File]::ReadAllText($state) -eq $original) 'Explicit repair preserves exact user save bytes'
 [IO.File]::WriteAllText((Join-Path $app 'Nexa.exe'),'deliberately corrupted fixture payload')
 Install
 Check ((Get-FileHash -LiteralPath (Join-Path $app 'Nexa.exe') -Algorithm SHA256).Hash -eq $payloadDigest) 'Repair replaces corrupt payload bytes using the trusted embedded manifest'

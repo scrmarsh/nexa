@@ -77,6 +77,9 @@ internal static partial class Program
     }
     private static void CheckCleanup011()
     {
+        Assert(LegacyInstallations.IdentifyVersion(new(0,1,26),"0.1.26-alpha","")==new Version(0,0,26),"Legacy Alpha numeric aliases are correctly classified for cleanup");
+        Assert(LegacyInstallations.IdentifyVersion(new(0,1,0),"0.1.0-beta","")==new Version(0,1,0),"Genuine Beta versions never use the legacy Alpha map");
+        Assert(LegacyInstallations.IdentifyVersion(new(0,1,26),"0.1.26-beta","")==new Version(0,1,26),"A future Beta remains newer and ineligible for obsolete cleanup");
         var root=Path.Combine(output,"cleanup011");Directory.CreateDirectory(root);File.WriteAllText(Path.Combine(root,".nexa-installer-fixture"),"Disposable isolated tests");
         var data=Path.Combine(root,"data");Directory.CreateDirectory(data);var app=Path.Combine(root,"app");Directory.CreateDirectory(app);
         var old=Path.GetFullPath("verification/release010-beta/Application/Nexa.exe");

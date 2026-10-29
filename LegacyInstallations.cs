@@ -41,6 +41,13 @@ internal static class LegacyInstallations
         "BADBDB24FC0345CC6ED00C27CC873BB92068F27194CA23F25452CBA0F57CD9CD",
         "A4AF062CFBA9AB946568E6F823B0BC8CF06FF68CEB9A95E9B2CC909CA60681F8"
     };
+    internal static Version? IdentifyVersion(Version numeric,string? product,string hash)
+    {
+        var simple=new Version(numeric.Major,numeric.Minor,Math.Max(0,numeric.Build));
+        var stage=product?.Contains("alpha",StringComparison.OrdinalIgnoreCase)==true?"alpha":product?.Contains("beta",StringComparison.OrdinalIgnoreCase)==true?"beta":
+            Releases.Contains(hash) && NexaReleaseIdentity.LegacyAlpha.ContainsKey(simple)?"alpha":numeric.Minor==1?"beta":"alpha";
+        return NexaReleaseIdentity.Parse(simple.ToString(3)+"-"+stage,true)?.Canonical;
+    }
     private static bool RegisteredIdentity(Candidate candidate)
     {
         try
@@ -153,7 +160,7 @@ internal static class LegacyInstallations
                 RejectLinks(file);var info=FileVersionInfo.GetVersionInfo(file);
                 if(info.ProductName!="Nexa")continue;
                 var entry=new Candidate{Executable=file,Version=info.FileVersion??"Unknown",Hash=UpdateTransaction.Hash(file),Registrations=registrations.Where(r=>Same(r.Location,Path.GetDirectoryName(file)!)).ToList()};
-                var version=Version.TryParse(info.FileVersion,out var parsed)?NexaReleaseIdentity.Parse(parsed.ToString(3)+(parsed.Minor==1?"-beta":"-alpha"),true)?.Canonical:null;
+                var version=Version.TryParse(info.FileVersion,out var parsed)?IdentifyVersion(parsed,info.ProductVersion,entry.Hash):null;
                 var old=version!=null && version<new Version(App.AppVersion);
                 var active=mode!="clean" && (Same(Path.GetDirectoryName(file)!,install) || entry.Registrations.Any(r=>r.Key.EndsWith(NexaInstallation.AppId+"_is1",StringComparison.OrdinalIgnoreCase) || r.Key.EndsWith(NexaInstallation.TestAppId+"_is1",StringComparison.OrdinalIgnoreCase)));
                 entry.Eligible=old && !active && (Releases.Contains(entry.Hash)||RegisteredIdentity(entry));
