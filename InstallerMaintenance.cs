@@ -193,7 +193,10 @@ internal static class InstallerMaintenance
     {
         var plan=JsonSerializer.Deserialize<Plan>(File.ReadAllText(planPath))??throw new InvalidDataException("Missing migration plan.");
         if(plan.UserId!=System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value)throw new UnauthorizedAccessException("Migration belongs to another Windows account.");
+        if(!Path.IsPathFullyQualified(plan.DataRoot)||!Path.IsPathFullyQualified(plan.InstallRoot)||!UpdateTransaction.IsWithin(Path.Combine(plan.DataRoot,"migration-backups"),plan.Backup))throw new InvalidDataException("Unexpected migration backup or install roots.");
+        UpdateTransaction.RejectLinks(planPath);UpdateTransaction.RejectLinks(plan.Backup);
         var installed=Path.Combine(plan.InstallRoot,"Nexa.exe");
+        if(health==null && !NexaInstallation.IsInstalled(installed))throw new InvalidDataException("Migration cleanup requires the registered installation.");
         if(!File.Exists(installed))throw new IOException("Installed application is missing; old copies were preserved.");
         UpdateTransaction.ValidateBinary(installed,UpdateTransaction.Hash(installed),App.AppVersion);
         if(!(health?.Invoke(installed)??await UpdateTransaction.Health(installed,Path.Combine(plan.Backup,"installed-health"))))throw new IOException("Installed startup failed; old copies were preserved. Rerun Setup or restore the verified backup.");
@@ -203,6 +206,9 @@ internal static class InstallerMaintenance
             try
             {
                 if(UpdateTransaction.IsWithin(plan.InstallRoot,copy.Path)||UpdateTransaction.IsWithin(plan.DataRoot,copy.Path))continue;
+                if(!System.Text.RegularExpressions.Regex.IsMatch(copy.Hash,"^[A-Fa-f0-9]{64}$"))throw new InvalidDataException("Unexpected migration identity.");
+                UpdateTransaction.RejectLinks(copy.Path);
+                UpdateTransaction.ValidateBinary(copy.Path,copy.Hash);
                 var backup=Path.Combine(plan.Backup,"old-executables",copy.Hash+".exe");
                 if(UpdateTransaction.Hash(copy.Path)!=copy.Hash || UpdateTransaction.Hash(backup)!=copy.Hash)throw new IOException("Copy changed after discovery; preserved.");
                 File.Delete(copy.Path);plan.Messages.Add("Backed up and removed old executable: "+copy.Path);
