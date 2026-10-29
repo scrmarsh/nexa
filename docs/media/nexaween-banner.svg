@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
-  <title id="title">nexa v0.1.24 alpha — NEXAWEEN</title>
+  <title id="title">nexa v0.0.24 alpha — NEXAWEEN</title>
   <desc id="desc">A space for whatever haunts you next. Purple background, neon green lettering, orange border, pale green details and witch purple accents, matching nexa's seasonal changelog.</desc>
   <rect x="2" y="2" width="1196" height="356" rx="28" fill="#1C102A" stroke="#F97316" stroke-width="4"/>
   <circle cx="1090" cy="95" r="54" fill="#A855F7" opacity=".2"/>
@@ -14,7 +14,7 @@
     <path d="M128 384V128L384 384V128" fill="none" stroke="#FFFFFF" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
   <text x="160" y="101" fill="#D9F99D" font-family="Segoe UI,Arial,sans-serif" font-size="44" font-weight="700">nexa</text>
-  <text x="160" y="129" fill="#A855F7" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="600" letter-spacing="2">v0.1.24 alpha · WINDOWS DESKTOP</text>
+  <text x="160" y="129" fill="#A855F7" font-family="Segoe UI,Arial,sans-serif" font-size="17" font-weight="600" letter-spacing="2">v0.0.24 alpha · WINDOWS DESKTOP</text>
   <text x="46" y="214" fill="#84CC16" font-family="Segoe UI,Arial,sans-serif" font-size="68" font-weight="800" letter-spacing="4">NEXAWEEN</text>
   <text x="49" y="256" fill="#D9F99D" font-family="Segoe UI,Arial,sans-serif" font-size="24">A space for whatever <tspan fill="#F97316">haunts</tspan> you next.</text>
   <path d="M49 288h650" stroke="#A855F7" stroke-width="2" opacity=".55"/>

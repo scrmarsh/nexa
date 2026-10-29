@@ -1,6 +1,6 @@
 <div align="center">
 
-![nexa Â· latest â€” a space for whatever comes next](docs/media/nexa-banner.svg)
+![nexa · latest — a space for whatever comes next](docs/media/nexa-banner.svg)
 
 ![version: 0.0.31 Alpha](https://img.shields.io/badge/version-0.0.31%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
 ![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-185FA5?style=flat-square&labelColor=111827)
@@ -8,16 +8,16 @@
 
 **a space for whatever comes next**
 
-[Nexaween prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.29-alpha) Â· [What's new](CHANGELOG.md) Â· [Build from source](#build-from-source) Â· [Development status](docs/NEXA_031_STATUS.md)
+[nexaween prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Development status](docs/NEXA_031_STATUS.md)
 
 </div>
 
-> **nexa v0.0.31 alpha — Release Integrity & Ecosystem Evolution (local development).** Canonical version comparison and updater diagnostics, centered Space cards, editable icons, readable timer status and physically constructed orb webs. Explicit session loads refresh live creature activity while preserving permanent data and crash recovery. Google/Microsoft integration work is deferred by user request. See the [audit](docs/NEXA_031_AUDIT.md), [status](docs/NEXA_031_STATUS.md) and [test results](docs/NEXA_031_TEST_RESULTS.md). The public download remains .29; .31 has not been published.
+> **nexa v0.0.31 alpha — Release Integrity & Ecosystem Evolution.** Canonical version comparison and updater diagnostics, centered Space cards, editable icons, readable timer status and physically constructed orb webs. Explicit session loads refresh live creature activity while preserving permanent data and crash recovery. Google/Microsoft integration work is deferred by user request. See the [audit](docs/NEXA_031_AUDIT.md), [status](docs/NEXA_031_STATUS.md) and [test results](docs/NEXA_031_TEST_RESULTS.md). Download the [v0.0.31 Alpha prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha). See the [release notes](docs/NEXA_031_PRERELEASE_NOTES.md) for changes and remaining acceptance.
 
 Alpha development now uses **v0.0.X Alpha**, Beta will use **v0.1.X Beta**, and
 the first stable release is planned as **v1.0.0**. This Nexaween build is an
 explicitly marked Alpha prerelease; **v0.1.0 Beta** remains reserved for the first
-approved Beta. Historical legacy-tag aliases and **0.0.26 â€” Spaces in
+approved Beta. Historical legacy-tag aliases and **0.0.26 — Spaces in
 Motion** remain in the release history. Updater comparison recognizes legacy
 Alpha revisions without changing their tags or download URLs.
 
@@ -32,13 +32,13 @@ nexa is a local Windows productivity dashboard for classes, study, meetings and 
 
 Real screenshots of the published Windows build, using sample notes and tasks. Select an image to view it at full size.
 
-| Study space Â· dark | Meeting space Â· dark |
+| Study space · dark | Meeting space · dark |
 | --- | --- |
 | [![Study dashboard with a Pixel Timer, notes, checklist, clock and water counter](docs/media/screenshots/study-space-dark.png)](docs/media/screenshots/study-space-dark.png) | [![Meeting dashboard with a session timer, meeting notes, action items, clock and decision counter](docs/media/screenshots/meeting-space-dark.png)](docs/media/screenshots/meeting-space-dark.png) |
 
 ## Development builds and historical downloads
 
-Download **Nexa.exe** from the [Nexaween Alpha prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.29-alpha), or build from source below. The release is explicitly marked as a prerelease; physical and live-provider acceptance remains open.
+Download **Nexa.exe** from the [Nexaween Alpha prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha), or build from source below. The release is explicitly marked as a prerelease; physical and live-provider acceptance remains open.
 Self-contained Windows x64 packages include their .NET runtime; framework-dependent
 builds require the .NET 10 Desktop Runtime.
 

@@ -1,9 +1,9 @@
 # Changelog
 
-## 0.0.31 Alpha — Release Integrity & Ecosystem Evolution (local, unpublished)
+## 0.0.31 Alpha — nexaween: Interface Polish & Release Integrity (2026-10-28)
 
 - Centralize canonical release identities; explicitly map confirmed legacy Alpha records while retaining genuine Beta numbering and legacy asset provenance.
-- Improve update eligibility/error reporting and persisted channel selection. Older published comparators require a one-time verified portable bridge; no published tag or asset was changed.
+- Improve update eligibility/error reporting and persisted channel selection. Older published comparators require a one-time verified portable bridge; legacy downloads and asset identities remain intact.
 - Center Recent Space titles independently of larger left icons; add a preview/save/cancel Space icon grid and cap-and-gown option in Session Settings.
 - Keep the approved pumpkin and Home-only candlelight; improve Home header alignment, wrap Pixel Timer status, and place Test Sound directly below Sound Style.
 - Refine rounded eight-legged spiders and progressive orb silk. Explicit session loads reset live activity using a persistent generation marker, preserving permanent data and ordinary crash recovery.
