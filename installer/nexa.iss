@@ -165,13 +165,54 @@ end;
 function NativeFileAttributes(Name: String): LongWord;
   external 'GetFileAttributesW@kernel32.dll stdcall';
 
-function FileAttributes(Name: String): LongWord;
+function ExtendedPath(Name: String): String;
 begin
   if Copy(Name, 1, 4) <> '\\?\' then begin
     if Copy(Name, 1, 2) = '\\' then Name := '\\?\UNC\' + Copy(Name, 3, Length(Name))
     else Name := '\\?\' + Name;
   end;
-  Result := NativeFileAttributes(Name);
+  Result := Name;
+end;
+
+function FileAttributes(Name: String): LongWord;
+begin
+  Result := NativeFileAttributes(ExtendedPath(Name));
+end;
+
+function NativeDeleteFile(Name: String): Boolean;
+  external 'DeleteFileW@kernel32.dll stdcall';
+function NativeRemoveDirectory(Name: String): Boolean;
+  external 'RemoveDirectoryW@kernel32.dll stdcall';
+function NativeSetAttributes(Name: String; Attributes: LongWord): Boolean;
+  external 'SetFileAttributesW@kernel32.dll stdcall';
+
+function RemoveRegularTree(Path: String): Boolean;
+var
+  Entry: TFindRec;
+  Child: String;
+  Attributes: LongWord;
+begin
+  Result := False;
+  if (FileAttributes(Path) and $400) <> 0 then Exit;
+  if FindFirst(AddBackslash(ExtendedPath(Path)) + '*', Entry) then begin
+    try
+      repeat
+        if (Entry.Name <> '.') and (Entry.Name <> '..') then begin
+          Child := AddBackslash(Path) + Entry.Name;
+          Attributes := FileAttributes(Child);
+          if (Attributes and $400) <> 0 then Exit;
+          if (Attributes and $10) <> 0 then begin
+            if not RemoveRegularTree(Child) then Exit;
+          end else begin
+            if (Attributes and 1) <> 0 then
+              if not NativeSetAttributes(ExtendedPath(Child), Attributes and $FFFFFFFE) then Exit;
+            if not NativeDeleteFile(ExtendedPath(Child)) then begin Log('Could not remove confirmed private file: ' + Child); Exit; end;
+          end;
+        end;
+      until not FindNext(Entry);
+    finally FindClose(Entry); end;
+  end;
+  Result := NativeRemoveDirectory(ExtendedPath(Path));
 end;
 
 function RegularTree(Path: String): Boolean;
@@ -199,7 +240,7 @@ begin
   if (CurUninstallStep = usPostUninstall) and DeleteUserData and DirExists(DataRoot) then begin
     if (Length(DataRoot) < 20) or not RegularTree(DataRoot) then
       RaiseException('Local data was preserved because its folder contains links or an unexpected path. Inspect ' + DataRoot);
-    if not DelTree(DataRoot, True, True, True) then
+    if not RemoveRegularTree(DataRoot) then
       RaiseException('Some local data could not be removed. Inspect ' + DataRoot);
   end;
 end;
