@@ -1,0 +1,76 @@
+PASS: .34 assembly and Alpha identity agree
+PASS: Installer busy wait has a bounded, actionable timeout
+PASS: Installer retry waits while a cleanup mutex still exists
+PASS: Installer retry resumes only after cleanup releases its mutex
+PASS: Migration copies and hashes private saves, recordings and readable history
+PASS: Migration leaves original private save bytes intact
+PASS: Migrated structured recording links point to the copied recording
+PASS: Migrated actual workspace can be loaded
+PASS: Hedy's Windows-protected fixture key remains readable after migration
+PASS: DPAPI-protected integration token and connection identity survive the root change
+PASS: Repeating migration adds no duplicate files
+PASS: Mixed-root conflicts preserve the new file and retain verified originals
+PASS: Migration writes its versioned inventory and hashes
+PASS: Compression runs after releasing the application save lock
+PASS: Temporary checkpoint files exclude credentials before ZIP compression
+PASS: Backup creates a real ZIP with its recovery manifest
+PASS: ZIP excludes credentials, migration originals and binaries
+PASS: Nested managed secret fields are removed from structured exports
+PASS: Nonsecret recordings and readable history are included
+PASS: Manifest accounts for every archived data file
+PASS: Independent ZIP reader verifies manifest bytes: History/session.md
+PASS: Independent ZIP reader verifies manifest bytes: links.json
+PASS: Independent ZIP reader verifies manifest bytes: links.json.bak
+PASS: Independent ZIP reader verifies manifest bytes: Recordings/session.wav
+PASS: Independent ZIP reader verifies manifest bytes: state.json
+PASS: Independent ZIP reader verifies manifest bytes: state.json.bak
+PASS: Backup progress describes actual inventory, copy and verification stages
+PASS: Successful export removes its sanitized staging folder
+PASS: Cancellation removes its temporary archive and publishes no final ZIP
+PASS: Export refuses to overwrite an existing backup
+PASS: Locked file failure never publishes an incomplete backup
+PASS: Owned path validation rejects traversal
+PASS: Export rejects directory junctions without publishing an archive
+PASS: Deletion rejects a junction before changing owned or unrelated files
+PASS: Destination failure publishes no backup
+PASS: Production deletion refuses an arbitrary fixture root
+PASS: Only exact uppercase CONFIRM can arm deletion
+PASS: Deletion cannot precede its 30-second deadline
+PASS: Canceled confirmation cannot delete even after its deadline
+PASS: Countdown authorizes one deletion exactly once
+PASS: Delete Now requires prior typed confirmation
+PASS: Isolated deletion removes owned saves successfully
+PASS: Deletion preserves unrelated siblings and legacy originals
+PASS: Data deletion preserves cached application and installer binaries
+PASS: Reset records a guard against silently reimporting deleted legacy data
+PASS: Late saves cannot recreate deleted workspace data
+PASS: Partial deletion truthfully reports and preserves a locked file
+PASS: Independent completed sessions have stable distinct recap identities even at identical times
+PASS: Profile counts simultaneous completed sessions separately and excludes the reset copy
+PASS: Legacy recaps use reset provenance to avoid duplicate completed-session statistics
+PASS: Classic tagline uses the exact requested text
+PASS: Home offers all three direct background choices
+PASS: Redundant restore theme action is removed
+PASS: The original four official palette choices remain
+PASS: Default Home stays charcoal under Light / Nexa
+PASS: Default Home stays charcoal under Light / Violet
+PASS: Default Home stays charcoal under Light / Aurora
+PASS: Default Home stays charcoal under Light / Ember
+PASS: Default Home stays charcoal under Dark / Nexa
+PASS: Default Home stays charcoal under Dark / Violet
+PASS: Default Home stays charcoal under Dark / Aurora
+PASS: Default Home stays charcoal under Dark / Ember
+PASS: The fixed charcoal Home retains readable text independently of the application mode
+PASS: Appearance sliders support click-to-point as well as dragging
+PASS: Profile hides its scroll bar while retaining scrolling
+PASS: Sounds hides its scroll bar while retaining scrolling
+PASS: Add Bugs hides its scroll bar while retaining scrolling
+PASS: One bug behavior selector exposes exactly Classic, Cozy and Combative
+PASS: Updates has no release channel selector
+PASS: The primary Pixel Timer cannot be removed
+PASS: Changing generation clears transient web state
+PASS: Large webs remain circular after viewport coordinate scaling
+PASS: Communal web uses approximately a quarter of a suitable dashboard
+PASS: A communal web with more than eight helpers survives serialization and validation
+PASS: New accounts default to 12-hour clock
+PASS: 75 checks. Artifacts: <repo>\verification\20261029-084324

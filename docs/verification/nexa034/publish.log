@@ -1,0 +1,104 @@
+  Determining projects to restore...
+<repo>\SessionDashboard.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  Restored <repo>\SessionDashboard.csproj (in 5.8 sec).
+<repo>\SessionDashboard.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+<repo>\SessionDashboard_kevqgd1k_wpftmp.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  SessionDashboard -> <repo>\bin\Release034Application\Release\net10.0-windows\win-x64\Nexa.dll
+  SessionDashboard -> <repo>\verification\release034-final\Application\
+Inno Setup 7 Command-Line Compiler
+Copyright (C) 1997-2026 Jordan Russell. All rights reserved.
+Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.
+Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.
+https://www.innosetup.com
+
+Compiler engine version: Inno Setup 7.1.1
+Non-commercial use only
+
+Preprocessing
+   Reading file: <repo>\verification\tooling\inno-7.1.1\portable\ISPPBuiltins.iss
+Parsing [Setup] section, line 33
+Parsing [Setup] section, line 34
+Parsing [Setup] section, line 35
+Parsing [Setup] section, line 36
+Parsing [Setup] section, line 37
+Parsing [Setup] section, line 38
+Parsing [Setup] section, line 39
+Parsing [Setup] section, line 40
+Parsing [Setup] section, line 41
+Parsing [Setup] section, line 42
+Parsing [Setup] section, line 43
+Parsing [Setup] section, line 44
+Parsing [Setup] section, line 45
+Parsing [Setup] section, line 46
+Parsing [Setup] section, line 47
+Parsing [Setup] section, line 48
+Parsing [Setup] section, line 49
+Parsing [Setup] section, line 50
+Parsing [Setup] section, line 51
+Parsing [Setup] section, line 52
+Parsing [Setup] section, line 53
+Parsing [Setup] section, line 54
+Parsing [Setup] section, line 55
+Parsing [Setup] section, line 56
+Parsing [Setup] section, line 57
+Parsing [Setup] section, line 58
+Parsing [Setup] section, line 59
+Parsing [Setup] section, line 60
+Parsing [Setup] section, line 61
+Parsing [Setup] section, line 62
+Parsing [Setup] section, line 63
+Parsing [Setup] section, line 64
+Parsing [Setup] section, line 65
+Parsing [Setup] section, line 66
+Parsing [Setup] section, line 67
+Parsing [Setup] section, line 68
+Parsing [Setup] section, line 69
+Parsing [Setup] section, line 70
+Parsing [Setup] section, line 71
+Parsing [Setup] section, line 72
+Reading file (WizardImageFile)
+   Reading file: <repo>\installer\..\assets\nexa-setup-classic.bmp
+Reading file (WizardSmallImageFile)
+   Reading file: <repo>\installer\..\assets\nexa-setup-small.bmp
+Preparing Setup program executable
+   Verification successful
+   Updating icons and style (SetupCustomStyle.e64)
+   Updating version info (SetupCustomStyle.e64)
+Determining language code pages
+   Reading file: <repo>\verification\tooling\inno-7.1.1\portable\Default.isl
+   Messages in script file
+Reading default messages from Default.isl
+Parsing [LangOptions], [Messages], and [CustomMessages] sections
+   Reading file: <repo>\verification\tooling\inno-7.1.1\portable\Default.isl
+   Messages in script file
+Reading [Code] section
+Parsing [Tasks] section, line 79
+Parsing [Tasks] section, line 80
+Parsing [Icons] section, line 90
+Parsing [Icons] section, line 91
+Parsing [UninstallDelete] section, line 97
+Parsing [UninstallDelete] section, line 98
+Parsing [UninstallDelete] section, line 99
+Parsing [Run] section, line 94
+Parsing [Files] section, line 83
+Parsing [Files] section, line 87
+Compiling [Code] section
+Deleting NexaSetup.exe from output directory
+Creating setup files
+   Verification successful
+   Updating icons (Setup.exe)
+   Compressing: \\?\<repo>\verification\release034-final\Application\Nexa.exe
+   Compressing Setup program executable
+   Updating version info (Setup.exe)
+
+
+Successful compile (11.594 sec). Resulting Setup program filename is:
+<repo>\verification\release034-final\NexaSetup.exe
+<repo>\verification\release034-final\NexaSetup.exe
+  Determining projects to restore...
+<repo>\installer\bridge\NexaMigrationBridge.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  All projects are up-to-date for restore.
+<repo>\installer\bridge\NexaMigrationBridge.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  NexaMigrationBridge -> <repo>\installer\bridge\bin\Release\net10.0-windows\win-x64\Nexa.dll
+  NexaMigrationBridge -> <repo>\verification\release034-final\LegacyBridge\
+Local release candidates only: <repo>\verification\release034-final

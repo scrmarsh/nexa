@@ -1,0 +1,8 @@
+{
+  "Assertions": 40,
+  "Setup": "<repo>\\verification\\native034-setup\\NexaSetup.exe",
+  "Fixture": "<repo>\\verification\\native034",
+  "CurrentTokenIsAdministrator": false,
+  "OS": "Microsoft Windows NT 10.0.26300.0",
+  "CompletedUtc": "2026-10-29T13:45:24.344159+00:00"
+}

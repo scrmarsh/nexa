@@ -1,0 +1,41 @@
+PASS: Native Setup completes without elevation or restart
+PASS: Fresh install creates the application at the isolated install location
+PASS: Windows Installed Apps records the correct name and version
+PASS: Windows registration points to the actual installation
+PASS: Installed distribution marker exists
+PASS: Repair and rollback installer is retained
+PASS: Requested native shortcut is created
+PASS: Shortcut targets installed nexa rather than a build or portable copy
+PASS: Requested native shortcut is created
+PASS: Shortcut targets installed nexa rather than a build or portable copy
+PASS: Installation preserves existing private save bytes
+PASS: Installed executable completes real Windows startup with isolated state
+PASS: Native Setup completes without elevation or restart
+PASS: Repeated installation does not duplicate desktop shortcuts
+PASS: Installed integrity manifest matches the real application payload
+PASS: Native Setup completes without elevation or restart
+PASS: Repair keeps an already correct payload without replacing it
+PASS: Native Setup completes without elevation or restart
+PASS: Repair replaces corrupt payload bytes using the trusted embedded manifest
+PASS: Native Setup completes without elevation or restart
+PASS: Rerunning Setup repairs a missing application file
+PASS: Repair preserves private saves
+PASS: Native uninstaller exits successfully
+PASS: Installed Apps test registration is removed
+PASS: Installer-created desktop shortcut is removed
+PASS: Installer-created Start menu shortcut is removed
+PASS: Default uninstall keeps Spaces, settings and history
+PASS: Preserve-data uninstall keeps exact save bytes
+PASS: Setup refuses to replace an unregistered older portable in the destination
+PASS: Blocked installation preserves the portable bytes without registering a duplicate
+PASS: Blocked portable replacement preserves private saves
+PASS: Approved .33 source payload remains unchanged
+PASS: Native Setup completes without elevation or restart
+PASS: Fresh desktop-shortcut opt-out is honored
+PASS: Start menu entry is available after reinstall
+PASS: Native uninstaller exits successfully
+PASS: Installed Apps test registration is removed
+PASS: Installer-created desktop shortcut is removed
+PASS: Installer-created Start menu shortcut is removed
+PASS: Explicit doubly confirmed data removal removes only the fixture data store
+PASS: 40 native installer checks

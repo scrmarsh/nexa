@@ -1,0 +1,31 @@
+PASS: Current Alpha version comes from assembly metadata
+PASS: Configuration export preserves icon without carrying private notes
+PASS: Icons survive persistence and legacy preset fallback
+PASS: Vector geometry parses: Graduation cap
+PASS: Vector geometry parses: Cap and gown
+PASS: Vector geometry parses: Church
+PASS: Vector geometry parses: Book
+PASS: Vector geometry parses: Briefcase
+PASS: Vector geometry parses: Home
+PASS: Vector geometry parses: Fitness
+PASS: Vector geometry parses: Lightning
+PASS: Vector geometry parses: Calendar
+PASS: Vector geometry parses: Palette
+PASS: Vector geometry parses: Gamepad
+PASS: Vector geometry parses: People
+PASS: Vector geometry parses: Sparkle
+PASS: Home displays exactly six initial cards
+PASS: Expansion shows all additional Spaces and retains original six controls
+PASS: Hide More restores six cards
+PASS: Experimental Features is a standalone tab without a collapsible arrow
+PASS: Hidden integrations are not constructed with Appearance
+PASS: Settings tab navigation preserves geometry
+PASS: Reduced motion completes fades immediately
+PASS: Splash version precedes the progress track
+PASS: Reduced motion completes tagline while seasonal loading bar stays hidden
+PASS: Startup progress cannot move backward
+PASS: Replayed setup preserves an existing seasonal preference
+PASS: Onboarding skips the redundant activity page
+PASS: Setup retains tools, customization and the final naming screen
+PASS: Failed navigation restores visible Home and releases the navigation guard
+PASS: 30 checks. Artifacts: <repo>\verification\20261029-084440

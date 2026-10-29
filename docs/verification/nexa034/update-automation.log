@@ -1,0 +1,49 @@
+PASS: Update notice attaches to the real Home body beneath its caption wrapper
+PASS: Selecting a preset never copies over independent positive/negative sounds
+PASS: Editing negative sound preserves the independent positive selection
+PASS: Editing positive sound preserves the independent negative selection
+PASS: Sound controls no longer contain Warm wood or Wood
+PASS: Changing both sounds requires the explicit Apply preset button
+PASS: Automatic restart is blocked while the live game score cannot be saved
+PASS: Retrying the restart saves the game score and workspace before installation
+PASS: Update flow operation completes
+PASS: Updates notify even with automatic installation and the old startup toggle disabled
+PASS: Checks persist offered version and successful-check state
+PASS: Update flow operation completes
+PASS: Previously offered release still gets a notice on the next check
+PASS: Update flow operation completes
+PASS: Automatic choice downloads/prepares and begins a 30-second countdown without installing early
+PASS: Update flow operation completes
+PASS: Countdown waits the full thirty seconds
+PASS: Update flow operation completes
+PASS: Countdown saves and restarts automatically at its deadline
+PASS: Update flow operation completes
+PASS: Update flow operation completes
+PASS: Restart now bypasses remaining countdown through the same save gate
+PASS: Update flow operation completes
+PASS: Update flow operation completes
+PASS: Later cancels the automatic restart without discarding the prepared update
+PASS: Update flow operation completes
+PASS: Save failure blocks installation/restart and leaves a visible retry action
+PASS: Update flow operation completes
+PASS: Save failure can be retried without redownloading
+PASS: Update flow operation completes
+PASS: Update flow operation completes
+PASS: Turning automatic updates off cancels a pending restart
+PASS: Update flow operation completes
+PASS: No automatic download before the first-run choice is saved
+PASS: Update flow operation completes
+PASS: Opt-out users can start the complete countdown flow directly from the update notice
+PASS: Update flow operation completes
+PASS: Invalid download never reaches countdown or replacement
+PASS: Update flow operation completes
+PASS: Offline checks report an error without claiming the app is up to date or starting a download
+PASS: Automatic download reports busy while the verifier is running
+PASS: Update flow operation completes
+PASS: Update flow operation completes
+PASS: Disabling automatic installation during a download prevents automatic restart
+PASS: Update flow operation completes
+PASS: Later during download cannot start an invisible restart countdown
+PASS: First-run update choice persists across application starts
+PASS: First-run prompt offers enabled automatic updates and explains mandatory notices
+PASS: 48 checks. Artifacts: <repo>\verification\20261029-084247

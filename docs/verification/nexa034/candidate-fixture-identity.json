@@ -1,0 +1,9 @@
+{
+  "Version": "0.0.34",
+  "Framework": "Inno Setup 7.1.1",
+  "SourceCommit": "66f6bbceb9ce2218ff3bc36bb47aeb2fadd2fd9d",
+  "PayloadSHA256": "000641ADDE33ED75F3D55EA32703393036A6DA339BFF2AF10E8B7D0142CC08BA",
+  "InstallerSHA256": "853CA96AA436C941340B65803415ED0D20C52255B51A324FAE95D0398DFCC21F",
+  "NativeFixture": true,
+  "Signed": false
+}

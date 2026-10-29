@@ -1,0 +1,8 @@
+{
+  "Result": "PASS",
+  "Files": 6,
+  "Version": "nexa v0.0.34 alpha",
+  "Schema": 1,
+  "ArchiveSHA256": "CA461839E3476115128E806FF3DC5B88D27FF4132E8427EF8492ECA3AED60645",
+  "CredentialsPolicy": "Excluded. Reconnect integrations after recovery."
+}

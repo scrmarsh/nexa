@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored <repo>\SessionDashboard.csproj (in 164 ms).
+  1 of 2 projects are up-to-date for restore.
+  SessionDashboard -> <repo>\bin\Nexa034Checks\Release\net10.0-windows\Nexa.dll
+  SessionDashboard.Checks -> <repo>\tests\bin\Nexa034Checks\Release\net10.0-windows\SessionDashboard.Checks.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:37.57

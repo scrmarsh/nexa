@@ -1,0 +1,18 @@
+PASS: Genuine cached .29 executable matches the live GitHub asset digest
+PASS: Failed .31 startup rolls the genuine .29 executable back byte-for-byte
+PASS: Rollback preserves committed workspace bytes
+PASS: Genuine packaged .29 installation upgrades to the verified .31 executable
+PASS: Real packaged upgrade preserves notes, permanent scores and workspace bytes
+PASS: Successful packaged upgrade records its durable installed checkpoint
+PASS: Approved cached release was read only and remains unchanged
+PASS: Failed installed health check restores the actual previous executable
+PASS: Failed update has a durable rollback checkpoint
+PASS: Portable transaction replaces only the isolated target
+PASS: Successful install leaves existing user data unchanged
+PASS: Completed update is idempotent
+PASS: Interrupted helper reconciles an already replaced executable
+PASS: Changed staged executable is rejected before replacement
+PASS: A separate real helper installs and validates the isolated portable target
+PASS: Helper restart opens a separate verified process with isolated data
+PASS: Published candidate passes a separate real-process startup health check
+PASS: 17 checks. Artifacts: <repo>\verification\20261029-084335

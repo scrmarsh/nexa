@@ -1,0 +1,132 @@
+[
+  {
+    "Route": "nexa034",
+    "Checks": 73,
+    "Result": "PASS"
+  },
+  {
+    "Route": "nexa033",
+    "Checks": 33,
+    "Result": "PASS"
+  },
+  {
+    "Route": "nexa032",
+    "Checks": 71,
+    "Result": "PASS"
+  },
+  {
+    "Route": "laptop-audio",
+    "Checks": 93,
+    "Result": "PASS"
+  },
+  {
+    "Route": "update-automation",
+    "Checks": 48,
+    "Result": "PASS"
+  },
+  {
+    "Route": "nexa031",
+    "Checks": 33,
+    "Result": "PASS"
+  },
+  {
+    "Route": "nexa030",
+    "Checks": 63,
+    "Result": "PASS"
+  },
+  {
+    "Route": "nexa029",
+    "Checks": 87,
+    "Result": "PASS"
+  },
+  {
+    "Route": "nexaween028",
+    "Checks": 39,
+    "Result": "PASS"
+  },
+  {
+    "Route": "nexaween027",
+    "Checks": 51,
+    "Result": "PASS"
+  },
+  {
+    "Route": "handoff026",
+    "Checks": 96,
+    "Result": "PASS"
+  },
+  {
+    "Route": "pass026",
+    "Checks": 36,
+    "Result": "PASS"
+  },
+  {
+    "Route": "alpha026",
+    "Checks": 30,
+    "Result": "PASS"
+  },
+  {
+    "Route": "arrivals",
+    "Checks": 32,
+    "Result": "PASS"
+  },
+  {
+    "Route": "audit025",
+    "Checks": 38,
+    "Result": "PASS"
+  },
+  {
+    "Route": "final",
+    "Checks": 36,
+    "Result": "PASS"
+  },
+  {
+    "Route": "followup-design",
+    "Checks": 31,
+    "Result": "PASS"
+  },
+  {
+    "Route": "followup",
+    "Checks": 46,
+    "Result": "PASS"
+  },
+  {
+    "Route": "master",
+    "Checks": 23,
+    "Result": "PASS"
+  },
+  {
+    "Route": "reliability",
+    "Checks": 19,
+    "Result": "PASS"
+  },
+  {
+    "Route": "core",
+    "Checks": 64,
+    "Result": "PASS"
+  },
+  {
+    "Route": "continuity",
+    "Checks": 43,
+    "Result": "PASS"
+  },
+  {
+    "Route": "shared",
+    "Checks": 10,
+    "Result": "PASS"
+  },
+  {
+    "Route": "menus",
+    "Checks": 9,
+    "Result": "PASS"
+  },
+  {
+    "Route": "ecosystem",
+    "Checks": 48,
+    "Result": "PASS"
+  },
+  {
+    "Route": "animation",
+    "Checks": 50,
+    "Result": "PASS"
+  }
+]

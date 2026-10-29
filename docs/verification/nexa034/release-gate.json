@@ -1,0 +1,17 @@
+{
+  "SourceCommit": "66f6bbceb9ce2218ff3bc36bb47aeb2fadd2fd9d",
+  "RegressionRoutes": 26,
+  "RegressionAssertions": 1202,
+  "NativeDataAssertions": 75,
+  "NativeInstallerLifecycle": 40,
+  "NativeUpgradeMigration": 32,
+  "PackagedAssertions": 17,
+  "AutomatedChecksPassed": true,
+  "PhysicalFlickerVerified": false,
+  "AllRequestedAcceptanceComplete": false,
+  "BetaReady": false,
+  "PublicReleaseApproved": false,
+  "Published": false,
+  "NuGetVulnerabilityFeedAvailable": false,
+  "CompletedUtc": "2026-10-29T13:49:32.735367+00:00"
+}
