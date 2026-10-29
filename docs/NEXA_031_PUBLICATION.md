@@ -1,6 +1,6 @@
 # nexa v0.0.31 Alpha publication
 
-The user explicitly authorized publishing .31 on October 28, 2026. Target: [v0.0.31-alpha](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha), marked **prerelease**, titled **nexa v0.0.31 Alpha — nexaween: Interface Polish & Release Integrity**. The live publication receipt is recorded separately after GitHub upload verification. Google/Microsoft expansion remains deferred by user request.
+The user explicitly authorized publishing .31 on October 28, 2026. Target: [v0.0.31-alpha](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha), marked **prerelease**, titled **nexa v0.0.31 Alpha — nexaween: Interface Polish & Release Integrity**. **Published and independently verified:** release ID `427365131`, tag commit `8f1767dba9dee3ee6c5feb0ef906f5a2d7afa0a7`. [Publication receipt](verification/nexa031/publication-receipt.json). Google/Microsoft expansion remains deferred by user request.
 
 ## Exact executable
 
@@ -30,3 +30,5 @@ Second-computer updating, physical mixed-DPI/multi-monitor/focus behavior, live 
 ## Public-page cleanup
 
 The release includes the lowercase branding changes and canonical Alpha display headings. README download/version links target .31. The shared .24 seasonal banner now displays `v0.0.24 alpha`. Historical filenames, legacy tag/download paths, immutable evidence, original product-version observations and verbatim requirements retain original compatibility identities. The release tag reconciles the documentation-only public main changes. Automatic approval review rejected advancing main and the development branch as broader than the release authorization. Publication therefore pushes only the new release tag and assets; main and development branch refs remain unchanged. Repository About points directly to the new release. No history or old tags are rewritten.
+
+Publication follow-up: both GitHub asset digests match the local files, the repository About website points to .31, and an independent connector read plus normalized comparison confirms all three historical releases and six assets are preserved. The publisher’s final historical comparison initially flagged a mismatch after successful publication; independent exact field comparisons passed. Default main remains `ec5e4351008c0ce946fb76506df3b18101ad8702`, pending separate branch-update approval.

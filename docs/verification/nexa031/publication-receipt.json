@@ -1,0 +1,98 @@
+{
+  "id": 427365131,
+  "url": "https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha",
+  "name": "nexa v0.0.31 Alpha — nexaween: Interface Polish & Release Integrity",
+  "tag": "v0.0.31-alpha",
+  "tagCommit": "8f1767dba9dee3ee6c5feb0ef906f5a2d7afa0a7",
+  "applicationSourceCommit": "938f5185f6a752ab6a8ee68bfdf5d97256d4f267",
+  "published_at": "2026-10-29T01:25:27Z",
+  "prerelease": true,
+  "draft": false,
+  "homepage": "https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha",
+  "mainAdvanced": false,
+  "developmentBranchPushed": false,
+  "assets": [
+    {
+      "id": 686945636,
+      "name": "Nexa.exe",
+      "size": 72660057,
+      "digest": "sha256:a4af062cfba9ab946568e6f823b0bc8cf06ff68ceb9a95e9b2cc909ca60681f8",
+      "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.31-alpha/Nexa.exe"
+    },
+    {
+      "id": 686949298,
+      "name": "SHA256SUMS.txt",
+      "size": 75,
+      "digest": "sha256:50f662e8d23cb6c65bed4c0268ef69c7d424a72d05042a42d9b37f8a130370eb",
+      "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.31-alpha/SHA256SUMS.txt"
+    }
+  ],
+  "historicalReleaseVerification": [
+    {
+      "id": 426690043,
+      "tag": "v0.1.26-alpha",
+      "published": "2026-10-28T13:21:02Z",
+      "assets": [
+        {
+          "id": 685055223,
+          "name": "Nexa.exe",
+          "size": 145244982,
+          "digest": "sha256:1d08b896653932f0470bf09eef5464887bc9abb0c539e8e91ac549b227e0868c",
+          "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.26-alpha/Nexa.exe"
+        },
+        {
+          "id": 685065709,
+          "name": "SHA256SUMS.txt",
+          "size": 75,
+          "digest": "sha256:62bbdb790107d47860b9606761dd882b558e46fac2f67b0445c3cf421cdbd214",
+          "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.26-alpha/SHA256SUMS.txt"
+        }
+      ]
+    },
+    {
+      "id": 427233210,
+      "tag": "v0.0.29-alpha",
+      "published": "2026-10-28T22:01:16Z",
+      "assets": [
+        {
+          "id": 686467578,
+          "name": "Nexa.exe",
+          "size": 145433398,
+          "digest": "sha256:badbdb24fc0345cc6ed00c27cc873bb92068f27194ca23f25452cba0f57cd9cd",
+          "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.29-alpha/Nexa.exe"
+        },
+        {
+          "id": 686479220,
+          "name": "SHA256SUMS.txt",
+          "size": 76,
+          "digest": "sha256:664d40e04c9109638938e4220bd370612dc21c3f666506e00274f48f2af71709",
+          "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.29-alpha/SHA256SUMS.txt"
+        }
+      ]
+    },
+    {
+      "id": 425758058,
+      "tag": "v0.1.24-alpha",
+      "published": "2026-10-27T17:14:22Z",
+      "assets": [
+        {
+          "id": 682280754,
+          "name": "Nexa.exe",
+          "size": 145085238,
+          "digest": "sha256:d836de09b79e873e232ed6e9fae67f9e1f73d5d6b2a62efcce1ab31c2e75b420",
+          "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.24-alpha/Nexa.exe"
+        },
+        {
+          "id": 682289562,
+          "name": "SHA256SUMS.txt",
+          "size": 75,
+          "digest": "sha256:3933c13b3879c3b6db85d1ec991f6239e6f610deae829283d61bbad7d1ff3c40",
+          "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.24-alpha/SHA256SUMS.txt"
+        }
+      ]
+    }
+  ],
+  "verificationNote": "Independent connector read and exact normalized comparison against original snapshot confirm all three historical releases and six assets retain original IDs, tags, publication timestamps, names, sizes, digests and download URLs.",
+  "historicalAssetsPreserved": true,
+  "historicalIdentityAndTimestampsPreserved": true
+}
