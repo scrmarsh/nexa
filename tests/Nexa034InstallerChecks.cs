@@ -6,6 +6,19 @@ using SessionDashboard;
 
 internal static partial class Program
 {
+    private static void CheckInstallerWait034()
+    {
+        var name=@"Local\nexa.installer-fixture."+Guid.NewGuid().ToString("N");
+        using(var held=new Mutex(false,name))
+        {
+            var expired=false;try{InstallerUpdates.WaitForSetup(name,TimeSpan.Zero).GetAwaiter().GetResult();}catch(TimeoutException){expired=true;}
+            Assert(expired,"Installer busy wait has a bounded, actionable timeout");
+            var wait=InstallerUpdates.WaitForSetup(name,TimeSpan.FromSeconds(5));
+            Assert(!wait.IsCompleted,"Installer retry waits while a cleanup mutex still exists");
+            held.Dispose();wait.GetAwaiter().GetResult();
+            Assert(wait.IsCompletedSuccessfully,"Installer retry resumes only after cleanup releases its mutex");
+        }
+    }
     private static void Setup034(string setup,string root)
     {
         var info=new ProcessStartInfo(setup){UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden};
@@ -23,7 +36,7 @@ internal static partial class Program
         Assert(Registered034()==null,"No existing test registration is overwritten");Directory.CreateDirectory(root);
         Setup034(baseline,root);
         var target=Path.Combine(root,"app","Nexa.exe");var store=new StateStore(Path.Combine(root,"data","state.json"));store.Save(new AppState{Notes="Preserve actual installer update data"});var bytes=File.ReadAllText(store.FilePath);
-        Assert(NexaInstallation.IsInstalled(target) && Registered034()=="0.0.33","Prior-version fixture has genuine .32 registration and binary metadata");
+        Assert(NexaInstallation.IsInstalled(target) && Registered034()=="0.0.33","Prior-version fixture has genuine .33 registration and binary metadata");
         var previousHash=UpdateTransaction.Hash(target);var plan=InstallerUpdates.Prepare(store,target,candidate,UpdateTransaction.Hash(candidate),"0.0.34").GetAwaiter().GetResult();
         Assert(JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.Installer && File.Exists(Path.Combine(Path.GetDirectoryName(plan)!,"previous-setup.exe")),"Installer update stages the verified candidate and rollback Setup");
         var rejected=false;try{UpdateTransaction.Apply(plan,_=>Task.FromResult(false),waitForParent:false).GetAwaiter().GetResult();}catch(IOException){rejected=true;}

@@ -30,8 +30,21 @@ internal static class InstallerUpdates
         var plan=new UpdatePlan{Installer=true,MigratePortable=migrate,PortableSource=portableSource,UserId=store.UserId,Target=Path.GetFullPath(target),Candidate=staged,CandidateHash=hash,PreviousHash=UpdateTransaction.Hash(migrate?portableSource:target),PreviousSetupHash=File.Exists(rollback)?UpdateTransaction.Hash(rollback):"",Version=version,ParentPid=Environment.ProcessId};
         var path=Path.Combine(directory,"plan.json");UpdateTransaction.Save(path,plan);return path;
     }
+    internal static async Task WaitForSetup(string mutexName,TimeSpan timeout)
+    {
+        var elapsed=Stopwatch.StartNew();
+        // Inno can retain its named mutex in the self-cleanup process after the
+        // launcher exits. Do not race a rollback's cleanup or another installer.
+        while(Mutex.TryOpenExisting(mutexName,out var running))
+        {
+            running.Dispose();
+            if(elapsed.Elapsed>=timeout)throw new TimeoutException("Another nexa installer is still running. Close it before trying again.");
+            await Task.Delay(100);
+        }
+    }
     private static async Task Install(string setup,string target,string log,string? portable=null)
     {
+        await WaitForSetup(@"Local\nexa.Installer",TimeSpan.FromMinutes(1));
         var info=new ProcessStartInfo(setup){UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden};
         foreach(var arg in new[]{"/CURRENTUSER","/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/UPGRADE=1","/DIR="+Path.GetDirectoryName(target),"/LOG="+log})info.ArgumentList.Add(arg);
         if(!string.IsNullOrWhiteSpace(portable)){info.ArgumentList.Add("/LEGACYSOURCE="+portable);}
