@@ -1,4 +1,4 @@
-# nexa 0.1.25 Alpha manual acceptance
+# nexa 0.0.25 Alpha manual acceptance
 
 Status: **not yet approved**. Automated checks use isolated data. A checkbox below is not a pass until a person records the date, machine, configuration and result. Keep the approved executable and a private backup of user data. Do not publish a release or promote Testing to Latest from this checklist automatically.
 

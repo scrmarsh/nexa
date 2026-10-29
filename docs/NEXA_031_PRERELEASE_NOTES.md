@@ -31,7 +31,11 @@ This release focuses on interface polish, dependable update discovery and a more
 
 Download **Nexa.exe** and **SHA256SUMS.txt** from Assets. This is a self-contained Windows x64 executable; no installer or separate .NET runtime is required. Compare `Get-FileHash .\Nexa.exe -Algorithm SHA256` with the supplied checksum. The executable is not code-signed.
 
-Final automated and packaged verification results, exact source commit and executable checksum are appended to this release after the publication build passes.
+- **21 regression routes / 883 assertions passed**, plus **17 native packaged-update checks** covering genuine upgrade, data preservation, restart and rollback.
+- Release build: **zero warnings, zero errors**.
+- Executable source: `938f5185f6a752ab6a8ee68bfdf5d97256d4f267`. Release tag also includes documentation/evidence updates; application source is unchanged.
+- Executable SHA-256: `a4af062cfba9ab946568e6f823b0bc8cf06ff68ceb9a95e9b2cc909ca60681f8`.
+- [Publication evidence](https://github.com/scrmarsh/nexa/blob/main/docs/NEXA_031_PUBLICATION.md).
 
 ## Remaining Alpha limitations
 

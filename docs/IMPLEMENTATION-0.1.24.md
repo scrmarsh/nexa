@@ -1,4 +1,4 @@
-# nexa 0.1.24 Alpha implementation
+# nexa 0.0.24 Alpha implementation
 
 The current work is a **critical-repair candidate**, not a verified final Nexaween release. See [candidate implementation, verification and remaining acceptance](FINAL-0.1.24-STATUS.md).
 

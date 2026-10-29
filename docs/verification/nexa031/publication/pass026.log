@@ -1,0 +1,37 @@
+PASS: Candy can be collected
+PASS: Candy increments first, then awards one base point with rounded multiplier bonus
+PASS: Duplicate candy cannot score twice
+PASS: Candy and direct squashes share half-step streak increments
+PASS: Expiry retains earned score
+PASS: Repeated reconciliation cannot duplicate cumulative awards
+PASS: Copied archive events cannot duplicate cumulative awards
+PASS: Early completion preserves actual duration and scheduled end independently
+PASS: Finalization is idempotent
+PASS: Visual completion does not falsify actual elapsed progress
+PASS: Hibernate recovery never invents a recap for an unrecorded later occurrence
+PASS: Activity ring uses current milestone interval and handles signed scores
+PASS: Collected candy is atomically consumed once
+PASS: Bug observation cannot resurrect consumed candy
+PASS: Collected candy respawns independently when bugs and seasonal animation are disabled
+PASS: Candy being eaten is not collectible
+PASS: Real dashboard finalizes through save-before-recap commit
+PASS: Saved recap and completion survive restart
+PASS: Duplicate End Session retains the same record identity
+PASS: Guide can be replayed on the real dashboard
+PASS: Adding a real widget advances its spotlight guide
+PASS: Incomplete guide resumes its real widget step after restart
+PASS: Moving the real widget advances the guide
+PASS: Resizing the real widget advances the guide
+PASS: Renaming the actual widget advances the guide
+PASS: Optional integrations lead to completion
+PASS: Tutorial completion removes the overlay and persists
+PASS: Switching modes restores the independent Manual time draft
+PASS: Switching back restores the Schedule time draft
+PASS: Both timer drafts persist through the existing state store
+PASS: Persistence failure prevents completion and retains pending data
+PASS: Completion succeeds after the persistence error resolves
+PASS: Living Home spider remains bounded inside its web territory
+PASS: Web geometry compensates for tall Canvas projection
+PASS: Hevy uses its own API-key header and endpoint, separate from Hedy
+PASS: Hevy validates the response before saving encrypted connection
+PASS: 36 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-201654

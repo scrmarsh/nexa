@@ -1,4 +1,4 @@
-# nexa 0.1.25 Alpha repair report
+# nexa 0.0.25 Alpha repair report
 
 **Latest testing candidate:** follow-up source `0f075afd98d5723dcc402c8852483422c0e230f5`; SHA256 `34AF60183B25A495E191B7975AD72CBA4F4CBDF65053A8932C2581FD4C15B66A`. The executable remains `M:\Nexa\Builds\Testing\Nexa.exe`. See [the current tweak report](TWEAKS-0.1.25.md) for completed follow-up work, 442 distinct passing regression checks, final startup evidence and remaining manual acceptance. This is an unapproved candidate.
 

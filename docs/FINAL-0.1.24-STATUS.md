@@ -1,4 +1,4 @@
-# nexa 0.1.24 Alpha — final-prompt repair candidate
+# nexa 0.0.24 Alpha — final-prompt repair candidate
 
 **Status: critical-repair candidate verified for its implemented scope; final-release acceptance remains open.**
 

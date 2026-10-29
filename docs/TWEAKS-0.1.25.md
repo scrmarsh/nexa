@@ -1,4 +1,4 @@
-# nexa 0.1.25 Alpha — dashboard, bugs and seasonal follow-up
+# nexa 0.0.25 Alpha — dashboard, bugs and seasonal follow-up
 
 These requested tweaks are implemented and packaged as an **unapproved testing candidate**. The broader acceptance gaps in the original audit still apply; this is not a declaration that every prior master-prompt requirement is complete.
 

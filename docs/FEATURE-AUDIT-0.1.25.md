@@ -1,4 +1,4 @@
-# nexa 0.1.25 Alpha feature audit
+# nexa 0.0.25 Alpha feature audit
 
 This is an implementation audit, not a completion claim. **The development candidate is packaged but unapproved; explicit implementation gaps and manual checks remain.** Source starts at `0e71ac7` from the 0.1.24 repair branch. All prior requirements and the new complete prompt are retained; later 0.1.25 directions supersede conflicting older choices.
 

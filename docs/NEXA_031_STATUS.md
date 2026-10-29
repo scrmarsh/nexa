@@ -1,6 +1,6 @@
 # nexa 0.0.31 Alpha — implementation status
 
-October 28, 2026. Local/unpublished Alpha. Starting HEAD `328dfacdc37647b71441f76b892122016c11d026`; application/test implementation checkpoint **`c1145c8fa3e1f37470712f8646ea76e91444216f`** on `codex/nexa-031-integrity-ecosystem`. Reports/evidence follow separately. No push, public release, tag mutation, Beta, approved executable promotion or shortcut replacement occurred.
+October 28, 2026. Historical implementation checkpoint; see the [publication record](NEXA_031_PUBLICATION.md) for the current release, final source/checksum and subsequent approved GitHub changes. Starting HEAD `328dfacdc37647b71441f76b892122016c11d026`; application/test implementation checkpoint **`c1145c8fa3e1f37470712f8646ea76e91444216f`** on `codex/nexa-031-integrity-ecosystem`. Reports/evidence follow separately. No push, public release, tag mutation, Beta, approved executable promotion or shortcut replacement occurred.
 
 **Verification: 21 regression routes / 883 assertions pass, plus 17 native packaged-update assertions.** Application/checks build: zero warnings/errors. The initial package restore had a NuGet-audit availability warning; after a normal-network restore, the final committed-source build/publish completed without warnings/errors. [Exact results](NEXA_031_TEST_RESULTS.md).
 

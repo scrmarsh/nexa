@@ -1,0 +1,29 @@
+{
+  "routes": 21,
+  "assertions": 883,
+  "allPassed": true,
+  "routeCounts": {
+    "alpha026": 30,
+    "animation": 50,
+    "arrivals": 32,
+    "audit025": 38,
+    "continuity": 43,
+    "core": 64,
+    "ecosystem": 48,
+    "final": 36,
+    "followup-design": 31,
+    "followup": 46,
+    "handoff026": 95,
+    "master": 23,
+    "menus": 9,
+    "nexa029": 87,
+    "nexa030": 63,
+    "nexa031": 33,
+    "nexaween027": 51,
+    "nexaween028": 39,
+    "pass026": 36,
+    "reliability": 19,
+    "shared": 10
+  },
+  "method": "19 unchanged routes passed the initial full run; nexa030 and core passed after two UI selectors were updated for lowercase labels. No application source changed between these builds."
+}

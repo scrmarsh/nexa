@@ -1,4 +1,4 @@
-# Root audit — 0.1.24 Alpha
+# Root audit — 0.0.24 Alpha
 
 Audited October 27, 2026 against the actual WPF project, root type references, resource includes and current ten-route verification suite.
 

@@ -1,0 +1,39 @@
+PASS: Actual portable Nexa.exe alpha asset is discoverable from an older version
+PASS: Development candidate never offers the older production release
+PASS: Stable installations do not receive alpha packages
+PASS: Foreign repository assets are rejected
+PASS: Missing or invalid official digests are rejected
+PASS: Malformed entries do not hide compatible releases on later pages
+PASS: Public feed failure reports a useful error: Forbidden
+PASS: Public feed failure reports a useful error: TooManyRequests
+PASS: Public feed failure reports a useful error: NotFound
+PASS: Matching bytes and digest are atomically staged
+PASS: Tampered downloads clean partials and preserve prior verified file
+PASS: Canceled download cannot leave an installable partial
+PASS: Updater snapshots the committed workspace through the save gate
+PASS: Backup prunes its updates subtree before traversal and cannot recursively copy itself
+PASS: Orange is applied during typing, prefix length 1
+PASS: Orange is applied during typing, prefix length 2
+PASS: Orange is applied during typing, prefix length 3
+PASS: Orange is applied during typing, prefix length 4
+PASS: Orange is applied during typing, prefix length 5
+PASS: Orange is applied during typing, prefix length 6
+PASS: Long notifications wrap without overlapping the dismiss control at width 700
+PASS: Long notifications wrap without overlapping the dismiss control at width 1200
+PASS: Per-species direct squashes are deduplicated with the score event
+PASS: Bonus scoring stops at expiry while the popup begins its visual half-step decay
+PASS: Visual multiplier decays to zero without subtracting earned points
+PASS: Combined view preserves both existing widget identities, custom settings, placements and central scoring
+PASS: New widget picker exposes one combined Productivity entry
+PASS: Homepage initially displays six Space cards in two columns
+PASS: Show More keeps every saved Space accessible
+PASS: A visible decoration candy triggers a short eating pause before consumption
+PASS: Cozy gathering consumes the actual decoration resource
+PASS: Consumed decoration candy leaves the visible food catalogue
+PASS: Replacement remains available with seasonal motion disabled
+PASS: High preserves the previous fixed high population limit
+PASS: Infestation has no fixed population-count limit
+PASS: Frame pressure suppresses Infestation spawning
+PASS: Overlapping ground creatures separate without a global pairwise search
+PASS: Adaptive density selection survives preference persistence
+PASS: 38 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-201710
