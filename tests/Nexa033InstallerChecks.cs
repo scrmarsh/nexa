@@ -56,7 +56,7 @@ internal static partial class Program
         var resolver=InstallerUpdates.InstallTarget;InstallerUpdates.InstallTarget=()=>target;
         try
         {
-            var source=Path.Combine(root,"portable-current","nexa-portable.exe");Directory.CreateDirectory(Path.GetDirectoryName(source)!);File.Copy(Path.Combine(Path.GetDirectoryName(typeof(App).Assembly.Location)!,"Nexa.exe"),source);var portableHash=UpdateTransaction.Hash(source);
+            var source=Path.Combine(root,"portable-current","nexa-portable.exe");Directory.CreateDirectory(Path.GetDirectoryName(source)!);File.Copy(Path.GetFullPath("verification/release033-final/Application/Nexa.exe"),source);var portableHash=UpdateTransaction.Hash(source);
             plan=InstallerUpdates.Prepare(store,source,candidate,UpdateTransaction.Hash(candidate),"0.0.33").GetAwaiter().GetResult();
             Assert(JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.MigratePortable,"Current portable mode stages a real installer migration with recovery data");
             rejected=false;try{UpdateTransaction.Apply(plan,_=>Task.FromResult(false),waitForParent:false).GetAwaiter().GetResult();}catch(IOException){rejected=true;}
