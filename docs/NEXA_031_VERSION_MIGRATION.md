@@ -6,7 +6,7 @@ October 28, 2026. Read-only live GitHub audit; **no remote changes performed**. 
 |---|---|---|---|---|
 | 425758058 | `v0.1.24-alpha` | `v0.0.24-alpha` | `4562d696f39e181e180d1b3b93fc4d060b941dce` | `nexa v0.0.24 alpha — NEXAWEEN` |
 | 426690043 | `v0.1.26-alpha` | `v0.0.26-alpha` | `a308076fba1264f4bb64e53f4610e52caced3eab` | `nexa v0.0.26 alpha — Spaces in Motion` |
-| 427233210 | `v0.0.29-alpha` | Already canonical | `496dea2db01d4d59832febe5780dacebadd1e88f` | `Nexa v0.0.29 Alpha — NEXAWEEN: Interface Polish` |
+| 427233210 | `v0.0.29-alpha` | Already canonical | `496dea2db01d4d59832febe5780dacebadd1e88f` | `nexa v0.0.29 Alpha — NEXAWEEN: Interface Polish` |
 
 The live .24/.26 titles were already corrected. Their associated tags/descriptions still contain legacy identities. Remote matching-refs confirmed canonical .24/.26 aliases were absent. .29 is an annotated tag (`28f237e13101043855997660a20c03df5e8510e6`) resolving to the commit above. Preserve the annotated object and all old refs.
 

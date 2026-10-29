@@ -4,7 +4,7 @@ Build the root `SessionDashboard.csproj` with the .NET 10 Windows desktop SDK. T
 
 Run `tools/Verify.ps1` for the current eighteen-route isolated acceptance suite. Keep `LEGACY/` and `verification/` excluded from compilation. Legacy staging scripts are provenance, not an implementation workflow.
 
-Current development is **Nexa v0.0.28 Alpha — NEXAWEEN EVOLVED**. Read
+Current development is **nexa v0.0.28 Alpha — NEXAWEEN EVOLVED**. Read
 [the audit](NEXAWEEN_028_AUDIT.md), [status](NEXAWEEN_028_STATUS.md) and
 [Beta readiness](NEXA_BETA_READINESS.md) before changing completed
 systems. Alpha now uses 0.0.X; the first planned public Beta is 0.1.0, with

@@ -33,7 +33,7 @@ internal sealed class OnboardingWindow : NexaDialog
         var template=new ControlTemplate(typeof(TextBox));var border=new FrameworkElementFactory(typeof(Border));border.Name="InputOutline";border.SetValue(Border.CornerRadiusProperty,new CornerRadius(12));border.SetResourceReference(Border.BackgroundProperty,"PanelBrush");border.SetResourceReference(Border.BorderBrushProperty,"LineBrush");border.SetValue(Border.BorderThicknessProperty,new Thickness(1));
         var content=new FrameworkElementFactory(typeof(ScrollViewer));content.Name="PART_ContentHost";content.SetValue(FrameworkElement.MarginProperty,new Thickness(12));border.AppendChild(content);template.VisualTree=border;var focus=new Trigger{Property=UIElement.IsKeyboardFocusWithinProperty,Value=true};focus.Setters.Add(new Setter(Border.BorderBrushProperty,new DynamicResourceExtension("AccentBrush"),"InputOutline"));template.Triggers.Add(focus);
         inputStyle.Setters.Add(new Setter(Control.TemplateProperty,template));Resources[typeof(TextBox)]=inputStyle;
-        Title="Welcome to Nexa"; Width=740; Height=640; MinWidth=620; MinHeight=540; WindowStartupLocation=WindowStartupLocation.CenterScreen;
+        Title="Welcome to nexa"; Width=740; Height=640; MinWidth=620; MinHeight=540; WindowStartupLocation=WindowStartupLocation.CenterScreen;
         var root=new DockPanel { Margin=new Thickness(34) };
         var actions=new StackPanel { Orientation=Orientation.Horizontal, HorizontalAlignment=HorizontalAlignment.Right, Margin=new Thickness(0,18,0,0) };
         actions.Children.Add(back); actions.Children.Add(next); DockPanel.SetDock(actions,Dock.Bottom); root.Children.Add(actions);
@@ -80,7 +80,7 @@ internal sealed class OnboardingWindow : NexaDialog
     private void Render()
     {
         body.Children.Clear(); NexaMotion.Entrance(body,Options); error.Text=""; back.Visibility=Step==0?Visibility.Collapsed:Visibility.Visible; next.Content=Step==5?"Create My Space":"Continue";
-        title.Text=new[] { "Welcome to nexa", "What will you use Nexa for?", "What are you doing?", "Pick your tools", "Make it feel like you", "Your space is ready!" }[Step];
+        title.Text=new[] { "Welcome to nexa", "What will you use nexa for?", "What are you doing?", "Pick your tools", "Make it feel like you", "Your space is ready!" }[Step];
         switch(Step)
         {
             case 0:
@@ -117,7 +117,7 @@ internal sealed class OnboardingWindow : NexaDialog
                 var mode=new ComboBox { ItemsSource=Enum.GetValues<ThemeMode>(),SelectedItem=Profile.ThemeMode,Margin=new Thickness(0,0,0,14) }; mode.SelectionChanged+=(_,_)=>Profile.ThemeMode=(ThemeMode)mode.SelectedItem; body.Children.Add(mode);
                 void RefreshSeason(){var on=seasonal.IsChecked==true;swatches.Visibility=mode.Visibility=on?Visibility.Collapsed:Visibility.Visible;}
                 seasonal.Click+=(_,_)=>{Options.SeasonalMode=seasonal.IsChecked==true?"On":"Off";RefreshSeason();NexaMotion.Entrance(body,Options);};RefreshSeason();
-                Text("Enable Nexa sounds?");
+                Text("Enable nexa sounds?");
                 Choice("On (short, soft chimes)",Profile.Sounds,on=>Profile.Sounds=on);
                 var preview=new Button { Content="Preview sound", HorizontalAlignment=HorizontalAlignment.Left };
                 preview.Click+=(_,_)=> { if(Profile.Sounds) InterfaceAudio.Preview(Profile.Volume); else error.Text="Turn sounds on first to preview."; }; body.Children.Add(preview);

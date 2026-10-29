@@ -1,0 +1,36 @@
+{
+  "releases": [
+    {
+      "id": 426690043,
+      "name": "nexa v0.0.26 alpha — Spaces in Motion",
+      "url": "https://github.com/scrmarsh/nexa/releases/tag/v0.1.26-alpha",
+      "assetsPreserved": true
+    },
+    {
+      "id": 427233210,
+      "name": "nexa v0.0.29 Alpha — NEXAWEEN: Interface Polish",
+      "url": "https://github.com/scrmarsh/nexa/releases/tag/v0.0.29-alpha",
+      "assetsPreserved": true
+    },
+    {
+      "id": 425758058,
+      "name": "nexa v0.0.24 alpha — NEXAWEEN",
+      "url": "https://github.com/scrmarsh/nexa/releases/tag/v0.1.24-alpha",
+      "assetsPreserved": true
+    }
+  ],
+  "scope": "User requested lowercase nexa branding; no application release published",
+  "mainBefore": "a308076fba1264f4bb64e53f4610e52caced3eab",
+  "appliedAtUtc": "2026-10-29T01:11:51.2494659Z",
+  "mainAfter": "ec5e4351008c0ce946fb76506df3b18101ad8702",
+  "files": [
+    "docs/ANIMATION_NOTES.md",
+    "docs/FEATURE-AUDIT-0.1.25.md",
+    "docs/FINAL-0.1.24-STATUS.md",
+    "docs/IMPLEMENTATION-0.1.24.md",
+    "docs/INTEGRATIONS.md",
+    "docs/MANUAL-TESTING-0.1.25.md",
+    "docs/media/nexaween-banner.svg",
+    "docs/releases/0.1.24-alpha.md"
+  ]
+}

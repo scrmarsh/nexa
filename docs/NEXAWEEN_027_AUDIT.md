@@ -1,10 +1,10 @@
-# Nexa v0.0.27 Alpha — NEXAWEEN audit
+# nexa v0.0.27 Alpha — NEXAWEEN audit
 
 Audit completed before feature implementation, October 28, 2026. Baseline: clean
 `continuation-source`, `b30883737ecf87343c73d0fa6f0ac805827e98ae`, now branched as
 `codex/nexa-027-nexaween`. Required source `25391210c751b9059e269bbb9229bc68fafcb74b`
 is an ancestor; intervening changes are reports/images only. Outer workspace has
-no commits and many pre-existing untracked tools, left untouched. `M:/Nexa` is
+no commits and many pre-existing untracked tools, left untouched. `M:/nexa` is
 inaccessible in this session; no claim is made about newer changes there.
 
 Prior evidence: [October 28 handoff](HANDOFF-COMPLETION-0.1.26-alpha.md), 604
@@ -52,7 +52,7 @@ classifications for changed areas:
 | Legacy Alpha comparison | COMPLETE | Comparison-only normalization; original identities retained | Real newer-package update remains manual | Mixed feeds, equal revisions, downgrade prevention and Beta ordering |
 | Splash minimum / renderer | COMPLETE | Three-second monotonic display gate; existing stages preserved | Physical flicker acceptance remains manual | Reduced-motion preview and startup checks; handoff typing checks |
 | Add Bugs / costume choice | COMPLETE | Adjacent toggles, advanced default off, independent costume choice; automatic appearance preserved | Physical interaction acceptance remains manual | Save/reopen and legacy JSON checks; costume-off bypass fixed |
-| Original checkout preservation | COMPLETE | Read-only scoped access succeeded after initial denial; M:/Nexa at a308076; 30 pending blobs match inherited 99a9c3a, zero mismatches | None | Git status/history and blob hashes; no original writes |
+| Original checkout preservation | COMPLETE | Read-only scoped access succeeded after initial denial; M:/nexa at a308076; 30 pending blobs match inherited 99a9c3a, zero mismatches | None | Git status/history and blob hashes; no original writes |
 | Reference branding | COMPLETE | User supplied exact reference and selected B: quadruple (24-unit) black borders; hash-preserved original; existing geometry/colors matched; standalone/combined icon outlined and wordmark borderless | Physical visual acceptance remains manual | All seven PNG sizes, six ICO frames, selected silhouette-only edges, exact X colors and WPF previews inspected/tested |
 | Manual acceptance / deeper performance | UNVERIFIED / DEFERRED | Existing handoff measurements retained | Follow status checklist and .28 carry-forward | No physical/live-account/sustained-load pass claimed |
 

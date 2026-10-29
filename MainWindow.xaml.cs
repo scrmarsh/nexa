@@ -196,7 +196,7 @@ public partial class MainWindow
     private void DeveloperResetClick(object sender, RoutedEventArgs e)
     {
         if (state.Workspace == null || Continuity.Current(state.Workspace, store.UserId).PresetOrigin != "Developer mode") return;
-        var dialog = Dialog("Nexa · Reset DEV", 500, 280); var body = new StackPanel { Margin = new Thickness(24) };
+        var dialog = Dialog("nexa · Reset DEV", 500, 280); var body = new StackPanel { Margin = new Thickness(24) };
         body.Children.Add(new TextBlock { Text = "Reset DEV Space?", FontSize = 22, FontWeight = FontWeights.SemiBold });
         body.Children.Add(new TextBlock { Text = "Restart the developer timer and clear current widget data? The current session will remain in Space history.", TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 12, 0, 22) });
         var actions = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right }; var cancel = new Button { Content = "Cancel", MinWidth = 90, Margin = new Thickness(0, 0, 8, 0) }; cancel.Click += (_, _) => dialog.CloseWithFade(); actions.Children.Add(cancel); var reset = new Button { Content = "Reset DEV", MinWidth = 100, Style = (Style)FindResource("PrimaryButton") }; reset.Click += (_, _) => { dialog.CloseWithFade(); ResetDeveloperConfirmed(); }; actions.Children.Add(reset); body.Children.Add(actions); dialog.Content = body; dialog.ShowDismissible();

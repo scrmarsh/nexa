@@ -1,4 +1,4 @@
-# Nexa 0.0.31 Alpha — pre-implementation audit
+# nexa 0.0.31 Alpha — pre-implementation audit
 
 October 28, 2026. Repository `C:/Users/Sean Marsh/Documents/ChatGPT/Nexa/continuation-source`; origin `https://github.com/scrmarsh/nexa.git`. Clean starting branch `codex/nexa-030-nexaween-refinement`, HEAD `328dfacdc37647b71441f76b892122016c11d026`. New branch `codex/nexa-031-integrity-ecosystem`. No reset to the earlier .30 checkpoint. Read .30 audit/status/results and the later Home-only candle follow-up; that follow-up supersedes the original shared flicker behavior and must be preserved.
 

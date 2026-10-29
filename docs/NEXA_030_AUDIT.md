@@ -1,4 +1,4 @@
-# Nexa 0.0.30 Alpha — pre-implementation audit
+# nexa 0.0.30 Alpha — pre-implementation audit
 
 2026-10-28. Starting HEAD `095c635f56e9f18d45793d5547518c23ec955360`, clean branch `codex/nexa-029-polish`; development branch `codex/nexa-030-nexaween-refinement`. The current .29 status, actual source and follow-up release provenance were inspected. No reset to the earlier .29 implementation checkpoint. The .29 GitHub prerelease remains unchanged; this request authorizes local development only.
 

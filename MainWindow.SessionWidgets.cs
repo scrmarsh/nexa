@@ -29,7 +29,7 @@ public partial class MainWindow
             FocusWidget(target.Id);
         }
         local.Click+=(_,_)=>{OpenTool("Audio Recorder");StartLocalRecordingClick(recorder,new RoutedEventArgs());};
-        remote.Click+=(_,_)=>{OpenTool("Hedy Notes");shortcutStatus.Text="Link notes in Hedy. Remote recording must be started explicitly in Hedy; Nexa does not control the provider microphone.";};
+        remote.Click+=(_,_)=>{OpenTool("Hedy Notes");shortcutStatus.Text="Link notes in Hedy. Remote recording must be started explicitly in Hedy; nexa does not control the provider microphone.";};
         recorder.Click+=(_,_)=>{sources.PlacementTarget=recorder;sources.IsOpen=true;};
         shortcuts.Children.Add(recorder); panel.Children.Add(shortcuts); panel.Children.Add(shortcutStatus);
         // A standalone manual notes area also works before a timed session starts.

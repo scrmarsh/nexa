@@ -34,7 +34,7 @@ public partial class App : Application
         workspaceMutex = new Mutex(true, "Local\\Nexa.SessionDashboard." + userId, out var firstInstance);
         if (!firstInstance)
         {
-            MessageBox.Show("Nexa is already open for this Windows account. Use the existing window to keep your saves consistent.", "Nexa");
+            MessageBox.Show("nexa is already open for this Windows account. Use the existing window to keep your saves consistent.", "nexa");
             Shutdown(); return;
         }
         try
@@ -64,13 +64,13 @@ public partial class App : Application
                     else next=new HomeWindow(store);
                     MainWindow=next; next.Show(); splash.Close();
                 }
-                catch (Exception ex) { MessageBox.Show("Nexa could not open your workspace. No data was overwritten.\n\n" + ex.Message, "Nexa"); Shutdown(1); }
+                catch (Exception ex) { MessageBox.Show("nexa could not open your workspace. No data was overwritten.\n\n" + ex.Message, "nexa"); Shutdown(1); }
             };
             splash.Show();
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException or NotSupportedException)
         {
-            MessageBox.Show("Your saved workspace could not be opened. No data was overwritten.\n\n" + ex.Message, "Nexa", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Your saved workspace could not be opened. No data was overwritten.\n\n" + ex.Message, "nexa", MessageBoxButton.OK, MessageBoxImage.Warning);
             Shutdown(1);
         }
     }

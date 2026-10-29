@@ -43,7 +43,7 @@ public partial class MainWindow
         swarmGame?.Clear(); swarmGame = new PixelSwarmGame(timerPixels: swarmSeeds);
         swarmRecorded = false; swarmControlsPage = swarmStatsPage = false; swarmLastStage = 1;
         storyOpen = true; PixelArea.Visibility = Visibility.Collapsed; StoryArea.Visibility = Visibility.Visible;
-        StoryButton.Content = "Return to Nexa"; UpdateClock(); RenderStory();
+        StoryButton.Content = "Return to nexa"; UpdateClock(); RenderStory();
         swarmFrameClock.Restart(); boredomTicker.Start();
     }
     private void BeginSwarmRun()
@@ -140,11 +140,11 @@ public partial class MainWindow
                 else Label($"Survive, aim, and collect upgrades.\nBest score: {swarmStats?.BestScore ?? 0:N0}");
                 if (swarmControlsPage || swarmStatsPage) Action("Back", () => { swarmControlsPage = swarmStatsPage = false; ShowSwarmOverlay(); });
                 else { Action("Play", BeginSwarmRun); Action("Controls", () => { swarmControlsPage = true; ShowSwarmOverlay(); }); Action("Stats", () => { swarmStatsPage = true; ShowSwarmOverlay(); }); }
-                Action("Return to Nexa", ExitBoredomMode); break;
+                Action("Return to nexa", ExitBoredomMode); break;
             case SwarmPhase.Paused:
-                Label("PAUSED", 29); Label("Your Nexa session timer keeps running.");
+                Label("PAUSED", 29); Label("Your nexa session timer keeps running.");
                 Action("Resume", () => { game.TogglePause(); swarmFrameClock.Restart(); ShowSwarmOverlay(); });
-                Action("Restart", BeginSwarmRun); Action("Return to Nexa", ExitBoredomMode); break;
+                Action("Restart", BeginSwarmRun); Action("Return to nexa", ExitBoredomMode); break;
             case SwarmPhase.LevelUp:
                 Label($"LEVEL {game.Level} — CHOOSE ONE", 25);
                 for (var i = 0; i < game.UpgradeChoices.Count; i++)
@@ -153,7 +153,7 @@ public partial class MainWindow
             case SwarmPhase.GameOver:
                 Label("GAME OVER", 29);
                 Label($"Score {game.Score:N0}{(game.NewBest ? " · NEW BEST" : "")}\nBest {swarmStats?.BestScore ?? 0:N0} · Stage {game.Stage}\n{game.Destroyed} defeated · {SurvivalText(game.Survived)} survived · Level {game.Level}");
-                Action("Play Again", BeginSwarmRun); Action("Return to Nexa", ExitBoredomMode); break;
+                Action("Play Again", BeginSwarmRun); Action("Return to nexa", ExitBoredomMode); break;
         }
         swarmResult.Child = stack;
     }
@@ -174,7 +174,7 @@ public partial class MainWindow
         swarmStageText = new TextBlock { Foreground = DashboardBrush("AccentBrush"), FontSize = 32, FontWeight = FontWeights.Bold,
             HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 20, 0, 0), IsHitTestVisible = false, Opacity = 0 };
         root.Children.Add(swarmStageText);
-        var back = new Button { Content = "Return to Nexa", HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(12) };
+        var back = new Button { Content = "Return to nexa", HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(12) };
         back.Click += (_, _) => ExitBoredomMode(); root.Children.Add(back);
         swarmXpBar = new ProgressBar { Height = 6, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(12, 0, 12, 12), IsHitTestVisible = false };
         root.Children.Add(swarmXpBar);

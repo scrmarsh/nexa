@@ -1,6 +1,6 @@
 # Local build authority
 
-Current source development is **Nexa v0.0.28 Alpha — NEXAWEEN EVOLVED**, unpublished.
+Current source development is **nexa v0.0.28 Alpha — NEXAWEEN EVOLVED**, unpublished.
 Use a fresh `Builds/Testing/0.0.28-alpha-*` output directory when explicitly
 packaging it. No .28 portable package has been accepted. Existing executable
 paths and hashes below are historical records, not verification of current bytes.

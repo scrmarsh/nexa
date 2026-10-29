@@ -248,7 +248,7 @@ public partial class MainWindow
         var save = new Button { Content = "Export .nexa", Margin = new Thickness(0, 20, 0, 0) }; panel.Children.Add(save);
         save.Click += (_, _) =>
         {
-            var picker = new SaveFileDialog { Filter = "Nexa Space (*.nexa)|*.nexa", DefaultExt = ".nexa", FileName = "space.nexa" };
+            var picker = new SaveFileDialog { Filter = "nexa Space (*.nexa)|*.nexa", DefaultExt = ".nexa", FileName = "space.nexa" };
             if (picker.ShowDialog(dialog) != true) return;
             try { StateStore.AtomicWrite(picker.FileName, Continuity.Export(dashboard, include.IsChecked == true, session), false); NexaChrome.FadeOutAndClose(dialog); Feedback.Text = "Space exported."; }
             catch (Exception ex) when (SaveException(ex)) { MessageBox.Show(dialog, ex.Message, "Export failed", MessageBoxButton.OK, MessageBoxImage.Warning); }
@@ -257,7 +257,7 @@ public partial class MainWindow
     }
     private async void ImportDashboardClick(object sender, RoutedEventArgs e)
     {
-        var picker = new OpenFileDialog { Filter = "Nexa Space (*.nexa)|*.nexa", CheckFileExists = true };
+        var picker = new OpenFileDialog { Filter = "nexa Space (*.nexa)|*.nexa", CheckFileExists = true };
         if (picker.ShowDialog(this) != true) return;
         try
         {

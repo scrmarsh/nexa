@@ -1,4 +1,4 @@
-# Nexa Beta readiness — October 28, 2026
+# nexa Beta readiness — October 28, 2026
 
 **Overall: NEEDS WORK. Keep v0.0.28 Alpha. No release authorization is inferred.**
 Evidence and exact execution scope: [audit](NEXAWEEN_028_AUDIT.md),

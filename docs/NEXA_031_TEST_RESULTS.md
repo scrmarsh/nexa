@@ -1,4 +1,4 @@
-# Nexa 0.0.31 Alpha — test results
+# nexa 0.0.31 Alpha — test results
 
 October 28, 2026. Starting HEAD `328dfacdc37647b71441f76b892122016c11d026`; final application/test checkpoint **`c1145c8fa3e1f37470712f8646ea76e91444216f`**, branch `codex/nexa-031-integrity-ecosystem`. Reports/captures are recorded separately. No live workspace, provider account, recording or historical user ecosystem was used as a fixture.
 

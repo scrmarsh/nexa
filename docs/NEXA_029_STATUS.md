@@ -1,4 +1,4 @@
-# Nexa 0.0.29 Alpha — implementation status
+# nexa 0.0.29 Alpha — implementation status
 
 Publication update: **[NEXAWEEN: Interface Polish Alpha prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.29-alpha) is published** with explicit user authorization; see the [publication record](NEXA_029_PUBLICATION.md). See [prerelease notes](NEXA_029_PRERELEASE_NOTES.md). The original unpublished development checkpoints and their verification scope below are retained as historical evidence.
 
@@ -11,7 +11,7 @@ October 28, 2026. Local unpublished Alpha. No push, release, tag, build promotio
 Repository: `C:/Users/Sean Marsh/Documents/ChatGPT/Nexa/continuation-source`.
 Starting clean branch: `codex/nexa-028-nexaween-evolved`, commit `054fffdc5f0e42f292dcfb28d3a60631b2ba8024`.
 Final application/test implementation commit: **`34c214507f55ecf87156f6aa7bfe0b9afa9633fc`**, branch `codex/nexa-029-polish`.
-The following documentation/evidence commit changes no executable or test source. The parent Nexa directory is an unrelated unborn repository with pre-existing untracked work; it was not treated as the application repository.
+The following documentation/evidence commit changes no executable or test source. The parent nexa directory is an unrelated unborn repository with pre-existing untracked work; it was not treated as the application repository.
 
 The application and checks build in Release with **zero warnings and zero errors**. All **19 routes / 778 distinct assertions** pass on the committed source. See [exact test results](NEXA_029_TEST_RESULTS.md), [final build](verification/nexa029/nexa029-final-build.log), and [final integrity log](verification/nexa029/nexa029-final-integrity.log). Earlier failed runs are recorded; reruns are not added to the assertion total.
 

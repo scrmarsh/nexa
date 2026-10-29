@@ -913,7 +913,7 @@ public partial class MainWindow
     {
         if (NexaPanels.DismissTopmost(this)) { addWidgetLocation = null; e.Handled = true; return; }
         var location = addWidgetLocation; addWidgetLocation = null;
-        var dialog = Dialog("Nexa · Add widget", 680, 720); var root = new DockPanel { Margin = new Thickness(24) };
+        var dialog = Dialog("nexa · Add widget", 680, 720); var root = new DockPanel { Margin = new Thickness(24) };
         var heading = new TextBlock { Text = "Add Widgets", FontSize = 26, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 16) }; DockPanel.SetDock(heading, Dock.Top); root.Children.Add(heading);
         var search = new TextBox { ToolTip = "Search widgets", Margin = new Thickness(0, 0, 0, 16) }; System.Windows.Automation.AutomationProperties.SetName(search, "Search widgets"); DockPanel.SetDock(search, Dock.Top); root.Children.Add(search);
         var list = new StackPanel(); root.Children.Add(new ScrollViewer { Content = list, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, CanContentScroll = false });
@@ -1024,7 +1024,7 @@ public partial class MainWindow
     private void ConfigureWidget(WidgetInstance widget)
     {
         if (widget.Kind == "Distribution Tracker") { ManageDistribution(widget); RenderWidgets(); return; }
-        var dialog = Dialog("Nexa · Configure " + widget.Title, 560, 760); var panel = new StackPanel { Margin = new Thickness(24) };
+        var dialog = Dialog("nexa · Configure " + widget.Title, 560, 760); var panel = new StackPanel { Margin = new Thickness(24) };
         TextBox Field(string label, string value) { panel.Children.Add(new TextBlock { Text = label, Margin = new Thickness(0, 12, 0, 6) }); var box = new TextBox { Text = value }; panel.Children.Add(box); return box; }
         var title = Field("Widget title", widget.Title); var placeholder = Field("Placeholder / hint", widget.Placeholder);
         var columns = Field("Relative width (1-20)", widget.Span.ToString());
@@ -1100,7 +1100,7 @@ public partial class MainWindow
     }
     private void OpenLegacyPanel(Border panel, string title)
     {
-        Detach(panel); var dialog = Dialog("Nexa · " + title, 520, 740); dialog.Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        Detach(panel); var dialog = Dialog("nexa · " + title, 520, 740); dialog.Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
         dialog.Closed += (_, _) => { Detach(panel); if (panel == ThemePanel) ((StackPanel)LegacyContent.Children.OfType<ScrollViewer>().Last().Content).Children.Add(panel); RenderWidgets(); }; dialog.ShowDismissible();
     }
     private void ThemeClick(object sender, RoutedEventArgs e) => OpenLegacyPanel(ThemePanel, "Theme & display");

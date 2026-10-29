@@ -318,7 +318,7 @@ public static class Continuity
         if (json.Length > 10_000_000) throw new InvalidDataException("Dashboard file exceeds the 10 MB limit.");
         var file = JsonSerializer.Deserialize<DashboardExport>(json, ImportJson) ?? throw new InvalidDataException("Empty dashboard file.");
         if (file.FormatVersion != 1 || (file.Application != "Nexa" && file.Application != "Nexa Session Dashboard") || string.IsNullOrWhiteSpace(file.DashboardName) || file.DashboardName.Length > 100)
-            throw new InvalidDataException("Unsupported or invalid Nexa dashboard file.");
+            throw new InvalidDataException("Unsupported or invalid nexa dashboard file.");
         ValidateData(file.Data);
         if (!file.IncludesSessionData){file.Data = ConfigurationOnly(file.Data);file.CumulativeScore=file.ScoreAtStart=file.ScoreAtEnd=null;file.Recap=null;}
         if(file.Recap is {} recap && (!double.IsFinite(recap.ActualSeconds) || recap.ActualSeconds<0 || recap.EndedAt<recap.StartedAt || recap.Accomplishments==null || recap.Accomplishments.Count>100 || recap.Accomplishments.Any(p=>string.IsNullOrWhiteSpace(p.Key) || p.Key.Length>100 || p.Value<0)))throw new InvalidDataException("Invalid portable recap metadata.");
@@ -404,7 +404,7 @@ public static class Continuity
     internal static void ValidateWorkspace(WorkspaceDocument workspace, string userId)
     {
         if (workspace.Settings == null || workspace.AllTimeSquashes < 0 || workspace.AllTimeSquashesBySpecies==null || workspace.AllTimeSquashesBySpecies.Any(p=>!BugManager.AllSpecies.Any(s=>s.ToString()==p.Key) || p.Value<0)) throw new InvalidDataException("Invalid workspace settings.");
-        if (workspace.FormatVersion != 2) throw new NotSupportedException("This workspace was saved by an unsupported version of Nexa. Use that version to open it.");
+        if (workspace.FormatVersion != 2) throw new NotSupportedException("This workspace was saved by an unsupported version of nexa. Use that version to open it.");
         if (workspace.UserId != userId) throw new UnauthorizedAccessException("This workspace belongs to another Windows user.");
         if (workspace.Dashboards == null || workspace.Dashboards.Count == 0 || workspace.Dashboards.Any(d => d == null) || workspace.Dashboards.Select(d => d.DashboardId).Distinct().Count() != workspace.Dashboards.Count)
             throw new InvalidDataException("Invalid dashboard identities.");

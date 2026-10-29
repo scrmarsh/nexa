@@ -48,7 +48,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
     internal AvailableUpdate? LatestEligible {get;private set;}
     internal static string DescribeFailure(Exception error)=>error switch
     {
-        HttpRequestException{StatusCode:System.Net.HttpStatusCode.NotFound}=>"GitHub release feed unavailable (404). This does not mean Nexa is up to date.",
+        HttpRequestException{StatusCode:System.Net.HttpStatusCode.NotFound}=>"GitHub release feed unavailable (404). This does not mean nexa is up to date.",
         HttpRequestException{StatusCode:System.Net.HttpStatusCode.Forbidden or (System.Net.HttpStatusCode)429}=>"GitHub rate limited or restricted this request. Try again later.",
         HttpRequestException{StatusCode:null}=>"No internet connection, DNS failure or GitHub connection unavailable. "+error.Message,
         HttpRequestException=>"GitHub is unavailable. "+error.Message,
@@ -59,7 +59,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
     internal async Task<AvailableUpdate?> CheckAsync(Version current, CancellationToken cancellationToken = default, string currentChannel = "Alpha",string? channelPreference=null)
     {
         var latest = await DiscoverAsync(cancellationToken, channelPreference is null or "Automatic"?currentChannel:channelPreference);
-        if(newestRejected is {} rejected && IsNewer(rejected.Version,rejected.Stage,current,currentChannel) && (latest==null || IsNewer(rejected.Version,rejected.Stage,latest.Version,latest.Channel)))throw new InvalidDataException("A newer published release is missing a verified compatible Nexa asset. Check Settings again after the release package is complete.");
+        if(newestRejected is {} rejected && IsNewer(rejected.Version,rejected.Stage,current,currentChannel) && (latest==null || IsNewer(rejected.Version,rejected.Stage,latest.Version,latest.Channel)))throw new InvalidDataException("A newer published release is missing a verified compatible nexa asset. Check Settings again after the release package is complete.");
         LatestEligible=latest;
         return latest != null && IsNewer(latest.Version, latest.Channel, current, currentChannel) ? latest : null;
     }
@@ -73,7 +73,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
         request.Headers.Accept.ParseAdd("application/vnd.github+json");
         using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if ((int)response.StatusCode is 403 or 429) throw new HttpRequestException("GitHub rate limit or access restriction. Try again later; public release checks require no login.",null,response.StatusCode);
-        if (response.StatusCode == System.Net.HttpStatusCode.NotFound) throw new HttpRequestException("The public Nexa releases feed was not found. Check network access to api.github.com/repos/scrmarsh/nexa/releases.",null,response.StatusCode);
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound) throw new HttpRequestException("The public nexa releases feed was not found. Check network access to api.github.com/repos/scrmarsh/nexa/releases.",null,response.StatusCode);
         response.EnsureSuccessStatusCode();
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
         using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
@@ -101,7 +101,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
                 DateTimeOffset? published = release.TryGetProperty("published_at", out var date) && DateTimeOffset.TryParse(date.GetString(), out var parsed) ? parsed : null;
                 if (latest != null && latest.Version == version && latest.Channel == channel && latest.Portable && assetName.EndsWith("-Setup.exe", StringComparison.OrdinalIgnoreCase)) continue;
                 HasEligiblePackage=true;
-                latest = new(version, channel, release.GetProperty("name").GetString() ?? $"Nexa {version} {channel}", release.TryGetProperty("body", out var body) ? body.GetString() ?? "" : "", published, url, size, digest.Groups[1].Value.ToUpperInvariant());
+                latest = new(version, channel, release.GetProperty("name").GetString() ?? $"nexa {version} {channel}", release.TryGetProperty("body", out var body) ? body.GetString() ?? "" : "", published, url, size, digest.Groups[1].Value.ToUpperInvariant());
             }
             }
             catch (Exception ex) when (ex is KeyNotFoundException or InvalidOperationException or FormatException) { /* Ignore one malformed release without hiding valid older releases. */ }

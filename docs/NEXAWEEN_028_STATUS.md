@@ -1,4 +1,4 @@
-# Nexa v0.0.28 Alpha — NEXAWEEN EVOLVED
+# nexa v0.0.28 Alpha — NEXAWEEN EVOLVED
 
 October 28, 2026. **Unpublished Alpha; physical/live Beta acceptance remains open.**
 

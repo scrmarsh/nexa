@@ -29,9 +29,9 @@ internal static class UpdateTransaction
         using var stream = File.OpenRead(path); using var reader = new BinaryReader(stream);
         if (reader.ReadUInt16() != 0x5a4d) throw new InvalidDataException("Not a Windows executable.");
         stream.Position = 0x3c; var pe = reader.ReadInt32(); if (pe < 64 || pe > stream.Length - 6) throw new InvalidDataException("Invalid executable header.");
-        stream.Position = pe; if (reader.ReadUInt32() != 0x4550 || reader.ReadUInt16() != 0x8664) throw new InvalidDataException("Nexa updates require Windows x64.");
+        stream.Position = pe; if (reader.ReadUInt32() != 0x4550 || reader.ReadUInt16() != 0x8664) throw new InvalidDataException("nexa updates require Windows x64.");
         var info = FileVersionInfo.GetVersionInfo(path);
-        if (info.ProductName != "Nexa" || version != null && (!Version.TryParse(info.FileVersion?.Split('+')[0], out var installed) || installed.ToString(3) != version)) throw new InvalidDataException("Unexpected Nexa package identity/version.");
+        if (info.ProductName != "Nexa" || version != null && (!Version.TryParse(info.FileVersion?.Split('+')[0], out var installed) || installed.ToString(3) != version)) throw new InvalidDataException("Unexpected nexa package identity/version.");
     }
     internal static async Task<string> Prepare(StateStore store, string target, string candidate, string sha256, string version)
     {

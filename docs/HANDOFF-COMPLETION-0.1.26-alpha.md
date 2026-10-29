@@ -1,4 +1,4 @@
-# Nexa v0.1.26 alpha handoff completion
+# nexa v0.1.26 alpha handoff completion
 
 Continuation date: October 28, 2026. Acceptance remains open.
 
@@ -15,7 +15,7 @@ Continuation date: October 28, 2026. Acceptance remains open.
 - Self-contained Windows x64 single file, 145,330,998 bytes; product version `0.1.26-alpha+25391210c751b9059e269bbb9229bc68fafcb74b`.
 - Full sixteen-route regression: **604 passed**, including **95 handoff checks**. Release application/checks build: **0 warnings, 0 errors**. Logs: `verification/acceptance-20261028-113810`.
 
-The original M:/Nexa working files remain untouched. All thirty inherited changed/new source files were hash-compared with checkpoint `99a9c3a`: zero mismatches. The published development branch and v0.1.26-alpha tag still point to a308076. Root Nexa.exe hashes to `010328D158A5D737A94F12AEC5B69FC7761D20A668ACD43B63C883E11B68F79B`; the published candidate still hashes to `1D08B896653932F0470BF09EEF5464887BC9ABB0C539E8E91AC549B227E0868C`. Approved Latest, archived binaries, release assets, live user data, credentials and Aevoria were not changed.
+The original M:/nexa working files remain untouched. All thirty inherited changed/new source files were hash-compared with checkpoint `99a9c3a`: zero mismatches. The published development branch and v0.1.26-alpha tag still point to a308076. Root Nexa.exe hashes to `010328D158A5D737A94F12AEC5B69FC7761D20A668ACD43B63C883E11B68F79B`; the published candidate still hashes to `1D08B896653932F0470BF09EEF5464887BC9ABB0C539E8E91AC549B227E0868C`. Approved Latest, archived binaries, release assets, live user data, credentials and Aevoria were not changed.
 
 ## Final requirements checklist
 

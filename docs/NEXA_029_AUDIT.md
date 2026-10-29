@@ -1,4 +1,4 @@
-# Nexa 0.0.29 audit — before implementation
+# nexa 0.0.29 audit — before implementation
 
 2026-10-28. Source: continuation-source, clean HEAD 054fffdc5f0e42f292dcfb28d3a60631b2ba8024, branch codex/nexa-028-nexaween-evolved. Work branch: codex/nexa-029-polish. Parent workspace is an unrelated unborn master with pre-existing untracked material; leave it alone. No AGENTS.md found. Read .27 audit/status, .28 audit/status/carry-forward and existing code/tests. Prior .28 evidence: 695 assertions; this is inherited evidence, not a new execution. The later eight-leg fix is retained.
 

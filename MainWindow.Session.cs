@@ -19,7 +19,7 @@ public partial class MainWindow
     private void EditOneTimeTarget(object sender, RoutedEventArgs e)
     {
         if (sessionEditor != null) { sessionEditor.Activate(); return; }
-        var dialog = Dialog("Nexa · Pixel Timer", 390, 300);
+        var dialog = Dialog("nexa · Pixel Timer", 390, 300);
         sessionEditor = dialog;
         var content = new StackPanel { Margin = new Thickness(24) };
         content.Children.Add(new TextBlock { Text = "When should this session end?", FontSize = 19, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 16) });
@@ -141,7 +141,7 @@ public partial class MainWindow
     {
         if (state.Session?.AutomaticScheduling == true) return;
         if (state.Session is not { } session) { Error("Start or schedule a session before resetting its timer."); return; }
-        var dialog = Dialog("Nexa · Reset timer", 460, 250);
+        var dialog = Dialog("nexa · Reset timer", 460, 250);
         var panel = new StackPanel { Margin = new Thickness(24) };
         panel.Children.Add(new TextBlock { Text = "Reset this timer?", FontSize = 22, FontWeight = FontWeights.SemiBold });
         panel.Children.Add(new TextBlock { Text = "The countdown will return to its configured session length. Notes, widgets, history and Space data will stay in place.", TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 12, 0, 22) });

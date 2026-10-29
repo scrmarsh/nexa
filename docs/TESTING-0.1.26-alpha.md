@@ -1,4 +1,4 @@
-# Nexa v0.1.26 alpha — handoff candidate testing
+# nexa v0.1.26 alpha — handoff candidate testing
 
 Final application/test source: `25391210c751b9059e269bbb9229bc68fafcb74b`. This section concerns the unpublished handoff candidate; historical published-build evidence is retained below.
 

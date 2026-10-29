@@ -9,7 +9,7 @@
     <AssemblyName>Nexa</AssemblyName>
     <RootNamespace>SessionDashboard</RootNamespace>
     <Product>Nexa</Product>
-    <Title>Nexa</Title>
+    <Title>nexa</Title>
     <Description>nexa — a space for whatever comes next</Description>
     <ApplicationIcon>assets\nexa-icon.ico</ApplicationIcon>
     <Version>0.0.31</Version>

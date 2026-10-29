@@ -1,4 +1,4 @@
-# Nexa 0.0.31 Alpha — implementation status
+# nexa 0.0.31 Alpha — implementation status
 
 October 28, 2026. Local/unpublished Alpha. Starting HEAD `328dfacdc37647b71441f76b892122016c11d026`; application/test implementation checkpoint **`c1145c8fa3e1f37470712f8646ea76e91444216f`** on `codex/nexa-031-integrity-ecosystem`. Reports/evidence follow separately. No push, public release, tag mutation, Beta, approved executable promotion or shortcut replacement occurred.
 

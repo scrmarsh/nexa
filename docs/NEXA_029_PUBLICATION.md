@@ -1,4 +1,4 @@
-# Nexa v0.0.29 Alpha — NEXAWEEN: Interface Polish prerelease
+# nexa v0.0.29 Alpha — NEXAWEEN: Interface Polish prerelease
 
 Published with the user's explicit authorization on October 28, 2026, 5:01 PM America/Chicago (2026-10-28T22:01:16Z).
 

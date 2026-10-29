@@ -49,7 +49,7 @@ internal static class GoogleAuthorization
                 if(first.Length>=2 && first[0]=="GET" && first[1].StartsWith("/?",StringComparison.Ordinal))
                     try { query=ParseQuery(first[1][1..]); } catch(ArgumentException) { }
                 var valid=query.GetValueOrDefault("state")==state;
-                var text=valid?"Nexa received your response. You can close this tab and return to the app.":"Invalid authorization response.";
+                var text=valid?"nexa received your response. You can close this tab and return to the app.":"Invalid authorization response.";
                 var response=Encoding.ASCII.GetBytes($"HTTP/1.1 {(valid?"200 OK":"400 Bad Request")}\r\nContent-Type: text/plain\r\nContent-Length: {text.Length}\r\nConnection: close\r\nCache-Control: no-store\r\n\r\n{text}");
                 await stream.WriteAsync(response,token);
                 if(!valid) continue;
@@ -59,7 +59,7 @@ internal static class GoogleAuthorization
             var exchange=new Dictionary<string,string> { ["client_id"]=app.ClientId,["code"]=code,["code_verifier"]=verifier,["redirect_uri"]=redirect,["grant_type"]="authorization_code" };
             if(app.ClientSecret.Length>0) exchange["client_secret"]=app.ClientSecret;
             using var result=await Http.PostAsync("https://oauth2.googleapis.com/token",new FormUrlEncodedContent(exchange),token);
-            if(!result.IsSuccessStatusCode) throw new IntegrationException("Google could not authorize Nexa. Check your desktop app configuration and try again.");
+            if(!result.IsSuccessStatusCode) throw new IntegrationException("Google could not authorize nexa. Check your desktop app configuration and try again.");
             using var document=JsonDocument.Parse(await result.Content.ReadAsStringAsync(token)); var root=document.RootElement;
             var access=IntegrationClient.Text(root,"access_token"); if(access.Length==0) throw new IntegrationException("Google returned no authorization.");
             if(root.ValueKind!=JsonValueKind.Object || !root.TryGetProperty("expires_in",out var expiry) || expiry.ValueKind!=JsonValueKind.Number || !expiry.TryGetInt32(out var seconds) || seconds<=0) throw new IntegrationException("Google returned incomplete authorization. Try connecting again.");

@@ -13,7 +13,7 @@ internal sealed class NexaLogo : FrameworkElement
     private readonly DrawingImage normalLogo,seasonalLogo,normalLight,seasonalLight;
     internal NexaLogo()
     {
-        normalLogo=Load("nexa-logo-full-dark.svg");seasonalLogo=Load("nexa-logo-full-dark-seasonal.svg");normalLight=Load("nexa-logo-full-dark.svg",true);seasonalLight=Load("nexa-logo-full-dark-seasonal.svg",true);System.Windows.Automation.AutomationProperties.SetName(this,"Nexa full logo");
+        normalLogo=Load("nexa-logo-full-dark.svg");seasonalLogo=Load("nexa-logo-full-dark-seasonal.svg");normalLight=Load("nexa-logo-full-dark.svg",true);seasonalLight=Load("nexa-logo-full-dark-seasonal.svg",true);System.Windows.Automation.AutomationProperties.SetName(this,"nexa full logo");
     }
     private static readonly Dictionary<(string,bool),DrawingImage> cached=[];
     private static DrawingImage Load(string asset,bool light=false)

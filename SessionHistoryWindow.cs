@@ -28,7 +28,7 @@ internal sealed class SessionHistoryWindow : NexaPanel
     internal SessionHistoryWindow(Window owner, StateStore store, MainWindow? space = null, Action<Guid>? openSpace = null)
     {
         this.store = store; this.space = space; this.openSpace = openSpace;
-        Owner = owner; Title = space == null ? "Nexa · History" : "Nexa · Notes & History";
+        Owner = owner; Title = space == null ? "nexa · History" : "nexa · Notes & History";
         Width = 1080; Height = 740; MinWidth = 700; MinHeight = 480; WindowStartupLocation = WindowStartupLocation.CenterOwner;
         var root = new DockPanel { Margin = new Thickness(22) };
         var header = new TextBlock { Text = "Notes & History", FontSize = 26, Margin = new Thickness(0, 0, 0, 14) }; DockPanel.SetDock(header, Dock.Top); root.Children.Add(header);

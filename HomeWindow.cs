@@ -48,7 +48,7 @@ internal sealed partial class HomeWindow : NexaDialog
         footer.Children.Add(left);
         var utilities = new WrapPanel { HorizontalAlignment = HorizontalAlignment.Right };
         Button Utility(string text, Action action) { var button = new Button { Content = text == "View History" ? NexaIcons.Label("History") : text, Padding = new Thickness(14, 9, 14, 9), Margin = new Thickness(8, 0, 0, 0) }; button.Click += (_, _) => action(); utilities.Children.Add(button); return button; }
-        Utility("View History", OpenHistory); Utility("About Nexa", OpenAbout); var developer = Utility("DEV", OpenDeveloperDashboard); developer.Opacity = .7;
+        Utility("View History", OpenHistory); Utility("About nexa", OpenAbout); var developer = Utility("DEV", OpenDeveloperDashboard); developer.Opacity = .7;
         Grid.SetColumn(utilities, 2); footer.Children.Add(utilities);
         var homeLayout = new Grid { Margin = new Thickness(60, 0, 60, 20), MaxWidth = 960 };
         homeLayout.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
@@ -72,7 +72,7 @@ internal sealed partial class HomeWindow : NexaDialog
 
     private void OpenSettingsOld()
     {
-        var dialog = new NexaDialog { Owner = this, Title = "Nexa", Width = 760, Height = 560, MinWidth = 620, MinHeight = 460, WindowStartupLocation = WindowStartupLocation.CenterOwner };
+        var dialog = new NexaDialog { Owner = this, Title = "nexa", Width = 760, Height = 560, MinWidth = 620, MinHeight = 460, WindowStartupLocation = WindowStartupLocation.CenterOwner };
         var root = new Grid(); root.ColumnDefinitions.Add(new() { Width = new GridLength(180) }); root.ColumnDefinitions.Add(new());
         var navigation = new StackPanel { Margin = new Thickness(18) };
         var cog = new TextBlock { Text = "\uE713", FontFamily = new FontFamily("Segoe MDL2 Assets"), FontSize = 30, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(10, 4, 0, 24), RenderTransformOrigin = new Point(.5, .5), RenderTransform = new RotateTransform() };
@@ -108,7 +108,7 @@ internal sealed partial class HomeWindow : NexaDialog
     }
     private void OpenSettingsLegacy()
     {
-        var dialog = new NexaDialog { Owner = this, Title = "Nexa · Settings", Width = 440, Height = 300, MinWidth = 380, MinHeight = 260, WindowStartupLocation = WindowStartupLocation.CenterOwner };
+        var dialog = new NexaDialog { Owner = this, Title = "nexa · Settings", Width = 440, Height = 300, MinWidth = 380, MinHeight = 260, WindowStartupLocation = WindowStartupLocation.CenterOwner };
         var panel = new StackPanel { Margin = new Thickness(24) };
         panel.Children.Add(new TextBlock { Text = "Appearance", FontSize = 22, FontWeight = FontWeights.SemiBold });
         panel.Children.Add(new TextBlock { Text = "Theme", Margin = new Thickness(0, 18, 0, 6) });
@@ -263,7 +263,7 @@ internal sealed partial class HomeWindow : NexaDialog
     private void ImportDashboard()
     {
         if (!FlushSettingsForNavigation()) return;
-        var picker = new OpenFileDialog { Filter = "Nexa Space (*.nexa)|*.nexa" }; if (picker.ShowDialog(this) != true) return;
+        var picker = new OpenFileDialog { Filter = "nexa Space (*.nexa)|*.nexa" }; if (picker.ShowDialog(this) != true) return;
         try
         {
             if (new FileInfo(picker.FileName).Length > 10_000_000) throw new InvalidDataException("Space file exceeds the 10 MB limit.");

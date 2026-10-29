@@ -22,10 +22,10 @@ An incomplete newer package now raises an explicit metadata/asset error instead 
 
 For affected old numeric-only installations, a one-time verified portable replacement is required:
 
-1. Save current work and close Nexa through its normal save/close flow.
+1. Save current work and close nexa through its normal save/close flow.
 2. Obtain the already published [.29 portable executable](https://github.com/scrmarsh/nexa/releases/download/v0.0.29-alpha/Nexa.exe), which includes canonical Alpha comparison, from the official repository.
 3. Verify SHA-256 `badbdb24fc0345cc6ed00c27cc873bb92068f27194ca23f25452cba0f57cd9cd` against the official release asset/checksum.
-4. Keep the old executable as a rollback copy and replace only the closed executable. Do not uninstall Nexa or delete/move its user-data/profile folders.
+4. Keep the old executable as a rollback copy and replace only the closed executable. Do not uninstall nexa or delete/move its user-data/profile folders.
 5. Launch the fixed executable and use Settings → Updates for later eligible, approved releases.
 
 This is a portable bridge, not a reinstall or a recommendation to erase user data. .31 is local/unpublished and is not advertised as a downloadable public update. A remote compatibility plan that retains the legacy URLs is [prepared for approval](NEXA_031_VERSION_MIGRATION.md).

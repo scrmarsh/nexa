@@ -18,7 +18,7 @@ internal sealed class DashboardCreation : NexaPanel
     private readonly WrapPanel templateGrid = new();
     public DashboardCreation(Window owner, string userId, UserProfile? profile = null)
     {
-        Owner = owner; Title = "Nexa · Create Space"; Width = 820; Height = 760; MinHeight = 560; MinWidth = 620; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        Owner = owner; Title = "nexa · Create Space"; Width = 820; Height = 760; MinHeight = 560; MinWidth = 620; WindowStartupLocation = WindowStartupLocation.CenterOwner;
         var custom = new DashboardTemplate("New Space", "Start from a blank canvas and pick what you want.", "#69ACFF", []);
         options = [custom, .. DashboardTemplates.All.Where(t => t.Name != "Argo Pantry")];
         selectedTemplate = custom;

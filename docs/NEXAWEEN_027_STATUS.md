@@ -1,4 +1,4 @@
-# Nexa v0.0.27 Alpha — NEXAWEEN status
+# nexa v0.0.27 Alpha — NEXAWEEN status
 
 October 28, 2026. **Unpublished development; automated verification passed,
 manual acceptance remains open. This is not an accepted release or Beta.**
@@ -13,7 +13,7 @@ manual acceptance remains open. This is not an accepted release or Beta.**
 - Final source checkpoint: see the .27 commit on this branch (`git log -1`).
 - Original continuation had no uncommitted changes. Outer workspace tools,
   approved binaries, archived builds, live data, credentials and release history
-  were not changed. Initial sandbox access to `M:/Nexa` failed; a subsequent
+  were not changed. Initial sandbox access to `M:/nexa` failed; a subsequent
   read-only check with command-scoped Git ownership handling succeeded. Its HEAD
   remains `a308076` on `codex/nexa-026-alpha`; all 26 modified tracked / four
   untracked source files match inherited recovery checkpoint `99a9c3a` by Git
@@ -21,7 +21,7 @@ manual acceptance remains open. This is not an accepted release or Beta.**
 
 ## Completed changes
 
-- Current shared label is **Nexa v0.0.27 Alpha**. Assembly/file versions are
+- Current shared label is **nexa v0.0.27 Alpha**. Assembly/file versions are
   `0.0.27.0`; informational version is `0.0.27-alpha` plus Git provenance.
   Manifest, Home/dashboard/splash titles, About/Settings shared displays and
   current documentation agree. No separate version service was introduced.

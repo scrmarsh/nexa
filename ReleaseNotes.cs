@@ -4,8 +4,8 @@ internal sealed record ReleaseNote(string Version, string Date, string Title, st
 
 internal static class ReleaseNotes
 {
-    internal const string Description = "Nexa is a local desktop app for building flexible Spaces with sessions, movable widgets, notes, Scripture, flashcards, recordings and saved history.";
-    internal const string UseCases = "Use Nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
+    internal const string Description = "nexa is a local desktop app for building flexible Spaces with sessions, movable widgets, notes, Scripture, flashcards, recordings and saved history.";
+    internal const string UseCases = "Use nexa for classroom lessons, study and focus sessions, church meetings, team discussions and work shifts. Build a Space around the information you need, edit it directly, and continue your saved work later.";
     internal static readonly ReleaseNote[] All =
     [
         new("0.0.31", "October 28, 2026", "Release Integrity & Ecosystem Evolution", "Local Alpha refinement. Google/Microsoft account work is deferred by user request; live and hardware acceptance remains open.",
@@ -158,7 +158,7 @@ internal static class ReleaseNotes
             "Only one maximize control appears; maximized navigation has top clearance, Home utility actions stay at the bottom, and menus drag from blank space.",
             "A local Water Bottle Counter tracks bottles and a directly adjustable goal per Space."
         ]),
-        new("0.0.10", "October 3, 2026", "Interface & Navigation Cleanup", "Makes Nexa's internal panels, Home and dashboard navigation cleaner and more consistent.",
+        new("0.0.10", "October 3, 2026", "Interface & Navigation Cleanup", "Makes nexa's internal panels, Home and dashboard navigation cleaner and more consistent.",
         [
             "Settings, Add Widgets, History, Changelog and About use shared panel chrome with a persistent bottom-left Close button.",
             "Escape and outside clicks dismiss the topmost panel. Outside clicks are consumed so Add Widgets cannot reopen from the same click.",
@@ -167,7 +167,7 @@ internal static class ReleaseNotes
             "Home removes greetings and its duplicate Changelog link. Recent Spaces starts with four compact cards and expands with More.",
             "Subtle centered dashboard tips leave widget layout and pointer input untouched. Session timing, autosave and saved data are preserved."
         ]),
-        new("0.0.9", "October 3, 2026", "Versioning & Session Stability", "Introduces Nexa's Alpha version numbering system, improves release history and version labeling, and fixes active-session state handling and settings persistence.",
+        new("0.0.9", "October 3, 2026", "Versioning & Session Stability", "Introduces nexa's Alpha version numbering system, improves release history and version labeling, and fixes active-session state handling and settings persistence.",
         [
             "One shared Alpha version label across Home, About, splash and release history.",
             "Settings recognizes the existing session from the dashboard or Home without creating or restarting it.",
@@ -197,14 +197,14 @@ internal static class ReleaseNotes
             "Google Calendar shows today's schedule plus current and next timed events with read-only access. Google connections require a desktop OAuth client configuration.",
             "Dedicated Integrations settings and Windows DPAPI credential storage keep optional accounts separate from dashboard exports and local core features."
         ]),
-        new("0.0.5", "October 2, 2026", "Focus First", "Makes Nexa simpler and more focused with a signature Pixel Timer, calmer defaults and optional focus tools.",
+        new("0.0.5", "October 2, 2026", "Focus First", "Makes nexa simpler and more focused with a signature Pixel Timer, calmer defaults and optional focus tools.",
         [
             "The signature Pixel Timer is a full-width banner using the existing session clock; Pixel Swarm remains connected to its pixels.",
             "New Class, Study, Focus, Church and Meeting Spaces start with fewer widgets; every supported widget remains available.",
             "Stationary neighbors and a grid placement preview make widget movement predictable. Resizing preserves useful minimums and saved dimensions.",
             "Click the countdown to edit session timing or the clock for a quick seconds toggle. Widget actions appear on hover or keyboard focus.",
             "Focus Reset offers five gentle breaths and a local notes/time recap. Optional return-to-app nudges have a ten-minute cooldown.",
-            "Opt-in soft interface sounds, reusable vector controls and Per-Monitor V2 awareness keep Nexa calm and sharp."
+            "Opt-in soft interface sounds, reusable vector controls and Per-Monitor V2 awareness keep nexa calm and sharp."
         ]),
         new("0.0.4", "October 2, 2026", "Polish and Bug Fixes", "Spaces become more personal, responsive and useful for study and live sessions.",
         [
@@ -214,7 +214,7 @@ internal static class ReleaseNotes
             "The responsive grid reflows minimized cards, supports wider useful widget sizes and keeps Bible and long Session Notes content scrollable where needed.",
             "Clock cards gain a responsive analog face. Session Notes show chronological interval summaries and support optional Hedy or consent-based local recording.",
             "Flashcards add local decks, card editing, study controls, progress, review state and CSV or JSON import.",
-            "Light mode contrast, themed checkboxes, story mode, autosave feedback, common dialogs and Space terminology have been polished throughout Nexa."
+            "Light mode contrast, themed checkboxes, story mode, autosave feedback, common dialogs and Space terminology have been polished throughout nexa."
         ]),
         new("0.0.3", "October 2, 2026", "Session Workspace Polish", "A more direct, polished session workspace.",
         [
@@ -222,7 +222,7 @@ internal static class ReleaseNotes
             "Readable widget sizes, three-column layouts, rounded cards, small gaps and faster scrolling keep dashboard data accessible.",
             "The session name sits beside the logo; Home and Session are centered. Countdown and EDIT are inside the pixel timer.",
             "Session settings have separate Timing, Presets, Colors, Display, Hedy and Dashboard pages. Save color applies and saves dashboard colors immediately.",
-            "Nexa colors stay consistent across the app and menus. Dashboard main and accent/pixel colors remain customizable.",
+            "nexa colors stay consistent across the app and menus. Dashboard main and accent/pixel colors remain customizable.",
             "Home and dashboard keep their size when switching. Matching minimize, maximize/restore and close icons appear throughout the app.",
             "Hedy joins the session timeline with API setup in settings. Bible and other unsuitable widgets no longer minimize; Pomodoro cards migrate to normal timers.",
             "Home gains an animated tagline, themed About and release-history menus. Preview lives in About; History is at the bottom of Home."

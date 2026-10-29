@@ -42,10 +42,10 @@ public partial class MainWindow
         if (recordingActive) return;
         if (!microphoneConsentGranted)
         {
-            var dialog = Dialog("Nexa · Microphone access", 480, 300);
+            var dialog = Dialog("nexa · Microphone access", 480, 300);
             var body = new StackPanel { Margin = new Thickness(24) };
             body.Children.Add(new TextBlock { Text = "Allow microphone recording?", FontSize = 22, FontWeight = FontWeights.SemiBold });
-            body.Children.Add(new TextBlock { Text = "Nexa will record audio only after you allow it. The recording stays on this PC and is never uploaded. You can stop or delete it at any time.", TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("MutedBrush"), Margin = new Thickness(0, 12, 0, 22) });
+            body.Children.Add(new TextBlock { Text = "nexa will record audio only after you allow it. The recording stays on this PC and is never uploaded. You can stop or delete it at any time.", TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("MutedBrush"), Margin = new Thickness(0, 12, 0, 22) });
             var actions = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
             var cancel = new Button { Content = "Cancel", MinWidth = 90, Margin = new Thickness(0, 0, 8, 0) }; cancel.Click += (_, _) => dialog.CloseWithFade(); actions.Children.Add(cancel);
             var allow = new Button { Content = "Allow microphone", MinWidth = 140, Style = (Style)FindResource("PrimaryButton") }; allow.Click += (_, _) => { microphoneConsentGranted = true; dialog.CloseWithFade(); BeginLocalRecording(); }; actions.Children.Add(allow);

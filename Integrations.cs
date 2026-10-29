@@ -33,7 +33,7 @@ internal sealed class IntegrationVault(StateStore store)
         var path=PathFor(service); Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         byte[] encrypted;
         try { encrypted=ProtectedData.Protect(JsonSerializer.SerializeToUtf8Bytes(value),Entropy,DataProtectionScope.CurrentUser); }
-        catch(CryptographicException) { throw new IntegrationException("Windows secure storage is unavailable. Run Nexa in your normal Windows account and try again."); }
+        catch(CryptographicException) { throw new IntegrationException("Windows secure storage is unavailable. Run nexa in your normal Windows account and try again."); }
         var temporary=path+"."+Guid.NewGuid().ToString("N")+".tmp";
         try { File.WriteAllBytes(temporary,encrypted); File.Move(temporary,path,true); }
         finally { if(File.Exists(temporary)) File.Delete(temporary); }

@@ -1,4 +1,4 @@
-# Nexa 0.0.29 Alpha — test results
+# nexa 0.0.29 Alpha — test results
 
 Latest prerelease verification: **19 routes / 786 assertions** on published source commit 496dea2db01d4d59832febe5780dacebadd1e88f; clean Release build and packaged startup passed. See the [publication record](NEXA_029_PUBLICATION.md). The earlier development checkpoint below remains historical evidence.
 

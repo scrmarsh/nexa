@@ -118,7 +118,7 @@ public partial class MainWindow
     private void OpenIntervalNotes(Session session, int first, int count)
     {
         if (noteWindows.TryGetValue((session, first), out var existing)) { existing.Activate(); return; }
-        var editor = new NexaDialog { Title = count == 1 ? $"Nexa · Interval {first + 1} · Notes" : $"Nexa · Intervals {first + 1}–{first + count} · Notes", Width = 640, Height = 620, MinWidth = 400, MinHeight = 350, Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = Brush("BackgroundBrush"), Foreground = Brush("TextBrush") };
+        var editor = new NexaDialog { Title = count == 1 ? $"nexa · Interval {first + 1} · Notes" : $"nexa · Intervals {first + 1}–{first + count} · Notes", Width = 640, Height = 620, MinWidth = 400, MinHeight = 350, Owner = this, WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = Brush("BackgroundBrush"), Foreground = Brush("TextBrush") };
         var panel = new StackPanel { Margin = new Thickness(22) };
         for (var i = first; i < first + count; i++)
         {

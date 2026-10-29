@@ -1,4 +1,4 @@
-# Nexa 0.1.24 Alpha — final-prompt repair candidate
+# nexa 0.1.24 Alpha — final-prompt repair candidate
 
 **Status: critical-repair candidate verified for its implemented scope; final-release acceptance remains open.**
 
@@ -55,7 +55,7 @@ The following are **unfinished or unverified**, and block labeling this the fina
 
 Manual checks still required: real sleep/hibernate/power interruption, actual mouse/trackpad interaction, mixed-DPI/multi-monitor/taskbar/fullscreen cases, native dragging/resizing, physical sound output, live account/microphone/transcription flows and long memory/GPU sessions. Synthetic clock/restart tests do not substitute for these.
 
-The source is prepared as a reviewable candidate. Close an older Nexa instance before manually testing a candidate against the same saved workspace; packaging/startup verification uses isolated stores. No public release or production-release replacement is authorized by this pass.
+The source is prepared as a reviewable candidate. Close an older nexa instance before manually testing a candidate against the same saved workspace; packaging/startup verification uses isolated stores. No public release or production-release replacement is authorized by this pass.
 
 ## Files modified or added
 

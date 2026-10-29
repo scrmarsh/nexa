@@ -288,8 +288,8 @@ public sealed partial class StateStore
                     if (recoveredHistory) { preserveUnreadable = true; Warning = "Damaged archive entries are preserved for recovery; readable Spaces and reports are available."; }
                     var recoveredSnapshot = Continuity.RecoverSnapshots(workspace, UserId);
                     Continuity.ValidateWorkspace(workspace, UserId);
-                    if (!workspace.CleanShutdown) Warning = $"Nexa restored your last autosaved session from {workspace.SavedAt.LocalDateTime:g}.";
-                    if (recoveredSnapshot) { preserveUnreadable = true; Warning = "Nexa recovered damaged Space data from its latest valid autosave snapshot."; }
+                    if (!workspace.CleanShutdown) Warning = $"nexa restored your last autosaved session from {workspace.SavedAt.LocalDateTime:g}.";
+                    if (recoveredSnapshot) { preserveUnreadable = true; Warning = "nexa recovered damaged Space data from its latest valid autosave snapshot."; }
                     if (candidate != FilePath) Warning = "Recovered your last backup after the save file could not be read.";
                     var loaded = Continuity.Activate(workspace, UserId);
                     LoadCredentials(loaded);

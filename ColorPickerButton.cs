@@ -11,7 +11,7 @@ public sealed class ColorPickerButton : Button
 {
     private static readonly (string Name, string Hex)[] Palette =
     [
-        ("Nexa blue", "#5B7CFF"), ("Nexa violet", "#8B5CF6"), ("Electric indigo", "#6C7AEF"),
+        ("nexa blue", "#5B7CFF"), ("nexa violet", "#8B5CF6"), ("Electric indigo", "#6C7AEF"),
         ("Soft lilac", "#A855F7"), ("Sky blue", "#69ACFF"), ("Azure", "#3B82F6"),
         ("Mint", "#6AE58F"), ("Teal", "#14B8A6"), ("Amber", "#F59E0B"),
         ("Coral", "#F97370"), ("Rose", "#EC4899"), ("Slate", "#94A3B8")

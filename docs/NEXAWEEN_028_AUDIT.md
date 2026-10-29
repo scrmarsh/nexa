@@ -1,4 +1,4 @@
-# Nexa v0.0.28 Alpha — targeted audit
+# nexa v0.0.28 Alpha — targeted audit
 
 October 28, 2026. Completed before implementation. Clean starting branch
 `codex/nexa-027-nexaween`, HEAD `b9e68dfcc575e20cfed7a835daacfc0d498e9ca4`;

@@ -1,4 +1,4 @@
-# Nexa 0.0.30 Alpha — verification
+# nexa 0.0.30 Alpha — verification
 
 Starting source: `095c635f56e9f18d45793d5547518c23ec955360`. Final application/test source: **`1c15c39975c0d74a0e0995e329c7cbe06a6dcc3e`**, branch `codex/nexa-030-nexaween-refinement`. October 28, 2026. Local only; no GitHub publication or live user-data fixture.
 

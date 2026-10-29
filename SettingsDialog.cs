@@ -27,7 +27,7 @@ internal sealed partial class SettingsDialog : NexaPanel
         this.space = candidate != null && candidate.SettingsStore.UserId == store.UserId &&
             string.Equals(Path.GetFullPath(candidate.SettingsStore.FilePath), Path.GetFullPath(store.FilePath), StringComparison.OrdinalIgnoreCase) ? candidate : null;
         boundState = this.state;
-        Owner = owner; Title = "Nexa"; Width = 900; Height = 680; MinWidth = 700; MinHeight = 520; WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        Owner = owner; Title = "nexa"; Width = 900; Height = 680; MinWidth = 700; MinHeight = 520; WindowStartupLocation = WindowStartupLocation.CenterOwner;
         var root = new Grid(); root.ColumnDefinitions.Add(new() { Width = new GridLength(190) }); root.ColumnDefinitions.Add(new());
         var nav = new StackPanel { Margin = new Thickness(18) };
         nav.Children.Add(new TextBlock { Text = "\uE713", FontFamily = new FontFamily("Segoe MDL2 Assets"), FontSize = 30, Margin = new Thickness(10, 4, 0, 22), ToolTip = "Settings" });
@@ -108,7 +108,7 @@ internal sealed partial class SettingsDialog : NexaPanel
     }
     private UIElement BuildAppearance()
     {
-        var page = Page("Appearance", "Choose Nexa’s global light mode and app palette. Space colors and backgrounds remain independent.");
+        var page = Page("Appearance", "Choose nexa’s global light mode and app palette. Space colors and backgrounds remain independent.");
         store.LoadInteractionPreferences(state);
         var selectedMode = store.LoadThemeMode(); var selectedTheme = store.LoadAppTheme();
         var modes = new WrapPanel(); var themes = new WrapPanel();

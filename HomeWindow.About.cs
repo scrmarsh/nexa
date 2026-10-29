@@ -53,14 +53,14 @@ internal sealed partial class HomeWindow
         IsVisibleChanged+=(_,_)=>ReconcileTyping();StateChanged+=(_,_)=>ReconcileTyping();Closed+=(_,_)=>typing.Stop();
     }
 
-    private NexaDialog InfoDialog(string title, double width = 720, double height = 620) => new NexaPanel { Title = "Nexa · " + title, Owner = this, Width = width, Height = height, MinWidth = 540, MinHeight = 440, WindowStartupLocation = WindowStartupLocation.CenterOwner };
+    private NexaDialog InfoDialog(string title, double width = 720, double height = 620) => new NexaPanel { Title = "nexa · " + title, Owner = this, Width = width, Height = height, MinWidth = 540, MinHeight = 440, WindowStartupLocation = WindowStartupLocation.CenterOwner };
     private TextBlock Copy(string text, double size = 14) => new() { Text = text, FontSize = size, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)FindResource("MutedBrush"), Margin = new Thickness(0, 0, 0, 16), LineHeight = size * 1.55 };
 
     private void OpenAbout()
     {
-        var dialog = InfoDialog("About Nexa"); var root = new DockPanel();
+        var dialog = InfoDialog("About nexa"); var root = new DockPanel();
         var footer = new Grid { Margin = new Thickness(28, 16, 28, 24) }; footer.ColumnDefinitions.Add(new()); footer.ColumnDefinitions.Add(new() { Width = new GridLength(12) }); footer.ColumnDefinitions.Add(new());
-        var preview = new Button { Content = "Preview Nexa", MinHeight = 42, Style = (Style)FindResource("PrimaryButton") }; preview.Click += (_, _) => { dialog.Close(); OpenPreview(); }; footer.Children.Add(preview);
+        var preview = new Button { Content = "Preview nexa", MinHeight = 42, Style = (Style)FindResource("PrimaryButton") }; preview.Click += (_, _) => { dialog.Close(); OpenPreview(); }; footer.Children.Add(preview);
         var changes = new Button { Content = "Changelog", MinHeight = 42 }; changes.Click += (_, _) => { dialog.Close(); OpenChangelog(); }; Grid.SetColumn(changes, 2); footer.Children.Add(changes); DockPanel.SetDock(footer, Dock.Bottom); root.Children.Add(footer);
         var body = new StackPanel { Margin = new Thickness(28) };
         body.Children.Add(new NexaLogo { Width = 260, Height = 82, HorizontalAlignment = HorizontalAlignment.Left });
@@ -95,7 +95,7 @@ internal sealed partial class HomeWindow
         var dialog = InfoDialog("Changelog", 800, 720); var body = new StackPanel { Margin = new Thickness(28) };
         body.Children.Add(new TextBlock{Text=App.VersionLabel+" — "+ReleaseNotes.All[0].Title+" · prerelease",FontSize=22,FontWeight=FontWeights.Bold,TextWrapping=TextWrapping.Wrap});
         body.Children.Add(Copy("This Nexaween Alpha prerelease focuses on interface polish. Manual acceptance remains open; v0.1.0 is reserved for the first approved Beta.",15));
-        body.Children.Add(new TextBlock { Text = "What’s new in Nexa", FontSize = 27, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
+        body.Children.Add(new TextBlock { Text = "What’s new in nexa", FontSize = 27, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
         body.Children.Add(Copy("Release history · Windows desktop", 13));
         foreach (var release in ReleaseNotes.All)
         {

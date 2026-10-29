@@ -1,4 +1,4 @@
-# Nexa v0.1.26 alpha — handoff acceptance candidate
+# nexa v0.1.26 alpha — handoff acceptance candidate
 
 **Unpublished testing candidate. Full manual acceptance remains open. No publication, asset replacement, new tag or beta promotion is authorized or performed.**
 
@@ -16,7 +16,7 @@
 | Exact-package updater | 10 passed on disposable copies, including native startup and isolated restart |
 | Public discovery | 2 read-only checks passed; published package unchanged |
 
-The delivered folder includes checksum/provenance, a source archive, reports and synthetic verification evidence. The continuation branch can be reviewed independently of the original M:/Nexa working tree. Original uncommitted work, root executable, existing candidates, Approved Latest, archived builds, user data and credentials are preserved. Later documentation-only commits do not change the application/test source above.
+The delivered folder includes checksum/provenance, a source archive, reports and synthetic verification evidence. The continuation branch can be reviewed independently of the original M:/nexa working tree. Original uncommitted work, root executable, existing candidates, Approved Latest, archived builds, user data and credentials are preserved. Later documentation-only commits do not change the application/test source above.
 
 The release remains blocked from full acceptance by physical mixed-DPI/multi-monitor and complete interaction review, live integrations/microphone, genuine hibernate/crash recovery, private-data migration acceptance, subjective art/sound review and extended memory/FPS testing. Developer layout/teardown latency remains; final Developer median was slightly slower than baseline, while cold/tail latency improved. Publishing's NuGet vulnerability-data request was unavailable (NU1900); no successful online vulnerability audit is claimed.
 

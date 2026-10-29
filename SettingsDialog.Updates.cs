@@ -11,10 +11,10 @@ internal sealed partial class SettingsDialog
     private CancellationTokenSource usingCancellation = new();
     private UIElement BuildUpdates()
     {
-        var page = Page("Updates", "Check published Nexa releases and choose when to download and restart.");
+        var page = Page("Updates", "Check published nexa releases and choose when to download and restart.");
         page.Children.Add(new TextBlock { Text = "Current version: " + App.VersionLabel, FontSize = 16, Margin = new Thickness(0, 2, 0, 14) });
         var preferences = store.LoadUpdatePreferences();
-        var startup = new CheckBox { Content = "Check when Nexa starts", IsChecked = preferences.CheckOnStartup, Margin = new Thickness(0, 0, 0, 14) };
+        var startup = new CheckBox { Content = "Check when nexa starts", IsChecked = preferences.CheckOnStartup, Margin = new Thickness(0, 0, 0, 14) };
         startup.Click += (_, _) => { preferences.CheckOnStartup = startup.IsChecked == true; store.SaveUpdatePreferences(preferences); };
         page.Children.Add(startup);
         var channel=new ComboBox{ItemsSource=new[]{"Automatic","Alpha","Beta","Stable"},SelectedItem=preferences.Channel};
@@ -30,7 +30,7 @@ internal sealed partial class SettingsDialog
         var download = new Button { Content = "Download update", HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(14, 8, 14, 8), Margin = new Thickness(0, 12, 0, 0), Visibility = Visibility.Collapsed };
         page.Children.Add(download);
         var cancel = new Button { Content = "Cancel download", Visibility = Visibility.Collapsed, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 0) }; page.Children.Add(cancel);
-        var restart = new Button { Content = "Restart Nexa", Visibility = Visibility.Collapsed, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 0) }; page.Children.Add(restart);
+        var restart = new Button { Content = "Restart nexa", Visibility = Visibility.Collapsed, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 0) }; page.Children.Add(restart);
         usingCancellation = new CancellationTokenSource();
         Closed += (_, _) => usingCancellation.Cancel();
         CancellationTokenSource? downloadCancellation = null;
@@ -94,8 +94,8 @@ internal sealed partial class SettingsDialog
                 {
                     if (usingCancellation.IsCancellationRequested) return;
                     status.Text = "Download verified against the official GitHub asset digest.";
-                    if (new NexaConfirmation(this, "Prepare Nexa update?", $"Nexa {release.Version.ToString(3)} {release.Channel} is ready. Preparing backs up your local data and stages a verified executable. You choose when to restart and install.", "Prepare Update").ShowDialog() != true)
-                    { status.Text = "Installation canceled. Nexa is unchanged."; return; }
+                    if (new NexaConfirmation(this, "Prepare nexa update?", $"nexa {release.Version.ToString(3)} {release.Channel} is ready. Preparing backs up your local data and stages a verified executable. You choose when to restart and install.", "Prepare Update").ShowDialog() != true)
+                    { status.Text = "Installation canceled. nexa is unchanged."; return; }
                     if (!FlushPendingChanges() || space != null && !space.SaveForClose()) throw new IOException("Your current changes could not be saved. Nothing will be replaced.");
                     var target = Environment.ProcessPath ?? throw new IOException("Application path unavailable.");
                     if (!Path.GetFileName(target).Equals("Nexa.exe", StringComparison.OrdinalIgnoreCase)) throw new IOException("Portable updates require the published Nexa.exe, not a development host.");

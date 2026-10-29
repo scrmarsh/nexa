@@ -1,4 +1,4 @@
-# Nexa v0.0.28 Alpha — NEXAWEEN EVOLVED carry-forward
+# nexa v0.0.28 Alpha — NEXAWEEN EVOLVED carry-forward
 
 October 28, 2026. Continue from `codex/nexa-027-nexaween`, not the older published
 0.1.26 tree. Read [the .27 status](NEXAWEEN_027_STATUS.md) and
@@ -39,7 +39,7 @@ Verify actual HEAD and pending changes before work. .27 is not fully accepted.
   orange component and never add black strokes to wordmark letters.
 - No additional timer, score, save or theme bug was demonstrated in this audit.
   Costume-off bypass under explicit Halloween appearance was fixed in .27.
-- Initial sandbox access to `M:/Nexa` failed, but the final read-only scoped check
+- Initial sandbox access to `M:/nexa` failed, but the final read-only scoped check
   succeeded: HEAD a308076, 26 modified / four untracked source files, all 30 blobs
   match inherited checkpoint 99a9c3a. Recheck changes before future work; preserve
   both checkouts and approved packages.
