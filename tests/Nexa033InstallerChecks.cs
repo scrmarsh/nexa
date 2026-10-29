@@ -40,8 +40,8 @@ internal static partial class Program
         foreach(var tag in new[]{"v0.0.29-alpha","v0.0.31-alpha"})
         {
             var old=Path.GetFullPath(Path.Combine("verification","release-audit033",tag,"Nexa.exe"));
-            var portableRoot=Path.Combine(root,"legacy",tag);Directory.CreateDirectory(portableRoot);var portable=Path.Combine(portableRoot,"Nexa.exe");File.Copy(old,portable);
-            var helper=Path.Combine(root,"legacy-helper-"+tag+".exe");File.Copy(old,helper);
+            var portableRoot=Path.Combine(root,"legacy",tag);Directory.CreateDirectory(portableRoot);var portable=Path.Combine(portableRoot,"Nexa.exe");File.Copy(old,portable,true);
+            var helper=Path.Combine(root,"legacy-helper-"+tag+"-"+Guid.NewGuid().ToString("N")+".exe");File.Copy(old,helper);
             var legacyPlan=UpdateTransaction.Prepare(store,portable,bridge,UpdateTransaction.Hash(bridge),"0.0.33").GetAwaiter().GetResult();
             var prepared=JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(legacyPlan))!;prepared.ParentPid=int.MaxValue;UpdateTransaction.Save(legacyPlan,prepared);
             var info=new ProcessStartInfo(helper){UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden,ArgumentList={"--apply-update",legacyPlan}};
@@ -56,7 +56,7 @@ internal static partial class Program
         var resolver=InstallerUpdates.InstallTarget;InstallerUpdates.InstallTarget=()=>target;
         try
         {
-            var source=Path.Combine(root,"portable-current","nexa-portable.exe");Directory.CreateDirectory(Path.GetDirectoryName(source)!);File.Copy(Path.GetFullPath("verification/release033-final/Application/Nexa.exe"),source);var portableHash=UpdateTransaction.Hash(source);
+            var source=Path.Combine(root,"portable-current","nexa-portable.exe");Directory.CreateDirectory(Path.GetDirectoryName(source)!);File.Copy(Path.GetFullPath("verification/release033-final/Application/Nexa.exe"),source,true);var portableHash=UpdateTransaction.Hash(source);
             plan=InstallerUpdates.Prepare(store,source,candidate,UpdateTransaction.Hash(candidate),"0.0.33").GetAwaiter().GetResult();
             Assert(JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.MigratePortable,"Current portable mode stages a real installer migration with recovery data");
             rejected=false;try{UpdateTransaction.Apply(plan,_=>Task.FromResult(false),waitForParent:false).GetAwaiter().GetResult();}catch(IOException){rejected=true;}
