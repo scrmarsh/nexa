@@ -162,8 +162,17 @@ begin
   end;
 end;
 
-function FileAttributes(Name: String): LongWord;
+function NativeFileAttributes(Name: String): LongWord;
   external 'GetFileAttributesW@kernel32.dll stdcall';
+
+function FileAttributes(Name: String): LongWord;
+begin
+  if Copy(Name, 1, 4) <> '\\?\' then begin
+    if Copy(Name, 1, 2) = '\\' then Name := '\\?\UNC\' + Copy(Name, 3, Length(Name))
+    else Name := '\\?\' + Name;
+  end;
+  Result := NativeFileAttributes(Name);
+end;
 
 function RegularTree(Path: String): Boolean;
 var

@@ -7,3 +7,5 @@ Native installer tests run with a separate test product ID and verification-only
 Hardware limits: physical trackpad behavior, full actual 100/125/150% Appearance DPI matrix, mixed monitors and subjective appearance on other laptops are unverified. Synthetic layout/input checks are labeled as such. A successful Alpha verification does not establish universal device compatibility. No live data or approved install was used in destructive tests.
 
 The native upgrade audit also caught and repaired a WPF dispatcher deadlock in synchronous startup-health completion and padded Inno Setup version-resource text being rejected as a different product. Health completion is now awaited; identity fields trim padding without relaxing digest, product, architecture or numeric-version checks. Final verification uses the repaired source.
+
+The extended native fixture exposed long update-backup paths being mistaken for links by an unprefixed Win32 attribute check. The uninstaller now uses extended-length paths for that check while still refusing actual reparse points. The same fixture is rerun with its accumulated backup tree rather than discarding the condition.
