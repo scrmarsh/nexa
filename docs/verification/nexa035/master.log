@@ -1,0 +1,24 @@
+PASS: Weekly editor selects the upcoming Monday class
+PASS: Before-class countdown uses its saved cycle baseline
+PASS: At class start the number counts up from zero and pixels start empty
+PASS: During class elapsed digits count up while pixels fill upward
+PASS: Monday completion begins the full 46h45 next-class countdown
+PASS: Between-class pixels reach the final contiguous prefix before Wednesday
+PASS: Timer reading reconciles a missed class start even while a reset is blocked
+PASS: Opening a schedule mid-class selects the current occurrence
+PASS: Wednesday completion counts down 118h45 to Monday
+PASS: An overnight class remains current after midnight
+PASS: Spring DST class duration uses actual UTC instants
+PASS: Fall DST class duration includes the repeated hour once
+PASS: Empty weekday selection cannot overwrite a valid schedule
+PASS: Equal class start and end times are rejected
+PASS: Weekly schedule applies through a detached persisted workspace
+PASS: Editing a weekly schedule preserves report identity and note content
+PASS: Weekdays, times and automatic recurrence persist on the reusable preset
+PASS: Restart payload preserves recurrence, selected zone and widget coordinates
+PASS: The actual Pixel Timer counts down while its secondary timer shows elapsed time
+PASS: Rendered pixels remain a contiguous partially filled prefix
+PASS: Both legacy productivity placements render compact rings without default activity summaries
+PASS: The timer's real editor exposes weekday shortcuts and a save action
+PASS: One combined Productivity entry accepts both legacy widget kinds
+PASS: 23 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101615

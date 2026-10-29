@@ -1,0 +1,71 @@
+PASS: .32 uses shared lowercase Alpha metadata
+PASS: Appearance has one content scroll owner without nested page scrollers
+PASS: Previously saved Aurora global preference is restored
+PASS: Bottom-most Appearance option is fully reachable: Classic normal
+PASS: Footer does not overlap the final control: Classic normal
+PASS: Expanding content recalculates Appearance extent
+PASS: Collapsing content reduces extent without stale scrolling
+PASS: Bottom-most Appearance option is fully reachable: synthetic layout scale 1
+PASS: Footer does not overlap the final control: synthetic layout scale 1
+PASS: Bottom-most Appearance option is fully reachable: synthetic layout scale 1.25
+PASS: Footer does not overlap the final control: synthetic layout scale 1.25
+PASS: Bottom-most Appearance option is fully reachable: synthetic layout scale 1.5
+PASS: Footer does not overlap the final control: synthetic layout scale 1.5
+PASS: Bottom-most Appearance option is fully reachable: maximized
+PASS: Footer does not overlap the final control: maximized
+PASS: Theme color applies immediately and persists: Nexa
+PASS: Selection text uses the stronger black/white contrast for Nexa
+PASS: Theme color applies immediately and persists: Violet
+PASS: Selection text uses the stronger black/white contrast for Violet
+PASS: Theme color applies immediately and persists: Aurora
+PASS: Selection text uses the stronger black/white contrast for Aurora
+PASS: Theme color applies immediately and persists: Ember
+PASS: Selection text uses the stronger black/white contrast for Ember
+PASS: Theme Colors never overwrite Home or Space wallpapers
+PASS: Exactly four official themes stay accessible in nexaween
+PASS: Bottom-most Appearance option is fully reachable: nexaween
+PASS: Footer does not overlap the final control: nexaween
+PASS: nexaween retains its seasonal accent while the Classic choice is saved
+PASS: Restore default theme color preserves the original saved theme identity
+PASS: Bottom-most Appearance option is fully reachable: fullscreen host
+PASS: Footer does not overlap the final control: fullscreen host
+PASS: Theme default and wallpaper survive restart independently
+PASS: Existing decoder accepts png
+PASS: Existing decoder accepts jpg
+PASS: Existing decoder accepts bmp
+PASS: WebP uses the installed WIC decoder when available, otherwise preserves a safe fallback
+WEBP WIC support on this host: available
+PASS: Recovered duplicate background presets are removed from Home
+PASS: Cancel leaves wallpaper unchanged
+PASS: Corrupt image selection leaves the previous wallpaper unchanged
+PASS: Picker receives correct owner and temporarily releases/restores topmost: windowed
+PASS: Decoded image applies to Home immediately
+PASS: Picker receives correct owner and temporarily releases/restores topmost: fullscreen
+PASS: Decoded image applies to Home immediately
+PASS: Fit preserves image aspect ratio and persists
+PASS: Fill uses UniformToFill without distorting aspect ratio
+PASS: Home edits preserve both independent Space backgrounds
+PASS: Repeated preview refresh reuses a decoded frozen image
+PASS: Remove Image changes only the selected scope and never deletes the source file
+PASS: Choosing a custom image again retains its settings
+PASS: Custom Home image survives a restart
+PASS: Deleted image falls back without deleting its stored selection
+PASS: Restore Default resets Home only
+PASS: Classic/nexaween switching preserves the Home default choice
+PASS: Per-Space preset edits preserve Home and the other Space
+PASS: Session history restoration preserves the target Space wallpaper
+PASS: High-resolution wheel movement is proportional to delta and system line count
+PASS: Page-scroll and zero-line preferences are respected
+PASS: One rapid event is bounded to a viewport without animation accumulation
+PASS: Nested child receives a small gesture exactly once
+PASS: Direction reversal responds immediately without queued easing
+PASS: Same-frame precision deltas accumulate without being dropped by WPF's deferred scroll commands
+PASS: Parent resumes at the nested lower boundary without double scrolling
+PASS: Ten fine deltas travel the same distance as one physical wheel notch
+PASS: Global hidden scrollbar policy removes the visual gutter
+PASS: Hidden bars preserve full content extent and bottom reachability
+PASS: Native Page Down remains functional
+PASS: Zero input leaves both axes unchanged
+PASS: Horizontal scrollbar visuals are hidden too
+PASS: Hidden horizontal scrolling retains native horizontal commands
+PASS: 69 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101333

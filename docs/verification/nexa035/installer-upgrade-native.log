@@ -1,0 +1,33 @@
+PASS: Installer-update tests are limited to an isolated fixture
+PASS: No existing test registration is overwritten
+PASS: Native fixture Setup/uninstaller completes successfully
+PASS: Prior-version fixture has genuine .34 registration and binary metadata
+PASS: Installer update stages the verified candidate and rollback Setup
+PASS: Failed installed-app health runs the prior Setup and records rollback
+PASS: Rollback restores exact application bytes and Installed Apps version
+PASS: Failed installer upgrade preserves exact user-data bytes
+PASS: Successful upgrade advances registered and executable versions together
+PASS: Successful upgrade preserves data and registered installation identity
+PASS: Rerun Installer resolves the installed digest-verified cache
+PASS: Rerun Installer refuses a corrupt cached Setup
+PASS: Installer upgrade retains desktop and Start menu shortcuts
+PASS: Completed installer upgrade is idempotent
+PASS: Native fixture Setup/uninstaller completes successfully
+PASS: Unmodified v0.0.29-alpha helper accepts the migration bridge
+PASS: Legacy v0.0.29-alpha restart installs nexa while retaining the standalone migration copy
+PASS: Legacy v0.0.29-alpha migration preserves user data
+PASS: Legacy v0.0.29-alpha helper records a durable installed checkpoint
+PASS: Unmodified v0.0.31-alpha helper accepts the migration bridge
+PASS: Legacy v0.0.31-alpha restart installs nexa while retaining the standalone migration copy
+PASS: Legacy v0.0.31-alpha migration preserves user data
+PASS: Legacy v0.0.31-alpha helper records a durable installed checkpoint
+PASS: Native fixture Setup/uninstaller completes successfully
+PASS: Final fixture uninstall clears registration and keeps saves
+PASS: Current portable mode stages a real installer migration with recovery data
+PASS: Failed first installer migration removes only the new test installation and restores the exact portable executable
+PASS: Failed first migration preserves exact private data bytes
+PASS: Current portable migration installs registered nexa and preserves its portable source
+PASS: Successful current portable migration preserves user data
+PASS: Native fixture Setup/uninstaller completes successfully
+PASS: Current portable migration fixture removes its test registration afterward
+PASS: 32 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-103051

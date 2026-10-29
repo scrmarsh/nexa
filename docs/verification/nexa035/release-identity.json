@@ -1,0 +1,28 @@
+{
+  "SourceCommit": "6d4b6afef0958c55639126b35de616165c94bbcd",
+  "Packages": [
+    {
+      "File": "NexaSetup.exe",
+      "Size": 67511419,
+      "FileVersion": "0.0.35.0",
+      "InformationalVersion": "0.0.35.0",
+      "SHA256": "9DF4952B2A1D7C97B334C2AE2BC02011B67E06C877A5828FAED2BE5108D86D5F"
+    },
+    {
+      "File": "nexa-portable.exe",
+      "Size": 72797785,
+      "FileVersion": "0.0.35.0",
+      "InformationalVersion": "0.0.35-alpha+6d4b6afef0958c55639126b35de616165c94bbcd",
+      "SHA256": "F89F032DA072FE913F0CE869BDD34DFB836A24F1376FCDA866A8D0B8CF8C005A"
+    },
+    {
+      "File": "Nexa.exe",
+      "Size": 105079432,
+      "FileVersion": "0.0.35.0",
+      "InformationalVersion": "0.0.35-alpha+6d4b6afef0958c55639126b35de616165c94bbcd",
+      "SHA256": "A45BC864DF5A9BF34223A188CD2E2A0CA176DBF12B3BA98D496B8D416F6D9174"
+    }
+  ],
+  "Signed": false,
+  "PortableEqualsInstalled": true
+}

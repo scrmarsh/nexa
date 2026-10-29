@@ -1,0 +1,110 @@
+PASS: .35 label and Windows assembly identity agree
+PASS: Exact Classic tagline has a soft glyph-shaped white halo
+PASS: Default charcoal is one shade darker
+PASS: Default Home has no thick blue frame
+PASS: User-selected solid wallpaper color stays intact
+PASS: Name editor is centered with a large centered input
+PASS: Cancel leaves the saved display name intact
+PASS: Blank name validation keeps the editor open
+PASS: Display name is durably saved
+PASS: Integrations shows one Hedy recording provider and one genuine Hevy workout provider
+PASS: Hevy retains its separately labeled connection
+PASS: Upgrade skips the unrelated Living Worlds game and preserves its original bytes
+PASS: Owned ecosystem state migrates without renaming compatibility identifiers or changing originals
+PASS: Fresh/upgrade ecosystem opens create no Living Worlds directory
+PASS: Header icon centers with the name at 16 DIP: Graduation cap
+PASS: Header icon centers with the name at 20 DIP: Graduation cap
+PASS: Header icon centers with the name at 24 DIP: Graduation cap
+PASS: Header icon centers with the name at 16 DIP: Briefcase
+PASS: Header icon centers with the name at 20 DIP: Briefcase
+PASS: Header icon centers with the name at 24 DIP: Briefcase
+PASS: Header icon centers with the name at 16 DIP: Palette
+PASS: Header icon centers with the name at 20 DIP: Palette
+PASS: Header icon centers with the name at 24 DIP: Palette
+PASS: Primary dashboard navigation has exactly Home, Settings and Session
+PASS: Only the bottom Add Widget action is visible
+PASS: Viewer bars hidden: PART_ContentHost /  / Hidden / Hidden
+PASS: Viewer bars hidden: WidgetScroller /  / Hidden / Disabled
+PASS: Viewer bars hidden: PART_ContentHost /  / Hidden / Hidden
+PASS: Viewer bars hidden:  / WidgetBody / Disabled / Disabled
+PASS: Viewer bars hidden: PART_ContentHost /  / Hidden / Disabled
+PASS: Viewer bars hidden:  /  / Hidden / Disabled
+PASS: Viewer bars hidden: PART_ContentHost /  / Hidden / Disabled
+PASS: Viewer bars hidden: PART_ContentHost /  / Hidden / Hidden
+PASS: Viewer bars hidden:  / WidgetBody / Disabled / Disabled
+PASS: Viewer bars hidden: PART_ContentHost /  / Hidden / Disabled
+PASS: Viewer bars hidden: PART_ContentHost /  / Hidden / Hidden
+PASS: Viewer bars hidden:  / WidgetBody / Disabled / Disabled
+PASS: Viewer bars hidden: PART_ContentHost /  / Hidden / Hidden
+PASS: Viewer bars hidden:  /  / Hidden / Disabled
+PASS: Viewer bars hidden:  /  / Hidden / Disabled
+PASS: Timeline builds all 3 intervals
+PASS: Expanded timeline can display 3 intervals without internal scrolling
+PASS: Timeline builds all 6 intervals
+PASS: Expanded timeline can display 6 intervals without internal scrolling
+PASS: Timeline builds all 10 intervals
+PASS: Expanded timeline can display 10 intervals without internal scrolling
+PASS: Timeline builds all 14 intervals
+PASS: Resized timeline dimensions persist
+PASS: Wheel input on the sibling bug overlay routes into the dashboard scroller
+PASS: Scrolling over a bug moves the dashboard
+PASS: Cancel keeps the same active session
+PASS: Switching Space with a pending end confirmation commits normally
+PASS: A Space switch dismisses the stale confirmation without ending the newly active session
+PASS: Repeated Home clicks open only one confirmation
+PASS: End Session finalizes before opening its saved recap
+PASS: Repeated finalization and Return to Dashboard do not duplicate completed sessions
+PASS: Compact History recap uses stored actions without changing the record
+PASS: Fullscreen exposes the compact inline Windows volume slider
+PASS: Failed checkpoint never claims that an active session was finalized
+PASS: Finalization can be retried after the fixture file is unlocked
+PASS: Recap Return to Home completes saved navigation
+PASS: Prepared Home  Space transition completes
+PASS: Destination stays opaque after reveal
+PASS: Reduced motion uses atomic direct presentation; animated entry uses a snapshot crossfade
+PASS: Fullscreen transfer survives navigation
+PASS: Prepared Home  Space transition completes
+PASS: Destination stays opaque after reveal
+PASS: Reduced motion uses atomic direct presentation; animated entry uses a snapshot crossfade
+PASS: Fullscreen transfer survives navigation
+PASS: Prepared Home  Space transition completes
+PASS: Destination stays opaque after reveal
+PASS: Reduced motion uses atomic direct presentation; animated entry uses a snapshot crossfade
+PASS: Fullscreen transfer survives navigation
+PASS: Prepared Home  Space transition completes
+PASS: Destination stays opaque after reveal
+PASS: Reduced motion uses atomic direct presentation; animated entry uses a snapshot crossfade
+PASS: Fullscreen transfer survives navigation
+PASS: Prepared Home  Space transition completes
+PASS: Destination stays opaque after reveal
+PASS: Reduced motion uses atomic direct presentation; animated entry uses a snapshot crossfade
+PASS: Fullscreen transfer survives navigation
+PASS: Prepared Home  Space transition completes
+PASS: Destination stays opaque after reveal
+PASS: Reduced motion uses atomic direct presentation; animated entry uses a snapshot crossfade
+PASS: Fullscreen transfer survives navigation
+PASS: Prepared Home  Space transition completes
+PASS: Destination stays opaque after reveal
+PASS: Reduced motion uses atomic direct presentation; animated entry uses a snapshot crossfade
+PASS: Fullscreen transfer survives navigation
+PASS: Prepared Home  Space transition completes
+PASS: Destination stays opaque after reveal
+PASS: Reduced motion uses atomic direct presentation; animated entry uses a snapshot crossfade
+PASS: Fullscreen transfer survives navigation
+PASS: Roomy Home companion approaches the seasonal pumpkin's leg-span size
+PASS: Spider leg attaches along the cephalothorax behind the face
+PASS: Spider leg attaches along the cephalothorax behind the face
+PASS: Spider leg attaches along the cephalothorax behind the face
+PASS: Spider leg attaches along the cephalothorax behind the face
+PASS: Spider leg attaches along the cephalothorax behind the face
+PASS: Spider leg attaches along the cephalothorax behind the face
+PASS: Spider leg attaches along the cephalothorax behind the face
+PASS: Spider leg attaches along the cephalothorax behind the face
+PASS: Large Home pumpkin retains the original detailed image artwork
+PASS: Small background pumpkins use the flat vector decoration only
+PASS: Home companion follows saved Normal appearance without behavior changes
+PASS: Home companion follows saved Creepy appearance without behavior changes
+PASS: Home companion follows saved Halloween appearance without behavior changes
+Small companion: radius=34.56, point=438.56,378.56, territory=38.56,38.56,718.88,474.88, size=796,552
+PASS: Small Home keeps the complete spider footprint outside reserved controls
+PASS: 108 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101240

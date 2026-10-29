@@ -1,0 +1,8 @@
+{
+  "Assertions": 40,
+  "Setup": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\installer035-fixture\\NexaSetup.exe",
+  "Fixture": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\installer035-lifecycle-fixture",
+  "CurrentTokenIsAdministrator": false,
+  "OS": "Microsoft Windows NT 10.0.26300.0",
+  "CompletedUtc": "2026-10-29T15:28:43.4883469+00:00"
+}

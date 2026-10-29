@@ -1,0 +1,39 @@
+  Determining projects to restore...
+  Restored C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\SessionDashboard.csproj (in 167 ms).
+  1 of 2 projects are up-to-date for restore.
+  SessionDashboard -> C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\bin\Nexa024\Release\net10.0-windows\Nexa.dll
+  SessionDashboard.Checks -> C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\bin\Nexa024\Release\net10.0-windows\SessionDashboard.Checks.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:30.88
+nexa035: PASS: 108 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101240
+nexa034: PASS: 73 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101310
+nexa033: PASS: 33 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101322
+nexa032: PASS: 69 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101333
+laptop-audio: PASS: 93 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101343
+update-automation: PASS: 48 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101353
+nexa031: PASS: 33 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101400
+nexa030: PASS: 63 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101417
+nexa029: PASS: 87 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101435
+nexaween028: PASS: 39 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101447
+nexaween027: PASS: 51 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101454
+handoff026: PASS: 96 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101504
+pass026: PASS: 36 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101527
+alpha026: PASS: 30 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101537
+arrivals: PASS: 32 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101540
+audit025: PASS: 38 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101545
+final: PASS: 36 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101551
+followup-design: PASS: 31 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101601
+followup: PASS: 46 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101611
+master: PASS: 23 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101615
+reliability: PASS: 19 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101619
+core: PASS: 64 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101624
+continuity: PASS: 43 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101633
+shared: PASS: 10 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101715
+menus: PASS: 9 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101721
+ecosystem: PASS: 48 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101726
+animation: PASS: 50 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261029-101733
+Acceptance logs: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\acceptance-20261029-101240

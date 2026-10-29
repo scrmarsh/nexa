@@ -1,0 +1,143 @@
+{
+  "SourceCommit": "6d4b6afef0958c55639126b35de616165c94bbcd",
+  "Routes": [
+    {
+      "Route": "alpha026",
+      "Assertions": 30,
+      "Passed": true
+    },
+    {
+      "Route": "animation",
+      "Assertions": 50,
+      "Passed": true
+    },
+    {
+      "Route": "arrivals",
+      "Assertions": 32,
+      "Passed": true
+    },
+    {
+      "Route": "audit025",
+      "Assertions": 38,
+      "Passed": true
+    },
+    {
+      "Route": "continuity",
+      "Assertions": 43,
+      "Passed": true
+    },
+    {
+      "Route": "core",
+      "Assertions": 64,
+      "Passed": true
+    },
+    {
+      "Route": "ecosystem",
+      "Assertions": 48,
+      "Passed": true
+    },
+    {
+      "Route": "final",
+      "Assertions": 36,
+      "Passed": true
+    },
+    {
+      "Route": "followup-design",
+      "Assertions": 31,
+      "Passed": true
+    },
+    {
+      "Route": "followup",
+      "Assertions": 46,
+      "Passed": true
+    },
+    {
+      "Route": "handoff026",
+      "Assertions": 96,
+      "Passed": true
+    },
+    {
+      "Route": "laptop-audio",
+      "Assertions": 93,
+      "Passed": true
+    },
+    {
+      "Route": "master",
+      "Assertions": 23,
+      "Passed": true
+    },
+    {
+      "Route": "menus",
+      "Assertions": 9,
+      "Passed": true
+    },
+    {
+      "Route": "nexa029",
+      "Assertions": 87,
+      "Passed": true
+    },
+    {
+      "Route": "nexa030",
+      "Assertions": 63,
+      "Passed": true
+    },
+    {
+      "Route": "nexa031",
+      "Assertions": 33,
+      "Passed": true
+    },
+    {
+      "Route": "nexa032",
+      "Assertions": 69,
+      "Passed": true
+    },
+    {
+      "Route": "nexa033",
+      "Assertions": 33,
+      "Passed": true
+    },
+    {
+      "Route": "nexa034",
+      "Assertions": 73,
+      "Passed": true
+    },
+    {
+      "Route": "nexa035",
+      "Assertions": 108,
+      "Passed": true
+    },
+    {
+      "Route": "nexaween027",
+      "Assertions": 51,
+      "Passed": true
+    },
+    {
+      "Route": "nexaween028",
+      "Assertions": 39,
+      "Passed": true
+    },
+    {
+      "Route": "pass026",
+      "Assertions": 36,
+      "Passed": true
+    },
+    {
+      "Route": "reliability",
+      "Assertions": 19,
+      "Passed": true
+    },
+    {
+      "Route": "shared",
+      "Assertions": 10,
+      "Passed": true
+    },
+    {
+      "Route": "update-automation",
+      "Assertions": 48,
+      "Passed": true
+    }
+  ],
+  "RouteCount": 27,
+  "Assertions": 1308,
+  "BinaryFingerprintsUnchanged": true
+}

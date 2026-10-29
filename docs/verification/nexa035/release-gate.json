@@ -1,0 +1,23 @@
+{
+  "SourceCommit": "6d4b6afef0958c55639126b35de616165c94bbcd",
+  "Version": "0.0.35-alpha",
+  "RegressionRoutes": 27,
+  "RegressionAssertions": 1308,
+  "FocusedAssertions": 108,
+  "PackagedAssertions": 17,
+  "NativeInstallerLifecycle": 40,
+  "NativeUpgradeMigration": 32,
+  "ExecutedChecksPassed": true,
+  "FinalNativeDataUIRepeatComplete": false,
+  "PreviousNativeDataUIAssertions": 75,
+  "PreviousNativeDataUISourceCommit": "74f30f735bb98253397eec43c8088e1e95f6d75b",
+  "FinalNativeDataUIRepeatLimit": "Automatic approval review timed out before the repeat could launch. User explicitly chose delivery with this limit documented.",
+  "DataStorageSourcesUnchanged": true,
+  "PhysicalFlickerVerified": false,
+  "AllRequestedAcceptanceComplete": false,
+  "BetaReady": false,
+  "PublicReleaseApproved": false,
+  "Published": false,
+  "NuGetVulnerabilityFeedAvailable": false,
+  "CompletedUtc": "2026-10-29T15:36:03.6980425+00:00"
+}
