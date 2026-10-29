@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
   <title id="title">nexa v0.1.24 alpha — NEXAWEEN</title>
-  <desc id="desc">A space for whatever haunts you next. Purple background, neon green lettering, orange border, pale green details and witch purple accents, matching Nexa's seasonal changelog.</desc>
+  <desc id="desc">A space for whatever haunts you next. Purple background, neon green lettering, orange border, pale green details and witch purple accents, matching nexa's seasonal changelog.</desc>
   <rect x="2" y="2" width="1196" height="356" rx="28" fill="#1C102A" stroke="#F97316" stroke-width="4"/>
   <circle cx="1090" cy="95" r="54" fill="#A855F7" opacity=".2"/>
   <circle cx="1047" cy="77" r="5" fill="#D9F99D"/><circle cx="1130" cy="38" r="3" fill="#84CC16"/>
