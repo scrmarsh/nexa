@@ -16,7 +16,9 @@ try {
   $stdout=$process.StandardOutput.ReadToEndAsync();$stderr=$process.StandardError.ReadToEndAsync()
   $finished=$process.WaitForExit(180000)
   if(-not $finished){$process.Kill($true);$process.WaitForExit();$exitCode=124}else{$exitCode=$process.ExitCode}
-  $result=@(($stdout.GetAwaiter().GetResult() -split "`r?`n"),($stderr.GetAwaiter().GetResult() -split "`r?`n")) | Where-Object {$_ -ne ''}
+  $result=@($stdout.GetAwaiter().GetResult() -split "`r?`n")
+  $result+=@($stderr.GetAwaiter().GetResult() -split "`r?`n")
+  $result=@($result | Where-Object {$_ -ne ''})
   if(-not $finished){$result+='FAIL: Isolated route exceeded its 180-second deadline.'}
   $result | Set-Content -LiteralPath (Join-Path $logs ($route+'.log')) -Encoding utf8
   $process.Dispose()

@@ -1,0 +1,31 @@
+# nexa .34 — data, backup and installer policy
+
+The installed and portable downloads use the same application and update policy. The current-user installer places the program in `%LocalAppData%/Programs/nexa`; both delivery formats use `%LocalAppData%/Nexa` for private user data. A Windows-account mutex prevents simultaneous normal app instances from writing the same workspace.
+
+## Data layout and compatibility
+
+`Spaces/` contains intentional Space exports, `History/` contains refreshed readable Markdown copies, `Recordings/` retains user-scoped audio, and `Backups/` holds verified migration originals and their inventory. `Logs/` is reserved for diagnostics. The authoritative `state.json`, its credential sidecar, the ecosystem sidecar and `profiles/<account hash>/` keep their existing tested relative layout inside the new root. `Settings/` holds reset/import state; the ecosystem sidecar has not been split into a second competing database. This retains recording references, account scoping and DPAPI compatibility while consolidating the location.
+
+Migration inventories the old LocalAppData/SessionDashboard root and the owned Documents/nexa/Spaces and History folders. It verifies SHA-256 copies before adopting files, relinks structured recording/image references when their copied target exists, and preserves every original. A conflicting destination wins; the legacy version remains in the verified migration-originals backup, with conflicts counted in the inventory. An interrupted copy can be rerun. No migration or destructive test is run against the developer's live folders.
+
+Open Data Folder opens the canonical root. Open History Folder refreshes readable reports without changing the authoritative save. Export Space remains the intentional way to copy a dashboard; configuration-only sharing is the default and private notes require an explicit choice.
+
+## Export all data
+
+The user selects a new ZIP filename. Export checkpoints pending workspace edits and stops active local recordings so their files can be copied consistently. A save lock protects a sanitized checkpoint; compression and final verification run after releasing it. Recordings stream through bounded buffers. The ZIP manifest records format version, application version, UTC time, relative paths, lengths, SHA-256 values and recovery compatibility. The final filename appears only after verification. Cancellation and failure clean temporary ZIP/checkpoint files where the filesystem permits; an existing backup is never overwritten.
+
+Credential directories, credential sidecars, embedded managed secret fields, binaries, update/installer caches and raw migration/operational backups are excluded. Raw backups can contain encrypted credentials or older unsanitized records; they remain private in the data folder. The current authoritative Spaces/history, recordings, transcripts, settings, ecosystem and scores are included. Integrations need reconnection after recovery. External wallpaper files are not copied from unrelated personal folders; their saved selections remain in the settings. No destructive import feature is implemented.
+
+## Delete all data
+
+The adjacent Export and Delete buttons keep backup separate from deletion consent. Exact uppercase CONFIRM arms a 30-second countdown; Delete Now is available only after that confirmation. Cancel or closing the pending dialog cancels the operation. The backend verifies the owned canonical root, user ownership and every directory entry before deletion, rejecting links/traversal. A durable import-disable marker is written before deleting any data, preventing a later restart from silently reimporting retained legacy originals. Pending writes/recording/sync are closed and late atomic writes are blocked for that root. Application/installer binaries, cloud content, unrelated folders and legacy originals outside the root are preserved. Locked-file failures are reported explicitly; the user closes nexa before retrying. Relaunch creates a fresh workspace without importing the old originals again.
+
+## Installer, repair and updates
+
+The classic wizard uses the supplied logo, official logo Blue/Purple and charcoal artwork. Repair Files is the second-page maintenance choice for an existing registered installation. Additional Tasks has independent Desktop and Start Menu choices. A separate discovery/preparation page inspects bounded Desktop, Downloads, known nexa document/install folders and the recorded install location, with a depth limit. It never crawls entire drives or executes discovered candidates. Unknown package identities and access errors remain reviewable; portable copies are preserved.
+
+Setup embeds the expected application SHA-256. Correct payload bytes are retained; missing/corrupt/different payloads are replaced from the embedded package. Native installation progress is separate from discovery. Completion requires application hash/registration/startup verification. Prior files, installer integrity information and registration version are retained for rollback. Default uninstall preserves data; explicit data removal requires the existing double confirmation. Current-user shortcuts are maintained independently.
+
+Updates use one published Alpha/Beta/Stable stream with canonical version ordering; there is no channel selector. Existing automatic-install consent, update notices, digest verification, save/rollback, Later and 30-second restart behavior remain. Rerun Installer first verifies the cached Setup against installed integrity metadata, then can fetch a digest-verified published installer of the current version. An unpublished local Alpha has no public fallback package. Rerunning coordinates saving and app exit and does not silently remove portable copies or cloud/user content.
+
+Native tests use a separate test AppId, app/data sibling folders under verification, and an explicit fixture marker. Their preparation lock is isolated from the running production app. Synthetic older-version packages are controlled rollback fixtures, not historical releases. Physical flicker, precision-trackpad and mixed-monitor/DPI acceptance must be recorded separately from these automated checks.

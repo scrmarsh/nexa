@@ -116,6 +116,13 @@ internal static partial class Program
         Assert(new[]{"nexa Default","Solid Color","Custom Image"}.All(label=>Descendants(wallpaper).OfType<Button>().Any(b=>Equals(b.Content,label))),"Home offers all three direct background choices");
         Assert(!Descendants(settings).OfType<Button>().Any(b=>Equals(b.Content,"Restore default theme color")),"Redundant restore theme action is removed");
         Assert(Descendants(settings).OfType<RadioButton>().Count(r=>r.Tag is AppTheme)==4,"The original four official palette choices remain");
+        var wallpaperField=typeof(HomeWindow).GetField("homeWallpaper",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!;
+        foreach(var mode in new[]{ThemeMode.Light,ThemeMode.Dark})foreach(var palette in Theme.OfficialThemes)
+        {
+            store.SavePreferences(mode,palette);Theme.Apply(Application.Current.Resources,mode,palette);home.RefreshWallpaper();
+            Assert(((Border)wallpaperField.GetValue(home)!).Background is SolidColorBrush brush && brush.Color==Color.FromRgb(23,27,38),"Default Home stays charcoal under "+mode+" / "+palette);
+        }
+        Assert(home.FindResource("TextBrush") is SolidColorBrush textBrush && textBrush.Color==Color.FromRgb(240,242,255),"The fixed charcoal Home retains readable text independently of the application mode");
         Assert(Descendants(settings).OfType<Slider>().All(s=>s.IsMoveToPointEnabled),"Appearance sliders support click-to-point as well as dragging");
         Capture034(settings,"appearance");settings.Close();
         foreach(var section in new[]{"Profile","Sounds","Add Bugs","Files & sharing","Updates"})
@@ -159,7 +166,7 @@ internal static partial class Program
                 else
                 {
                     dc.DrawRectangle(BugVisuals.B("#185FA5"),null,new Rect(0,0,164,10));dc.DrawRectangle(BugVisuals.B("#7F77DD"),null,new Rect(0,304,164,10));
-                    dc.DrawImage(logo,new Rect(10,85,144,58));
+                    dc.DrawImage(logo,new Rect(10,102,144,144*logo.Height/logo.Width));
                     void Text(string text,double y,Brush brush,double size)=>dc.DrawText(new FormattedText(text,System.Globalization.CultureInfo.InvariantCulture,FlowDirection.LeftToRight,new Typeface("Segoe UI"),size,brush,1){MaxTextWidth=144,TextAlignment=TextAlignment.Center},new Point(10,y));
                     Text("a space for whatever",162,BugVisuals.B("#7F77DD"),12);Text("comes next",180,BugVisuals.B("#7F77DD"),12);Text("Setup",247,Brushes.White,17);
                 }
