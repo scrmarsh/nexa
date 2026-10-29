@@ -1,0 +1,82 @@
+{
+  "auditedAt": "2026-10-28 America/Chicago",
+  "defaultBranch": "main",
+  "homepage": "https://github.com/scrmarsh/nexa/releases/tag/v0.1.24-alpha",
+  "hasPages": false,
+  "hasDiscussions": false,
+  "releases": [
+    {
+      "id": 426690043,
+      "name": "nexa v0.0.26 alpha — Spaces in Motion",
+      "tag": "v0.1.26-alpha",
+      "published_at": "2026-10-28T13:21:02Z",
+      "url": "https://github.com/scrmarsh/nexa/releases/tag/v0.1.26-alpha",
+      "legacyMentions": [
+        "This release is **nexa v0.0.26 alpha**. The historical tag `v0.1.26-alpha` is retained so existing download links continue to work. Canonical Git tag `v0.0.26-alpha` points to the same original commit. Assets, SHA-256 checksums and original publication time are unchanged. Older numeric-only updaters need the documented one-time verified portable upgrade; this metadata correction cannot patch an already-installed comparator."
+      ],
+      "assets": [
+        {
+          "id": 685055223,
+          "name": "Nexa.exe",
+          "url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.26-alpha/Nexa.exe",
+          "digest": "sha256:1d08b896653932f0470bf09eef5464887bc9abb0c539e8e91ac549b227e0868c"
+        },
+        {
+          "id": 685065709,
+          "name": "SHA256SUMS.txt",
+          "url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.26-alpha/SHA256SUMS.txt",
+          "digest": "sha256:62bbdb790107d47860b9606761dd882b558e46fac2f67b0445c3cf421cdbd214"
+        }
+      ]
+    },
+    {
+      "id": 427233210,
+      "name": "Nexa v0.0.29 Alpha — NEXAWEEN: Interface Polish",
+      "tag": "v0.0.29-alpha",
+      "published_at": "2026-10-28T22:01:16Z",
+      "url": "https://github.com/scrmarsh/nexa/releases/tag/v0.0.29-alpha",
+      "legacyMentions": [
+        "This Nexaween update focuses on polishing the interface: clearer text, more consistent branding, better fullscreen spacing and more useful widget layouts. It remains an Alpha prerelease; v0.1.0 is reserved for the first approved Beta."
+      ],
+      "assets": [
+        {
+          "id": 686467578,
+          "name": "Nexa.exe",
+          "url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.29-alpha/Nexa.exe",
+          "digest": "sha256:badbdb24fc0345cc6ed00c27cc873bb92068f27194ca23f25452cba0f57cd9cd"
+        },
+        {
+          "id": 686479220,
+          "name": "SHA256SUMS.txt",
+          "url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.29-alpha/SHA256SUMS.txt",
+          "digest": "sha256:664d40e04c9109638938e4220bd370612dc21c3f666506e00274f48f2af71709"
+        }
+      ]
+    },
+    {
+      "id": 425758058,
+      "name": "nexa v0.0.24 alpha — NEXAWEEN",
+      "tag": "v0.1.24-alpha",
+      "published_at": "2026-10-27T17:14:22Z",
+      "url": "https://github.com/scrmarsh/nexa/releases/tag/v0.1.24-alpha",
+      "legacyMentions": [
+        "[Implementation and verification report](https://github.com/scrmarsh/nexa/blob/main/docs/IMPLEMENTATION-0.1.24.md) · [Root audit](https://github.com/scrmarsh/nexa/blob/main/docs/ROOT-AUDIT.md)\r",
+        "This release is **nexa v0.0.24 alpha**. The historical tag `v0.1.24-alpha` is retained so existing download links continue to work. Canonical Git tag `v0.0.24-alpha` points to the same original commit. Assets, SHA-256 checksums and original publication time are unchanged. Older numeric-only updaters need the documented one-time verified portable upgrade; this metadata correction cannot patch an already-installed comparator."
+      ],
+      "assets": [
+        {
+          "id": 682280754,
+          "name": "Nexa.exe",
+          "url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.24-alpha/Nexa.exe",
+          "digest": "sha256:d836de09b79e873e232ed6e9fae67f9e1f73d5d6b2a62efcce1ab31c2e75b420"
+        },
+        {
+          "id": 682289562,
+          "name": "SHA256SUMS.txt",
+          "url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.24-alpha/SHA256SUMS.txt",
+          "digest": "sha256:3933c13b3879c3b6db85d1ec991f6239e6f610deae829283d61bbad7d1ff3c40"
+        }
+      ]
+    }
+  ]
+}

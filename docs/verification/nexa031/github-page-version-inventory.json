@@ -1,0 +1,2080 @@
+{
+  "commit": "a308076fba1264f4bb64e53f4610e52caced3eab",
+  "trackedFiles": 459,
+  "utf8TextFiles": 436,
+  "matchingLines": 344,
+  "matchingFiles": 77,
+  "byKind": {
+    "documentation": 94,
+    "source-or-test": 35,
+    "archive": 195,
+    "original-requirements": 18,
+    "visible-artwork": 2
+  },
+  "matches": [
+    {
+      "path": "CHANGELOG.md",
+      "line": 5,
+      "kind": "documentation",
+      "text": "## 0.1.26 alpha — Spaces in Motion (2026-10-28)"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "line": 20,
+      "kind": "documentation",
+      "text": "**Verification:** 507 regression checks, 10 native updater checks and packaged x64 startup passed. Physical mixed-DPI, genuine hibernation, live-provider and extended performance acceptance remain pending; a measured Space-loading latency outlier remains. See the [release notes](docs/releases/0.1.26-alpha.md)."
+    },
+    {
+      "path": "CHANGELOG.md",
+      "line": 22,
+      "kind": "documentation",
+      "text": "## 0.1.25 alpha — dashboard refinements (development only)"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "line": 25,
+      "kind": "documentation",
+      "text": "- See [recorded verification and limitations](docs/TWEAKS-0.1.25.md)."
+    },
+    {
+      "path": "CHANGELOG.md",
+      "line": 27,
+      "kind": "documentation",
+      "text": "## 0.1.24 Alpha — final-prompt repair candidate (not released)"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "line": 36,
+      "kind": "documentation",
+      "text": "This candidate is not the final Nexaween release. See [verification and outstanding acceptance](docs/FINAL-0.1.24-STATUS.md). No production release was overwritten."
+    },
+    {
+      "path": "CHANGELOG.md",
+      "line": 38,
+      "kind": "documentation",
+      "text": "## Previously published baseline — nexa v0.1.24 Alpha — NEXAWEEN"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "line": 50,
+      "kind": "documentation",
+      "text": "See the [implementation report](docs/IMPLEMENTATION-0.1.24.md) for verification and remaining manual acceptance. Retired story source is archived, and the repository root has been audited against the current build."
+    },
+    {
+      "path": "CHANGELOG.md",
+      "line": 52,
+      "kind": "documentation",
+      "text": "[Download this Alpha release](https://github.com/scrmarsh/nexa/releases/tag/v0.1.24-alpha)."
+    },
+    {
+      "path": "HomeWindow.About.cs",
+      "line": 83,
+      "kind": "source-or-test",
+      "text": "            var seasonalEntry = release.Version is \"0.1.24\" or \"0.1.26\" && Theme.SeasonalEnabled;"
+    },
+    {
+      "path": "LEGACY/README.md",
+      "line": 7,
+      "kind": "archive",
+      "text": "- `notes/`: superseded validation reports, pre-naming-scheme 1.0.x notes, handoff/planning documents, the original 0.1.6 integration guide and full historical/mixed development changelog."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/CIVILIZATIONS024.md",
+      "line": 3,
+      "kind": "archive",
+      "text": "Unreleased Phase 3 development, 2026-10-20. Actual release metadata remains **0.1.23 Alpha**. The root packaged executable is unchanged. Phase 4 military redesign, Phase 5 History Book UI and the complete Age of Kingdoms release are not implemented."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/CIVILIZATIONS024.md",
+      "line": 37,
+      "kind": "archive",
+      "text": "**3G — Acceptance.** Clean Release build, focused checks, all established suites, native captures, integrity checks and executable startup were run. Current results and timing caveats follow. This is a functional lightweight foundation, not a complete historical simulation or final 0.1.24 release."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/CIVILIZATIONS024.md",
+      "line": 84,
+      "kind": "archive",
+      "text": "Development executable: **`M:\\Session Dashboard\\bin\\Release\\net10.0-windows\\Nexa.exe`**. Root `Nexa.exe` remains 0.1.21.0, SHA256 **17E90F770F5C883CCFD46EFD9AFFFCDAD517E467D3F7B92A185FC797295613B6**. No release package, branch commit or push was made."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/DEVELOPMENT024.md",
+      "line": 3,
+      "kind": "archive",
+      "text": "**Current Phase 3 development:** Functional culture/government, leader/dynasty, settlement/economy/construction and cultural rendering/event foundations are implemented for newly enabled worlds. Read [CIVILIZATIONS024.md](CIVILIZATIONS024.md) first for the checkpoint, save/backup requirements, acceptance evidence and limits. Existing worlds keep their old mode. Metadata stays 0.1.23 and the root executable is unchanged. Phases 4–5 and final release sign-off remain pending. Earlier milestone notes below are historical records."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/DEVELOPMENT024.md",
+      "line": 7,
+      "kind": "archive",
+      "text": "The v0.1.24 request is only partly implemented. Version metadata remains **0.1.23**; this is a development build, not the finished Age of Kingdoms release. Nations, historical buildings/royals, military overhaul, territory focus, and dashboard opacity controls remain pending. No executable package was replaced."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/DEVELOPMENT024.md",
+      "line": 44,
+      "kind": "archive",
+      "text": "Current development executable: `bin/Release/net10.0-windows/Nexa.exe`. Root `Nexa.exe` remains the old packaged release. Do not bump release metadata or package this as the complete 0.1.24 update yet."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/HARDWARE_ACCELERATION_RESEARCH.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "> v0.1.22 follow-up: the diagnostic's self-invalidating composition loop reproduced the slowdown. Timer pacing and a real foreground dashboard comparison clarify the result; see RELEASE022.md. The original measurements below remain historical evidence, and the diagnostic now defaults to timer pacing."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/HARDWARE_ACCELERATION_RESEARCH.md",
+      "line": 5,
+      "kind": "archive",
+      "text": "Date: October 19, 2026. Scope: investigate the current v0.1.21 renderer and prepare for chunked maps/procedural generation. Production rendering, settings, saves and packaged Nexa.exe were not changed. Added an opt-in diagnostic in tests/HardwareAudit.cs and a --hardware-audit route in tests/Program.cs. No new dependencies or registry settings."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/HISTORICAL_COMPATIBILITY_CHECKPOINT.md",
+      "line": 17,
+      "kind": "archive",
+      "text": "**358 existing regression checks, plus 94 atlas checks; no failed tests in this checkpoint.** Logs, durations and exit codes: `test-output/grand-history/checkpoint/results.json` and adjacent suite logs. Build log: `test-output/grand-history/checkpoint/build.log`. Earlier v0.1.24 performance limitations remain documented in DEVELOPMENT024.md; these passing tests do not establish smooth 4K GPU rendering."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/HISTORICAL_COMPATIBILITY_CHECKPOINT.md",
+      "line": 21,
+      "kind": "archive",
+      "text": "- **Generator 1:** its sampling function and palette match the pre-v0.1.24 source stored in `test-output/baseline024.json` exactly after excluding the existing generator-2 dispatch line. The legacy exact biome census and terrain/save/shared-view regression checks passed."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/HISTORICAL_COMPATIBILITY_CHECKPOINT.md",
+      "line": 25,
+      "kind": "archive",
+      "text": "- **Root executable:** untouched and not packaged. Root `Nexa.exe` is still version **0.1.21.0**, 145,089,334 bytes, SHA-256 `17E90F770F5C883CCFD46EFD9AFFFCDAD517E467D3F7B92A185FC797295613B6`. Only ordinary build outputs under `bin`/`tests/bin` were rebuilt."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/HISTORICAL_COMPATIBILITY_CHECKPOINT.md",
+      "line": 32,
+      "kind": "archive",
+      "text": "These are the changes made for the historical catalog milestone, distinct from the much larger pre-existing v0.1.24/older working tree:"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/HISTORICAL_COMPATIBILITY_CHECKPOINT.md",
+      "line": 55,
+      "kind": "archive",
+      "text": "No new world-save extension or migration is introduced by this milestone. **SchemaVersion=1 belongs to the separate catalog/source resources**, not to existing world saves. Existing Living Worlds generator versions and the earlier v0.1.24 `LivingGeneratorVersion` snapshot extension are unchanged. Opening the atlas does not select a scenario, rename a faction, advance technology or save historical identities into a world."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/HISTORICAL_COMPATIBILITY_CHECKPOINT.md",
+      "line": 63,
+      "kind": "archive",
+      "text": "Current release metadata remains **0.1.23**, with the separate unreleased v0.1.24 geography milestone preserved. **0.2.0 Alpha** is the proposed future Grand Historical Update version only; no changelog replacement, release bump or package was made. Continue with isolated data refinement or a separately scoped integration milestone after this checkpoint; do not silently attach atlas state to existing worlds."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/NATIONS024.md",
+      "line": 5,
+      "kind": "archive",
+      "text": "Development milestone, 2026-10-20. Functionality implemented; regression sign-off remains blocked by the existing `--war021` software-render timing gate. Release metadata stays **0.1.23**. Phases 3–5 have not started. No packaging, commit, reset or root executable replacement."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/NATIONS024.md",
+      "line": 74,
+      "kind": "archive",
+      "text": "Development executable: **`M:\\Session Dashboard\\bin\\Release\\net10.0-windows\\Nexa.exe`**. Root packaged exe remains 0.1.21.0, SHA256 `17E90F770F5C883CCFD46EFD9AFFFCDAD517E467D3F7B92A185FC797295613B6`."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "## Nexa 0.1.23 alpha - Living Worlds"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 5,
+      "kind": "archive",
+      "text": "## Nexa 0.1.22 alpha - GPU Performance Fix"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 9,
+      "kind": "archive",
+      "text": "## Nexa 0.1.21 alpha - Infinite Warfare"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 15,
+      "kind": "archive",
+      "text": "## Nexa 0.1.20 alpha - Armies and Shared Webs"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 19,
+      "kind": "archive",
+      "text": "## Nexa 0.1.19 alpha - Colony Wars Overhaul"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 25,
+      "kind": "archive",
+      "text": "## Nexa 0.1.18 alpha — Bug Fixes"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 29,
+      "kind": "archive",
+      "text": "## Nexa 0.1.17 alpha — Drink Counters, Laps & Bug Arcade"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 39,
+      "kind": "archive",
+      "text": "## Nexa 0.1.16 alpha — Stable Layout, Bugs and Counters"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 43,
+      "kind": "archive",
+      "text": "## Nexa 0.1.15 Alpha — Add Bugs Settings Fix"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 47,
+      "kind": "archive",
+      "text": "## Nexa 0.1.14 Alpha — Add Bugs"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 51,
+      "kind": "archive",
+      "text": "## Nexa 0.1.13 Alpha — Pixel Swarm & Appearance"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 57,
+      "kind": "archive",
+      "text": "## Nexa 0.1.12 Alpha — Dashboard & Widget UX Update"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 71,
+      "kind": "archive",
+      "text": "## Nexa 0.1.11 Alpha — Bug Fixes, UI Refinements & Pixel Timer Performance"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 83,
+      "kind": "archive",
+      "text": "## Nexa 0.1.10 Alpha — Interface & Navigation Cleanup"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 91,
+      "kind": "archive",
+      "text": "## Nexa 0.1.9 Alpha — Versioning & Session Stability"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 95,
+      "kind": "archive",
+      "text": "## Nexa 0.1.8 Alpha — Widget + Dashboard Stability"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 108,
+      "kind": "archive",
+      "text": "## Nexa 0.1.7 Alpha — Lightweight UI & Interaction Polish"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 116,
+      "kind": "archive",
+      "text": "## Nexa 0.1.6 Alpha — Onboarding & Integrations"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 126,
+      "kind": "archive",
+      "text": "## Nexa 0.1.5 Alpha — Focus First"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/README-before-master.md",
+      "line": 142,
+      "kind": "archive",
+      "text": "Current release: **Nexa 0.1.18 alpha — Bug Fixes** · Windows desktop · October 15, 2026"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE019.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa 0.1.19 Alpha - Colony Wars Overhaul"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE019.md",
+      "line": 45,
+      "kind": "archive",
+      "text": "- SessionDashboard.csproj and app.manifest - 0.1.19 version metadata."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE019.md",
+      "line": 64,
+      "kind": "archive",
+      "text": "- Build/publish completed successfully with the existing self-contained Windows x64 pipeline. Version: Nexa 0.1.19 alpha."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE019.md",
+      "line": 67,
+      "kind": "archive",
+      "text": "- Packaged normal startup: test-output/release019-package/startup.json. Packaged Arcade startup: test-output/release019-colony-package/startup.json. Both succeed, report 0.1.19 Alpha and PerMonitorV2, and confirm x64 resources. Arcade has six colonies and ten bugs after the initial 700 ms delay."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE020.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa 0.1.20 Alpha - Arcade armies and shared webs"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE020.md",
+      "line": 35,
+      "kind": "archive",
+      "text": "- SessionDashboard.csproj, app.manifest, ReleaseNotes.cs: target 0.1.20 release metadata."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE020.md",
+      "line": 36,
+      "kind": "archive",
+      "text": "- tests/Arcade020Checks.cs (new), tests/Program.cs: focused 0.1.20 checks and command route."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE020.md",
+      "line": 55,
+      "kind": "archive",
+      "text": "Normal and Arcade startup verification from bin/Debug/net10.0-windows/Nexa.exe succeeds in isolated state directories, confirms version 0.1.20, PerMonitorV2 awareness, four presets, populated session controls and all three embedded Bible translations. Arcade starts all six colonies and troops. The root Nexa.exe, ZIP and publish directory have not been repackaged by this session; launch the newly built executable to review these changes."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE021.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa 0.1.21 Alpha ? implementation and validation"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE021.md",
+      "line": 49,
+      "kind": "archive",
+      "text": "Several existing application files were already untracked or modified before this update. This list describes the v0.1.21 work, not ownership of every entry in git status. No pre-existing changes were reset."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE021.md",
+      "line": 76,
+      "kind": "archive",
+      "text": "- Normal and Arcade executable startup probes both exited 0, reporting 0.1.21 Alpha and PerMonitorV2; Arcade initialized six civilizations and ten bugs. Evidence: test-output/startup021-final/startup.json and test-output/arcade-startup021-final/startup.json. No diagnostic app process was left running."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE021.md",
+      "line": 108,
+      "kind": "archive",
+      "text": "Version metadata and in-app release notes are 0.1.21 Alpha. The executable built by the commands above is **bin\\Debug\\net10.0-windows\\Nexa.exe**. Launch it from PowerShell with:"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE021.md",
+      "line": 114,
+      "kind": "archive",
+      "text": "Repackaging completed on October 19, 2026 using the existing Publish-Exe.ps1 process: self-contained Windows x64, single-file Release executable. Both publish/win-x64/Nexa.exe and root Nexa.exe are version 0.1.21.0 and byte-identical (145,089,334 bytes). Normal and Arcade startup probes both exited 0 and reported 0.1.21 Alpha with PerMonitorV2; Arcade initialized six civilizations and eleven bugs. Evidence: test-output/package021.json, test-output/package021-startup/startup.json and test-output/package021-arcade/startup.json. The older Nexa-0.1.19.zip remains unchanged; no new ZIP was requested. No NuGet configuration or dependencies were changed."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE022.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa 0.1.22 Alpha - targeted GPU performance fix"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE022.md",
+      "line": 10,
+      "kind": "archive",
+      "text": "- Release metadata and in-app notes target **0.1.22 Alpha**. Version assertions and short README/CHANGELOG entries updated. Save schema, gameplay rules, GPU support, software fallback and dependencies are unchanged."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE022.md",
+      "line": 36,
+      "kind": "archive",
+      "text": "Release application and test builds passed with zero warnings/errors. **92 Infinite Warfare checks** passed (test-output/20261019-222336), and **138 Classic checks** passed (test-output/20261019-222402). The Classic suite includes its two-hour simulated soak and live editing/minimize checks. Normal and Arcade executable startup probes both exited 0 and reported 0.1.22 Alpha (test-output/startup022 and test-output/arcade-startup022). Relevant checks cover continuous-save replay/recovery, shared views, scrolling, Classic combat/lifecycle, editing responsiveness, minimize/restore and timer cleanup. CPU/GPU power, presentation latency, mixed-DPI/4K behavior and other adapters remain unmeasured. The prior OS profiling-policy restriction prevented a GPU ETW trace; exact compositor/driver wait behavior remains unresolved. No claim of universal 60 FPS."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE023.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa 0.1.23 Alpha - Living Worlds"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/RELEASE023.md",
+      "line": 16,
+      "kind": "archive",
+      "text": "- Normal and Colony startup probes passed: test-output/startup023 and arcade-startup023. A **fresh process loaded the saved Living World** successfully with six colonies and 127 units: test-output/living-startup023 (cloned isolated fixture, no production saves touched). All report 0.1.23 Alpha."
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/docs/historical-atlas-source.json",
+      "line": 1623,
+      "kind": "archive",
+      "text": "                                     \"Version planning: keep the existing v0.1.24 Alpha fixes separate. This document is a future Grand Historical Update worldbuilding reference, not a claim that any of these eras or factions have been coded.\""
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/AevoriaBChecks.cs",
+      "line": 21,
+      "kind": "archive",
+      "text": "        Assert(App.AppVersion==\"0.1.23\",\"Nexa retains its independent version\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/AevoriaCChecks.cs",
+      "line": 106,
+      "kind": "archive",
+      "text": "        Assert(AevoriaBuild.Label==AevoriaBuild.Version+\" Alpha\" && App.AppVersion==\"0.1.23\" && File.Exists(AevoriaLauncher.Resolve(Path.GetFullPath(\"bin/Release/net10.0-windows\"))),\"Independent development identity and Nexa launch resolution remain intact\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/AevoriaDChecks.cs",
+      "line": 68,
+      "kind": "archive",
+      "text": "        Assert(App.AppVersion==\"0.1.23\",\"D08 Nexa version unchanged\");menu.Close();"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Alpha010Checks.cs",
+      "line": 47,
+      "kind": "archive",
+      "text": "        Assert(App.AppVersion == \"0.1.11\" && App.VersionLabel == \"Nexa 0.1.11 Alpha\", \"Shared version displays two-digit Alpha patch correctly\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Alpha011Checks.cs",
+      "line": 19,
+      "kind": "archive",
+      "text": "        Assert(App.AppVersion == \"0.1.11\" && App.VersionLabel == \"Nexa 0.1.11 Alpha\" && ReleaseNotes.All[0].Title.Contains(\"Pixel Timer Performance\"), \"Release version and history are current\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Alpha012Checks.cs",
+      "line": 18,
+      "kind": "archive",
+      "text": "        Assert(App.VersionLabel == \"Nexa 0.1.12 Alpha\" && ReleaseNotes.All[0].Title.Contains(\"Dashboard & Widget UX\"), \"Current version and release history\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Alpha012Checks.cs",
+      "line": 49,
+      "kind": "archive",
+      "text": "        var name = \"Nexa-0.1.13-Alpha-Setup.exe\";"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Alpha012Checks.cs",
+      "line": 50,
+      "kind": "archive",
+      "text": "        var url = $\"https://github.com/scrmarsh/SessionDashboard/releases/download/v0.1.13-alpha/{name}\";"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Alpha012Checks.cs",
+      "line": 51,
+      "kind": "archive",
+      "text": "        string Json(string digest, string assetUrl = \"\") => System.Text.Json.JsonSerializer.Serialize(new[] { new { tag_name=\"v0.1.13-alpha\", name=\"Next Alpha\", body=\"Release notes\", published_at=\"2026-10-04T12:00:00Z\", draft=false, prerelease=true, assets=new[] { new { name, size=bytes.Length, digest, browser_download_url=assetUrl.Length == 0 ? url : assetUrl } } } });"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Alpha012Checks.cs",
+      "line": 61,
+      "kind": "archive",
+      "text": "        using var betaClient = new HttpClient(new FakeReleases(request => new HttpResponseMessage(HttpStatusCode.OK) { RequestMessage=request, Content=new StringContent(Json(\"sha256:\"+hash).Replace(\"0.1.13-alpha\", \"0.2.0-beta\", StringComparison.Ordinal).Replace(\"0.1.13-Alpha\", \"0.2.0-Beta\", StringComparison.Ordinal)) }));"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Alpha012Checks.cs",
+      "line": 78,
+      "kind": "archive",
+      "text": "        Assert(Descendants(settings).OfType<TextBlock>().Any(t => t.Text.StartsWith(\"Current version: Nexa 0.1.12 Alpha\")) && Descendants(settings).OfType<Button>().Any(b => Equals(b.Content,\"Check for updates\")), \"Experimental Updates is visible in Settings\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Alpha019Checks.cs",
+      "line": 22,
+      "kind": "archive",
+      "text": "        Assert(App.AppVersion == \"0.1.11\" && App.VersionLabel == \"Nexa 0.1.11 Alpha\", \"Current version and shared Alpha label\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Alpha019Checks.cs",
+      "line": 23,
+      "kind": "archive",
+      "text": "        Assert(App.ReleaseLabel(\"0.1.10\") == \"Nexa 0.1.10 Alpha\", \"Two-digit future Alpha patches keep their full version\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Alpha019Checks.cs",
+      "line": 44,
+      "kind": "archive",
+      "text": "            if (method == \"OpenChangelog\") Assert(Descendants(dialog).OfType<TextBlock>().Any(t => t.Text.StartsWith(\"Nexa 0.1.1 Alpha\")), \"Visible history includes restored Alpha release\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Arcade017Checks.cs",
+      "line": 20,
+      "kind": "archive",
+      "text": "        Assert(App.AppVersion==\"0.1.17\", \"Additional bug features retain version 0.1.17\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Arcade020Checks.cs",
+      "line": 9,
+      "kind": "archive",
+      "text": "        Assert(App.AppVersion==\"0.1.23\",\"Target version is 0.1.23 Alpha\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/ColonyWars019Checks.cs",
+      "line": 13,
+      "kind": "archive",
+      "text": "        Assert(App.VersionLabel==\"Nexa 0.1.23 alpha\" && ReleaseNotes.All[0].Title==\"Living Worlds\",\"Version and Alpha release metadata identify Colony Wars 0.1.19\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Polish104Checks.cs",
+      "line": 21,
+      "kind": "archive",
+      "text": "        Assert(App.AppVersion == \"0.1.11\", \"App uses current project version 0.1.11\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Polish107Checks.cs",
+      "line": 14,
+      "kind": "archive",
+      "text": "        Assert(App.AppVersion == \"0.1.11\", \"Project metadata supplies version 0.1.11\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Program.cs",
+      "line": 85,
+      "kind": "archive",
+      "text": "                CheckInfinite021();Console.WriteLine($\"PASS: {passed} Infinite Warfare 0.1.21 checks. Artifacts: {output}\");app021.Shutdown();return 0;"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Program.cs",
+      "line": 90,
+      "kind": "archive",
+      "text": "                CheckArcade020();Console.WriteLine($\"PASS: {passed} Arcade 0.1.20 checks. Artifacts: {output}\");app020.Shutdown();return 0;"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Program.cs",
+      "line": 104,
+      "kind": "archive",
+      "text": "                Console.WriteLine($\"PASS: {passed} live 0.1.18 performance checks. Artifacts: {output}\");liveApp.Shutdown();return 0;"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Program.cs",
+      "line": 110,
+      "kind": "archive",
+      "text": "                Console.WriteLine($\"PASS: {passed} Nexa 0.1.18 checks. Artifacts: {output}\"); releaseApp.Shutdown(); return 0;"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Program.cs",
+      "line": 122,
+      "kind": "archive",
+      "text": "                Console.WriteLine($\"PASS: {passed} Nexa 0.1.17 checks. Artifacts: {output}\"); releaseApp.Shutdown(); return 0;"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Program.cs",
+      "line": 134,
+      "kind": "archive",
+      "text": "                Console.WriteLine($\"PASS: {passed} Nexa 0.1.16 checks. Artifacts: {output}\"); releaseApp.Shutdown(); return 0;"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Program.cs",
+      "line": 152,
+      "kind": "archive",
+      "text": "                Console.WriteLine($\"PASS: {passed} Pixel Swarm 0.1.13 and appearance checks. Artifacts: {output}\"); gameApp.Shutdown(); return 0;"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Program.cs",
+      "line": 170,
+      "kind": "archive",
+      "text": "                Console.WriteLine($\"PASS: {passed} Alpha 0.1.12 widget/update checks. Artifacts: {output}\"); app012.Shutdown(); return 0;"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Program.cs",
+      "line": 176,
+      "kind": "archive",
+      "text": "                Console.WriteLine($\"PASS: {passed} Alpha 0.1.12 dashboard/calendar checks. Artifacts: {output}\"); app012.Shutdown(); return 0;"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Program.cs",
+      "line": 182,
+      "kind": "archive",
+      "text": "                Console.WriteLine($\"PASS: {passed} Alpha 0.1.11 stabilization checks. Artifacts: {output}\"); stabilizationApp.Shutdown(); return 0;"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Release016Checks.cs",
+      "line": 10,
+      "kind": "archive",
+      "text": "        Assert(App.AppVersion == \"0.1.18\" && ReleaseNotes.All[0].Version == \"0.1.18\" &&"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Release016Checks.cs",
+      "line": 11,
+      "kind": "archive",
+      "text": "            ReleaseNotes.All.Any(note => note.Version == \"0.1.16\" && note.Title.Contains(\"Layout\")), \"Assembly and changelog show the current release and preserve 0.1.16 history\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Release016Checks.cs",
+      "line": 84,
+      "kind": "archive",
+      "text": "        Assert(Descendants(home).OfType<TextBlock>().Any(t => t.Text == \"Nexa 0.1.18 alpha\"),"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Release017Checks.cs",
+      "line": 14,
+      "kind": "archive",
+      "text": "        Assert(App.AppVersion == \"0.1.18\" && App.VersionLabel == \"Nexa 0.1.18 alpha\" && ReleaseNotes.All[0].Version == \"0.1.18\", \"0.1.18 alpha assembly, visible label and release notes agree\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Release018Checks.cs",
+      "line": 15,
+      "kind": "archive",
+      "text": "        Assert(App.VersionLabel==\"Nexa 0.1.18 alpha\" && ReleaseNotes.All[0].Title==\"Bug Fixes\",\"Current version and update tag are 0.1.18 alpha — Bug Fixes\");"
+    },
+    {
+      "path": "LEGACY/embedded-aevoria/archive/tests/Stability108Checks.cs",
+      "line": 19,
+      "kind": "archive",
+      "text": "        Assert(App.AppVersion == \"0.1.11\", \"Current version is 0.1.11\");"
+    },
+    {
+      "path": "LEGACY/implementation-staging/NEXAWEEN024_IMPLEMENTATION.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa v0.1.24 Alpha — NEXAWEEN"
+    },
+    {
+      "path": "LEGACY/implementation-staging/NEXAWEEN024_IMPLEMENTATION.md",
+      "line": 7,
+      "kind": "archive",
+      "text": "The current build is `M:/Nexa/Nexa.exe`, a self-contained Windows x64 executable. Its version remains **0.1.24**. The portable publish copy is `publish/win-x64/Nexa.exe`. Splash and home display **nexa v0.1.24 alpha**, with green branding; NEXAWEEN remains the release identity and changelog title."
+    },
+    {
+      "path": "LEGACY/implementation-staging/NEXAWEEN024_IMPLEMENTATION.md",
+      "line": 22,
+      "kind": "archive",
+      "text": "Logs: `verification/release-acceptance`. Isolated published-startup verification passed: x64, version 0.1.24, requested lowercase label, per-monitor-v2 awareness, 759 pixel cells, four default presets, and all three embedded Bible translations. Package hash and archive location are recorded in `verification/release-package.json`."
+    },
+    {
+      "path": "LEGACY/implementation-staging/NEXAWEEN024_IMPLEMENTATION.md",
+      "line": 44,
+      "kind": "archive",
+      "text": "- The 0.1.24 changelog alone has its purple background, green text, orange border and six requested section titles. Older release history remains intact."
+    },
+    {
+      "path": "LEGACY/implementation-staging/PHASE1_ACCEPTANCE.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa v0.1.24 Alpha — Phase 1 acceptance"
+    },
+    {
+      "path": "LEGACY/implementation-staging/PHASE1_ACCEPTANCE.md",
+      "line": 5,
+      "kind": "archive",
+      "text": "Confirmed timer override: elapsed digits count **up** during class; sequential pixels deplete toward the class end. Digits and pixels count **down** between classes. Version remains `0.1.24`; splash/home text is `nexa v0.1.24 alpha` without a suffix. Green branding and the requested drink colors remain."
+    },
+    {
+      "path": "LEGACY/implementation-staging/archive_legacy.py",
+      "line": 29,
+      "kind": "archive",
+      "text": "p.write_text('''# nexa v0.1.24 alpha — NEXAWEEN"
+    },
+    {
+      "path": "LEGACY/implementation-staging/finalize_docs.py",
+      "line": 11,
+      "kind": "archive",
+      "text": "(root/'README.md').write_text('''# nexa v0.1.24 alpha — NEXAWEEN"
+    },
+    {
+      "path": "LEGACY/implementation-staging/finalize_docs.py",
+      "line": 25,
+      "kind": "archive",
+      "text": "state='''# Nexa 0.1.24 current handoff — October 27, 2026"
+    },
+    {
+      "path": "LEGACY/implementation-staging/finalize_docs.py",
+      "line": 31,
+      "kind": "archive",
+      "text": "User overrides: version stays 0.1.24; lowercase splash/home label nexa v0.1.24 alpha with no suffix; green branding and requested drink colors; full NEW Cozy/Creepy/Combative ecosystem; timer digits UP in class and DOWN between classes. Legacy games remain archived, not dependencies. Latest user emphasis: each species' animation must be anatomically appropriate."
+    },
+    {
+      "path": "LEGACY/implementation-staging/finalize_release.ps1",
+      "line": 7,
+      "kind": "archive",
+      "text": "if(-not $startup.Success -or $startup.AppVersion -ne '0.1.24'){throw 'Published startup check did not pass'}"
+    },
+    {
+      "path": "LEGACY/implementation-staging/finalize_release.ps1",
+      "line": 35,
+      "kind": "archive",
+      "text": "foreach($name in @('Nexa.exe','Nexa-0.1.19.zip','test-output','%SystemDrive%')){Archive-Output (Join-Path $root $name) $name}"
+    },
+    {
+      "path": "LEGACY/implementation-staging/finalize_release.ps1",
+      "line": 43,
+      "kind": "archive",
+      "text": "Write-Output 'Archived legacy outputs, preserved the saved profile, and installed verified Nexa 0.1.24.'"
+    },
+    {
+      "path": "LEGACY/implementation-staging/stage_core.py",
+      "line": 96,
+      "kind": "archive",
+      "text": "text=read('tests/NexaweenMoreChecks.cs').replace('App.VersionLabel.Contains(\"NEXAWEEN\")','App.VersionLabel == \"nexa v0.1.24 alpha\"')"
+    },
+    {
+      "path": "LEGACY/implementation-staging/stage_followup_finish.py",
+      "line": 21,
+      "kind": "archive",
+      "text": "p=r/'ReleaseNotes.cs';t=p.read_text(encoding='utf-8-sig');a=t.index('        new(\"0.1.24\"');b=t.index('        new(\"0.1.23\"',a)"
+    },
+    {
+      "path": "LEGACY/implementation-staging/stage_followup_finish.py",
+      "line": 22,
+      "kind": "archive",
+      "text": "t=t[:a]+'''        new(\"0.1.24\", \"October 27, 2026\", \"NEXAWEEN\", \"A space for whatever haunts you next. Synchronized session progress, reliable saving, a consolidated interface and a seasonal bug ecosystem.\","
+    },
+    {
+      "path": "LEGACY/implementation-staging/stage_followup_finish.py",
+      "line": 34,
+      "kind": "archive",
+      "text": "## Nexa v0.1.24 Alpha — NEXAWEEN"
+    },
+    {
+      "path": "LEGACY/maintenance/cleanup_nexa.py",
+      "line": 231,
+      "kind": "archive",
+      "text": "text=text.replace('ReleaseLabel(AppVersion) + (AppVersion == \"0.1.24\" ? \" — NEXAWEEN\" : \"\")','ReleaseLabel(AppVersion)')"
+    },
+    {
+      "path": "LEGACY/maintenance/cleanup_nexa.py",
+      "line": 232,
+      "kind": "archive",
+      "text": "text=text.replace('version == \"0.1.24\" ? \"Nexa v0.1.24 Alpha\" : $\"Nexa {version} alpha\"','$\"nexa v{version} alpha\"')"
+    },
+    {
+      "path": "LEGACY/manifest.json",
+      "line": 1193,
+      "kind": "archive",
+      "text": "    \"Destination\": \"LEGACY/notes/INTEGRATIONS-0.1.6.md\","
+    },
+    {
+      "path": "LEGACY/manifest.json",
+      "line": 1210,
+      "kind": "archive",
+      "text": "    \"Source\": \"docs/IMPLEMENTATION-0.1.24.md\","
+    },
+    {
+      "path": "LEGACY/manifest.json",
+      "line": 1211,
+      "kind": "archive",
+      "text": "    \"Destination\": \"LEGACY/notes/IMPLEMENTATION-0.1.24-published-4562d69.md\","
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 3,
+      "kind": "archive",
+      "text": "## nexa v0.1.24 Alpha — NEXAWEEN"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 16,
+      "kind": "archive",
+      "text": "## nexa 0.1.23 Alpha — Minor changes (2026-10-19)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 20,
+      "kind": "archive",
+      "text": "## nexa 0.1.22 alpha - GPU Performance Fix (2026-10-19)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 27,
+      "kind": "archive",
+      "text": "## nexa 0.1.21 Alpha — Minor changes (2026-10-19)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 31,
+      "kind": "archive",
+      "text": "## nexa 0.1.20 Alpha — Minor changes (2026-10-19)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 35,
+      "kind": "archive",
+      "text": "## nexa 0.1.19 Alpha — Minor changes (2026-10-15)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 39,
+      "kind": "archive",
+      "text": "## nexa 0.1.18 Alpha — Bug fixes (2026-10-15)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 44,
+      "kind": "archive",
+      "text": "## nexa 0.1.17 alpha — Drink Counters & Laps (2026-10-14)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 52,
+      "kind": "archive",
+      "text": "## nexa 0.1.16 alpha — Stable Layout, Bugs and Counters (2026-10-05)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 56,
+      "kind": "archive",
+      "text": "## nexa 0.1.15 Alpha — Add Bugs Settings Fix (2026-10-04)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 60,
+      "kind": "archive",
+      "text": "## nexa 0.1.14 Alpha — Add Bugs (2026-10-04)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 64,
+      "kind": "archive",
+      "text": "## nexa 0.1.13 Alpha — Pixel Swarm & Appearance (2026-10-04)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 70,
+      "kind": "archive",
+      "text": "## nexa 0.1.12 Alpha — Dashboard & Widget UX Update (2026-10-03)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 88,
+      "kind": "archive",
+      "text": "The update flow requires a separately published setup installer named `Nexa-{version}-{Alpha|Beta|Stable}-Setup.exe` with a GitHub asset SHA-256 digest. This repository does not yet produce or publish that installer automatically, so live installation awaits such a release asset. Pixel Swarm and the planned 0.1.13 redesign are unchanged."
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 90,
+      "kind": "archive",
+      "text": "Development releases formerly numbered 1.0.1–1.0.8 are listed here as 0.1.1–0.1.8 Alpha. Alpha continues with 0.1.10, 0.1.11 and later patches; 0.2.x is reserved for an intentional Beta, and the eventual first stable release is 1.0.0. Original Git history and tags are unchanged."
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 92,
+      "kind": "archive",
+      "text": "## nexa 0.1.11 Alpha — Bug Fixes, UI Refinements & Pixel Timer Performance (2026-10-03)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 106,
+      "kind": "archive",
+      "text": "## nexa 0.1.10 Alpha — Interface & Navigation Cleanup (2026-10-03)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 117,
+      "kind": "archive",
+      "text": "## nexa 0.1.9 Alpha — Versioning & Session Stability (2026-10-03)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 126,
+      "kind": "archive",
+      "text": "## nexa 0.1.8 Alpha — Widget + Dashboard Stability (2026-10-03)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 140,
+      "kind": "archive",
+      "text": "## nexa 0.1.7 Alpha — Lightweight UI & Interaction Polish (2026-10-03)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 153,
+      "kind": "archive",
+      "text": "## nexa 0.1.6 Alpha — Onboarding & Integrations (2026-10-02)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 167,
+      "kind": "archive",
+      "text": "## nexa 0.1.5 Alpha — Focus First (2026-10-02)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 182,
+      "kind": "archive",
+      "text": "## nexa 0.1.4 Alpha — Polish and Bug Fixes (2026-10-02)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 186,
+      "kind": "archive",
+      "text": "- Unified the project, Home and splash version at 0.1.4 Alpha and updated the splash tagline."
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 213,
+      "kind": "archive",
+      "text": "## nexa 0.1.3 Alpha — Session Workspace Polish (2026-10-02)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 224,
+      "kind": "archive",
+      "text": "- Set application, splash, Home and About version metadata to 0.1.3 Alpha."
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 253,
+      "kind": "archive",
+      "text": "## nexa 0.1.2 Alpha — Desktop Foundation (2026-10-01)"
+    },
+    {
+      "path": "LEGACY/notes/CHANGELOG-through-20261027.md",
+      "line": 265,
+      "kind": "archive",
+      "text": "## nexa 0.1.1 Alpha — Bug Fixes"
+    },
+    {
+      "path": "LEGACY/notes/CODEX_SESSION_STATE.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa 0.1.24 current handoff — October 27, 2026"
+    },
+    {
+      "path": "LEGACY/notes/CODEX_SESSION_STATE.md",
+      "line": 7,
+      "kind": "archive",
+      "text": "User overrides: version stays 0.1.24; lowercase splash/home label nexa v0.1.24 alpha with no suffix; green branding and requested drink colors; full NEW Cozy/Creepy/Combative ecosystem; timer digits UP in class and DOWN between classes. Legacy games remain archived, not dependencies. Latest user emphasis: each species' animation must be anatomically appropriate."
+    },
+    {
+      "path": "LEGACY/notes/IMPLEMENTATION-0.1.24-published-4562d69.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa v0.1.24 Alpha — NEXAWEEN implementation report"
+    },
+    {
+      "path": "LEGACY/notes/IMPLEMENTATION-0.1.24-published-4562d69.md",
+      "line": 3,
+      "kind": "archive",
+      "text": "October 27, 2026. Version remains **0.1.24**. Seasonal tagline: **Nexa — A space for whatever haunts you next.**"
+    },
+    {
+      "path": "LEGACY/notes/IMPLEMENTATION-0.1.24-published-4562d69.md",
+      "line": 71,
+      "kind": "archive",
+      "text": "The canonical repository is [scrmarsh/nexa](https://github.com/scrmarsh/nexa). Active updater metadata/download allowlists use that canonical path, with synthetic tests rejecting unrelated repositories. The Windows x64 executable is distributed through the [0.1.24 Alpha GitHub release](https://github.com/scrmarsh/nexa/releases/tag/v0.1.24-alpha), with a SHA-256 checksum. Repository visibility is unchanged. See the [root audit](ROOT-AUDIT.md) for the subsequent cleanup and retained compatibility files. Its existing main history is retained. `LEGACY/` preserves obsolete embedded-game code, old checks, notes and one-time maintenance drafts and is excluded from compilation. Active compatibility migration code stays active. The separate Aevoria project was not modified."
+    },
+    {
+      "path": "LEGACY/notes/INTEGRATIONS-0.1.6.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa 0.1.6 Alpha integrations"
+    },
+    {
+      "path": "LEGACY/notes/INTEGRATIONS-0.1.6.md",
+      "line": 52,
+      "kind": "archive",
+      "text": "## Nexa 0.1.8 Alpha local recording and Hedy"
+    },
+    {
+      "path": "LEGACY/notes/NEXA024_CONTINUATION.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa 0.1.24 current handoff — October 27, 2026"
+    },
+    {
+      "path": "LEGACY/notes/NEXA024_CONTINUATION.md",
+      "line": 7,
+      "kind": "archive",
+      "text": "User overrides: version stays 0.1.24; lowercase splash/home label nexa v0.1.24 alpha with no suffix; green branding and requested drink colors; full NEW Cozy/Creepy/Combative ecosystem; timer digits UP in class and DOWN between classes. Legacy games remain archived, not dependencies. Latest user emphasis: each species' animation must be anatomically appropriate."
+    },
+    {
+      "path": "LEGACY/notes/PHASE1_ACCEPTANCE.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa v0.1.24 Alpha — Phase 1 acceptance"
+    },
+    {
+      "path": "LEGACY/notes/PHASE1_ACCEPTANCE.md",
+      "line": 5,
+      "kind": "archive",
+      "text": "Confirmed timer override: elapsed digits count **up** during class; sequential pixels deplete toward the class end. Digits and pixels count **down** between classes. Version remains `0.1.24`; splash/home text is `nexa v0.1.24 alpha` without a suffix. Green branding and the requested drink colors remain."
+    },
+    {
+      "path": "LEGACY/notes/REPAIR-REPORT-0.1.25-first-candidate.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa 0.1.25 Alpha repair report"
+    },
+    {
+      "path": "LEGACY/notes/REPAIR-REPORT-0.1.25-first-candidate.md",
+      "line": 10,
+      "kind": "archive",
+      "text": "| Product version | `0.1.25+1c48c6519eae912f3937a1f5ad7e38b81a12c85c` |"
+    },
+    {
+      "path": "LEGACY/notes/REPAIR-REPORT-0.1.25-first-candidate.md",
+      "line": 16,
+      "kind": "archive",
+      "text": "| Approved Latest | Published 0.1.24 Alpha, source `4562d69`; SHA256 `D836DE09B79E873E232ED6E9FAE67F9E1F73D5D6B2A62EFCCE1AB31C2E75B420` |"
+    },
+    {
+      "path": "LEGACY/notes/REPAIR-REPORT-0.1.25-first-candidate.md",
+      "line": 22,
+      "kind": "archive",
+      "text": "- **Public updates:** asset matching accepted only a versioned Setup.exe although the official public release contains Nexa.exe. Discovery now handles the portable asset, official size/digest, compatible alpha channels, bounded pagination, malformed entries and useful 404/rate-limit errors. An unauthenticated live call found published 0.1.24 Alpha with the expected canonical URL and digest."
+    },
+    {
+      "path": "LEGACY/notes/REPAIR-REPORT-0.1.25-first-candidate.md",
+      "line": 60,
+      "kind": "archive",
+      "text": "4. The executable's Explorer/shortcut icon is fixed seasonal. Runtime window logos/icons switch normally; exact v0.1.22 asset-version provenance and shell-cache behavior are not certified."
+    },
+    {
+      "path": "LEGACY/notes/REPAIR-REPORT-0.1.25-first-candidate.md",
+      "line": 64,
+      "kind": "archive",
+      "text": "See [the full 33-requirement audit](FEATURE-AUDIT-0.1.25.md), [retained exact requirements](REQUIREMENTS-0.1.25.md), and [manual checklist](MANUAL-TESTING-0.1.25.md). The next pass should resolve the explicit implementation gaps, then record manual acceptance before any promotion to Latest or public release. No final-release changelog was generated for this candidate."
+    },
+    {
+      "path": "LEGACY/notes/REPAIR-REPORT-0.1.25-first-candidate.md",
+      "line": 66,
+      "kind": "archive",
+      "text": "## Files changed from the 0.1.24 repair source"
+    },
+    {
+      "path": "LEGACY/notes/REPAIR-REPORT-0.1.25-first-candidate.md",
+      "line": 125,
+      "kind": "archive",
+      "text": "- `docs/FEATURE-AUDIT-0.1.25.md`"
+    },
+    {
+      "path": "LEGACY/notes/REPAIR-REPORT-0.1.25-first-candidate.md",
+      "line": 126,
+      "kind": "archive",
+      "text": "- `docs/REQUIREMENTS-0.1.25.md`"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "## 0.1.21 Alpha ? Infinite Warfare (October 19, 2026)"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 9,
+      "kind": "archive",
+      "text": "- Normal and Arcade debug-executable startup probes passed (exit 0, version 0.1.21, PerMonitorV2). Evidence: test-output/startup021-final and test-output/arcade-startup021-final. Arcade initialized six colonies and ten bugs."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 10,
+      "kind": "archive",
+      "text": "- Menu, battlefield and full-world screenshots were inspected. Repackaging subsequently replaced root Nexa.exe and publish/win-x64/Nexa.exe with matching 0.1.21.0 self-contained Windows x64 single-file Release builds. Both packaged startup probes passed (normal and Arcade, PerMonitorV2); Arcade initialized six colonies and eleven bugs. Evidence: test-output/package021.json and test-output/package021-startup / package021-arcade. The older ZIP remains unchanged."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 14,
+      "kind": "archive",
+      "text": "## 0.1.19 Alpha - Colony Wars Overhaul (October 15, 2026)"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 16,
+      "kind": "archive",
+      "text": "Current release suite: 138 checks passed. Command: dotnet run --no-restore --project tests/SessionDashboard.Checks.csproj -p:UseSharedCompilation=false -- --colony019. Evidence: test-output/20261015-174943/. The 0.1.18 arcade assertions below describe superseded behavior."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 24,
+      "kind": "archive",
+      "text": "- Version metadata is 0.1.19 and the visible designation remains Alpha. Self-contained normal and Arcade startup probes pass, reporting 0.1.19 Alpha, PerMonitorV2 and x64. Arcade has six colonies and ten bugs at the initial 700 ms probe. Package evidence: test-output/release019-package/startup.json and test-output/release019-colony-package/startup.json. Executable locations are recorded in RELEASE019.md."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 27,
+      "kind": "archive",
+      "text": "## 0.1.18 habitat and population update - October 15, 2026"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 34,
+      "kind": "archive",
+      "text": "- Version remains 0.1.18. Repackaged self-contained Windows x64 executable was copied to Nexa.exe after isolated startup verification. Package evidence: test-output/release018-habitats-package/startup.json; startup succeeded and reports PerMonitorV2 awareness."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 36,
+      "kind": "archive",
+      "text": "## 0.1.18 calm arcade and display revision - October 15, 2026"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 50,
+      "kind": "archive",
+      "text": "## Nexa 0.1.15 Recovery — Group 1 only"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 52,
+      "kind": "archive",
+      "text": "- Initial and final standard `dotnet build \".\\SessionDashboard.csproj\"` pass with zero warnings/errors; the previous executable lock is no longer a blocker. Release version remains 0.1.14 pending Group 7."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 57,
+      "kind": "archive",
+      "text": "## Nexa 0.1.14 Alpha — Add Bugs"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 64,
+      "kind": "archive",
+      "text": "## Nexa 0.1.13 Alpha — Pixel Swarm & Appearance"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 70,
+      "kind": "archive",
+      "text": "## Shared-edge and appearance follow-up (0.1.12 Alpha)"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 76,
+      "kind": "archive",
+      "text": "## Nexa 0.1.12 Alpha — Dashboard & Widget UX Update"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 90,
+      "kind": "archive",
+      "text": "## Nexa 0.1.11 Alpha — Bug Fixes, UI Refinements & Pixel Timer Performance"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 103,
+      "kind": "archive",
+      "text": "## Nexa 0.1.10 Alpha — Interface & Navigation Cleanup"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 116,
+      "kind": "archive",
+      "text": "## Nexa 0.1.9 Alpha — Versioning & Session Stability"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 121,
+      "kind": "archive",
+      "text": "- Alpha checks verify numeric 0.1.9 metadata, centralized `Nexa 0.1.9 Alpha` labels in Home/About/splash, all nine release-history entries, restored 0.1.1 Bug Fixes, descriptions and future 0.1.10 formatting. Changelog, session Settings and splash renders were inspected."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 127,
+      "kind": "archive",
+      "text": "- Manual limitations: physical desktop use and live-account authorization were not tested in this pass. The test windows exercise WPF behavior; this is not a claim that the new app was launched on the user's desktop. Earlier validation evidence below retains its original build numbering; release history now maps 1.0.1–1.0.8 to 0.1.1–0.1.8 Alpha."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 309,
+      "kind": "archive",
+      "text": "## Nexa 0.1.16 alpha — 2026-10-05"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 311,
+      "kind": "archive",
+      "text": "The exact `dotnet build \".\\SessionDashboard.csproj\"` and standard Release build both passed with zero warnings or errors. The final Release executable opened and responded; its Windows file version is 0.1.16.0."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 315,
+      "kind": "archive",
+      "text": "Physical tests at 100%, 125% and 150% DPI, mixed monitors and several fullscreen resolutions remain manual release QA; no such hardware was available to the automated WPF run. Existing pre-0.1.16 working-tree changes were preserved. No commit or push was made."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 318,
+      "kind": "archive",
+      "text": "## Nexa 0.1.17 alpha — October 14, 2026"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 321,
+      "kind": "archive",
+      "text": "- Existing `--release016`: 17 passing layout, scroll, counter save, Home footer and release-history checks. Version assertions now use 0.1.17 and preserve the historical 0.1.16 entry."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 324,
+      "kind": "archive",
+      "text": "- Packaged self-contained Windows x64 `Nexa.exe` reports file version `0.1.17.0`. `--verify-startup test-output/exe-package-017` passed, including all three embedded Bible translations. Root launcher and published executable have identical SHA-256 hashes."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 326,
+      "kind": "archive",
+      "text": "### 0.1.17 spider feeding and beer-bottle refinement — October 15, 2026"
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 330,
+      "kind": "archive",
+      "text": "- Current user-facing version labels are normalized to `Nexa 0.1.17 alpha`; the project and manifest remain 0.1.17/0.1.17.0."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 332,
+      "kind": "archive",
+      "text": "- The rebuilt self-contained x64 root `Nexa.exe` reports file version `0.1.17.0`, matches the published executable at SHA-256 `53E5E05C728D01892C18E4DFBEF5FD0A44D34A6FE7F01A31DCCDE13FAC1F3BC2`, and passed isolated startup verification with all three embedded Bible translations."
+    },
+    {
+      "path": "LEGACY/notes/VALIDATION.md",
+      "line": 334,
+      "kind": "archive",
+      "text": "### 0.1.17 additions — Ladybugs, Centipedes and Arcade"
+    },
+    {
+      "path": "LEGACY/notes/previous-implementation-0.1.24.md",
+      "line": 1,
+      "kind": "archive",
+      "text": "# Nexa v0.1.24 Alpha — NEXAWEEN"
+    },
+    {
+      "path": "LEGACY/notes/previous-implementation-0.1.24.md",
+      "line": 7,
+      "kind": "archive",
+      "text": "The current build is `M:/Nexa/Nexa.exe`, a self-contained Windows x64 executable. Its version remains **0.1.24**. The portable publish copy is `publish/win-x64/Nexa.exe`. Splash and home display **nexa v0.1.24 alpha**, with green branding; NEXAWEEN remains the release identity and changelog title."
+    },
+    {
+      "path": "LEGACY/notes/previous-implementation-0.1.24.md",
+      "line": 22,
+      "kind": "archive",
+      "text": "Logs: `verification/release-acceptance`. Isolated published-startup verification passed: x64, version 0.1.24, requested lowercase label, per-monitor-v2 awareness, 759 pixel cells, four default presets, and all three embedded Bible translations. Package hash and archive location are recorded in `verification/release-package.json`."
+    },
+    {
+      "path": "LEGACY/notes/previous-implementation-0.1.24.md",
+      "line": 44,
+      "kind": "archive",
+      "text": "- The 0.1.24 changelog alone has its purple background, green text, orange border and six requested section titles. Older release history remains intact."
+    },
+    {
+      "path": "README.md",
+      "line": 11,
+      "kind": "documentation",
+      "text": "[Download nexa](https://github.com/scrmarsh/nexa/releases) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Verification report](docs/TESTING-0.1.26-alpha.md)"
+    },
+    {
+      "path": "README.md",
+      "line": 15,
+      "kind": "documentation",
+      "text": "> **Latest alpha: [v0.1.26 — Spaces in Motion](https://github.com/scrmarsh/nexa/releases/tag/v0.1.26-alpha).** Cumulative productivity, collectible candy, session recaps, guided setup and seasonal artwork. See the [release notes](docs/releases/0.1.26-alpha.md) for verification and known alpha limitations."
+    },
+    {
+      "path": "README.md",
+      "line": 53,
+      "kind": "documentation",
+      "text": "Release-specific features, seasonal artwork and update notes live in the [changelog](CHANGELOG.md). The [verification report](docs/IMPLEMENTATION-0.1.24.md) records testing and known limitations."
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 11,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.26\", \"October 27, 2026\", \"Spaces in Motion · alpha preview\", \"Testing candidate: session recaps, cumulative productivity, guided setup and seasonal animation. Manual acceptance is still required.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 21,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.25\", \"October 27, 2026\", \"Dashboard refinements · development\", \"Intermediate testing work, not a public release.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 23,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.24\", \"October 27, 2026\", \"Getting Candy for Trick-or-Treaters\", \"A space for whatever haunts you next. Synchronized session progress, reliable saving, a consolidated interface and a seasonal bug ecosystem.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 32,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.23\", \"October 19, 2026\", \"Decorating for Halloween\", \"The Halloween preparation release.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 36,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.22\", \"October 19, 2026\", \"GPU Performance Fix\", \"Timer-paced rendering preserves hardware acceleration and avoids a compositor-driven update loop.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 42,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.21\", \"October 19, 2026\", \"Infinite Warfare\", \"One persistent insect world, shared by your dashboard and a widget-free battlefield.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 50,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.20\", \"October 19, 2026\", \"Armies and Shared Webs\", \"Larger armies, active retaliation and survivor recovery in Arcade Colony Wars.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 58,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.19\", \"October 15, 2026\", \"Colony Wars Overhaul\", \"Six autonomous armies battle for their royal leaders in continuously restarting matches.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 66,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.18\", \"October 15, 2026\", \"Bug Fixes\", \"Sharper displays, smooth scrolling and a calmer interactive arcade.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 75,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.17\", \"October 14, 2026\", \"Drink Counters, Laps & Bug Arcade\", \"Larger drink visuals, stopwatch laps, new species and escalating Arcade bugs.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 84,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.16\", \"October 5, 2026\", \"Stable Layout, Bugs and Counters\", \"Keeps widget placement predictable and expands the Add Bugs and counter features.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 91,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.15\", \"October 4, 2026\", \"Add Bugs Settings Fix\", \"Makes bug type and intensity selectable directly in Settings.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 97,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.14\", \"October 4, 2026\", \"Add Bugs\", \"Adds optional animated insects to Spaces.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 103,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.13\", \"October 4, 2026\", \"Pixel Swarm & Appearance\", \"Adds a staged Pixel Swarm game and live appearance updates.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 108,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.12\", \"October 3, 2026\", \"Dashboard & Widget UX Update\", \"Improves dashboard placement, simplifies the Pixel Timer, adds responsive widgets and optional calendars while preserving local Spaces.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 117,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.11\", \"October 3, 2026\", \"Bug Fixes, UI Refinements & Pixel Timer Performance\", \"Stabilizes window resizing, Pixel Timer rendering, widget placement and internal navigation.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 128,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.10\", \"October 3, 2026\", \"Interface & Navigation Cleanup\", \"Makes Nexa's internal panels, Home and dashboard navigation cleaner and more consistent.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 137,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.9\", \"October 3, 2026\", \"Versioning & Session Stability\", \"Introduces Nexa's Alpha version numbering system, improves release history and version labeling, and fixes active-session state handling and settings persistence.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 144,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.8\", \"October 3, 2026\", \"Widget + Dashboard Stability\", \"Improves widget placement, responsive session pixels and local recording while preserving saved Spaces.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 151,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.7\", \"October 3, 2026\", \"Lightweight UI & Interaction Polish\", \"Polishes lightweight navigation, widget movement and responsive dashboard presentation.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 159,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.6\", \"October 2, 2026\", \"Onboarding & Integrations\", \"Helps new users personalize local Spaces and adds optional task and calendar connections.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 167,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.5\", \"October 2, 2026\", \"Focus First\", \"Makes Nexa simpler and more focused with a signature Pixel Timer, calmer defaults and optional focus tools.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 176,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.4\", \"October 2, 2026\", \"Polish and Bug Fixes\", \"Spaces become more personal, responsive and useful for study and live sessions.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 186,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.3\", \"October 2, 2026\", \"Session Workspace Polish\", \"A more direct, polished session workspace.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 198,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.2\", \"October 1, 2026\", \"Desktop Foundation\", \"The desktop foundation.\","
+    },
+    {
+      "path": "ReleaseNotes.cs",
+      "line": 204,
+      "kind": "source-or-test",
+      "text": "        new(\"0.1.1\", \"Early Alpha\", \"Bug Fixes\", \"General bug fixes and stability improvements during early Alpha development.\", [])"
+    },
+    {
+      "path": "SessionDashboard.csproj",
+      "line": 15,
+      "kind": "source-or-test",
+      "text": "    <Version>0.1.26</Version><InformationalVersion>$(Version)-alpha</InformationalVersion><ApplicationManifest>app.manifest</ApplicationManifest>"
+    },
+    {
+      "path": "app.manifest",
+      "line": 3,
+      "kind": "source-or-test",
+      "text": "  <assemblyIdentity version=\"0.1.23.0\" name=\"Nexa.app\"/>"
+    },
+    {
+      "path": "docs/BUILDS.md",
+      "line": 3,
+      "kind": "documentation",
+      "text": "- `Builds/Testing/Nexa.exe`: unapproved 0.1.25 Alpha development candidate. `Publish-Exe.ps1` writes only here."
+    },
+    {
+      "path": "docs/BUILDS.md",
+      "line": 4,
+      "kind": "documentation",
+      "text": "- `Builds/Latest/Nexa.exe`: approved published 0.1.24 Alpha, commit `4562d69`. SHA256 `D836DE09B79E873E232ED6E9FAE67F9E1F73D5D6B2A62EFCCE1AB31C2E75B420`."
+    },
+    {
+      "path": "docs/DEVELOPMENT.md",
+      "line": 7,
+      "kind": "documentation",
+      "text": "The current specification is `NEXAWEEN-0.1.24-requirements.md`, with these later decisions: optional rectangle-only `widgetTargets` separate from collision-only `occupied`; no inferred attachment metadata; project source belongs in the private scrmarsh/nexa repository, with obsolete files preserved in LEGACY. Version remains 0.1.24."
+    },
+    {
+      "path": "docs/DEVELOPMENT.md",
+      "line": 11,
+      "kind": "documentation",
+      "text": "See [root audit](ROOT-AUDIT.md) for active root inputs and archive decisions, [integrations](INTEGRATIONS.md) for account setup, and [release notes](releases/0.1.24-alpha.md) for the downloadable package. The release executable is self-contained Windows x64; generated artifacts stay outside Git."
+    },
+    {
+      "path": "docs/DEVELOPMENT.md",
+      "line": 13,
+      "kind": "documentation",
+      "text": "The final-prompt repair candidate lives on `codex/nexaween-final-024`, with a recovery ref at `codex/recovery-before-final-024`. Read [current candidate status](FINAL-0.1.24-STATUS.md) before changing release metadata. Do not mark the final release or replace the published release until the remaining acceptance is complete and publication is authorized."
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 1,
+      "kind": "documentation",
+      "text": "# Nexa 0.1.25 Alpha feature audit"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 3,
+      "kind": "documentation",
+      "text": "This is an implementation audit, not a completion claim. **The development candidate is packaged but unapproved; explicit implementation gaps and manual checks remain.** Source starts at `0e71ac7` from the 0.1.24 repair branch. All prior requirements and the new complete prompt are retained; later 0.1.25 directions supersede conflicting older choices."
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 9,
+      "kind": "documentation",
+      "text": "| 1. History and Data Preservation | Existing read-only recovery, dispatcher-safe loading, search, raw damaged-record reports and asynchronous large-history loading retained. Regression routes final/core/continuity; existing-data check below. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `HistoryArchive.cs; SessionHistoryWindow.cs` | IMPLEMENTED; MANUAL ACCEPTANCE PENDING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 10,
+      "kind": "documentation",
+      "text": "| 2. Pixel Timer | Authoritative UTC Manual/Schedule timing retained; in-class count-up, intersession countdown, deterministic ordering and three-decimal precision pass existing checks. Physical sleep and target-zone DST remain manual. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `PixelTiming.cs; MainWindow.ClassSchedule.cs` | IMPLEMENTED; MANUAL ACCEPTANCE PENDING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 11,
+      "kind": "documentation",
+      "text": "| 3. Autosave and Session Reliability | Existing immediate/event-driven checkpoints, save gating, configurable intervals, post-session save and deferred pre-session reset retained and regression-tested. No live user records are reset by verification. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `Models.cs; MainWindow.Reliability.cs` | IMPLEMENTED; MANUAL ACCEPTANCE PENDING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 12,
+      "kind": "documentation",
+      "text": "| 4. Unified Settings | Single settings window, navigation, dropdown controls and temporary save confirmation preserved; menu/final/followup checks. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `SettingsDialog.cs; NexaChrome.cs` | IMPLEMENTED; MANUAL ACCEPTANCE PENDING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 13,
+      "kind": "documentation",
+      "text": "| 5. Session Settings | Separate Session interface, tips routing and widget interval controls retained; final/followup checks. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `SettingsDialog.Session.cs` | IMPLEMENTED; MANUAL ACCEPTANCE PENDING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 14,
+      "kind": "documentation",
+      "text": "| 6. Appearance | Accessible single Nexaween switch and preserved normal customization; shared seasonal Appearance backdrop added. Physical contrast/resize acceptance pending. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `SettingsDialog.Navigation.cs` | IMPLEMENTED; MANUAL ACCEPTANCE PENDING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 15,
+      "kind": "documentation",
+      "text": "| 7. Homepage | Six cards in two columns; Show More reveals three additional rows. Fixed WPF logical-parent crash on pagination. Existing Space IDs preserved; audit025 checks and render. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `HomeWindow.Recent.cs` | REPAIRED; AUTOMATED CHECKS PASS | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 16,
+      "kind": "documentation",
+      "text": "| 8. Window Borders | Existing rounded frame/border repair retained; native work-area tests pass. Mixed-DPI, interactive dragging and physical maximized/fullscreen still need acceptance. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `NexaChrome.cs` | REQUIRES MANUAL TESTING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 17,
+      "kind": "documentation",
+      "text": "| 9. Nexaween Logo | Seasonal SVG tile now uses existing neon green with neon purple. Regenerated 64/128/256 ICO and PNG from SVG. Home capture inspected; window/splash use shared resources. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `NexaLogo.cs; assets/` | REPAIRED; VISUAL ACCEPTANCE PENDING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 18,
+      "kind": "documentation",
+      "text": "| 10. Normal Logo | Restored exact pre-seasonal normal asset blobs from 9690b91, including blue/purple SVG, ICO and PNG. Light-mode rendering preserves icon colors. Exact v0.1.22 attribution is not established; executable shell icon remains fixed seasonal while runtime window icons switch. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `assets/; NexaLogo.cs` | PARTIALLY IMPLEMENTED | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 19,
+      "kind": "documentation",
+      "text": "| 11. Tagline | Exact lowercase seasonal phrase, without prefix/punctuation. Orange applied to every partial haunts prefix from its first letter; six regression cases. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `NexaBranding.cs` | REPAIRED; AUTOMATED CHECKS PASS | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 20,
+      "kind": "documentation",
+      "text": "| 12. Splash Screen | Monotonic three-second logo-only hold, loading work in parallel, hidden track until hold finishes, actual initialization stages. Existing startup checks verify readiness before 100%. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `SplashWindow.cs` | REPAIRED; AUTOMATED CHECKS PASS | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 21,
+      "kind": "documentation",
+      "text": "| 13. Seasonal Background | One shared native-vector scene for Home, dashboard and Appearance. Candy-weighted 10-category catalogue, per-actor 5–10-second holds/fades, stationary placement and safe counts. Physical long-duration lifecycle acceptance pending. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `Nexaween.cs; Nexaween.Animation.cs` | IMPLEMENTED; VISUAL ACCEPTANCE PENDING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 22,
+      "kind": "documentation",
+      "text": "| 14. Pumpkins and Vines | Two or three seeded rectangle-selected no-face pumpkin corner attachments, thicker branching growing vines, collision regions kept distinct from optional widgetTargets, no inferred UI anchors. Scroll/move/resize checks pass. Vines/pumpkins are not yet separate bug crawl surfaces; organic visual polish remains. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `Nexaween.Placement.cs` | PARTIALLY IMPLEMENTED | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 23,
+      "kind": "documentation",
+      "text": "| 15. Permanent Decorations | Permanent static home web/costumed spider and large shaded no-face bottom-right pumpkin with bottom vines added, behind controls. More extensive right-edge branching and final art acceptance remain. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `HomeWindow.cs` | PARTIALLY IMPLEMENTED | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 24,
+      "kind": "documentation",
+      "text": "| 16. Remove Standalone Ecosystem | Standalone ecosystem/map UI remains retired; reusable overlay behavior, saved populations and old statistics retained. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `LEGACY/source/NexaEcosystem.Window.cs` | IMPLEMENTED; REGRESSION CHECKS PASS | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 25,
+      "kind": "documentation",
+      "text": "| 17. Bug Controls | Independent behavior/appearance/Adorable choices retained. Added Low/Normal/High/Infestation selector and preference schema preserving prior fixed-high Infestation values. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `SettingsDialog.Bugs.cs` | REPAIRED; AUTOMATED CHECKS PASS | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 26,
+      "kind": "documentation",
+      "text": "| 18. Infestation | Adaptive Infestation has no fixed population cap; frame-cost, working-set, managed-memory and serialized-byte budgets throttle spawning. Low/Normal/High retain 12/36/96 caps. Pressure tests pass; sustained 20 FPS is not certified on physical hardware. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `NexaEcosystem.Simulation.cs` | PARTIALLY IMPLEMENTED | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 27,
+      "kind": "documentation",
+      "text": "| 19. Bug Distribution and Collisions | Bounded local spatial buckets separate overlapping ground bugs without a global pairwise loop. Existing All Bugs balancing retained. Long combat/Infestation distribution and offscreen load require acceptance. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `DashboardBugs.cs; BugNavigation.cs` | PARTIALLY IMPLEMENTED | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 28,
+      "kind": "documentation",
+      "text": "| 20. Spiders and Webs | Web spoke offsets use uniform ViewScale around mapped centers, eliminating X/Y stretch. Irregular persistent anchors/construction retained. Dedicated completed-web home-return behavior and physical scroll visibility need further verification. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `BugOverlay.cs; NexaWebGeometry.cs` | PARTIALLY IMPLEMENTED | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 29,
+      "kind": "documentation",
+      "text": "| 21. Creature Visual Effects | Removed yellow hit ring; body red flash, brief sad expression/tears added. Direct squash full-window green effect stays suppressed; unrelated productive feedback preserved. Reduced motion keeps a static damage response. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `BugVisuals.cs; BugOverlay.cs` | REPAIRED; VISUAL ACCEPTANCE PENDING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 30,
+      "kind": "documentation",
+      "text": "| 22. Cozy Candy Behavior | Cozy resources bind to visible candy identities/coordinates. Short eating pause, resource consumption, shrinking/disappearance, lease preventing fade during feeding, delayed replacement including disabled-motion mode. New functional tests exercise actual decoration resource consumption. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `NexaEcosystem.Simulation.cs` | IMPLEMENTED; MANUAL ACCEPTANCE PENDING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 31,
+      "kind": "documentation",
+      "text": "| 23. Squash Statistics | Illustrated six-species view, per-species session/all-time counts above portraits, immediate direct-squash refresh and history breakdown. Earlier unknown-species totals remain explicitly unclassified, never invented. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `MainWindow.SessionWidgets.cs` | IMPLEMENTED; AUTOMATED CHECKS PASS | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 32,
+      "kind": "documentation",
+      "text": "| 24. Combine Productivity Meter and Productivity Score | One new Productivity library entry combines score, actions, categories, recent gains and compact/expanded views. Both legacy kinds resolve and retain identity/settings/placement; central ledger prevents duplicate scoring. Existing dual placements are intentionally retained rather than destructively merged; automatic lossless placement consolidation remains. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `Widgets.cs; MainWindow.SessionWidgets.cs` | PARTIALLY IMPLEMENTED | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 33,
+      "kind": "documentation",
+      "text": "| 25. Streak Multiplier | One centered noninteractive viewport popup, score/multiplier/gains and optional small flame rendering. Two-minute saved scoring windows retained; visual half-step decay stops scoring at expiry without changing earned points. Reduces work while idle/hidden. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `NexaFeedback.cs` | IMPLEMENTED; AUTOMATED CHECKS PASS | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 34,
+      "kind": "documentation",
+      "text": "| 26. Sounds | Existing generated pop/positive/negative cues, volume-aware previews, mute and overlap protection retained. Actual device playback remains manual. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `InterfaceAudio.cs` | REQUIRES MANUAL TESTING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 35,
+      "kind": "documentation",
+      "text": "| 27. Integrations | Code implements Hedy lecture notes, not Hevy fitness. Todoist and existing provider authorization paths/credentials preserved. No Hevy integration was invented; requested ordering and Coming Soon presentation remain to reconcile without hiding existing connected providers. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `SettingsDialog.Profile.cs; HedyClient.cs` | PARTIALLY IMPLEMENTED / AMBIGUOUS PROVIDER | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 36,
+      "kind": "documentation",
+      "text": "| 28. Public GitHub Releases | Public /releases feed, compatible alpha channels, actual portable Nexa.exe asset/digest matching, bounded pagination, malformed-record tolerance and explicit 404/rate-limit feedback. Synthetic feed checks pass; separate unauthenticated live check recorded in repair report. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `ExperimentalUpdates.cs` | REPAIRED; LIVE CHECKS PASS | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 37,
+      "kind": "documentation",
+      "text": "| 29. Safe Update Installation | Unique partial downloads, size/SHA256/identity/x64 checks, local backup, explicit prepare/restart approval, separate helper, atomic replacement, health gate, rollback and interrupted-state resume. Updates remains experimental until final real-user approval flow acceptance. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `SettingsDialog.Updates.cs` | IMPLEMENTED; ISOLATED CHECKS PASS | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 38,
+      "kind": "documentation",
+      "text": "| 30. Automated Tests | 410 distinct regression checks passed across the full run and affected-route reruns; 14 additional live/compatibility/packaged checks passed. Exact evidence and limits are recorded in the repair report. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `tests/; tools/Verify.ps1` | AUTOMATED CHECKS PASS | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 39,
+      "kind": "documentation",
+      "text": "| 31. Manual Acceptance | Checklist covers physical suspend/resume, pointer/dropdowns, sound, real integrations, shell cache, mixed DPI and sustained Infestation. Unchecked items are not passes. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `docs/MANUAL-TESTING-0.1.25.md` | REQUIRES MANUAL TESTING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 40,
+      "kind": "documentation",
+      "text": "| 32. One Authoritative Builds Folder | Publish writes Builds/Testing only. Latest contains checksum-matched approved published 0.1.24; Archive reserved for approved predecessors. Duplicate publish folders retained in ignored LEGACY/build-artifacts; root executable unchanged. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `Publish-Exe.ps1` | IMPLEMENTED | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 41,
+      "kind": "documentation",
+      "text": "| 33. Candidate Build | Self-contained x64 candidate built in Builds/Testing/Nexa.exe. Source revision, SHA256, native startup and isolated helper/restart/rollback checks recorded in repair report. Full acceptance: [requirements](REQUIREMENTS-0.1.25.md). | `Builds/Testing` | PACKAGED; MANUAL ACCEPTANCE PENDING | See repair report and manual checklist. |"
+    },
+    {
+      "path": "docs/FEATURE-AUDIT-0.1.25.md",
+      "line": 49,
+      "kind": "documentation",
+      "text": "See [TWEAKS-0.1.25](TWEAKS-0.1.25.md) for the newer candidate. It adds staggered arrivals, compact clickable tips, bottom-centered productivity feedback, triple-size squash portraits, persistent collaborative irregular webs, species-specific edge/hiding/landing behavior, seasonal orange water and shared jack-o’-lantern artwork with extended vines. The initial table above predates these follow-ups; newer evidence in the linked report supersedes its web-return, pumpkin/menu-art and popup-position findings. Dedicated decorative crawl surfaces and the other explicit broader gaps remain unfinished."
+    },
+    {
+      "path": "docs/FINAL-0.1.24-STATUS.md",
+      "line": 1,
+      "kind": "documentation",
+      "text": "# Nexa 0.1.24 Alpha — final-prompt repair candidate"
+    },
+    {
+      "path": "docs/FINAL-0.1.24-STATUS.md",
+      "line": 5,
+      "kind": "documentation",
+      "text": "Version remains **0.1.24 Alpha**. The working branch is `codex/nexaween-final-024`; the source recovery point is `codex/recovery-before-final-024` at published commit `4562d69`. The published GitHub release and running root executable are unchanged. The separate Aevoria project was not modified."
+    },
+    {
+      "path": "docs/FINAL-0.1.24-STATUS.md",
+      "line": 27,
+      "kind": "documentation",
+      "text": "- In-app **0.1.23 Alpha — Decorating for Halloween** replaces the Living Worlds title/claims. Unrelated older release entries remain. 0.1.24 is not marked final."
+    },
+    {
+      "path": "docs/FINAL-0.1.24-STATUS.md",
+      "line": 73,
+      "kind": "documentation",
+      "text": "- [LEGACY/notes/IMPLEMENTATION-0.1.24-published-4562d69.md](../LEGACY/notes/IMPLEMENTATION-0.1.24-published-4562d69.md)"
+    },
+    {
+      "path": "docs/FINAL-0.1.24-STATUS.md",
+      "line": 103,
+      "kind": "documentation",
+      "text": "- `docs/FINAL-0.1.24-STATUS.md` — retired; preserved in `LEGACY/source/`."
+    },
+    {
+      "path": "docs/FINAL-0.1.24-STATUS.md",
+      "line": 104,
+      "kind": "documentation",
+      "text": "- [docs/IMPLEMENTATION-0.1.24.md](../docs/IMPLEMENTATION-0.1.24.md)"
+    },
+    {
+      "path": "docs/IMPLEMENTATION-0.1.24.md",
+      "line": 1,
+      "kind": "documentation",
+      "text": "# Nexa 0.1.24 Alpha implementation"
+    },
+    {
+      "path": "docs/IMPLEMENTATION-0.1.24.md",
+      "line": 3,
+      "kind": "documentation",
+      "text": "The current work is a **critical-repair candidate**, not a verified final Nexaween release. See [candidate implementation, verification and remaining acceptance](FINAL-0.1.24-STATUS.md)."
+    },
+    {
+      "path": "docs/IMPLEMENTATION-0.1.24.md",
+      "line": 5,
+      "kind": "documentation",
+      "text": "The previously published build's report is preserved in [LEGACY](../LEGACY/notes/IMPLEMENTATION-0.1.24-published-4562d69.md). Its evidence describes that earlier build, not the final prompt's unfinished requirements."
+    },
+    {
+      "path": "docs/IMPLEMENTATION-0.1.26-alpha.md",
+      "line": 1,
+      "kind": "documentation",
+      "text": "# nexa v0.1.26 alpha - implementation after three passes"
+    },
+    {
+      "path": "docs/IMPLEMENTATION-0.1.26-alpha.md",
+      "line": 40,
+      "kind": "documentation",
+      "text": "See [testing](TESTING-0.1.26-alpha.md) and [release readiness](RELEASE-READINESS-0.1.26-alpha.md). Known performance limitation: a Space-load outlier remains in the measured sample. No live frame-rate or extended-memory improvement is claimed."
+    },
+    {
+      "path": "docs/IMPLEMENTATION-0.1.26-alpha.md",
+      "line": 90,
+      "kind": "documentation",
+      "text": "- docs/IMPLEMENTATION-0.1.26-alpha.md"
+    },
+    {
+      "path": "docs/INTEGRATIONS.md",
+      "line": 3,
+      "kind": "documentation",
+      "text": "Account and provider setup for Nexa. These services are optional; live provider and microphone acceptance is documented separately in the [implementation report](IMPLEMENTATION-0.1.24.md)."
+    },
+    {
+      "path": "docs/INTEGRATIONS.md",
+      "line": 54,
+      "kind": "documentation",
+      "text": "## Nexa 0.1.8 Alpha local recording and Hedy"
+    },
+    {
+      "path": "docs/MANUAL-TESTING-0.1.25.md",
+      "line": 1,
+      "kind": "documentation",
+      "text": "# Nexa 0.1.25 Alpha manual acceptance"
+    },
+    {
+      "path": "docs/NEXAWEEN-0.1.24-requirements.md",
+      "line": 1,
+      "kind": "original-requirements",
+      "text": "# NEXA v0.1.24 ALPHA — NEXAWEEN"
+    },
+    {
+      "path": "docs/NEXAWEEN-0.1.24-requirements.md",
+      "line": 5,
+      "kind": "original-requirements",
+      "text": "**Release:** 0.1.24 Alpha  "
+    },
+    {
+      "path": "docs/NEXAWEEN-0.1.24-requirements.md",
+      "line": 1053,
+      "kind": "original-requirements",
+      "text": "Preserve and complete the features already specified for v0.1.24 Alpha."
+    },
+    {
+      "path": "docs/NEXAWEEN-0.1.24-requirements.md",
+      "line": 1224,
+      "kind": "original-requirements",
+      "text": "**Nexa v0.1.24 Alpha — NEXAWEEN**"
+    },
+    {
+      "path": "docs/NEXAWEEN-0.1.24-requirements.md",
+      "line": 1232,
+      "kind": "original-requirements",
+      "text": "The v0.1.24 Alpha changelog entry must use:"
+    },
+    {
+      "path": "docs/NEXAWEEN-0.1.24-requirements.md",
+      "line": 1431,
+      "kind": "original-requirements",
+      "text": "Nexa v0.1.24 Alpha — NEXAWEEN should first fix its dynamic Pixel Timer, synchronization issues, broken Settings controls, bug visibility, scrolling, and productivity logic."
+    },
+    {
+      "path": "docs/NEXAWEEN-0.1.24-requirements.md",
+      "line": 1441,
+      "kind": "original-requirements",
+      "text": "# END — NEXA v0.1.24 ALPHA: NEXAWEEN"
+    },
+    {
+      "path": "docs/NEXAWEEN-0.1.24-requirements.md",
+      "line": 1446,
+      "kind": "original-requirements",
+      "text": "- `occupied` is collision-only; attachment targets come exclusively from the supplied widget rectangles. Missing targets skip contextual art. No new attachment metadata/configuration system is required for 0.1.24."
+    },
+    {
+      "path": "docs/RELEASE-READINESS-0.1.26-alpha.md",
+      "line": 1,
+      "kind": "documentation",
+      "text": "# nexa v0.1.26 alpha - testing candidate readiness"
+    },
+    {
+      "path": "docs/RELEASE-READINESS-0.1.26-alpha.md",
+      "line": 3,
+      "kind": "documentation",
+      "text": "**Approved by the user for v0.1.26 alpha publication on October 28, 2026. Manual acceptance remains incomplete.**"
+    },
+    {
+      "path": "docs/RELEASE-READINESS-0.1.26-alpha.md",
+      "line": 7,
+      "kind": "documentation",
+      "text": "Candidate destination: M:/Nexa/Builds/Testing/0.1.26-alpha-passes-20261028/Nexa.exe."
+    },
+    {
+      "path": "docs/RELEASE-READINESS-0.1.26-alpha.md",
+      "line": 13,
+      "kind": "documentation",
+      "text": "Self-contained Windows x64 executable: 145,244,982 bytes; product version 0.1.26-alpha+e63ea704090b7299c2e07662a9411601a9ba66c4. Candidate provenance and checksums are also saved beside the executable in candidate.json and SHA256SUMS.txt."
+    },
+    {
+      "path": "docs/RELEASE-READINESS-0.1.26-alpha.md",
+      "line": 33,
+      "kind": "documentation",
+      "text": "See the [implementation](IMPLEMENTATION-0.1.26-alpha.md) and [testing evidence](TESTING-0.1.26-alpha.md)."
+    },
+    {
+      "path": "docs/REPAIR-REPORT-0.1.25.md",
+      "line": 1,
+      "kind": "documentation",
+      "text": "# nexa 0.1.25 Alpha repair report"
+    },
+    {
+      "path": "docs/REPAIR-REPORT-0.1.25.md",
+      "line": 3,
+      "kind": "documentation",
+      "text": "**Latest testing candidate:** follow-up source `0f075afd98d5723dcc402c8852483422c0e230f5`; SHA256 `34AF60183B25A495E191B7975AD72CBA4F4CBDF65053A8932C2581FD4C15B66A`. The executable remains `M:\\Nexa\\Builds\\Testing\\Nexa.exe`. See [the current tweak report](TWEAKS-0.1.25.md) for completed follow-up work, 442 distinct passing regression checks, final startup evidence and remaining manual acceptance. This is an unapproved candidate."
+    },
+    {
+      "path": "docs/REPAIR-REPORT-0.1.25.md",
+      "line": 18,
+      "kind": "documentation",
+      "text": "| Product version | `0.1.25+1c48c6519eae912f3937a1f5ad7e38b81a12c85c` |"
+    },
+    {
+      "path": "docs/REPAIR-REPORT-0.1.25.md",
+      "line": 24,
+      "kind": "documentation",
+      "text": "| Approved Latest | Published 0.1.24 Alpha, source `4562d69`; SHA256 `D836DE09B79E873E232ED6E9FAE67F9E1F73D5D6B2A62EFCCE1AB31C2E75B420` |"
+    },
+    {
+      "path": "docs/REPAIR-REPORT-0.1.25.md",
+      "line": 30,
+      "kind": "documentation",
+      "text": "- **Public updates:** asset matching accepted only a versioned Setup.exe although the official public release contains Nexa.exe. Discovery now handles the portable asset, official size/digest, compatible alpha channels, bounded pagination, malformed entries and useful 404/rate-limit errors. An unauthenticated live call found published 0.1.24 Alpha with the expected canonical URL and digest."
+    },
+    {
+      "path": "docs/REPAIR-REPORT-0.1.25.md",
+      "line": 68,
+      "kind": "documentation",
+      "text": "4. The executable's Explorer/shortcut icon is fixed seasonal. Runtime window logos/icons switch normally; exact v0.1.22 asset-version provenance and shell-cache behavior are not certified."
+    },
+    {
+      "path": "docs/REPAIR-REPORT-0.1.25.md",
+      "line": 72,
+      "kind": "documentation",
+      "text": "See [the full 33-requirement audit](FEATURE-AUDIT-0.1.25.md), [retained exact requirements](REQUIREMENTS-0.1.25.md), and [manual checklist](MANUAL-TESTING-0.1.25.md). The next pass should resolve the explicit implementation gaps, then record manual acceptance before any promotion to Latest or public release. No final-release changelog was generated for this candidate."
+    },
+    {
+      "path": "docs/REPAIR-REPORT-0.1.25.md",
+      "line": 74,
+      "kind": "documentation",
+      "text": "## Files changed from the 0.1.24 repair source"
+    },
+    {
+      "path": "docs/REPAIR-REPORT-0.1.25.md",
+      "line": 133,
+      "kind": "documentation",
+      "text": "- `docs/FEATURE-AUDIT-0.1.25.md`"
+    },
+    {
+      "path": "docs/REPAIR-REPORT-0.1.25.md",
+      "line": 134,
+      "kind": "documentation",
+      "text": "- `docs/REQUIREMENTS-0.1.25.md`"
+    },
+    {
+      "path": "docs/REQUIREMENTS-0.1.25.md",
+      "line": 2,
+      "kind": "original-requirements",
+      "text": "## v0.1.25 Alpha Development Candidate"
+    },
+    {
+      "path": "docs/REQUIREMENTS-0.1.25.md",
+      "line": 7,
+      "kind": "original-requirements",
+      "text": "**Previous version:** 0.1.24 Alpha  "
+    },
+    {
+      "path": "docs/REQUIREMENTS-0.1.25.md",
+      "line": 8,
+      "kind": "original-requirements",
+      "text": "**Next planned version:** 0.1.25 Alpha  "
+    },
+    {
+      "path": "docs/REQUIREMENTS-0.1.25.md",
+      "line": 36,
+      "kind": "original-requirements",
+      "text": "6. Create a new development branch for the 0.1.25 candidate from the correct latest source."
+    },
+    {
+      "path": "docs/REQUIREMENTS-0.1.25.md",
+      "line": 80,
+      "kind": "original-requirements",
+      "text": "`docs/FEATURE-AUDIT-0.1.25.md`"
+    },
+    {
+      "path": "docs/REQUIREMENTS-0.1.25.md",
+      "line": 319,
+      "kind": "original-requirements",
+      "text": "When Nexaween is disabled, restore the exact original blue-and-purple logo from version 0.1.22."
+    },
+    {
+      "path": "docs/REQUIREMENTS-0.1.25.md",
+      "line": 840,
+      "kind": "original-requirements",
+      "text": "`docs/FEATURE-AUDIT-0.1.25.md`"
+    },
+    {
+      "path": "docs/REQUIREMENTS-0.1.25.md",
+      "line": 842,
+      "kind": "original-requirements",
+      "text": "`docs/REPAIR-REPORT-0.1.25.md`"
+    },
+    {
+      "path": "docs/REQUIREMENTS-0.1.25.md",
+      "line": 844,
+      "kind": "original-requirements",
+      "text": "`docs/MANUAL-TESTING-0.1.25.md`"
+    },
+    {
+      "path": "docs/REQUIREMENTS-0.1.25.md",
+      "line": 890,
+      "kind": "original-requirements",
+      "text": "Do not finalize the changelog or publish v0.1.25 yet."
+    },
+    {
+      "path": "docs/ROOT-AUDIT.md",
+      "line": 1,
+      "kind": "documentation",
+      "text": "# Root audit — 0.1.24 Alpha"
+    },
+    {
+      "path": "docs/ROOT-AUDIT.md",
+      "line": 12,
+      "kind": "documentation",
+      "text": "| `INTEGRATIONS.md` | `LEGACY/notes/INTEGRATIONS-0.1.6.md` | Old version-labeled guide; current account setup moved to `docs/INTEGRATIONS.md` |"
+    },
+    {
+      "path": "docs/ROOT-AUDIT.md",
+      "line": 153,
+      "kind": "documentation",
+      "text": "The separate ecosystem window is now archived in `LEGACY/source/`. `HistoryArchive.cs` and `SessionHistoryWindow.cs` are active shared history reading/recovery and UI code. The overlay manager/store remains required for dashboard bugs, persistence and squash totals. See [current implementation status](FINAL-0.1.24-STATUS.md); the above audit remains a record of the earlier root cleanup."
+    },
+    {
+      "path": "docs/TESTING-0.1.26-alpha.md",
+      "line": 1,
+      "kind": "documentation",
+      "text": "# nexa v0.1.26 alpha - testing after three passes"
+    },
+    {
+      "path": "docs/TESTING-0.1.26-alpha.md",
+      "line": 62,
+      "kind": "documentation",
+      "text": "- The native update test now uses App.AppVersion instead of a stale 0.1.25 expectation."
+    },
+    {
+      "path": "docs/TWEAKS-0.1.25.md",
+      "line": 1,
+      "kind": "documentation",
+      "text": "# nexa 0.1.25 Alpha — dashboard, bugs and seasonal follow-up"
+    },
+    {
+      "path": "docs/TWEAKS-0.1.25.md",
+      "line": 37,
+      "kind": "documentation",
+      "text": "- Product version: `0.1.25+0f075afd98d5723dcc402c8852483422c0e230f5`."
+    },
+    {
+      "path": "docs/media/nexaween-banner.svg",
+      "line": 2,
+      "kind": "visible-artwork",
+      "text": "  <title id=\"title\">nexa v0.1.24 alpha — NEXAWEEN</title>"
+    },
+    {
+      "path": "docs/media/nexaween-banner.svg",
+      "line": 17,
+      "kind": "visible-artwork",
+      "text": "  <text x=\"160\" y=\"129\" fill=\"#A855F7\" font-family=\"Segoe UI,Arial,sans-serif\" font-size=\"17\" font-weight=\"600\" letter-spacing=\"2\">v0.1.24 alpha · WINDOWS DESKTOP</text>"
+    },
+    {
+      "path": "docs/releases/0.1.24-alpha.md",
+      "line": 1,
+      "kind": "documentation",
+      "text": "![NEXAWEEN — nexa v0.1.24 alpha](https://github.com/scrmarsh/nexa/raw/refs/heads/main/docs/media/nexaween-banner.svg)"
+    },
+    {
+      "path": "docs/releases/0.1.24-alpha.md",
+      "line": 5,
+      "kind": "documentation",
+      "text": "Nexa 0.1.24 Alpha brings the essentials together: recurring sessions, reliable saving, readable history and a dashboard with room to grow. NEXAWEEN adds a little candy, a little crawling and plenty of personality."
+    },
+    {
+      "path": "docs/releases/0.1.24-alpha.md",
+      "line": 44,
+      "kind": "documentation",
+      "text": "[Implementation and verification report](https://github.com/scrmarsh/nexa/blob/main/docs/IMPLEMENTATION-0.1.24.md) · [Root audit](https://github.com/scrmarsh/nexa/blob/main/docs/ROOT-AUDIT.md)"
+    },
+    {
+      "path": "docs/releases/0.1.26-alpha.md",
+      "line": 1,
+      "kind": "documentation",
+      "text": "# nexa v0.1.26 alpha — Spaces in Motion"
+    },
+    {
+      "path": "tests/Nexa025Checks.cs",
+      "line": 14,
+      "kind": "source-or-test",
+      "text": "    private static string Feed(string name=\"Nexa.exe\", string repository=\"scrmarsh/nexa\", string version=\"0.1.24\", string channel=\"alpha\", string digest=\"\") => JsonSerializer.Serialize(new[]{new { draft=false, tag_name=$\"v{version}-{channel}\", prerelease=true, name=\"Published alpha\",body=\"Recorded notes\",published_at=\"2026-10-26T00:00:00Z\",assets=new[]{new { name, size=4,digest=\"sha256:\"+(digest==\"\"?new string('A',64):digest), browser_download_url=$\"https://github.com/{repository}/releases/download/v{version}-{channel}/{name}\"}} }});"
+    },
+    {
+      "path": "tests/Nexa025Checks.cs",
+      "line": 33,
+      "kind": "source-or-test",
+      "text": "        var bytes=new byte[]{1,2,3,4};var digest=Convert.ToHexString(SHA256.HashData(bytes));var offered=new AvailableUpdate(new(0,1,24),\"Alpha\",\"test\",\"\",null,new Uri(\"https://github.com/scrmarsh/nexa/releases/download/v0.1.24-alpha/Nexa.exe\"),4,digest);"
+    },
+    {
+      "path": "tests/Nexa026Checks.cs",
+      "line": 30,
+      "kind": "source-or-test",
+      "text": "        Assert(App.VersionLabel==\"nexa v0.1.26 alpha\",\"Current alpha version comes from assembly metadata\");"
+    },
+    {
+      "path": "tests/NexaFollowupChecks.cs",
+      "line": 101,
+      "kind": "source-or-test",
+      "text": "            var json=System.Text.Json.JsonSerializer.Serialize(new[]{new{tag_name=\"v0.1.25-alpha\",name=\"Synthetic release\",prerelease=true,draft=false,assets=new[]{new{name=\"Nexa-0.1.25-Alpha-Setup.exe\",size=123,digest=\"sha256:\"+new string('a',64),browser_download_url=\"https://github.com/\"+repository+\"/releases/download/v0.1.25-alpha/Nexa-0.1.25-Alpha-Setup.exe\"}}}});"
+    },
+    {
+      "path": "tests/NexaShowcase.cs",
+      "line": 31,
+      "kind": "source-or-test",
+      "text": "            Assert(report.RootElement.GetProperty(\"AppVersion\").GetString()==\"0.1.24\",\"Screenshot comes from the published application: \"+slug);"
+    },
+    {
+      "path": "tests/NexaweenMoreChecks.cs",
+      "line": 72,
+      "kind": "source-or-test",
+      "text": "        Assert(App.AppVersion == \"0.1.26\" && App.VersionLabel == \"nexa v0.1.26 alpha\", \"Development candidate identifies itself as nexa v0.1.26 alpha\");"
+    }
+  ]
+}
