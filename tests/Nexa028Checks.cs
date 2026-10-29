@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -137,10 +137,10 @@ internal static partial class Program
         var widgets=Enumerable.Range(0,36).Select(i=>{var w=WidgetLibrary.Create("Notes");w.Text="Saved note "+i;w.PlacementX=0;w.PlacementY=i*360;return w;}).ToList();
         store.Save(new AppState{WidgetLayoutInitialized=true,Widgets=widgets});
         var main=OffscreenHandoff(new MainWindow(store));main.Show();Pump(TimeSpan.FromMilliseconds(100));
-        Assert(main.DeferredWidgetBodies>20 && main.state.Widgets.Count==36,"Large Space defers offscreen bodies while preserving every widget model");
+        Assert(main.DeferredWidgetBodies>20 && main.state.Widgets.Count(w=>w.Kind=="Notes")==36 && main.state.Widgets.Count(w=>w.Kind=="Pixel timer")==1,"Large Space defers offscreen bodies while preserving every widget model");
         main.WidgetScroller.ScrollToEnd();Pump(TimeSpan.FromMilliseconds(150));
         Assert(Descendants(main.WidgetCanvas).OfType<TextBox>().Any(t=>t.Text=="Saved note 35"),"Scrolling to a deferred final widget constructs its real saved editor");
-        main.SaveNow();Assert(store.Load().Widgets.Select(w=>w.Text).SequenceEqual(widgets.Select(w=>w.Text)),"Saving a partially materialized visual tree preserves all offscreen notes");
+        main.SaveNow();Assert(store.Load().Widgets.Where(w=>w.Kind=="Notes").Select(w=>w.Text).SequenceEqual(widgets.Select(w=>w.Text)),"Saving a partially materialized visual tree preserves all offscreen notes");
         Assert(main.WidgetLayoutPasses>0 && main.WidgetLayoutMilliseconds>=0,"Layout phase instrumentation remains available");main.Close();
     }
     private static void Diagnostics028()

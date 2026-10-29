@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
@@ -97,7 +97,7 @@ internal sealed partial class SettingsDialog
     private UIElement BuildSounds()
     {
         var page=Page("Sounds","Interface, timer and seasonal sounds. Sounds remain available while Nexaween is enabled.");store.LoadInteractionPreferences(state);
-        var enabled=new CheckBox{Content="Enable interface, timer and game sounds",IsChecked=state.InterfaceSoundsEnabled};page.Children.Add(enabled);
+        var enabled=new CheckBox{Content="Enable interface, timer and game sounds",IsChecked=state.InterfaceSoundsEnabled,Margin=new Thickness(0,14,0,14)};page.Children.Add(enabled);
         var volume=new Slider{Minimum=0,Maximum=1,Value=state.InterfaceSoundVolume};Field(page,"Sound volume",volume);
         var preview = new Button { Content = "Test Sound", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 6, 0, 6) };
         preview.Click += (_, _) => InterfaceAudio.PreviewCue(volume.Value,"positive",state.PositiveFeedbackSound);

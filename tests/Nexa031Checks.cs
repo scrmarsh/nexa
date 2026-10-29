@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Windows;
@@ -32,7 +32,7 @@ internal static partial class Program
     }
     private static void Capture031(Window window,string name)
     {
-        var folder=Path.GetFullPath("docs/media/nexa031");Directory.CreateDirectory(folder);window.UpdateLayout();var root=(FrameworkElement)window.Content;
+        var folder=Path.GetFullPath("docs/media/nexa034/continuity031");Directory.CreateDirectory(folder);window.UpdateLayout();var root=(FrameworkElement)window.Content;
         var bitmap=new RenderTargetBitmap((int)Math.Ceiling(root.ActualWidth),(int)Math.Ceiling(root.ActualHeight),96,96,PixelFormats.Pbgra32);bitmap.Render(root);
         var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));using var file=File.Create(Path.Combine(folder,name+".png"));encoder.Save(file);
     }
@@ -124,7 +124,7 @@ internal static partial class Program
             foreach(var angle in new[]{0d,90,180,-45,135,42})
             {var bug=new BugEntity{Species=BugSpecies.Spiders,Angle=angle,Position=new(0,0),CrawlPhase=index*.6};dc.PushTransform(new TranslateTransform(95+index*200,130));dc.PushTransform(new RotateTransform(angle));dc.PushTransform(new ScaleTransform(4,4));BugVisuals.Draw(dc,bug,new EcosystemOptions{Adorable=true,AdvancedAnimations=true},false,1.3,new(100,30),1);dc.Pop();dc.Pop();dc.Pop();index++;}
         }
-        var bitmap=new RenderTargetBitmap(1200,280,96,96,PixelFormats.Pbgra32);bitmap.Render(visual);var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));Directory.CreateDirectory("docs/media/nexa031");using var file=File.Create("docs/media/nexa031/spider-directions.png");encoder.Save(file);
+        var bitmap=new RenderTargetBitmap(1200,280,96,96,PixelFormats.Pbgra32);bitmap.Render(visual);var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));Directory.CreateDirectory("docs/media/nexa034/continuity031");using var file=File.Create("docs/media/nexa034/continuity031/spider-directions.png");encoder.Save(file);
     }
     private static void CheckPackaged031(string candidate)
     {

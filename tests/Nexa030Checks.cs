@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -123,13 +123,13 @@ internal static partial class Program
     }
     private static void Save030(Window window,string name)
     {
-        var folder=Path.GetFullPath("docs/media/nexa030");Directory.CreateDirectory(folder);window.UpdateLayout();var root=(FrameworkElement)window.Content;
+        var folder=Path.GetFullPath("docs/media/nexa034/continuity030");Directory.CreateDirectory(folder);window.UpdateLayout();var root=(FrameworkElement)window.Content;
         var bitmap=new RenderTargetBitmap((int)Math.Ceiling(root.ActualWidth),(int)Math.Ceiling(root.ActualHeight),96,96,PixelFormats.Pbgra32);bitmap.Render(root);
         var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));using var file=File.Create(Path.Combine(folder,name+".png"));encoder.Save(file);
     }
     private static void Preview030()
     {
-        var folder=Path.GetFullPath("docs/media/nexa030");Directory.CreateDirectory(folder);
+        var folder=Path.GetFullPath("docs/media/nexa034/continuity030");Directory.CreateDirectory(folder);
         var store=new StateStore(Path.Combine(output,"preview030.json"));
         var state=store.Load();state.Workspace=Continuity.Migrate(state,store.UserId);
         state.Workspace.Settings.SeasonalMode="On";state.Workspace.Settings.SeasonalAnimation=true;state.Workspace.Settings.SeasonalDecorations=true;

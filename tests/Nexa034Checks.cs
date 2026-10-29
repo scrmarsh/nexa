@@ -59,6 +59,25 @@ internal static partial class Program
             var locked=Path.Combine(root,"locked.zip");try{NexaData.Export(target,locked,CancellationToken.None);Assert(false,"Locked input must fail");}catch(IOException){Assert(!File.Exists(locked),"Locked file failure never publishes an incomplete backup");}
         }
         try{NexaData.Inside(target,"../unrelated.txt");Assert(false,"Traversal must be rejected");}catch(IOException){Assert(true,"Owned path validation rejects traversal");}
+        var linkedTarget=Path.Combine(root,"unrelated-folder");Directory.CreateDirectory(linkedTarget);File.WriteAllText(Path.Combine(linkedTarget,"keep.txt"),"Unrelated fixture bytes");
+        var link=Path.Combine(target,"linked-folder");
+        var create=new System.Diagnostics.ProcessStartInfo("powershell.exe"){UseShellExecute=false,CreateNoWindow=true,WindowStyle=System.Diagnostics.ProcessWindowStyle.Hidden};
+        foreach(var argument in new[]{"-NoProfile","-NonInteractive","-Command","New-Item -ItemType Junction -Path $env:NEXA_TEST_LINK -Target $env:NEXA_TEST_TARGET -ErrorAction Stop | Out-Null"})create.ArgumentList.Add(argument);
+        create.Environment["NEXA_TEST_LINK"]=link;create.Environment["NEXA_TEST_TARGET"]=linkedTarget;
+        using(var process=System.Diagnostics.Process.Start(create)!)
+        {
+            if(!process.WaitForExit(15000)){process.Kill();throw new TimeoutException("Isolated junction fixture creation timed out.");}
+            if(process.ExitCode==0)
+            {
+                try
+                {
+                    try{NexaData.Export(target,Path.Combine(root,"linked.zip"),CancellationToken.None);Assert(false,"Linked inputs must be rejected");}catch(IOException){Assert(!File.Exists(Path.Combine(root,"linked.zip")),"Export rejects directory junctions without publishing an archive");}
+                    try{NexaData.Delete(target,true);Assert(false,"Linked roots must not be deleted");}catch(IOException){Assert(File.Exists(Path.Combine(target,"state.json")) && File.ReadAllText(Path.Combine(linkedTarget,"keep.txt"))=="Unrelated fixture bytes","Deletion rejects a junction before changing owned or unrelated files");}
+                }
+                finally{Directory.Delete(link);}
+            }
+            else Console.WriteLine("UNVERIFIED: This token cannot create the isolated NTFS junction fixture.");
+        }
         try{NexaData.Export(target,Path.Combine(root,"missing-directory","backup.zip"),CancellationToken.None);Assert(false,"Unavailable destination must fail");}catch(IOException){Assert(true,"Destination failure publishes no backup");}
         try{NexaData.Delete(target);Assert(false,"Noncanonical UI deletion root must be refused");}catch(IOException){Assert(File.Exists(Path.Combine(target,"state.json")),"Production deletion refuses an arbitrary fixture root");}
         var at=DateTimeOffset.UtcNow;var consent=new NexaDeletionConsent();Assert(!consent.Begin("confirm",at)&&!consent.Authorize(at,true),"Only exact uppercase CONFIRM can arm deletion");

@@ -37,13 +37,15 @@ internal static class NexaData
         lock(SnapshotGate)
         {
             var files=Files(root).ToArray(); // Validate every entry before any deletion, including links.
+            // Commit the restart guard before removing any data. If it cannot be made durable,
+            // abort rather than allowing a later launch to silently reimport legacy originals.
+            var marker=Inside(root,"Settings/legacy-import-disabled");Directory.CreateDirectory(Path.GetDirectoryName(marker)!);
+            if(!File.Exists(marker))StateStore.AtomicWrite(marker,"Legacy import disabled after explicit local reset.",false);
             // Installer/update executables can be cached under the data root. They are app files,
             // and are preserved even during an explicit data reset.
-            files=files.Where(f=>Path.GetExtension(f).ToLowerInvariant() is not (".exe" or ".dll" or ".msi" or ".sys")).ToArray();
+            files=files.Where(f=>!f.Equals(marker,StringComparison.OrdinalIgnoreCase) && Path.GetExtension(f).ToLowerInvariant() is not (".exe" or ".dll" or ".msi" or ".sys")).ToArray();
             frozenRoots.Add(root+Path.DirectorySeparatorChar);var errors=new List<string>();
             foreach(var file in files)try{Regular(file);File.Delete(file);}catch(Exception ex)when(ex is IOException or UnauthorizedAccessException){errors.Add(Path.GetRelativePath(root,file)+": "+ex.Message);}
-            // Prevent deleted .34 data from being silently reimported from preserved legacy originals.
-            var marker=Inside(root,"Settings/legacy-import-disabled");Directory.CreateDirectory(Path.GetDirectoryName(marker)!);File.WriteAllText(marker,"Legacy import disabled after explicit local reset.");
             return errors.ToArray();
         }
     }
