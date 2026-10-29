@@ -126,7 +126,10 @@ internal class NexaDialog : Window
         PreviewKeyDown += (_, e) => NexaPanels.HandleEscape(this, e);
         PreviewMouseLeftButtonDown += (_, e) =>
         {
-            if (NexaFullscreen.IsFullscreen(this) || e.ClickCount != 1 || Mouse.LeftButton != MouseButtonState.Pressed ||
+            // Let an owned panel consume its owner's outside click before native DragMove
+            // can enter a modal move loop. The topmost panel itself remains draggable.
+            var overlay=NexaPanels.Topmost(this);
+            if (e.Handled || overlay!=null && !ReferenceEquals(overlay,this) || NexaFullscreen.IsFullscreen(this) || e.ClickCount != 1 || Mouse.LeftButton != MouseButtonState.Pressed ||
                 !BlankPanelDragTarget(e.OriginalSource as DependencyObject, this)) return;
             DragMove(); e.Handled = true;
         };

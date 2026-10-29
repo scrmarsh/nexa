@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,7 +36,9 @@ internal static partial class Program
         home.RaiseEvent(nestedClick); Pump(TimeSpan.FromMilliseconds(230));
         Console.WriteLine($"Nested menu after outside click: handled={nestedClick.Handled}, parent visible={parent.IsVisible}, child visible={child.IsVisible}, parent closing={parent.DismissalInProgress}, child closing={child.DismissalInProgress}");
         Assert(nestedClick.Handled && !child.IsVisible && parent.IsVisible, "Outside click closes only the topmost nested menu");
+        Console.WriteLine("Closing remaining parent; physical button state="+Mouse.LeftButton);
         home.RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left) { RoutedEvent = UIElement.PreviewMouseLeftButtonDownEvent });
+        Console.WriteLine("Remaining parent outside-click handler returned");
         Pump(TimeSpan.FromMilliseconds(230)); Assert(!parent.IsVisible, "Next outside click closes the remaining menu");
         var originalBounds=new Rect(home.Left,home.Top,home.ActualWidth,home.ActualHeight);
         var dev = Descendants(home).OfType<Button>().Single(b => Equals(b.Content, "DEV"));

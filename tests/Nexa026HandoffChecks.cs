@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Windows;
@@ -51,7 +51,8 @@ internal static partial class Program
         ClickHandoff(home,"↑ Hide More Spaces");
         if(NexaMotion.Allowed(home.Saved.Workspace.Settings))
         {
-            Assert(CardsHandoff(home).Length==12,"Hide More retains visual children during exit");Pump(TimeSpan.FromMilliseconds(160));
+            Assert(CardsHandoff(home).Length==12,"Hide More retains visual children during exit");
+            WaitHandoff(()=>extra.Last().Opacity<extra.First().Opacity,"Reverse-staggered exit reaches its first rendered frame");
             Assert(extra.Last().Opacity<extra.First().Opacity,"Last added Space exits first");
         }
         WaitHandoff(()=>CardsHandoff(home).Length==6,"Hide More restores exactly six Spaces after exit");

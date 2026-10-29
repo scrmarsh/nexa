@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -61,7 +61,7 @@ internal static partial class Program
         Assert(adorable.IsChecked == false && advanced.IsChecked == false && costumes.IsChecked == false, "Settings load existing preferences without resetting them");
         advanced.IsChecked = true; advanced.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent)); settings.FlushPendingChanges();
         var persisted = store.LoadBugPreferences().Ecosystem!;
-        Assert(persisted.AdvancedAnimations && !persisted.Adorable && !persisted.Costumes && persisted.Size == 1.25 && persisted.MatchAppearance == old.MatchAppearance && persisted.Appearance == old.Appearance, "Advanced animation toggle persists without replacing unrelated choices or automatic appearance");
+        Assert(persisted.AdvancedAnimations && !persisted.Adorable && !persisted.Costumes && persisted.Size == 1.25 && persisted.EffectiveAppearance == old.EffectiveAppearance && persisted.Appearance == old.Appearance, "Advanced animation toggle persists without replacing unrelated choices or the effective appearance");
         var appearance = Descendants(settings).OfType<ComboBox>().Single(c => c.Items.OfType<string>().SequenceEqual(new[] {"Classic","Creepy","Halloween"}));
         appearance.SelectedItem = "Halloween"; settings.FlushPendingChanges();
         Assert(!world.Manager.SeasonalCostumes, "Explicit Halloween appearance respects costume-off choice");

@@ -89,7 +89,8 @@ internal static partial class Program
             }
             else Console.WriteLine("UNVERIFIED: This token cannot create the isolated NTFS junction fixture.");
         }
-        try{NexaData.Export(target,Path.Combine(root,"missing-directory","backup.zip"),CancellationToken.None);Assert(false,"Unavailable destination must fail");}catch(IOException){Assert(true,"Destination failure publishes no backup");}
+        File.WriteAllText(Path.Combine(root,"unavailable-parent"),"This is a file, not a destination directory.");
+        try{NexaData.Export(target,Path.Combine(root,"unavailable-parent","backup.zip"),CancellationToken.None);Assert(false,"Unavailable destination must fail");}catch(IOException){Assert(true,"Destination failure publishes no backup");}
         try{NexaData.Delete(target);Assert(false,"Noncanonical UI deletion root must be refused");}catch(IOException){Assert(File.Exists(Path.Combine(target,"state.json")),"Production deletion refuses an arbitrary fixture root");}
         var at=DateTimeOffset.UtcNow;var consent=new NexaDeletionConsent();Assert(!consent.Begin("confirm",at)&&!consent.Authorize(at,true),"Only exact uppercase CONFIRM can arm deletion");
         Assert(consent.Begin("CONFIRM",at)&&!consent.Authorize(at.AddSeconds(29)),"Deletion cannot precede its 30-second deadline");consent.Cancel();Assert(!consent.Authorize(at.AddMinutes(1),true),"Canceled confirmation cannot delete even after its deadline");
