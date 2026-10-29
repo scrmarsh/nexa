@@ -24,17 +24,16 @@ internal static class NexaNavigation
         var enabled=root?.IsEnabled??true;if(root!=null)root.IsEnabled=false;
         try
         {
-            source.Background=Brushes.Black;
-            if(root!=null)await NexaMotion.Fade(root,0,options);
+            // Keep the complete source opaque throughout preparation.
             if(closed)return;
             timings["Fade out"]=phase.Elapsed.TotalMilliseconds;phase.Restart();
             target=await prepare();timings["Prepare and construct"]=phase.Elapsed.TotalMilliseconds;phase.Restart();
             if(closed){target.Close();return;}
             NexaChrome.TransferBounds(source,target);
-            // Supersede the generic window entrance. Content stays black until first layout completes.
-            target.Loaded+=(_,_)=>{target.BeginAnimation(Window.OpacityProperty,null);target.Opacity=1;};
-            var targetRoot=target.Content as FrameworkElement;var background=target.Background;target.Background=Brushes.Black;
-            if(targetRoot!=null)targetRoot.Opacity=0;
+            // Render invisibly above the still-opaque source; reveal the complete window in one step.
+            target.ShowActivated=true;target.BeginAnimation(Window.OpacityProperty,null);target.Opacity=0;
+            target.Loaded+=(_,_)=>{target.BeginAnimation(Window.OpacityProperty,null);target.Opacity=0;};
+            var targetRoot=target.Content as FrameworkElement;
             var rendered=new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             target.ContentRendered+=(_,_)=>rendered.TrySetResult();
             if(targetRoot!=null)targetRoot.IsEnabled=false;
@@ -43,12 +42,13 @@ internal static class NexaNavigation
             await target.Dispatcher.InvokeAsync(()=>{},DispatcherPriority.ContextIdle);
             timings["First complete render"]=phase.Elapsed.TotalMilliseconds;
             timings["Interactive readiness"]=request.Elapsed.TotalMilliseconds;phase.Restart();
-            if(target is MainWindow dashboard)dashboard.AnimateWidgetEntrance();
-            if(targetRoot!=null)await NexaMotion.Fade(targetRoot,1,options);
+            target.UpdateLayout();
+            target.BeginAnimation(Window.OpacityProperty,null);target.Opacity=1;
             if(targetRoot!=null)targetRoot.IsEnabled=true;
+            target.Activate();
+            await target.Dispatcher.InvokeAsync(()=>{},DispatcherPriority.Render);
             timings["Input enabled"]=request.Elapsed.TotalMilliseconds;
-            timings["Fade in"]=phase.Elapsed.TotalMilliseconds;LastProfile=timings;
-            target.Background=background;
+            timings["Fade in"]=0;LastProfile=timings;
             phase.Restart();
             if(source is MainWindow main)main.CloseAfterNavigation();else source.Close();
             timings["Source window teardown"]=phase.Elapsed.TotalMilliseconds;

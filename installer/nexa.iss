@@ -5,7 +5,7 @@
   #define OutputDirPath "..\verification\installer033"
 #endif
 #ifndef AppVersion
-  #define AppVersion "0.0.33"
+  #define AppVersion "0.0.34"
 #endif
 #ifdef TestRoot
   #define ProductId "{B80F06DA-5764-44B7-B632-68ACB4BE0330}"
@@ -18,7 +18,7 @@
   #define InstallDir "{localappdata}\Programs\nexa"
   #define DesktopDir "{userdesktop}"
   #define MenuDir "{userprograms}\nexa"
-  #define DataDir "{localappdata}\SessionDashboard"
+  #define DataDir "{localappdata}\Nexa"
 #endif
 
 [Setup]
@@ -39,7 +39,11 @@ MinVersion=10.0
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
 WizardStyle=modern
+WizardBackColor=$261B17
+WizardBackColorDynamicDark=$261B17
 SetupIconFile=..\assets\nexa-icon.ico
+WizardImageFile=..\assets\nexa-setup-classic.bmp
+WizardSmallImageFile=..\assets\nexa-setup-small.bmp
 UninstallDisplayIcon={app}\Nexa.exe
 UninstallDisplayName=nexa
 OutputDir={#OutputDirPath}
@@ -56,22 +60,23 @@ CloseApplicationsFilter=Nexa.exe
 RestartApplications=no
 UsePreviousAppDir=yes
 UsePreviousTasks=yes
-SetupMutex=Local\nexa.Installer.033
+SetupMutex=Local\nexa.Installer
 ChangesAssociations=no
 
+[Messages]
+WelcomeLabel1=Welcome to the Nexa Setup Wizard
+InstallingLabel=Installing Nexa
+
 [Tasks]
-Name: desktopicon; Description: "Create a desktop shortcut"; GroupDescription: "Shortcuts:"; Flags: checkedonce
-Name: oldcopies; Description: "Find and clean up verified old portable copies after backing them up"; GroupDescription: "Previous versions:"
-#ifndef TestRoot
-Name: fullscan; Description: "Also search local drives (may take several minutes)"; GroupDescription: "Previous versions:"; Flags: unchecked
-#endif
+Name: desktopicon; Description: "Create Desktop Shortcut"; GroupDescription: "Shortcuts:"
+Name: startmenu; Description: "Add to Start Menu"; GroupDescription: "Shortcuts:"
 
 [Files]
-Source: "{#PublishDir}\Nexa.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#PublishDir}\Nexa.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: PayloadNeeded
 Source: "{srcexe}"; DestDir: "{app}\setup-cache"; DestName: "NexaSetup.exe"; Flags: external ignoreversion; Check: CacheNeeded
 
 [Icons]
-Name: "{#MenuDir}\nexa"; Filename: "{app}\Nexa.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Nexa.exe"
+Name: "{#MenuDir}\nexa"; Filename: "{app}\Nexa.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Nexa.exe"; Tasks: startmenu
 Name: "{#DesktopDir}\nexa"; Filename: "{app}\Nexa.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Nexa.exe"; Tasks: desktopicon
 
 [Run]
@@ -79,16 +84,33 @@ Filename: "{app}\Nexa.exe"; Description: "Launch nexa"; Flags: nowait postinstal
 
 [UninstallDelete]
 Type: files; Name: "{app}\installation.json"
+Type: files; Name: "{app}\installer-integrity.json"
 Type: files; Name: "{app}\.nexa-update.lock"
 
 [Code]
 var
   PlanPath: String;
   DeleteUserData: Boolean;
+  DiscoveryPage: TOutputMsgMemoWizardPage;
+  SearchProgress: TOutputProgressWizardPage;
+  ModePage: TInputOptionWizardPage;
+  Prepared, Preparing: Boolean;
+  PreparationError: String;
+
+function PayloadNeeded: Boolean;
+begin
+  Result := True;
+  if FileExists(ExpandConstant('{app}\Nexa.exe')) then
+    try Result := CompareText(GetSHA256OfFile(ExpandConstant('{app}\Nexa.exe')), '{#GetSHA256OfFile(PublishDir + "\Nexa.exe")}') <> 0;
+    except Result := True; end;
+end;
 
 function CacheNeeded: Boolean;
 begin
   Result := CompareText(ExpandConstant('{srcexe}'), ExpandConstant('{app}\setup-cache\NexaSetup.exe')) <> 0;
+  if Result and FileExists(ExpandConstant('{app}\setup-cache\NexaSetup.exe')) then
+    try Result := CompareText(GetSHA256OfFile(ExpandConstant('{srcexe}')), GetSHA256OfFile(ExpandConstant('{app}\setup-cache\NexaSetup.exe'))) <> 0;
+    except Result := True; end;
 end;
 
 function DataRoot: String;
@@ -101,51 +123,131 @@ begin
   Result := '"' + Value + '"';
 end;
 
-function PrepareToInstall(var NeedsRestart: Boolean): String;
+procedure PreparationLog(const S: String; const Error, FirstLine: Boolean);
+begin
+  SearchProgress.SetText(S, 'Checking bounded nexa locations; no full-PC search.');
+  DiscoveryPage.RichEditViewer.Lines.Add(S);
+  Log(S);
+end;
+
+procedure PrepareInstallation;
 var
   Code: Integer;
-  Args, Roots, Drive: String;
-  I: Integer;
+  Args, Roots, Registered: String;
+  Report: AnsiString;
 begin
-  Result := '';
+  if Preparing then exit;
+  Preparing := True;
+  PreparationError := ''; Prepared := False;
   ExtractTemporaryFile('Nexa.exe');
   PlanPath := ExpandConstant('{tmp}\migration-plan.json');
 #ifdef TestRoot
   Roots := Quoted(ExpandConstant('{#TestRoot}\legacy'));
 #else
-  Roots := Quoted(ExpandConstant('{userdesktop}')) + ' ' + Quoted(ExpandConstant('{%USERPROFILE}\Downloads')) + ' ' + Quoted(ExpandConstant('{userdocs}'));
-  if WizardIsTaskSelected('fullscan') then
-    for I := Ord('C') to Ord('Z') do begin
-      Drive := Chr(I) + ':\';
-      if DirExists(Drive) then Roots := Roots + ' ' + Quoted(Drive);
-    end;
+  Roots := Quoted(ExpandConstant('{userdesktop}')) + ' ' + Quoted(ExpandConstant('{%USERPROFILE}\Downloads')) + ' ' + Quoted(ExpandConstant('{userdocs}\nexa')) + ' ' + Quoted(ExpandConstant('{localappdata}\Programs\nexa')) + ' ' + Quoted(ExpandConstant('{autopf}\nexa'));
+  if RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#ProductId}_is1', 'InstallLocation', Registered) then
+    Roots := Roots + ' ' + Quoted(Registered);
 #endif
   if ExpandConstant('{param:LEGACYSOURCE|}') <> '' then Roots := Roots + ' ' + Quoted(ExpandConstant('{param:LEGACYSOURCE}'));
   Args := '--installer-prepare ' + Quoted(PlanPath) + ' ' + Quoted(DataRoot) + ' ' + Quoted(ExpandConstant('{app}')) + ' ' + Roots;
-  if not Exec(ExpandConstant('{tmp}\Nexa.exe'), Args, '', SW_HIDE, ewWaitUntilTerminated, Code) then
-    Result := 'Could not start migration checks. Your saves and old copies are unchanged.'
-  else if Code <> 0 then
-    Result := 'Could not safely back up existing saves. Close nexa and try again. Details: ' + PlanPath + '.error';
+#ifdef TestRoot
+  ForceDirectories(ExpandConstant('{#TestRoot}'));
+  SaveStringToFile(ExpandConstant('{#TestRoot}\.nexa-installer-fixture'), 'Isolated test installer only', False);
+  StringChangeEx(Args, '--installer-prepare ', '--installer-prepare-fixture ', False);
+#endif
+  SearchProgress.SetText('Checking registered installation and saved data', 'Preparing verified backups');
+  SearchProgress.SetProgress(0, 0);
+  SearchProgress.Show;
+  try
+    if not ExecAndLogOutput(ExpandConstant('{tmp}\Nexa.exe'), Args, '', SW_HIDE, ewWaitUntilTerminated, Code, @PreparationLog) then
+      PreparationError := 'Could not start installation checks. Existing saves and portable copies are unchanged.'
+    else if Code <> 0 then begin
+      LoadStringFromFile(PlanPath + '.error', Report);
+      PreparationError := 'Preparation failed. No installation will start. ' + Report;
+    end;
+    Prepared := PreparationError = '';
+    if Prepared then begin
+      if LoadStringFromFile(PlanPath + '.report.txt', Report) then DiscoveryPage.RichEditViewer.Lines.Add(Report);
+      if FileExists(ExpandConstant('{app}\Nexa.exe')) then begin
+        if PayloadNeeded then DiscoveryPage.RichEditViewer.Lines.Add('Installed application is missing expected bytes or differs from this package. Setup will replace it from the embedded verified payload.')
+        else DiscoveryPage.RichEditViewer.Lines.Add('Application integrity verified. Existing correct application bytes will be kept.');
+      end else DiscoveryPage.RichEditViewer.Lines.Add('Application payload is missing. Setup will install the embedded verified payload.');
+    end else begin DiscoveryPage.RichEditViewer.Lines.Add(PreparationError); Log(PreparationError); end;
+  finally SearchProgress.Hide; Preparing := False; end;
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  if not Prepared then PrepareInstallation;
+  Result := PreparationError;
+end;
+
+procedure InitializeWizard;
+var Registered: String;
+begin
+  ModePage := CreateInputOptionPage(wpWelcome, 'Install or repair nexa', 'Choose how Setup should maintain this installation.', 'Repair preserves Spaces, recordings, history, settings and connections.', True, False);
+  ModePage.Add('Install or update nexa');
+  ModePage.Add('Repair Files');
+  ModePage.SelectedValueIndex := 0;
+  ModePage.CheckListBox.ItemEnabled[1] := RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#ProductId}_is1', 'InstallLocation', Registered);
+  DiscoveryPage := CreateOutputMsgMemoPage(wpSelectTasks, 'Searching for Existing Nexa Installations', 'Review discovered locations and integrity before installing.', 'Only bounded known locations are inspected. Portable copies are preserved.', '');
+  SearchProgress := CreateOutputProgressPage('Searching for Existing Nexa Installations', 'Checking installations and verifying backups');
+end;
+
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  if (CurPageID = wpSelectDir) or (CurPageID = wpSelectTasks) then Prepared := False;
+  if (CurPageID = DiscoveryPage.ID) and not Preparing and not Prepared then begin
+    WizardForm.NextButton.Enabled := False;
+    PrepareInstallation;
+    WizardForm.NextButton.Enabled := Prepared;
+    if ModePage.SelectedValueIndex = 1 then WizardForm.NextButton.Caption := 'Repair Files';
+  end;
+end;
+
+procedure RemoveOwnedShortcut(const Link: String);
+var Shell, Shortcut: Variant;
+begin
+  if not FileExists(Link) then exit;
+  try
+    Shell := CreateOleObject('WScript.Shell'); Shortcut := Shell.CreateShortcut(Link);
+    if CompareText(Shortcut.TargetPath, ExpandConstant('{app}\Nexa.exe')) = 0 then
+      if not DeleteFile(Link) then RaiseException('Could not remove the deselected nexa shortcut: ' + Link);
+  except Log('Shortcut preserved: ' + Link + ': ' + GetExceptionMessage); end;
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   Code: Integer;
-  Choice, Marker, JsonData: String;
+  Choice, Marker, JsonData, Failure: String;
 begin
   if CurStep = ssPostInstall then begin
+    try
+    WizardForm.StatusLabel.Caption := 'Verifying application files and Windows registration';
+    if CompareText(GetSHA256OfFile(ExpandConstant('{app}\Nexa.exe')), '{#GetSHA256OfFile(PublishDir + "\Nexa.exe")}') <> 0 then
+      RaiseException('Installed application checksum differs from the trusted payload. Rerun Setup.');
     JsonData := DataRoot;
     StringChangeEx(JsonData, '\', '\\', True);
     Marker := '{"AppId":"{#ProductId}","Scope":"CurrentUser","DataRoot":"' + JsonData + '"}';
     if not SaveStringToFile(ExpandConstant('{app}\installation.json'), Marker, False) then
       RaiseException('Could not write the installation identity. Rerun Setup to repair.');
+    if not SaveStringToFile(ExpandConstant('{app}\installer-integrity.json'), '{"Schema":1,"Version":"{#AppVersion}","PayloadSHA256":"{#GetSHA256OfFile(PublishDir + "\Nexa.exe")}","SetupSHA256":"' + GetSHA256OfFile(ExpandConstant('{srcexe}')) + '"}', False) then
+      RaiseException('Could not save installer integrity information.');
     Choice := 'keep';
-    if WizardIsTaskSelected('oldcopies') then Choice := 'remove';
+    // Portable executables are always preserved; removal requires a separate explicit workflow.
     if not Exec(ExpandConstant('{app}\Nexa.exe'), '--installer-complete ' + Quoted(PlanPath) + ' ' + Choice, '', SW_HIDE, ewWaitUntilTerminated, Code) then
       RaiseException('Could not finish migration. Old copies were preserved.');
     if Code <> 0 then RaiseException('Migration did not finish. Old copies were preserved.');
     ForceDirectories(DataRoot + '\installation-reports');
     CopyFile(PlanPath, DataRoot + '\installation-reports\latest-migration.json', False);
+    if not WizardIsTaskSelected('desktopicon') then RemoveOwnedShortcut(ExpandConstant('{#DesktopDir}\nexa.lnk'));
+    if not WizardIsTaskSelected('startmenu') then RemoveOwnedShortcut(ExpandConstant('{#MenuDir}\nexa.lnk'));
+    WizardForm.StatusLabel.Caption := 'Application integrity, registration and shortcuts verified';
+    except
+      Failure := GetExceptionMessage;
+      Exec(ExpandConstant('{tmp}\Nexa.exe'), '--installer-rollback ' + Quoted(PlanPath), '', SW_HIDE, ewWaitUntilTerminated, Code);
+      RaiseException(Failure + ' Previous executable restoration was requested; inspect the installation report before retrying.');
+    end;
   end;
 end;
 

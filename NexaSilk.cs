@@ -5,18 +5,12 @@ internal sealed partial class BugManager
     internal double? WebCoordinateAspect {get;set;}
     internal Rect WebBounds(EcosystemWeb web)
     {
-        if(web.AnchorId is {} id && Surfaces.TryGetValue(id,out var card))
-        {
-            var width=Math.Max(12,Math.Min(180,card.Width*.55));var height=Math.Max(12,Math.Min(150,card.Height*.5));
-            if(WebCoordinateAspect is {} aspect && aspect>0)
-            {
-                var ratio=width*aspect/height;
-                if(ratio>1.3)width=height*1.3/aspect;
-                else if(ratio<.8)height=width*aspect/.8;
-            }
-            return new Rect(Math.Clamp(card.Right-width*.25+web.AnchorOffsetX,12,WorldWidth-width-12),Math.Clamp(card.Top-height*.75+web.AnchorOffsetY,12,WorldHeight-height-12),width,height);
-        }
-        return new Rect(Math.Clamp(web.X-160,12,WorldWidth-332),Math.Clamp(web.Y-115,12,WorldHeight-242),320,230);
+        var aspect=Math.Max(.1,WebCoordinateAspect??1);
+        var height=Math.Sqrt(WorldWidth*WorldHeight*.25*aspect);
+        height=Math.Min(height,Math.Min(WorldHeight-48,(WorldWidth-48)*aspect));
+        var width=height/aspect;
+        var center=web.AnchorId is {} id && Surfaces.TryGetValue(id,out var card)?new Point(card.Right,card.Top):new Point(web.X,web.Y);
+        return new Rect(Math.Clamp(center.X-width/2,24,WorldWidth-width-24),Math.Clamp(center.Y-height/2,24,WorldHeight-height-24),width,height);
     }
     internal static void EnsureSilk(EcosystemWeb web)
     {
@@ -41,10 +35,10 @@ internal sealed partial class BugManager
         if(home!=null && (home.Construction<1 || random.NextDouble()<.78))
         {bug.Activity=BugActivity.Nesting;bug.Target=WebBounds(home).Location;bug.Decision=Range(5,10);return true;}
         if(home!=null)return false;
-        var shared=Webs.Where(w=>w.Construction<1 && w.Helpers.Count<8).OrderBy(w=>(WebBounds(w).Location-bug.Position).LengthSquared).FirstOrDefault();
-        if(shared!=null && (WebBounds(shared).Location-bug.Position).Length<600)
+        var shared=Webs.Where(w=>w.Construction<1 && w.Helpers.Count<96).OrderBy(w=>(WebBounds(w).Location-bug.Position).LengthSquared).FirstOrDefault();
+        if(shared!=null)
         {shared.Helpers.Add(bug.InteractionId);bug.Activity=BugActivity.Nesting;bug.Target=WebBounds(shared).Location;bug.Decision=8;return true;}
-        if(Webs.Count>=24 || random.NextDouble()>.45)return false;
+        if(Webs.Count>=3 || Webs.Any(w=>w.Construction<1) || Webs.Count>0 && Bugs.Count(b=>IsActive(b)&&b.Species==BugSpecies.Spiders)<8*(Webs.Count+1) || random.NextDouble()>.45)return false;
         var anchor=Surfaces.Count>0?Surfaces.MinBy(p=>(p.Value.Location-bug.Position).LengthSquared):default;
         var web=new EcosystemWeb{Owner=bug.InteractionId,X=Math.Clamp(Surfaces.Count>0?anchor.Value.Right+12:bug.Position.X,12,WorldWidth-12),Y=Math.Clamp(Surfaces.Count>0?anchor.Value.Top-12:bug.Position.Y,12,WorldHeight-12),AnchorId=Surfaces.Count>0?anchor.Key:null,AnchorOffsetX=12,AnchorOffsetY=-12};
         EnsureSilk(web);Webs.Add(web);bug.Activity=BugActivity.Nesting;bug.Target=WebBounds(web).Location;bug.Decision=8;return true;

@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void Check029()
     {
-        Assert(App.AppVersion=="0.0.33" && App.VersionLabel=="nexa v0.0.33 alpha","Current candidate has lowercase Alpha identity");
+        Assert(App.AppVersion=="0.0.34" && App.VersionLabel=="nexa v0.0.34 alpha","Current candidate has lowercase Alpha identity");
         var old=JsonSerializer.Deserialize<NexaOptions>("{}")!;
         Assert(old.EnableF11 && old.FullscreenNotification && old.ShowSystemIndicators && old.EnableVolumeSlider && old.EscExitsFullscreen,"Old settings acquire all five display defaults");
         Assert(old.HomeWallpaper.Mode==SpaceBackgroundMode.Default && !new SpaceBackground().FitImage,"Old wallpaper saves preserve default fill behavior");
@@ -113,7 +113,7 @@ internal static partial class Program
         Assert(!main.IsFullscreen && Math.Abs(main.Width-before.Width)<1 && Math.Abs(main.Height-before.Height)<1 && main.ExitButton.Visibility==Visibility.Visible,"Fullscreen restores dimensions and caption controls");
         Assert(main.state.Notes==notes && Continuity.Current(main.state.Workspace!,store.UserId).Current.SessionId==sessionId,"Fullscreen leaves session identity/data intact");
         var transcript=Descendants(main).OfType<TextBox>().First(t=>t.IsReadOnly && t.TextWrapping==TextWrapping.Wrap && t.VerticalScrollBarVisibility==ScrollBarVisibility.Auto && t.Parent is Border{Tag:"ResizableTranscript"});
-        var small=transcript.ActualHeight;main.state.Widgets.Single().Height=960;
+        var small=transcript.ActualHeight;main.state.Widgets.Single(w=>w.Kind=="Hedy Notes").Height=960;
         typeof(MainWindow).GetMethod("ArrangeWidgetFrames",BindingFlags.Instance|BindingFlags.NonPublic)!.Invoke(main,null);Pump(TimeSpan.FromMilliseconds(50));
         Assert(transcript.ActualHeight>small+100,"Hedy transcript viewport grows substantially with widget resize");
         var settings=new SettingsDialog(main,store,main.state,main,"Session");settings.Show();Pump(TimeSpan.FromMilliseconds(30));

@@ -118,12 +118,12 @@ internal sealed partial class SettingsDialog : NexaPanel
         var modes = new WrapPanel(); var themes = new WrapPanel();
         Field(page, "Light mode", modes); Field(page, "Theme Colors", themes);
         var seasonalNote=new TextBlock{Text="Nexaween overrides the theme color.",Tag="SeasonalThemeOverride",Foreground=Brush("MutedBrush"),TextWrapping=TextWrapping.Wrap,Visibility=Theme.SeasonalEnabled?Visibility.Visible:Visibility.Collapsed,Margin=new Thickness(0,0,0,8)};page.Children.Add(seasonalNote);
-        var note = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = Brush("MutedBrush"), Margin = new Thickness(0, 12, 0, 0) }; page.Children.Add(note);
+
         void SaveAppearance()
         {
             Theme.Apply(Application.Current.Resources, selectedMode, selectedTheme); space?.RefreshThemeViews();
             var modeToSave = selectedMode; var themeToSave = selectedTheme;
-            QueueSave("appearance", () => { store.SavePreferences(modeToSave, themeToSave); note.Text = "Appearance saved."; });
+            QueueSave("appearance", () => { store.SavePreferences(modeToSave, themeToSave); });
         }
         void Choice(Panel group, string label, bool selected, Action choose)
         {
@@ -142,8 +142,6 @@ internal sealed partial class SettingsDialog : NexaPanel
             var option=new RadioButton{Content=content,Tag=value,GroupName="ThemeColors",IsChecked=value==selectedTheme,Margin=new Thickness(0,0,16,10),Padding=new Thickness(5)};
             System.Windows.Automation.AutomationProperties.SetName(option,AppearancePalettes.Name(value));option.ToolTip=color;option.Checked+=(_,_)=>{selectedTheme=value;SaveAppearance();};themes.Children.Add(option);choices[value]=option;
         }
-        var restore=new Button{Content="Restore default theme color",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,4,0,8)};
-        restore.Click+=(_,_)=>{choices[AppTheme.Nexa].IsChecked=true;selectedTheme=AppTheme.Nexa;SaveAppearance();};page.Children.Add(restore);
         return page;
     }
     private UIElement BuildHedy()

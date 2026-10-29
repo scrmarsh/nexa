@@ -113,7 +113,7 @@ internal sealed partial class BugManager
         {
             if (!r.Decoration && r.Amount < 12) { r.Regrowth += dt; if (r.Regrowth >= 90) { r.Amount = Math.Min(12, r.Amount + 1); r.Regrowth = 0; } }
         }
-        for (var i = Webs.Count - 1; i >= 0; i--) { Webs[i].Age += dt; if (Webs[i].Age > 86400 && !Bugs.Any(b=>b.InteractionId==Webs[i].Owner || Webs[i].Helpers.Contains(b.InteractionId))) Webs.RemoveAt(i); }
+        for (var i = Webs.Count - 1; i >= 0; i--) { Webs[i].Age += dt; if (Webs[i].Age > 180 && !Bugs.Any(b=>b.InteractionId==Webs[i].Owner || Webs[i].Helpers.Contains(b.InteractionId))) Webs.RemoveAt(i); }
         AdvanceArrivals();
         SeparateNearby(dt);
         WorldSpawnDelay -= dt;

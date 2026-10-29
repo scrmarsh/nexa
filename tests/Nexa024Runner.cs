@@ -17,6 +17,14 @@ internal static partial class Program
             if(args.Contains("--save-writer028"))return SaveWriter028(args[Array.IndexOf(args,"--save-writer028")+1]);
             var app=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};app.InitializeComponent();
             Theme.Apply(app.Resources,SessionDashboard.ThemeMode.Dark,AppTheme.Nexa);
+            if(args.Contains("--installer-art034")){InstallerArtwork034();return 0;}
+            if(args.Contains("--ui034"))
+            {
+                var fixture=new StateStore(Path.Combine(output,"native034-ui","state.json"));var saved=fixture.Load();saved.Workspace=Continuity.Migrate(saved,fixture.UserId);saved.Workspace.Settings.SeasonalMode="Off";saved.Workspace.Settings.ReduceMotion=true;fixture.Save(saved);
+                var home=new HomeWindow(fixture){Title="nexa .34 isolated Home"};app.MainWindow=home;home.Show();
+                var settings=new SettingsDialog(home,fixture,home.Saved,null,"Appearance"){Title="nexa .34 isolated Settings",ShowInTaskbar=true};settings.Show();
+                var lifetime=new DispatcherTimer{Interval=TimeSpan.FromMinutes(10)};lifetime.Tick+=(_,_)=>{lifetime.Stop();settings.Close();home.Close();app.Shutdown();};lifetime.Start();home.Closed+=(_,_)=>app.Shutdown();app.Run();return 0;
+            }
             if(args.Contains("--ui-controls"))
             {
                 var store=new StateStore(Path.Combine(output,"isolated-controls.json"));
@@ -33,7 +41,9 @@ internal static partial class Program
             else if(args.Contains("--public-updates"))CheckPublicUpdates025();
             else if(args.Contains("--diagnostics028"))Diagnostics028();
             else if(args.Contains("--packaged031"))CheckPackaged031(args[Array.IndexOf(args,"--packaged031")+1]);
+            else if(args.Contains("--installer034")){var i=Array.IndexOf(args,"--installer034");CheckInstaller034(args[i+1],args[i+2],args[i+3],args[i+4]);}
             else if(args.Contains("--installer033")){var i=Array.IndexOf(args,"--installer033");CheckInstaller033(args[i+1],args[i+2],args[i+3],args[i+4]);}
+            else if(args.Contains("--nexa034"))Check034();
             else if(args.Contains("--nexa033"))Check033();
             else if(args.Contains("--nexa032"))Check032();
             else if(args.Contains("--update-automation"))CheckUpdateAutomation();

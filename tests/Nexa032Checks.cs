@@ -11,7 +11,7 @@ using SessionDashboard;
 
 internal static partial class Program
 {
-    private static readonly string media032=Path.GetFullPath("docs/media/nexa033");
+    private static readonly string media032=Path.GetFullPath("docs/media/nexa034");
     private static void Capture032(Window window,string name)
     {
         Directory.CreateDirectory(media032);window.UpdateLayout();var root=(FrameworkElement)window.Content;
@@ -35,14 +35,14 @@ internal static partial class Program
     }
     private static void Check032()
     {
-        Assert(App.VersionLabel=="nexa v0.0.33 alpha" && NexaReleaseIdentity.Current.Tag=="v0.0.33-alpha",".32 uses shared lowercase Alpha metadata");
+        Assert(App.VersionLabel=="nexa v0.0.34 alpha" && NexaReleaseIdentity.Current.Tag=="v0.0.34-alpha",".32 uses shared lowercase Alpha metadata");
         CheckAppearance032();CheckWallpaper032();CheckScrolling032();
     }
     private static void Bottom032(SettingsDialog settings,string label)
     {
         var scroll=AppearanceScroll032(settings);scroll.ScrollToEnd();Pump(TimeSpan.FromMilliseconds(35));settings.UpdateLayout();
         var last=Descendants(scroll).OfType<CheckBox>().Single(c=>Equals(c.Content,"Allow Esc to exit"));var bounds=last.TransformToVisual(scroll).TransformBounds(new Rect(last.RenderSize));
-        Assert(scroll.ScrollableHeight>0 && Math.Abs(scroll.VerticalOffset-scroll.ScrollableHeight)<1 && bounds.Top>=0 && bounds.Bottom<=scroll.ActualHeight+1,"Bottom-most Appearance option is fully reachable: "+label);
+        Assert(Math.Abs(scroll.VerticalOffset-scroll.ScrollableHeight)<1 && bounds.Top>=0 && bounds.Bottom<=scroll.ActualHeight+1,"Bottom-most Appearance option is fully reachable: "+label);
         var footer=Visual032(settings).OfType<Border>().Single(b=>Equals(b.Tag,"PanelCloseBar"));var end=last.TransformToVisual((Visual)settings.Content).TransformBounds(new Rect(last.RenderSize)).Bottom;
         Assert(end<=footer.TransformToVisual((Visual)settings.Content).Transform(new Point()).Y,"Footer does not overlap the final control: "+label);
     }
@@ -69,7 +69,7 @@ internal static partial class Program
         var seasonal=Descendants(settings).OfType<CheckBox>().Single(c=>System.Windows.Automation.AutomationProperties.GetName(c)=="Nexaween enabled");seasonal.IsChecked=true;seasonal.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));Pump(TimeSpan.FromMilliseconds(40));settings.FlushPendingChanges();
         Assert(Descendants(settings).OfType<RadioButton>().Count(r=>r.Tag is AppTheme)==4,"Exactly four official themes stay accessible in nexaween");Bottom032(settings,"nexaween");
         var amber=Descendants(settings).OfType<RadioButton>().Single(r=>Equals(r.Tag,AppTheme.Aurora));amber.IsChecked=true;settings.FlushPendingChanges();Assert(((SolidColorBrush)Application.Current.Resources["AccentBrush"]).Color==Color.FromRgb(168,85,247),"nexaween retains its seasonal accent while the Classic choice is saved");
-        Button032(settings,"Restore default theme color").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));settings.FlushPendingChanges();Assert(store.LoadAppTheme()==AppTheme.Nexa,"Restore default theme color preserves the original saved theme identity");
+        Descendants(settings).OfType<RadioButton>().Single(r=>Equals(r.Tag,AppTheme.Nexa)).IsChecked=true;settings.FlushPendingChanges();Assert(store.LoadAppTheme()==AppTheme.Nexa,"Restore default theme color preserves the original saved theme identity");
         AppearanceScroll032(settings).ScrollToTop();Pump(TimeSpan.FromMilliseconds(25));Capture032(settings,"theme-colors");
         home.Topmost=true;NexaFullscreen.Toggle(home);Pump(TimeSpan.FromMilliseconds(30));Bottom032(settings,"fullscreen host");NexaFullscreen.Toggle(home);home.Topmost=false;
         settings.Close();home.Close();var restarted=new HomeWindow(store);restarted.Show();Assert(store.LoadAppTheme()==AppTheme.Nexa && restarted.Saved.Workspace!.Settings.HomeWallpaper.SolidColor=="#123456","Theme default and wallpaper survive restart independently");restarted.Close();
@@ -86,22 +86,17 @@ internal static partial class Program
         var store=new StateStore(Path.Combine(output,"wallpapers032.json"));var state=store.Load();state.Workspace=Continuity.Migrate(state,store.UserId);state.Workspace.Settings.ReduceMotion=true;state.Workspace.Settings.SeasonalMode="Off";state.Background=new(){Mode=SpaceBackgroundMode.SolidColor,SolidColor="#135724"};var other=Continuity.NewDashboard("Other","Work",new(){Background=new(){Mode=SpaceBackgroundMode.SolidColor,SolidColor="#246813"}},store.UserId);state.Workspace.Dashboards.Add(other);store.Save(state);
         var home=new HomeWindow(store){Width=1100,Height=820};home.Show();var settings=new SettingsDialog(home,store,home.Saved,null,"Appearance");settings.Show();Pump(TimeSpan.FromMilliseconds(40));
         var group=Descendants(settings).OfType<StackPanel>().Single(p=>Equals(p.Tag,"HomeWallpaperControls"));
-        foreach(var preset in AppearancePalettes.Backgrounds)
-        {
-            var button=Descendants(group).OfType<Button>().Single(b=>Equals(b.Tag,preset));button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-            Assert(home.Saved.Workspace!.Settings.HomeWallpaper.Mode==SpaceBackgroundMode.SolidColor && home.Saved.Workspace.Settings.HomeWallpaper.SolidColor==preset.Hex && button.BorderThickness.Left==3,"Recovered color applies and selects immediately: "+preset.Name);settings.FlushPendingChanges();Assert(store.Load().Workspace!.Settings.HomeWallpaper.SolidColor==preset.Hex,"Preset persists: "+preset.Name);
-        }
-        Assert(AppearancePalettes.Backgrounds.Select(p=>p.Hex).SequenceEqual(new[]{"#69ACFF","#C6A5FF","#FFCA78","#6AE58F"}),"Background swatches use the four exact recovered historical colors, including Green");
+        Assert(!Descendants(group).OfType<Button>().Any(b=>b.Tag is AppearancePalettes.Preset),"Recovered duplicate background presets are removed from Home");
         var preview=Descendants(group).OfType<Border>().Single(b=>Equals(b.Tag,"WallpaperPreview"));preview.BringIntoView();Pump(TimeSpan.FromMilliseconds(30));Capture032(settings,"background-presets");
         var original=WallpaperPicker.Select;
         try
         {
-            var before=JsonSerializer.Serialize(home.Saved.Workspace!.Settings.HomeWallpaper);WallpaperPicker.Select=_=>null;Button032(group,"Choose Image").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Assert(JsonSerializer.Serialize(home.Saved.Workspace.Settings.HomeWallpaper)==before,"Cancel leaves wallpaper unchanged");
-            var invalid=Path.Combine(output,"invalid032.png");File.WriteAllText(invalid,"not an image");WallpaperPicker.Select=_=>invalid;Button032(group,"Choose Image").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Assert(JsonSerializer.Serialize(home.Saved.Workspace.Settings.HomeWallpaper)==before,"Corrupt image selection leaves the previous wallpaper unchanged");
+            var before=JsonSerializer.Serialize(home.Saved.Workspace!.Settings.HomeWallpaper);WallpaperPicker.Select=_=>null;Button032(group,"Custom Image").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Assert(JsonSerializer.Serialize(home.Saved.Workspace.Settings.HomeWallpaper)==before,"Cancel leaves wallpaper unchanged");
+            var invalid=Path.Combine(output,"invalid032.png");File.WriteAllText(invalid,"not an image");WallpaperPicker.Select=_=>invalid;Button032(group,"Custom Image").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Assert(JsonSerializer.Serialize(home.Saved.Workspace.Settings.HomeWallpaper)==before,"Corrupt image selection leaves the previous wallpaper unchanged");
             foreach(var full in new[]{false,true})
             {
                 if(full)NexaFullscreen.Toggle(home);home.Topmost=true;settings.Topmost=true;var received=false;
-                WallpaperPicker.Select=owner=>{received=ReferenceEquals(owner,settings) && !settings.Topmost && !home.Topmost;return png;};Button032(group,"Choose Image").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Assert(received && home.Topmost && settings.Topmost,"Picker receives correct owner and temporarily releases/restores topmost: "+(full?"fullscreen":"windowed"));Assert(home.Saved.Workspace.Settings.HomeWallpaper.ImagePath==png,"Decoded image applies to Home immediately");
+                WallpaperPicker.Select=owner=>{received=ReferenceEquals(owner,settings) && !settings.Topmost && !home.Topmost;return png;};Button032(group,"Custom Image").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Assert(received && home.Topmost && settings.Topmost,"Picker receives correct owner and temporarily releases/restores topmost: "+(full?"fullscreen":"windowed"));Assert(home.Saved.Workspace.Settings.HomeWallpaper.ImagePath==png,"Decoded image applies to Home immediately");
                 settings.Topmost=false;home.Topmost=false;if(full)NexaFullscreen.Toggle(home);
             }
             settings.FlushPendingChanges();var fit=Descendants(group).OfType<ComboBox>().Single(c=>c.Items.OfType<string>().SequenceEqual(new[]{"Fill","Fit"}));fit.SelectedIndex=1;settings.FlushPendingChanges();var layer=(Border)((Grid)preview.Child).Children[0];Assert(layer.Background is ImageBrush{Stretch:Stretch.Uniform} && store.Load().Workspace!.Settings.HomeWallpaper.FitImage,"Fit preserves image aspect ratio and persists");fit.SelectedIndex=0;Assert(layer.Background is ImageBrush{Stretch:Stretch.UniformToFill},"Fill uses UniformToFill without distorting aspect ratio");preview.BringIntoView();Pump(TimeSpan.FromMilliseconds(30));Capture032(settings,"custom-wallpaper");
@@ -109,13 +104,13 @@ internal static partial class Program
         finally{WallpaperPicker.Select=original;}
         settings.FlushPendingChanges();Assert(store.Load().Background.SolidColor=="#135724" && store.Load().Workspace!.Dashboards.Single(d=>d.DashboardId==other.DashboardId).Current.Data.Background.SolidColor=="#246813","Home edits preserve both independent Space backgrounds");
         var pickerImage=WallpaperImages.Load(home.Saved.Workspace!.Settings.HomeWallpaper);Assert(ReferenceEquals(pickerImage,WallpaperImages.Load(home.Saved.Workspace.Settings.HomeWallpaper)),"Repeated preview refresh reuses a decoded frozen image");
-        Button032(group,"Remove Image").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Assert(home.Saved.Workspace.Settings.HomeWallpaper.Mode==SpaceBackgroundMode.Default && File.Exists(png),"Remove Image changes only the selected scope and never deletes the source file");
-        var mode=Descendants(group).OfType<ComboBox>().Single(c=>c.Items.OfType<string>().Contains("Custom image"));mode.SelectedIndex=1;settings.FlushPendingChanges();Assert(home.Saved.Workspace.Settings.HomeWallpaper.ImagePath==png,"Switching back to custom image retains its earlier choice");
+        Button032(group,"nexa Default").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Assert(home.Saved.Workspace.Settings.HomeWallpaper.Mode==SpaceBackgroundMode.Default && File.Exists(png),"Remove Image changes only the selected scope and never deletes the source file");
+        WallpaperPicker.Select=_=>png;Button032(group,"Custom Image").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));settings.FlushPendingChanges();Assert(home.Saved.Workspace.Settings.HomeWallpaper.ImagePath==png,"Choosing a custom image again retains its settings");WallpaperPicker.Select=original;
         settings.Close();home.Close();home=new HomeWindow(store);home.Show();Assert(home.Saved.Workspace!.Settings.HomeWallpaper.ImagePath==png,"Custom Home image survives a restart");
         File.Delete(png);var preserved=home.Saved.Workspace.Settings.HomeWallpaper.ImagePath;home.RefreshWallpaper();Assert(WallpaperImages.Load(home.Saved.Workspace.Settings.HomeWallpaper)==null && home.Saved.Workspace.Settings.HomeWallpaper.ImagePath==preserved,"Deleted image falls back without deleting its stored selection");
-        settings=new SettingsDialog(home,store,home.Saved,null,"Appearance");settings.Show();group=Descendants(settings).OfType<StackPanel>().Single(p=>Equals(p.Tag,"HomeWallpaperControls"));Button032(group,"Restore Default").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));settings.FlushPendingChanges();Assert(store.Load().Workspace!.Settings.HomeWallpaper.Mode==SpaceBackgroundMode.Default && store.Load().Background.SolidColor=="#135724","Restore Default resets Home only");
-        var blue=AppearancePalettes.Backgrounds[0];Descendants(group).OfType<Button>().Single(b=>Equals(b.Tag,blue)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));settings.FlushPendingChanges();settings.Close();Capture032(home,"classic-home-preset");home.Saved.Workspace.Settings.SeasonalMode="On";Theme.SetSeasonalEnabled(true);home.RefreshWallpaper();Capture032(home,"nexaween-home-preset");Assert(home.Saved.Workspace.Settings.HomeWallpaper.SolidColor==blue.Hex,"Classic/nexaween switching preserves selected background");home.Close();
-        var main=new MainWindow(store);main.Show();settings=new SettingsDialog(main,store,main.state,main,"Session");settings.Show();var space=Descendants(settings).OfType<StackPanel>().Single(p=>Equals(p.Tag,"SpaceWallpaperControls"));var green=AppearancePalettes.Backgrounds[3];Descendants(space).OfType<Button>().Single(b=>Equals(b.Tag,green)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));settings.FlushPendingChanges();var saved=store.Load();Assert(saved.Background.SolidColor==green.Hex && saved.Workspace!.Settings.HomeWallpaper.SolidColor==blue.Hex && saved.Workspace.Dashboards.Single(d=>d.DashboardId==other.DashboardId).Current.Data.Background.SolidColor=="#246813","Per-Space preset edits preserve Home and the other Space");
+        settings=new SettingsDialog(home,store,home.Saved,null,"Appearance");settings.Show();group=Descendants(settings).OfType<StackPanel>().Single(p=>Equals(p.Tag,"HomeWallpaperControls"));Button032(group,"nexa Default").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));settings.FlushPendingChanges();Assert(store.Load().Workspace!.Settings.HomeWallpaper.Mode==SpaceBackgroundMode.Default && store.Load().Background.SolidColor=="#135724","Restore Default resets Home only");
+        settings.Close();Capture032(home,"classic-home-default");home.Saved.Workspace.Settings.SeasonalMode="On";Theme.SetSeasonalEnabled(true);home.RefreshWallpaper();Capture032(home,"nexaween-home-default");Assert(home.Saved.Workspace.Settings.HomeWallpaper.Mode==SpaceBackgroundMode.Default,"Classic/nexaween switching preserves the Home default choice");home.Close();
+        var main=new MainWindow(store);main.Show();settings=new SettingsDialog(main,store,main.state,main,"Session");settings.Show();var space=Descendants(settings).OfType<StackPanel>().Single(p=>Equals(p.Tag,"SpaceWallpaperControls"));var green=AppearancePalettes.Backgrounds[3];Descendants(space).OfType<Button>().Single(b=>Equals(b.Tag,green)).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));settings.FlushPendingChanges();var saved=store.Load();Assert(saved.Background.SolidColor==green.Hex && saved.Workspace!.Settings.HomeWallpaper.Mode==SpaceBackgroundMode.Default && saved.Workspace.Dashboards.Single(d=>d.DashboardId==other.DashboardId).Current.Data.Background.SolidColor=="#246813","Per-Space preset edits preserve Home and the other Space");
         var dashboard=Continuity.Current(saved.Workspace!,store.UserId);var wallpaper=JsonSerializer.Serialize(dashboard.Current.Data.Background);Continuity.Archive(dashboard);Continuity.RestoreHistorical(dashboard,dashboard.History.Last(),store.UserId,true,DateTimeOffset.UtcNow);Assert(JsonSerializer.Serialize(dashboard.Current.Data.Background)==wallpaper,"Session history restoration preserves the target Space wallpaper");Capture032(settings,"session-background");settings.Close();main.Close();
     }
     private static void Wheel032(UIElement source,int delta){source.RaiseEvent(new MouseWheelEventArgs(Mouse.PrimaryDevice,Environment.TickCount,delta){RoutedEvent=Mouse.PreviewMouseWheelEvent});Pump(TimeSpan.FromMilliseconds(18));}

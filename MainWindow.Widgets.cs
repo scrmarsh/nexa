@@ -150,7 +150,7 @@ public partial class MainWindow
             PixelPanel.ClipToBounds = true;
             PixelBannerHost.Content = PixelPanel;
         }
-        foreach (var widget in state.Widgets.Where(w => w != primaryPixel))
+        foreach (var widget in state.Widgets.Where(w => w != primaryPixel && w.Kind is not ("Progress bar" or "Pixel timer")))
         {
             var frame = new Border { Background = DashboardBrush("PanelBrush"), BorderBrush = DashboardBrush("LineBrush"), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(12), Tag = widget.Id, ClipToBounds = true };
             var layout = new StackPanel(); frame.Child = layout;
@@ -651,10 +651,7 @@ public partial class MainWindow
     private void PixelBannerOptionsClick(object sender, RoutedEventArgs e)
     {
         var widget=state.Widgets.FirstOrDefault(w=>w.Kind=="Pixel timer"); if(widget==null) return;
-        var menu=new ContextMenu();
-        void Add(string label, Action action) { var item=new MenuItem { Header=label }; item.Click+=(_,_)=>action(); menu.Items.Add(item); }
-        Add("Configure Pixel Timer",()=>ConfigureWidget(widget)); Add("Duplicate progress widget",()=>DuplicateWidget(widget)); Add("Remove Pixel Timer",()=>RemoveWidget(widget));
-        menu.PlacementTarget=(UIElement)sender; menu.IsOpen=true;
+        ConfigureWidget(widget);
     }
     private UIElement BuildWidgetContent(WidgetInstance widget)
     {
@@ -920,7 +917,7 @@ public partial class MainWindow
         void Refresh()
         {
             list.Children.Clear();
-            var matches = WidgetLibrary.Definitions.Where(d => d.Name != "Session controls" && d.Name != "Bugs Squashed" && (d.Name + " " + d.Group + " " + d.Description).Contains(search.Text, StringComparison.CurrentCultureIgnoreCase)).ToList();
+            var matches = WidgetLibrary.Definitions.Where(d => d.Name != "Session controls" && d.Name != "Bugs Squashed" && d.Name != "Progress bar" && d.Name != "Pixel timer" && (d.Name + " " + d.Group + " " + d.Description).Contains(search.Text, StringComparison.CurrentCultureIgnoreCase)).ToList();
             var recommended = new[] { "Session timeline", "Clock", "Notes" }.Select(name => matches.FirstOrDefault(d => d.Name == name)).OfType<WidgetDefinition>().ToArray();
             var groups = new[] { new { Name = "Recommended", Items = recommended } }.Concat(matches.GroupBy(d => d.Group).Select(g => new { Name = g.Key, Items = g.ToArray() }));
             foreach (var group in groups.Where(g => g.Items.Length > 0))
@@ -1012,6 +1009,7 @@ public partial class MainWindow
     }
     internal void RemoveWidgetConfirmed(WidgetInstance widget)
     {
+        if(widget.Kind=="Pixel timer")return;
         PinCurrentWidgetPositions();
         if (!SaveNow()) return;
         var removed=new RemovedWidget(Continuity.Clone(widget),state.Widgets.IndexOf(widget),state.Workspace!.ActiveDashboardId);

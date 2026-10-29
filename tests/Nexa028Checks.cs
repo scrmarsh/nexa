@@ -19,7 +19,7 @@ internal static partial class Program
     }
     private static void Check028()
     {
-        Assert(App.AppVersion=="0.0.33" && App.VersionLabel=="nexa v0.0.33 alpha" && ReleaseNotes.All[0].Title=="Windows Installer, Release Integrity & Appearance Finalization","Current .28 identity uses the existing version infrastructure");
+        Assert(App.AppVersion=="0.0.34" && App.VersionLabel=="nexa v0.0.34 alpha" && ReleaseNotes.All[0].Title=="UI Refinement, Installer Repair & Data Safety","Current .28 identity uses the existing version infrastructure");
         CheckRecovery028();CheckSchedule028();CheckEcosystem028();CheckLargeWorkspace028();
         var at=DateTimeOffset.UtcNow;var ledger=new ProductivityLedger();
         Assert(ProductivityScoring.DirectSquash(ledger,"boost",at) && ledger.BugFrenzyUntil==at.AddSeconds(20) && ledger.EffectiveMultiplier(at)==2,"Direct squash starts the independent twenty-second 2x window");
@@ -99,7 +99,7 @@ internal static partial class Program
         Assert(Continuity.Current(main.state.Workspace!,store.UserId).Current.ResetDeferred,"Postponed reset survives application restart");
         main.CompleteDeferredResetAt(next.Start.AddMinutes(1));var dashboard=Continuity.Current(main.state.Workspace!,store.UserId);
         Assert(dashboard.Current.SessionId!=oldId && dashboard.History.Count(s=>s.SessionId==oldId)==1 && dashboard.Current.Data.Session!.Start==next.Start,"Completing postponed reset archives one old identity and starts the correct Wednesday occurrence");
-        Assert(dashboard.Current.Data.Widgets.Single().Items.Count==2 && dashboard.Current.Data.Widgets.Single().Items.Any(t=>t.Permanent),"Reset preserves all reusable tasks without changing permanence");
+        Assert(dashboard.Current.Data.Widgets.Single(w=>w.Kind=="Task List").Items.Count==2 && dashboard.Current.Data.Widgets.Single(w=>w.Kind=="Task List").Items.Any(t=>t.Permanent),"Reset preserves all reusable tasks without changing permanence");
         var newId=dashboard.Current.SessionId;main.CompleteDeferredResetAt(next.Start.AddMinutes(2));
         Assert(Continuity.Current(main.state.Workspace!,store.UserId).Current.SessionId==newId,"Repeated completion cannot duplicate an already active occurrence");main.Close();
     }
@@ -123,10 +123,10 @@ internal static partial class Program
         store.SaveBugPreferences(new(true,BugSpecies.AllBugs,BugDensity.Low,new EcosystemOptions{Behavior=BugBehavior.Classic}));
         var main=OffscreenHandoff(new MainWindow(store));main.Show();Pump(TimeSpan.FromMilliseconds(40));
         var settings=new SettingsDialog(main,store,main.state,main,"Add Bugs");settings.Show();
-        var behavior=Descendants(settings).OfType<ComboBox>().Single(c=>c.Items.OfType<BugBehavior>().Count()==4);
+        var behavior=Descendants(settings).OfType<ComboBox>().Single(c=>c.Items.OfType<BugBehavior>().Count()==3);
         var appearance=Descendants(settings).OfType<ComboBox>().Single(c=>c.Items.OfType<string>().SequenceEqual(new[]{"Classic","Creepy","Halloween"}));
-        behavior.SelectedItem=BugBehavior.Creepy;
-        Assert(Equals(appearance.SelectedItem,"Creepy"),"Behavior changes keep the visible appearance selector synchronized with legacy automatic matching");
+        behavior.SelectedItem=BugBehavior.Cozy;
+        Assert(Equals(appearance.SelectedItem,"Classic"),"Behavior changes keep the visible appearance selector synchronized with legacy automatic matching");
         appearance.SelectedItem="Classic";behavior.SelectedItem=BugBehavior.Cozy;settings.FlushPendingChanges();
         Assert(NexaEcosystem.For(store).Manager.EcosystemSettings.EffectiveAppearance==BugAppearance.Normal && store.LoadBugPreferences().Ecosystem?.MatchAppearance==false,"An explicit appearance remains independent of later behavior changes and persists");
         settings.Close();main.Close();

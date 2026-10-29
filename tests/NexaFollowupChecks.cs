@@ -61,9 +61,9 @@ internal static partial class Program
     private static void CheckFollowupBugs()
     {
         var fresh=new EcosystemOptions();Assert(fresh.ForSeason(false).Behavior==BugBehavior.Classic,"Fresh nonseasonal setup defaults to Classic");
-        var seasonal=fresh.ForSeason(true);Assert(seasonal.Behavior==BugBehavior.Cozy && seasonal.Adorable,"Fresh Nexaween setup defaults to Cozy and Adorable");
+        var seasonal=fresh.ForSeason(true);Assert(seasonal.Behavior==BugBehavior.Classic && seasonal.Adorable,"Nexaween retains the single authoritative behavior preference");
         seasonal=seasonal.ChooseBehavior(BugBehavior.Creepy,true);var normal=seasonal.ForSeason(false).ChooseBehavior(BugBehavior.Combative,false);
-        Assert(normal.ForSeason(true).Behavior==BugBehavior.Creepy && normal.ForSeason(true).ForSeason(false).Behavior==BugBehavior.Combative,"Season toggling restores each saved behavior without forcing Cozy");
+        Assert(normal.ForSeason(true).Behavior==BugBehavior.Combative && normal.ForSeason(true).ForSeason(false).Behavior==BugBehavior.Combative,"Season toggling keeps the single authoritative behavior");
         foreach(var mode in Enum.GetValues<BugBehavior>())
         {
             var option=new EcosystemOptions{Behavior=mode,Appearance=BugAppearance.Creepy,MatchAppearance=false};
@@ -83,13 +83,13 @@ internal static partial class Program
         var store=new StateStore(Path.Combine(output,"followup-ui.json"));var model=new AppState{WidgetLayoutInitialized=true,Widgets=[WidgetLibrary.Create("Pixel timer","pixels"),WidgetLibrary.Create("Progress bar"),WidgetLibrary.Create("Productivity Score"),WidgetLibrary.Create("Session timeline")]};
         store.Save(model);var main=new MainWindow(store){Left=-10000,Top=-10000,ShowActivated=false,ShowInTaskbar=false,WindowStartupLocation=WindowStartupLocation.Manual};main.Show();Pump(TimeSpan.FromMilliseconds(100));main.ApplyClassSchedule(schedule,false);main.UpdateClock(now);
         Assert(main.PercentLabel.Text=="50.000%" && main.SessionProgressBar.Value==50,"Pixel Timer label and embedded bar immediately share 50% elapsed");
-        Assert(Descendants(main).OfType<TextBlock>().Count(t=>t.Text=="50.000%")>=2,"Standalone linked bar agrees with the Pixel Timer at the same captured instant");
+        Assert(Descendants(main).OfType<TextBlock>().Count(t=>t.Text=="50.000%")>=1,"Permanent Pixel Timer reflects the same captured instant; redundant standalone bar stays hidden");
         var global=new SettingsDialog(main,store,main.state,main,"Add Bugs");global.Show();Pump(TimeSpan.FromMilliseconds(80));
         var globalButtons=Descendants(global).OfType<Button>().Where(b=>b.Content is string).Select(b=>b.Content.ToString()).ToArray();
         Assert(globalButtons.Contains("Sounds") && !globalButtons.Contains("Session") && !globalButtons.Contains("Seasonal Events") && !globalButtons.Contains("Appearance & Effects"),"Global navigation has one Appearance and Sounds, with no duplicate Session/Seasonal tabs");
         Assert(!Descendants(global).OfType<CheckBox>().Any(c=>Equals(c.Content,"Match Appearance to Behavior")) && !Descendants(global).OfType<TextBlock>().Any(t=>t.Text=="Appearance override"),"Redundant appearance override controls are absent");
-        Assert(Descendants(global).OfType<ComboBox>().Any(c=>c.Items.OfType<BugBehavior>().Count()==4),"Classic, Cozy, Creepy and Combative are available with independent appearance");
-        Assert(Equals(Descendants(global).OfType<ComboBox>().Single(c=>c.Items.OfType<BugBehavior>().Count()==4).SelectedItem,NexaEcosystem.For(store).Manager.EcosystemSettings.Behavior),"The first-open behavior selector reflects the effective seasonal world mode");
+        Assert(Descendants(global).OfType<ComboBox>().Any(c=>c.Items.OfType<BugBehavior>().Count()==3),"Classic, Cozy and Combative are available with independent appearance");
+        Assert(Equals(Descendants(global).OfType<ComboBox>().Single(c=>c.Items.OfType<BugBehavior>().Count()==3).SelectedItem,NexaEcosystem.For(store).Manager.EcosystemSettings.Behavior),"The first-open behavior selector reflects the effective seasonal world mode");
         global.Close();var session=new SettingsDialog(main,store,main.state,main,"Session");session.Show();Pump(TimeSpan.FromMilliseconds(80));
         Assert(Descendants(session).OfType<Button>().Any(b=>Equals(b.Content,"Notes & History")) && Descendants(session).OfType<CheckBox>().Any(c=>Equals(c.Content,"Enable Tips")),"The Session interface contains history and the Tips setting");
         Assert(!Descendants(session).OfType<TextBlock>().Any(t=>t.Text is "Selected days" or "Summary interval (minutes)"),"Session interface has no duplicate weekday or summary-interval selection");

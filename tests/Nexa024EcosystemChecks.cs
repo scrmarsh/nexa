@@ -124,9 +124,9 @@ internal static partial class Program
         var world = NexaEcosystem.For(store);
         Assert(window.bugsOverlay != null && ReferenceEquals(window.bugsOverlay.Manager, world.Manager), "Dashboard bugs use the same authoritative manager as the ecosystem service");
         var settings = new SettingsDialog(window, store, window.state, window, "Add Bugs"); settings.Show(); Pump(TimeSpan.FromMilliseconds(80));
-        Assert(Descendants(settings).OfType<ComboBox>().Any(c => c.Items.OfType<BugBehavior>().Count() == 4) && Descendants(settings).OfType<CheckBox>().Any(c => Equals(c.Content, "Adorable Mode")), "Actual Add Bugs settings expose behavior, appearance and Adorable Mode controls");
+        Assert(Descendants(settings).OfType<ComboBox>().Any(c => c.Items.OfType<BugBehavior>().Count() == 3) && Descendants(settings).OfType<CheckBox>().Any(c => Equals(c.Content, "Adorable Mode")), "Actual Add Bugs settings expose behavior, appearance and Adorable Mode controls");
         var size = Descendants(settings).OfType<Slider>().Single(s => s.Minimum == .75 && s.Maximum == 4); size.Value = 3;
-        var behavior = Descendants(settings).OfType<ComboBox>().Single(c => c.Items.OfType<BugBehavior>().Count() == 4); behavior.SelectedItem = BugBehavior.Cozy;
+        var behavior = Descendants(settings).OfType<ComboBox>().Single(c => c.Items.OfType<BugBehavior>().Count() == 3); behavior.SelectedItem = BugBehavior.Cozy;
         Pump(TimeSpan.FromMilliseconds(800));
         Assert(store.LoadBugPreferences().Ecosystem?.Size == 3 && world.Manager.EcosystemSettings.Behavior == BugBehavior.Cozy, "Real size and behavior controls apply immediately and persist"); settings.Close();
         Assert(world.ViewCount == 1, "Only the dashboard overlay owns a simulation view");

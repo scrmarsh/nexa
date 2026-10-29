@@ -57,7 +57,7 @@ internal sealed partial class HomeWindow : NexaDialog
         homeLayout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         homeLayout.Children.Add(new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled });
         Grid.SetRow(footer, 1); homeLayout.Children.Add(footer);
-        var backdrop=new Grid();backdrop.Children.Add(homeWallpaper);backdrop.Children.Add(homeWallpaperShade);backdrop.Children.Add(SeasonalBackdrop.Wrap(homeLayout,()=>Saved.Workspace?.Settings??new(),permanentCorners:true,advanced:()=>store.LoadBugPreferences().Ecosystem?.AdvancedAnimations??false));Content=backdrop;RefreshWallpaper();
+        var backdrop=new Grid();backdrop.Children.Add(homeWallpaper);backdrop.Children.Add(homeWallpaperShade);backdrop.Children.Add(homeDefaultGlow);backdrop.Children.Add(homeDefaultFrame);backdrop.Children.Add(SeasonalBackdrop.Wrap(homeLayout,()=>Saved.Workspace?.Settings??new(),permanentCorners:true,advanced:()=>store.LoadBugPreferences().Ecosystem?.AdvancedAnimations??false));Content=backdrop;RefreshWallpaper();
     }
 
     internal void RefreshCompanionOptions(StateStore source,EcosystemOptions options)
@@ -141,11 +141,12 @@ internal sealed partial class HomeWindow : NexaDialog
         try
         {
             var previewStore = PreviewDashboards.CreateStore(store, directory);
-            var window = new MainWindow(previewStore, store);
+            var window = new MainWindow(previewStore, store){SuppressEntrance=true};
             NexaChrome.TransferBounds(this, window);
             Application.Current.MainWindow = window;
+            window.Opacity=0;window.Loaded+=(_,_)=>{window.BeginAnimation(OpacityProperty,null);window.Opacity=0;};
+            window.ContentRendered+=(_,_)=>{window.BeginAnimation(OpacityProperty,null);window.Opacity=1;window.Activate();Close();};
             window.Show();
-            NexaChrome.FadeOutAndClose(this);
             return window;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)

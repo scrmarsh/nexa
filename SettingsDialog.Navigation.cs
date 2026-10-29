@@ -25,15 +25,15 @@ internal sealed partial class SettingsDialog
         var active = NexaSeason.Active(ReliabilityOptions, DateTimeOffset.UtcNow);
         var page = (StackPanel)BuildAppearance();
         page.Margin=new Thickness(0,0,8,28);
-        var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 8, 0, 12) };
-        row.Children.Add(new TextBlock { Text = "Nexaween", Foreground = (Brush)new BrushConverter().ConvertFromString("#84CC16")!, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0), FontWeight = FontWeights.SemiBold });
-        row.Children.Add(MakeSeasonSwitch()); page.Children.Insert(1, row);
+        var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(12, 0, 0, 14) };
+        row.Children.Add(new TextBlock { Text = "Nexaween", Foreground = active?BugVisuals.B("#84CC16"):Brushes.White, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0), FontWeight = FontWeights.SemiBold });
+        row.Children.Add(MakeSeasonSwitch());
         page.Children.Add(BuildWallpaperControls(ReliabilityOptions.HomeWallpaper,true));
         if (active) { var seasonal = (ScrollViewer)BuildSeasonalEvents(); var content=(UIElement)seasonal.Content;seasonal.Content=null;page.Children.Add(content); }
         var effects=(StackPanel)BuildEffects();foreach(var child in effects.Children.Cast<UIElement>().ToArray()){effects.Children.Remove(child);page.Children.Add(child);}
         page.Children.Add(BuildDisplaySettings());
         var scroll=new ScrollViewer{Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Hidden,HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled,CanContentScroll=false,PanningMode=PanningMode.VerticalOnly,Tag="AppearanceScroll"};
-        var layout=new DockPanel();var heading=new TextBlock{Text="Appearance",FontSize=26,FontWeight=FontWeights.SemiBold,Margin=new Thickness(0,0,0,14)};DockPanel.SetDock(heading,Dock.Top);layout.Children.Add(heading);layout.Children.Add(scroll);
+        var layout=new DockPanel();var header=new DockPanel();DockPanel.SetDock(row,Dock.Right);header.Children.Add(row);var heading=new TextBlock{Text="Appearance",FontSize=32,FontWeight=FontWeights.SemiBold,Margin=new Thickness(0,0,0,14)};header.Children.Add(heading);DockPanel.SetDock(header,Dock.Top);layout.Children.Add(header);layout.Children.Add(scroll);
         return SeasonalBackdrop.Wrap(layout,()=>ReliabilityOptions);
     }
     private CheckBox MakeSeasonSwitch()
@@ -52,7 +52,7 @@ internal sealed partial class SettingsDialog
             var active=toggle.IsChecked==true;var duration=TimeSpan.FromMilliseconds(animate && NexaMotion.Allowed(ReliabilityOptions)?220:0);
             var translation=(TranslateTransform)knob.RenderTransform;if(translation.IsFrozen){translation=translation.CloneCurrentValue();knob.RenderTransform=translation;}var from=translation.X;translation.BeginAnimation(TranslateTransform.XProperty,null);translation.X=active?24:0;
             translation.BeginAnimation(TranslateTransform.XProperty,new DoubleAnimation(from,translation.X,duration){FillBehavior=FillBehavior.Stop,EasingFunction=new CubicEase{EasingMode=EasingMode.EaseInOut}});
-            var brush=new SolidColorBrush(active?Color.FromRgb(101,163,13):Color.FromRgb(153,27,27));var previous=(track.Background as SolidColorBrush)?.Color??brush.Color;track.Background=brush;
+            var brush=new SolidColorBrush(active?Color.FromRgb(132,204,22):Color.FromRgb(24,95,165));var previous=(track.Background as SolidColorBrush)?.Color??brush.Color;track.Background=brush;
             brush.BeginAnimation(SolidColorBrush.ColorProperty,new ColorAnimation(previous,brush.Color,duration){FillBehavior=FillBehavior.Stop});
         }
         toggle.Loaded+=(_,_)=>{if(!initialized){Visual(false);initialized=true;}};
@@ -63,7 +63,7 @@ internal sealed partial class SettingsDialog
     private static FrameworkElementFactory SwitchTemplate()
     {
         var grid=new FrameworkElementFactory(typeof(Grid));grid.SetValue(FrameworkElement.WidthProperty,54d);grid.SetValue(FrameworkElement.HeightProperty,30d);
-        var track=new FrameworkElementFactory(typeof(Border));track.Name="Track";track.SetValue(Border.CornerRadiusProperty,new CornerRadius(15));track.SetValue(Border.BackgroundProperty,new SolidColorBrush(Color.FromRgb(153,27,27)));
+        var track=new FrameworkElementFactory(typeof(Border));track.Name="Track";track.SetValue(Border.CornerRadiusProperty,new CornerRadius(15));track.SetValue(Border.BackgroundProperty,new SolidColorBrush(Color.FromRgb(24,95,165)));
         grid.AppendChild(track);
         var knob=new FrameworkElementFactory(typeof(Border));knob.Name="Knob";knob.SetValue(FrameworkElement.WidthProperty,22d);knob.SetValue(FrameworkElement.HeightProperty,22d);knob.SetValue(Border.CornerRadiusProperty,new CornerRadius(11));knob.SetValue(Border.BackgroundProperty,Brushes.White);knob.SetValue(FrameworkElement.MarginProperty,new Thickness(4));knob.SetValue(FrameworkElement.HorizontalAlignmentProperty,HorizontalAlignment.Left);knob.SetValue(UIElement.RenderTransformProperty,new TranslateTransform());grid.AppendChild(knob);return grid;
     }
@@ -109,21 +109,26 @@ internal sealed partial class SettingsDialog
         Field(page,"Negative feedback",negative);var negativePreview=new Button{Content="Preview negative",HorizontalAlignment=HorizontalAlignment.Left};negativePreview.Click+=(_,_)=>InterfaceAudio.PreviewCue(volume.Value,"negative",negative.SelectedItem?.ToString());page.Children.Add(negativePreview);
         page.Children.Add(new TextBlock{Text="Positive: saved productive actions. Negative: saved configured penalties. Interface pop: selected controls. Playback is bounded to one short sound at a time.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,8)});
         var nudges=new CheckBox{Content="Playful focus nudges after 3 minutes away",IsChecked=state.FocusNudgesEnabled,Margin=new Thickness(0,12,0,12)};page.Children.Add(nudges);
-        var gameSounds=new CheckBox{Content="Pixel Timer game effects (shooting, power-ups, death)",IsChecked=state.GameSoundsEnabled};page.Children.Add(gameSounds);
-        var bugSounds=new CheckBox{Content="Quiet dashboard bug crawling",IsChecked=state.BugSoundsEnabled};page.Children.Add(bugSounds);
-        var effectChoice=new ComboBox{ItemsSource=NexaEffectsAudio.Names,SelectedIndex=4};Field(page,"Game and nexaween sound previews",effectChoice);
-        var effectPreview=new Button{Content="Preview effect",HorizontalAlignment=HorizontalAlignment.Left};effectPreview.Click+=(_,_)=>NexaEffectsAudio.Play((NexaSoundEffect)Math.Clamp(effectChoice.SelectedIndex,0,8),volume.Value,true);page.Children.Add(effectPreview);
-        var seasonal=new CheckBox{Content="Seasonal sounds",IsChecked=ReliabilityOptions.SeasonalSounds};page.Children.Add(seasonal);
+        var gameSounds=new CheckBox{Content="Pixel Timer game effects (shooting, power-ups, death)",IsChecked=state.GameSoundsEnabled,Margin=new Thickness(0,14,0,14)};page.Children.Add(gameSounds);
+        var bugSounds=new CheckBox{Content="Quiet dashboard bug crawling",IsChecked=state.BugSoundsEnabled,Margin=new Thickness(0,14,0,14)};page.Children.Add(bugSounds);
+        void Effects(string title,int offset,int count)
+        {
+            var choices=new ComboBox{ItemsSource=NexaEffectsAudio.Names.Skip(offset).Take(count).ToArray(),SelectedIndex=0};Field(page,title,choices);
+            var button=new Button{Content="Preview "+title.ToLowerInvariant(),HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,8,0,14)};
+            button.Click+=(_,_)=>NexaEffectsAudio.Play((NexaSoundEffect)(offset+Math.Clamp(choices.SelectedIndex,0,count-1)),volume.Value,true);page.Children.Add(button);
+        }
+        Effects("Pixel Timer effects",0,3);Effects("Dashboard crawling",3,1);Effects("nexaween effects",4,5);
+        var seasonal=new CheckBox{Content="Seasonal sounds",IsChecked=ReliabilityOptions.SeasonalSounds,Margin=new Thickness(0,14,0,14)};page.Children.Add(seasonal);
         void Save(){state.PositiveFeedbackSound=positive.SelectedItem?.ToString()??"Chime";state.NegativeFeedbackSound=negative.SelectedItem?.ToString()??"Eerie";state.InterfaceSoundsEnabled=enabled.IsChecked==true;state.GameSoundsEnabled=gameSounds.IsChecked==true;state.BugSoundsEnabled=bugSounds.IsChecked==true;state.InterfaceSoundVolume=volume.Value;state.FocusNudgesEnabled=nudges.IsChecked==true;ReliabilityOptions.SeasonalSounds=seasonal.IsChecked==true;NexaEcosystem.UpdateSeason(store,ReliabilityOptions);QueueSave("sounds",()=>{SaveInteractionOptions();SaveState();});}
         var applyingPreset=false;
         var applyPreset=new Button{Content="Apply preset to both feedback sounds",HorizontalAlignment=HorizontalAlignment.Left};
         applyPreset.Click+=(_,_)=>{if(styles.SelectedIndex<0)return;applyingPreset=true;try{positive.SelectedIndex=styles.SelectedIndex;negative.SelectedIndex=styles.SelectedIndex;}finally{applyingPreset=false;}Save();};page.Children.Insert(page.Children.IndexOf(preview)+1,applyPreset);
         positive.SelectionChanged+=(_,_)=>{if(!applyingPreset)Save();};negative.SelectionChanged+=(_,_)=>{if(!applyingPreset)Save();};
-        gameSounds.Click+=(_,_)=>Save();bugSounds.Click+=(_,_)=>Save();enabled.Click+=(_,_)=>Save();volume.ValueChanged+=(_,_)=>Save();nudges.Click+=(_,_)=>Save();seasonal.Click+=(_,_)=>Save();return new ScrollViewer{Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto};
+        gameSounds.Click+=(_,_)=>Save();bugSounds.Click+=(_,_)=>Save();enabled.Click+=(_,_)=>Save();volume.ValueChanged+=(_,_)=>Save();nudges.Click+=(_,_)=>Save();seasonal.Click+=(_,_)=>Save();return new ScrollViewer{Tag="HiddenPageScroll",Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Hidden,PanningMode=PanningMode.VerticalOnly};
     }
 }
 internal sealed class SeasonSwitchBrush:System.Windows.Data.IValueConverter
-{public object Convert(object value,Type target,object parameter,System.Globalization.CultureInfo culture)=>value is true?BugVisuals.B("#65A30D"):BugVisuals.B("#991B1B");public object ConvertBack(object value,Type target,object parameter,System.Globalization.CultureInfo culture)=>throw new NotSupportedException();}
+{public object Convert(object value,Type target,object parameter,System.Globalization.CultureInfo culture)=>value is true?BugVisuals.B("#84CC16"):BugVisuals.B("#5B7CFF");public object ConvertBack(object value,Type target,object parameter,System.Globalization.CultureInfo culture)=>throw new NotSupportedException();}
 internal sealed class SeasonSwitchAlignment:System.Windows.Data.IValueConverter
 {public object Convert(object value,Type target,object parameter,System.Globalization.CultureInfo culture)=>value is true?HorizontalAlignment.Right:HorizontalAlignment.Left;public object ConvertBack(object value,Type target,object parameter,System.Globalization.CultureInfo culture)=>throw new NotSupportedException();}
 internal sealed class NexaSeasonArt(bool ghost):FrameworkElement

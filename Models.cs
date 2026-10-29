@@ -381,6 +381,10 @@ public sealed partial class StateStore
     }
     internal static void AtomicWrite(string path, string text, bool backup)
     {
+        lock(NexaData.SnapshotGate) { NexaData.GuardWrite(path);AtomicWriteCore(path,text,backup); }
+    }
+    private static void AtomicWriteCore(string path,string text,bool backup)
+    {
         var temp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {

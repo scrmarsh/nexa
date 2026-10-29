@@ -12,7 +12,7 @@ internal sealed partial class HomeWindow
     internal void RefreshBranding()=>refreshBranding?.Invoke();
     private void BuildHomeHeader(StackPanel panel)
     {
-        var header = new Grid{HorizontalAlignment=HorizontalAlignment.Stretch,MaxWidth=900,Height=150}; header.ColumnDefinitions.Add(new() { Width = new GridLength(1,GridUnitType.Star) }); header.ColumnDefinitions.Add(new() { Width = new GridLength(32) }); header.ColumnDefinitions.Add(new(){Width=new GridLength(1,GridUnitType.Star)});
+        var header = new Grid{HorizontalAlignment=HorizontalAlignment.Stretch,MaxWidth=960,Height=150}; header.ColumnDefinitions.Add(new() { Width = new GridLength(1,GridUnitType.Star) }); header.ColumnDefinitions.Add(new() { Width = new GridLength(32) }); header.ColumnDefinitions.Add(new(){Width=new GridLength(1,GridUnitType.Star)});
         var brand=new System.Windows.Controls.Viewbox{Stretch=Stretch.Uniform,StretchDirection=StretchDirection.DownOnly,HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center,Child=new NexaWordmark(300)};header.Children.Add(brand);
         var tagline = new TextBlock { Text = "", FontSize = 24, TextWrapping = TextWrapping.Wrap, TextAlignment=TextAlignment.Center, Foreground = (Brush)FindResource("TextBrush"), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 0, 0), MinHeight = 64 };
         System.Windows.Automation.AutomationProperties.SetName(tagline, "Home tagline"); Grid.SetColumn(tagline, 2); header.Children.Add(tagline); panel.Children.Add(header);
@@ -22,8 +22,8 @@ internal sealed partial class HomeWindow
             var phrase=NexaBranding.Tagline;position=hold=restartDelay=0;fading=false;
             tagline.BeginAnimation(OpacityProperty,null);tagline.Opacity=1;
             tagline.Visibility=phrase.Length==0?Visibility.Collapsed:Visibility.Visible;
-            header.ColumnDefinitions[1].Width=new GridLength(phrase.Length==0?0:32);
-            header.ColumnDefinitions[2].Width=phrase.Length==0?new GridLength(0):new GridLength(1,GridUnitType.Star);
+            header.ColumnDefinitions[1].Width=new GridLength(32);
+            header.ColumnDefinitions[2].Width=new GridLength(1,GridUnitType.Star);
             NexaBranding.ApplyTagline(tagline,NexaMotion.Allowed(Saved.Workspace?.Settings??new())?"":phrase);
             if(IsLoaded && IsVisible && WindowState!=WindowState.Minimized && phrase.Length>0 && NexaMotion.Allowed(Saved.Workspace?.Settings??new()))typing.Start();else typing.Stop();
         };refreshBranding();

@@ -44,7 +44,7 @@ internal static partial class Program
         var world=CreateWorld(BugBehavior.Cozy,928);world.SetSurfaces([new BugSurface("web-card",new Rect(300,200,700,500))],new Size(1600,1000));
         var spider=new BugEntity{Species=BugSpecies.Spiders,Position=new(350,230),Speed=90,Activity=BugActivity.Nesting,Decision=30};var helper=new BugEntity{Species=BugSpecies.Spiders,Position=new(380,240),Speed=90,Activity=BugActivity.Nesting,Decision=30};world.Bugs.AddRange([spider,helper]);
         var web=new EcosystemWeb{Owner=spider.InteractionId,AnchorId="web-card",X=1012,Y=188,Helpers=[helper.InteractionId]};world.Webs.Add(web);BugManager.EnsureSilk(web);
-        var box=world.WebBounds(web);Assert(box.Width is >80 and <=180 && box.Height is >60 and <=150,"New web bounds remain proportional without covering the whole widget");
+        var box=world.WebBounds(web);Assert(box.Width>180 && box.Height>150 && Math.Abs(box.Width/box.Height-1)<.1,"Communal web bounds expand with a circular shape");
         Assert(web.Strands.Count is >30 and <80 && web.Strands.Select(t=>t.ToX).Distinct().Count()>10,"Web topology contains an irregular nonradial network of silk paths");
         var first=web.Strands[0];var second=web.Strands[1];spider.Position=world.SilkPoint(web,first.FromX,first.FromY);helper.Position=world.SilkPoint(web,second.FromX,second.FromY);
         world.Advance(.1);

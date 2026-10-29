@@ -2,6 +2,7 @@
     <Application.Resources>
       <ResourceDictionary>
         <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="DarkControls.xaml"/></ResourceDictionary.MergedDictionaries>
+        <Style TargetType="Slider"><Setter Property="IsMoveToPointEnabled" Value="True"/></Style>
         <FontFamily x:Key="NexaUiFont">Segoe UI</FontFamily>
         <Style TargetType="TextBlock"><Setter Property="FontFamily" Value="{DynamicResource NexaUiFont}"/></Style>
         <Style TargetType="Window"><Setter Property="FontFamily" Value="{DynamicResource NexaUiFont}"/><Setter Property="TextOptions.TextFormattingMode" Value="Display"/></Style>

@@ -27,6 +27,7 @@ public partial class MainWindow
         state.Workspace ??= Continuity.Migrate(state, store.UserId);
         InitializeReliability();
         state.Workspace.CleanShutdown = false;
+        if(!entryAlreadyPersisted)state.Workspace.LiveEcosystemGeneration=Guid.NewGuid();
         Continuity.Access(Continuity.Current(state.Workspace, store.UserId));
         ready = false;
         RestoreDraft(); RefreshDashboardPicker();

@@ -27,6 +27,7 @@ public partial class MainWindow
     private readonly List<Border> intervals = [];
     internal Dictionary<string,double> ConstructionProfile {get;}=[];
     private bool ready;
+    internal bool SuppressEntrance {get;set;}
     private bool dirty;
     private bool closingAfterTransition;
     private bool storyOpen;
@@ -113,7 +114,7 @@ public partial class MainWindow
         Loaded+=(_,_)=>{if(state.OfferQuickStart && !Options.QuickStartCompleted)StartQuickStart(false);};
         Closed+=(_,_)=>RemoveQuickStart();
         SpaceIconHost.Cursor=Cursors.Hand;SpaceIconHost.ToolTip="Choose Space icon";SpaceIconHost.MouseLeftButtonUp+=(_,_)=>EditSpaceIcon();
-        Loaded+=(_,_)=>{if(!entryAlreadyPersisted)AnimateWidgetEntrance();};
+        Loaded+=(_,_)=>{if(!entryAlreadyPersisted && !SuppressEntrance)AnimateWidgetEntrance();};
         clock.Start();
         Closing += (_, e) =>
         {

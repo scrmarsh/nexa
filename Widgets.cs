@@ -142,7 +142,7 @@ public static class WidgetLibrary
     }
     public static void EnsureLayout(DashboardData data)
     {
-        if (data.WidgetLayoutInitialized) { PrepareLayout(data); return; }
+        if (data.WidgetLayoutInitialized) { if(!data.Widgets.Any(w=>w.Kind=="Pixel timer"))data.Widgets.Insert(0,Create("Pixel timer","pixels")); PrepareLayout(data); return; }
         data.WidgetLayoutInitialized = true;
         data.Widgets = [Create("Pixel timer", "pixels"), Create("Session timeline", "timeline"), Create("Notes", "notes"), Create("Task List", "tasks")];
         Arrange(data.Widgets, false);

@@ -1,4 +1,4 @@
-param([string]$OutputDirectory='verification/release033',[string]$Compiler)
+param([string]$OutputDirectory='verification/release034',[string]$Compiler)
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot
@@ -8,7 +8,7 @@ try {
  if(-not $out.StartsWith($allowed,[StringComparison]::OrdinalIgnoreCase)){throw 'Unapproved release builds must stay under verification'}
  if(-not $Compiler){$Compiler=& tools/Get-InstallerCompiler.ps1}
  $payload=Join-Path $out 'Application'
- & dotnet publish SessionDashboard.csproj -c Release -r win-x64 --self-contained true -p:NexaDistribution=Installed -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:BaseOutputPath=bin/Release033Application/ -p:UseSharedCompilation=false -nodeReuse:false -m:1 -o $payload
+ & dotnet publish SessionDashboard.csproj -c Release -r win-x64 --self-contained true -p:NexaDistribution=Installed -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:BaseOutputPath=bin/Release034Application/ -p:UseSharedCompilation=false -nodeReuse:false -m:1 -o $payload
  if($LASTEXITCODE -ne 0){throw 'Application publish failed'}
  & tools/Build-Installer.ps1 -PublishDir $payload -Compiler $Compiler -OutputDirectory $OutputDirectory
  Copy-Item -LiteralPath (Join-Path $payload 'Nexa.exe') -Destination (Join-Path $out 'nexa-portable.exe')

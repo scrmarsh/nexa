@@ -35,9 +35,9 @@ internal static class NexaChrome
     private static bool MotionAllowed(Window window)=>NexaMotion.Allowed(window switch{HomeWindow home=>home.Saved?.Workspace?.Settings??new(),MainWindow main=>main.state?.Workspace?.Settings??new(),_=>new()});
     internal static void FadeIn(Window window)
     {
-        if(!MotionAllowed(window)){window.Opacity=1;return;}
-        window.Opacity = 0;
-        window.Loaded += (_, _) => window.BeginAnimation(Window.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(180)) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } });
+        // Native windows start opaque. Readiness-controlled navigation owns its reveal;
+        // a generic window fade can expose the desktop and can strand a hidden launch at zero opacity.
+        window.BeginAnimation(Window.OpacityProperty,null);window.Opacity=1;
     }
     internal static void FadeOutAndClose(Window window)
     {

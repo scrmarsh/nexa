@@ -43,6 +43,8 @@ public partial class App : Application
         }
         try
         {
+            if(NexaInstallation.FixtureDataRoot==null && !File.Exists(Path.Combine(NexaData.Root,"Settings","legacy-import-disabled")) && !File.Exists(Path.Combine(NexaData.Root,"Backups","migration-inventory.json")))
+                await Task.Run(()=>NexaData.Migrate(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"SessionDashboard"),Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),"nexa"),NexaData.Root));
             var store = new StateStore(path);
             var loaded=await Task.Run(()=>(state:store.Load(),mode:store.LoadThemeMode(),theme:store.LoadAppTheme()));
             var options=loaded.state.Workspace?.Settings??new NexaOptions{SeasonalMode="On"};

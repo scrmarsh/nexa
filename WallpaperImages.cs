@@ -34,20 +34,29 @@ internal sealed partial class HomeWindow
 {
     private readonly Border homeWallpaper=new(){IsHitTestVisible=false};
     private readonly Border homeWallpaperShade=new(){IsHitTestVisible=false,Background=Brushes.Black};
+    private readonly Border homeDefaultFrame=new(){IsHitTestVisible=false,BorderBrush=BugVisuals.B("#185FA5"),BorderThickness=new Thickness(16)};
+    private readonly Border homeDefaultGlow=new(){IsHitTestVisible=false,BorderBrush=BugVisuals.B("#7F77DD"),BorderThickness=new Thickness(2),Margin=new Thickness(16),Opacity=.55,Effect=new System.Windows.Media.Effects.BlurEffect{Radius=9}};
     internal void PreviewHomeWallpaper(StateStore source,SpaceBackground settings)
     {if(source.FilePath!=store.FilePath || Saved.Workspace==null)return;Saved.Workspace.Settings.HomeWallpaper=Continuity.Clone(settings);RefreshWallpaper();}
     internal void RefreshWallpaper()
     {
-        if(Theme.SeasonalEnabled){homeWallpaper.Background=null;homeWallpaper.Effect=null;homeWallpaperShade.Opacity=0;return;}
+        // The fixed charcoal Home needs a readable dark shell even when the rest of the app uses Light.
+        foreach(var pair in new[]{("TextBrush","#F0F2FF"),("MutedBrush","#B8C0D8"),("PanelBrush","#151824"),("SurfaceBrush","#1B1E2C"),("InputBrush","#10131D"),("LineBrush","#30364A")})
+            if(!Theme.SeasonalEnabled)Resources[pair.Item1]=BugVisuals.B(pair.Item2);else Resources.Remove(pair.Item1);
         var settings=Saved.Workspace?.Settings.HomeWallpaper;
+        var isDefault=!Theme.SeasonalEnabled && ((settings?.Mode??SpaceBackgroundMode.Default)==SpaceBackgroundMode.Default || settings?.Mode==SpaceBackgroundMode.CustomImage && WallpaperImages.Load(settings)==null);
+        homeDefaultFrame.Visibility=homeDefaultGlow.Visibility=isDefault?Visibility.Visible:Visibility.Collapsed;
+        if(Theme.SeasonalEnabled){homeWallpaper.Background=null;homeWallpaper.Effect=null;homeWallpaperShade.Opacity=0;return;}
         WallpaperImages.Apply(homeWallpaper,settings);
-        homeWallpaperShade.Opacity=WallpaperImages.Shade(settings,true,homeWallpaper.Background!=null);
+        if(homeWallpaper.Background==null)homeWallpaper.Background=BugVisuals.B("#171B26");
+        homeWallpaperShade.Opacity=isDefault?0:WallpaperImages.Shade(settings,true,homeWallpaper.Background!=null);
     }
 }
 internal sealed partial class SettingsDialog
 {
     private UIElement BuildWallpaperControls(SpaceBackground source,bool home)
     {
+        if(home)return BuildHomeBackground(source);
         var settings=Continuity.Clone(source??new());var syncing=false;
         var page=new StackPanel{Margin=new Thickness(0,18,0,0),Tag=home?"HomeWallpaperControls":"SpaceWallpaperControls"};
         page.Children.Add(new TextBlock{Text=home?"Home Background Presets":"Space Background Presets",FontSize=20,FontWeight=FontWeights.SemiBold});
@@ -110,6 +119,54 @@ internal sealed partial class SettingsDialog
         fit.SelectionChanged+=(_,_)=>{if(syncing)return;settings.FitImage=fit.SelectedIndex==1;Save();};
         color.ColorChanged+=(_,_)=>{if(syncing)return;settings.SolidColor=color.SelectedColor;settings.Mode=SpaceBackgroundMode.SolidColor;Save();};
         blur.Click+=(_,_)=>{settings.Blur=blur.IsChecked==true;Save();};strength.ValueChanged+=(_,_)=>{if(syncing)return;settings.BlurStrength=strength.Value;Save();};shade.ValueChanged+=(_,_)=>{if(syncing)return;settings.Overlay=shade.Value;Save();};
+        Refresh();return page;
+    }
+    private UIElement BuildHomeBackground(SpaceBackground source)
+    {
+        var settings=Continuity.Clone(source??new());var syncing=false;
+        var page=new StackPanel{Margin=new Thickness(0,22,0,0),Tag="HomeWallpaperControls"};
+        page.Children.Add(new TextBlock{Text="Home Background",FontSize=20,FontWeight=FontWeights.SemiBold});
+        var choices=new WrapPanel{Margin=new Thickness(0,10,0,10)};page.Children.Add(choices);
+        var standard=new Button{Content="nexa Default",Margin=new Thickness(0,0,8,0)};
+        var color=new ColorPickerButton{SelectedColor=settings.SolidColor,Content="Solid Color",Margin=new Thickness(0,0,8,0)};
+        var image=new Button{Content="Custom Image"};choices.Children.Add(standard);choices.Children.Add(color);choices.Children.Add(image);
+        var previewLayer=new Border{IsHitTestVisible=false};var previewShade=new Border{Background=Brushes.Black,IsHitTestVisible=false};
+        page.Children.Add(new Border{Height=125,Tag="WallpaperPreview",ClipToBounds=true,CornerRadius=new CornerRadius(8),Margin=new Thickness(0,0,0,10),Child=new Grid{Children={previewLayer,previewShade}}});
+        var status=new TextBlock{TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,8)};page.Children.Add(status);
+        var imageControls=new StackPanel();page.Children.Add(imageControls);
+        var fit=new ComboBox{ItemsSource=new[]{"Fill","Fit"},SelectedIndex=settings.FitImage?1:0};Field(imageControls,"Image sizing",fit);
+        var blur=new CheckBox{Content="Blur background",IsChecked=settings.Blur,Margin=new Thickness(0,14,0,14)};imageControls.Children.Add(blur);
+        var strength=new Slider{Minimum=0,Maximum=40,Value=settings.BlurStrength};Field(imageControls,"Blur strength",strength);
+        var shade=new Slider{Minimum=0,Maximum=.9,Value=settings.Overlay};Field(imageControls,"Contrast overlay",shade);
+        void Refresh()
+        {
+            WallpaperImages.Apply(previewLayer,settings);if(previewLayer.Background==null)previewLayer.Background=BugVisuals.B("#171B26");
+            previewShade.Opacity=settings.Mode==SpaceBackgroundMode.CustomImage?WallpaperImages.Shade(settings,true,previewLayer.Background is ImageBrush):0;
+            imageControls.Visibility=settings.Mode==SpaceBackgroundMode.CustomImage?Visibility.Visible:Visibility.Collapsed;
+            status.Text=settings.Mode switch{SpaceBackgroundMode.SolidColor=>"Solid color",SpaceBackgroundMode.CustomImage=>WallpaperImages.Load(settings)==null?"Image unavailable. nexa Default is shown; your image selection is retained.":Path.GetFileName(settings.ImagePath),_=>"nexa Default"};
+            standard.BorderThickness=new Thickness(settings.Mode==SpaceBackgroundMode.Default?2:1);color.BorderThickness=new Thickness(settings.Mode==SpaceBackgroundMode.SolidColor?2:1);image.BorderThickness=new Thickness(settings.Mode==SpaceBackgroundMode.CustomImage?2:1);
+        }
+        void Save()
+        {
+            if(syncing)return;ReliabilityOptions.HomeWallpaper=Continuity.Clone(settings);
+            foreach(var window in Application.Current.Windows.OfType<HomeWindow>())window.PreviewHomeWallpaper(store,settings);
+            QueueSave("home-wallpaper",SaveState);Refresh();
+        }
+        standard.Click+=(_,_)=>{settings.Mode=SpaceBackgroundMode.Default;Save();};
+        color.ColorChanged+=(_,_)=>{settings.SolidColor=color.SelectedColor;settings.Mode=SpaceBackgroundMode.SolidColor;Save();color.Content="Solid Color";};
+        image.Click+=(_,_)=>
+        {
+            try
+            {
+                var path=WallpaperPicker.Choose(this);if(path==null)return;
+                var candidate=Continuity.Clone(settings);candidate.ImagePath=path;candidate.Mode=SpaceBackgroundMode.CustomImage;
+                if(WallpaperImages.Load(candidate)==null){status.Text="This image could not be decoded. Your background is unchanged.";return;}
+                settings=candidate;Save();
+            }
+            catch(Exception ex)when(ex is IOException or InvalidOperationException or System.ComponentModel.Win32Exception){status.Text="Image picker unavailable. "+ex.Message;}
+        };
+        fit.SelectionChanged+=(_,_)=>{settings.FitImage=fit.SelectedIndex==1;Save();};blur.Click+=(_,_)=>{settings.Blur=blur.IsChecked==true;Save();};
+        strength.ValueChanged+=(_,_)=>{settings.BlurStrength=strength.Value;Save();};shade.ValueChanged+=(_,_)=>{settings.Overlay=shade.Value;Save();};
         Refresh();return page;
     }
     private UIElement BuildDisplaySettings()

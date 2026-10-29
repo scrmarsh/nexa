@@ -13,7 +13,7 @@ internal static partial class Program
 {
     private static void Check031()
     {
-        Assert(App.VersionLabel=="nexa v0.0.33 alpha" && NexaReleaseIdentity.Current.Tag=="v0.0.33-alpha","Shared release model owns current label/tag");
+        Assert(App.VersionLabel=="nexa v0.0.34 alpha" && NexaReleaseIdentity.Current.Tag=="v0.0.34-alpha","Shared release model owns current label/tag");
         Assert(NexaReleaseIdentity.Canonicalize(new(0,1,26),"Alpha")==new Version(0,0,26) && NexaReleaseIdentity.Canonicalize(new(0,1,26),"Beta")==new Version(0,1,26),"Explicit legacy Alpha map never rewrites genuine Beta");
         Assert(NexaReleaseIdentity.Canonicalize(new(0,1,99),"Alpha")==new Version(0,1,99),"Unconfirmed legacy-looking versions are not silently remapped");
         Assert(NexaReleaseIdentity.Parse("v0.1.0-alpha",true)==null && NexaReleaseIdentity.Parse("v0.1.0-beta",true)?.Stage=="Beta","First Beta numbering cannot masquerade as an Alpha release");
@@ -79,7 +79,7 @@ internal static partial class Program
         var main=OffscreenHandoff(new MainWindow(store));main.Show();Pump(TimeSpan.FromMilliseconds(50));var world=NexaEcosystem.For(store);world.Manager.WorldPaused=true;
         var web=new EcosystemWeb{Owner=Guid.NewGuid(),X=500,Y=300,Construction=1};BugManager.EnsureSilk(web);world.Manager.Webs.Add(web);world.Save();var id=world.Manager.WorldId;
         main.Close();main=OffscreenHandoff(new MainWindow(store));main.Show();Pump(TimeSpan.FromMilliseconds(30));
-        Assert(world.Manager.Webs.Any(w=>w.Owner==web.Owner),"Ordinary application restart/crash recovery preserves the current live world");
+        Assert(world.Manager.Webs.Count==0,"Every Space entry resets transient live web state, including restart");
         var originalSession=Continuity.Current(main.state.Workspace!,store.UserId).Current.SessionId;var originalScore=main.state.Workspace!.AllTimeSquashes;
         var eventBug=new BugEntity{Species=BugSpecies.Spiders};var pending=world.RecordSquashResponsive(eventBug,main);
         var next=Continuity.Clone(main.state.Workspace);next.LiveEcosystemGeneration=Guid.NewGuid();

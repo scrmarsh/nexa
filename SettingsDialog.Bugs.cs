@@ -13,9 +13,8 @@ internal sealed partial class SettingsDialog
         var species = new ComboBox { ItemsSource = new[] { BugSpecies.AllBugs }.Concat(BugManager.AllSpecies).ToArray(), SelectedItem = preferences.Species };
         Field(page, "Bug type", species);
         var density = new ComboBox { ItemsSource = new[] { "Low", "Normal", "High", "Infestation" }, SelectedIndex = (int)preferences.Density }; Field(page, "Density", density);
-        var behavior = new ComboBox { ItemsSource = new[]{BugBehavior.Classic,BugBehavior.Cozy,BugBehavior.Creepy,BugBehavior.Combative}, SelectedItem = options.Behavior }; var friendly=new ComboBox{ItemsSource=new[]{BugBehavior.Classic,BugBehavior.Cozy},SelectedItem=options.Behavior};Field(page,"Friendly behavior",friendly);
-        var legacyModes=new Expander{Header="Advanced behavior · legacy / Battle",Content=behavior,IsExpanded=false};page.Children.Add(legacyModes);
-        friendly.SelectionChanged+=(_,_)=>{if(friendly.SelectedItem is BugBehavior selected)behavior.SelectedItem=selected;};
+        var behavior = new ComboBox { ItemsSource = new[]{BugBehavior.Classic,BugBehavior.Cozy,BugBehavior.Combative}, SelectedItem = options.Behavior==BugBehavior.Creepy?BugBehavior.Classic:options.Behavior };
+        Field(page,"Behavior",behavior);
         var appearance = new ComboBox { ItemsSource = new[] { "Classic", "Creepy", "Halloween" }, SelectedIndex = options.EffectiveAppearance == BugAppearance.Creepy ? 1 : options.EffectiveAppearance == BugAppearance.Halloween ? 2 : 0 };
         Field(page, "Appearance", appearance);
         var updatingAppearance = false;
@@ -27,7 +26,9 @@ internal sealed partial class SettingsDialog
         var size = new Slider { Minimum = .75, Maximum = 4, Value = options.Size, TickFrequency = .25, IsSnapToTickEnabled = true, IsMoveToPointEnabled = true };
         var sizeLabel = new TextBlock(); Field(page, "Bug size", size); page.Children.Add(sizeLabel);
         var clickPadding=new Slider{Minimum=1.4,Maximum=1.6,Value=options.HitboxExpansion,TickFrequency=.05,IsSnapToTickEnabled=true};
-        Field(page,"Bug click tolerance",clickPadding);
+        Field(page,"Bug Hitbox Size",clickPadding);
+        page.Children.Add(new TextBlock{Text="Adjusts the clickable area around each bug.",TextWrapping=TextWrapping.Wrap});
+        var hitboxEnds=new DockPanel();var small=new TextBlock{Text="Small"};var large=new TextBlock{Text="Large",HorizontalAlignment=HorizontalAlignment.Right};DockPanel.SetDock(small,Dock.Left);hitboxEnds.Children.Add(small);hitboxEnds.Children.Add(large);page.Children.Add(hitboxEnds);
         var quality = new ComboBox { ItemsSource = Enum.GetValues<BugAnimationQuality>(), SelectedItem = options.Quality }; Field(page, "Animation quality", quality);
         var status = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 12) }; page.Children.Add(status);
         void Refresh()
@@ -51,7 +52,7 @@ internal sealed partial class SettingsDialog
         void Changed(bool appearanceChanged = false)
         {
             options = options.ChooseBehavior(behavior.SelectedItem is BugBehavior mode ? mode : BugBehavior.Classic,NexaSeason.Active(ReliabilityOptions,DateTimeOffset.UtcNow)) with {
-                MatchAppearance=appearanceChanged?false:options.MatchAppearance, Appearance=appearanceChanged?(appearance.SelectedIndex==1?BugAppearance.Creepy:appearance.SelectedIndex==2?BugAppearance.Halloween:BugAppearance.Normal):options.Appearance, Adorable=adorable.IsChecked==true, AdvancedAnimations=advanced.IsChecked==true, Size=size.Value, HitboxExpansion=clickPadding.Value, Quality=quality.SelectedItem is BugAnimationQuality chosen?chosen:BugAnimationQuality.Balanced, Costumes=costumes.IsChecked==true };
+                MatchAppearance=false, Appearance=appearance.SelectedIndex==1?BugAppearance.Creepy:appearance.SelectedIndex==2?BugAppearance.Halloween:BugAppearance.Normal, Adorable=adorable.IsChecked==true, AdvancedAnimations=advanced.IsChecked==true, Size=size.Value, HitboxExpansion=clickPadding.Value, Quality=quality.SelectedItem is BugAnimationQuality chosen?chosen:BugAnimationQuality.Balanced, Costumes=costumes.IsChecked==true };
             preferences = new(enabled.IsChecked == true, species.SelectedItem is BugSpecies type ? type : BugSpecies.Ants, density.SelectedIndex is >=0 and <=3 ? (BugDensity)density.SelectedIndex : BugDensity.Normal, options.Safe());
             if (preferences.Enabled) world.Manager.WorldPaused = false;
             world.ApplyPreferences(preferences); world.ApplySeason(ReliabilityOptions);
@@ -69,6 +70,6 @@ internal sealed partial class SettingsDialog
         }
         var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         timer.Tick += (_, _) => Refresh(); Loaded += (_, _) => timer.Start(); Closed += (_, _) => timer.Stop(); Refresh();
-        return new ScrollViewer { Content = page, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled };
+        return new ScrollViewer { Tag="HiddenPageScroll",Content = page, VerticalScrollBarVisibility = ScrollBarVisibility.Hidden, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled };
     }
 }

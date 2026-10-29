@@ -35,7 +35,7 @@ internal sealed class SplashWindow:Window
         void CompleteTagline()
         {
             typing.Stop();NexaBranding.ApplyTagline(tagline,phrase);tagline.Visibility=phrase.Length==0?Visibility.Collapsed:Visibility.Visible;
-            taglineReady.TrySetResult();Loading.Visibility=Stage.Visibility=Theme.SeasonalEnabled?Visibility.Collapsed:Visibility.Visible;ShowProgress();
+            taglineReady.TrySetResult();Loading.Visibility=Stage.Visibility=Visibility.Collapsed;ShowProgress();
         }
         typing.Tick+=(_,_)=>{if(position<phrase.Length)NexaBranding.ApplyTagline(tagline,phrase[..++position]);if(position>=phrase.Length)CompleteTagline();};
         beginSequence=()=>{if(!NexaMotion.Allowed(this.options)||phrase.Length==0)CompleteTagline();else typing.Start();};

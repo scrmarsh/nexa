@@ -63,7 +63,11 @@ public sealed partial class StateStore
         var interaction = new DashboardData(); LoadInteractionPreferences(interaction);
         return new UserProfile { UserId = UserId, OnboardingCompleted = File.Exists(FilePath) || File.Exists(FilePath + ".bak") || File.Exists(PreferencesPath) || File.Exists(InteractionPreferencesPath), ThemeMode = LoadThemeMode(), Theme = LoadAppTheme(), Sounds = interaction.InterfaceSoundsEnabled, Volume = interaction.InterfaceSoundVolume, FocusNudges = interaction.FocusNudgesEnabled, ConnectedIntegrations=ConnectedServices() };
     }
-    private List<string> ConnectedServices() => new[] { "Todoist","Google Tasks","Google Calendar" }.Where(new IntegrationVault(this).Connected).ToList();
+    private List<string> ConnectedServices()
+    {
+        var services=new[]{"Todoist","Google Tasks","Google Calendar","Outlook Calendar","Hevy"}.Where(new IntegrationVault(this).Connected).ToList();
+        var credentials=new AppState();LoadCredentials(credentials);if(!string.IsNullOrWhiteSpace(credentials.HedyProtectedKey))services.Add("Hedy");return services;
+    }
     internal void SaveProfile(UserProfile profile)
     {
         if (profile.UserId != UserId) throw new UnauthorizedAccessException("Cannot save another user's profile.");

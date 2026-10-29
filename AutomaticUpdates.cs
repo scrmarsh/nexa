@@ -81,7 +81,7 @@ internal sealed class AutomaticUpdates
     {
         using var client=new HttpClient{Timeout=TimeSpan.FromSeconds(20)};
         var updater=new ExperimentalUpdater(client);
-        var release=await updater.CheckAsync(new Version(App.AppVersion),cancellation,NexaReleaseIdentity.Current.Stage,prefs.Channel);
+        var release=await updater.CheckAsync(new Version(App.AppVersion),cancellation,NexaReleaseIdentity.Current.Stage,"Automatic");
         if(release==null && updater.LatestEligible==null)throw new InvalidDataException("No eligible published package was found. This does not confirm that the installed version is current.");
         return release;
     }

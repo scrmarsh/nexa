@@ -80,7 +80,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock x:Name="CountdownCaption" Text="TIME REMAINING" FontSize="10" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
                                     <Button x:Name="SessionEditButton" Content="Edit" Click="SessionTimeEditClick" Visibility="Collapsed" Padding="7,3" FontSize="10" Margin="8,0,0,0"/>
-                                    <Button x:Name="SessionResetButton" Content="Reset" Click="ResetSessionTimerClick" Padding="7,3" FontSize="10" Margin="6,0,0,0"/><Button Content="&#x2026;" Click="PixelBannerOptionsClick" Width="28" Padding="3" Margin="6,0,0,0" ToolTip="Pixel Timer options" AutomationProperties.Name="Pixel Timer options"/>
+                                    <Button x:Name="SessionResetButton" Content="Reset" Click="ResetSessionTimerClick" Padding="7,3" FontSize="10" Margin="6,0,0,0"/>
                                 </StackPanel>
                                 <Button x:Name="ExpandButton" Content="Expand Space" Click="CompactClick" Visibility="Collapsed"/>
                             </StackPanel>
@@ -91,7 +91,7 @@
                             </ProgressBar>
                             <TextBlock x:Name="ElapsedCaption" Text="ELAPSED" Style="{StaticResource Eyebrow}"/><TextBlock x:Name="ElapsedLabel" TextWrapping="Wrap" TextAlignment="Center" Text="00:00:00" FontSize="18" FontFamily="Consolas" Margin="0,3,0,12"/>
                             <TextBlock x:Name="MilestoneLabel" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold" Margin="0,0,0,8" Visibility="Collapsed" TextWrapping="Wrap"/>
-                            <Button x:Name="StoryButton" Content="I'm bored" Click="StoryClick" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,8,0,0"><Button Content="&#x2026;" Click="PixelBannerOptionsClick" Width="32" Padding="3" Margin="0,0,8,0" ToolTip="Configure Pixel Timer" AutomationProperties.Name="Pixel Timer options"/><Button x:Name="StoryButton" Content="I'm Bored" Click="StoryClick"/></StackPanel>
                             </StackPanel>
                             <Grid Grid.Column="1">
                                 <Grid x:Name="PixelArea" Height="260" ClipToBounds="True"><Canvas x:Name="PixelGrid" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"/></Grid>

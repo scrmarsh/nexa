@@ -61,7 +61,7 @@ internal sealed class ExperimentalUpdater(HttpClient client)
     };
     internal async Task<AvailableUpdate?> CheckAsync(Version current, CancellationToken cancellationToken = default, string currentChannel = "Alpha",string? channelPreference=null)
     {
-        var latest = await DiscoverAsync(cancellationToken, channelPreference is null or "Automatic"?currentChannel:channelPreference);
+        var latest = await DiscoverAsync(cancellationToken, "Alpha");
         if(newestRejected is {} rejected && IsNewer(rejected.Version,rejected.Stage,current,currentChannel) && (latest==null || IsNewer(rejected.Version,rejected.Stage,latest.Version,latest.Channel)))throw new InvalidDataException("A newer published release is missing a verified compatible nexa asset. Check Settings again after the release package is complete.");
         LatestEligible=latest;
         return latest != null && IsNewer(latest.Version, latest.Channel, current, currentChannel) ? latest : null;

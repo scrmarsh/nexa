@@ -5,11 +5,12 @@ using System.Windows.Media;
 namespace SessionDashboard;
 internal static class NexaBranding
 {
-    internal static string Tagline=>Theme.SeasonalEnabled?"a space for whatever haunts you next":"";
+    internal static string Tagline=>Theme.SeasonalEnabled?"a space for whatever haunts you next":"a space for whatever comes next";
     internal static void ApplyTagline(TextBlock target,string text)
     {
         target.Inlines.Clear();
         if(text.Length==0)return;
+        if(!Theme.SeasonalEnabled){target.Inlines.Add(new Run(text){Foreground=new LinearGradientBrush((Color)ColorConverter.ConvertFromString("#185FA5"),(Color)ColorConverter.ConvertFromString("#7F77DD"),0)});return;}
         const string seasonal = "a space for whatever haunts you next";
         var index = seasonal.IndexOf("haunts", StringComparison.Ordinal);
         if (!Theme.SeasonalEnabled || text.Length <= index || !seasonal.StartsWith(text, StringComparison.Ordinal)) { target.Inlines.Add(new Run(text)); return; }

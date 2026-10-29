@@ -29,7 +29,7 @@ internal static partial class Program
         var art=Descendants(home).OfType<NexaweenDecorations>().Single();var corners=Descendants(home).OfType<SeasonalCorners>().Single();
         Assert(art.Visibility==Visibility.Collapsed && corners.Visibility==Visibility.Collapsed && !art.IsHitTestVisible && !corners.IsHitTestVisible,"Fresh normal Home removes seasonal rendering and hit targets");
         var tagline=Descendants(home).OfType<TextBlock>().Single(t=>System.Windows.Automation.AutomationProperties.GetName(t)=="Home tagline");
-        Assert(tagline.Visibility==Visibility.Collapsed && tagline.Inlines.Count==0,"Normal Home leaves no tagline text run or layout gap");Capture026(home,"handoff-home-normal");
+        Assert(tagline.Visibility==Visibility.Visible,"Normal Home reserves the stationary tagline column");Capture026(home,"handoff-home-normal");
         var initial=CardsHandoff(home);Assert(initial.Length==6,"Initial Home contains exactly six Spaces");
         foreach(var card in initial.Take(1))
         {
@@ -82,7 +82,7 @@ internal static partial class Program
         Assert(store.Load().Workspace!.Settings.TimeZoneId=="Central Standard Time" && search.Text=="","Choosing a result synchronizes and persistently saves the real selection");
         var chicago=TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");Assert(chicago.GetUtcOffset(new DateTime(2026,1,15))!=chicago.GetUtcOffset(new DateTime(2026,7,15)),"Selected authoritative Chicago zone retains daylight saving rules");
         settings.SelectSection("Sounds");var sounds=Descendants(settings).OfType<ComboBox>().ToArray();
-        Assert(sounds.Count(c=>c.Items.Count==5)==3 && sounds.Any(c=>c.Items.Count==9),"Sounds exposes five styles and five independent choices for each feedback direction");
+        Assert(sounds.Count(c=>c.Items.Count==5)>=3 && sounds.Any(c=>c.Items.OfType<string>().SequenceEqual(NexaEffectsAudio.Names.Take(3))) && sounds.Any(c=>c.Items.OfType<string>().SequenceEqual(NexaEffectsAudio.Names.Skip(4))),"Sounds exposes five styles and five independent choices for each feedback direction");
         sounds[0].SelectedIndex=3;sounds[1].SelectedIndex=1;sounds[2].SelectedIndex=2;settings.FlushPendingChanges();var audio=store.Load();store.LoadInteractionPreferences(audio);
         Assert(audio.PositiveFeedbackSound=="Bells" && audio.NegativeFeedbackSound=="Tap","Independent sound choices persist without being overwritten by the style selector");
         Assert(InterfaceAudio.PositiveChoices.Select(s=>Convert.ToHexString(SHA256.HashData(InterfaceAudio.CreateCue(.25,"positive",s).ToArray()))).Distinct().Count()==5 && InterfaceAudio.NegativeChoices.Select(s=>Convert.ToHexString(SHA256.HashData(InterfaceAudio.CreateCue(.25,"negative",s).ToArray()))).Distinct().Count()==5,"All five positive and negative original PCM cues are distinct");

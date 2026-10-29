@@ -7,6 +7,8 @@ namespace SessionDashboard;
 // Installer-only maintenance. Every write is explicit and scoped; discovery never executes candidates.
 internal static class InstallerMaintenance
 {
+    private static void Progress(string text)
+    {try{using var output=new StreamWriter(Console.OpenStandardOutput()){AutoFlush=true};output.WriteLine(text);}catch(IOException){}}
     internal sealed record OldCopy(string Path,string Hash,string Version,bool VerifiedRelease);
     internal sealed class Plan
     {
@@ -14,6 +16,8 @@ internal static class InstallerMaintenance
         public string DataRoot {get;set;}="";
         public string InstallRoot {get;set;}="";
         public string Backup {get;set;}="";
+        public string RegistrationId {get;set;}="";
+        public string PreviousVersion {get;set;}="";
         public List<OldCopy> Copies {get;set;}=[];
         public List<string> Messages {get;set;}=[];
     }
@@ -25,10 +29,12 @@ internal static class InstallerMaintenance
         foreach(var root in roots)
         {
             var pending=new Stack<string>();if(Directory.Exists(root))pending.Push(Path.GetFullPath(root));
+            Progress("Searching "+root);
             while(pending.TryPop(out var folder))
             {
                 cancellation.ThrowIfCancellationRequested();
                 if(!visited.Add(folder) || UpdateTransaction.IsWithin(install,folder))continue;
+                if(Path.GetRelativePath(Path.GetFullPath(root),folder).Split(Path.DirectorySeparatorChar).Length>3)continue;
                 var matches=new List<OldCopy>();
                 try
                 {
@@ -43,7 +49,7 @@ internal static class InstallerMaintenance
                             if((File.GetAttributes(file)&FileAttributes.ReparsePoint)!=0)continue;
                             var info=FileVersionInfo.GetVersionInfo(file);
                             if(info.ProductName!="Nexa" || !Version.TryParse(info.FileVersion,out var version))continue;
-                            if(NexaReleaseIdentity.Canonicalize(version,"Alpha")>=new Version(App.AppVersion))continue;
+                            if(NexaReleaseIdentity.Canonicalize(version,"Alpha")>new Version(App.AppVersion))continue;
                             var hash=UpdateTransaction.Hash(file);found=new(file,hash,info.FileVersion!,known.Contains(hash));
                         }
                         catch(Exception ex)when(ex is IOException or UnauthorizedAccessException or ArgumentException){}
@@ -56,8 +62,8 @@ internal static class InstallerMaintenance
                         pending.Push(child);
                     }
                 }
-                catch(Exception ex)when(ex is IOException or UnauthorizedAccessException){}
-                foreach(var match in matches)yield return match;
+                catch(Exception ex)when(ex is IOException or UnauthorizedAccessException){Progress("Could not inspect "+folder+": "+ex.Message);}
+                foreach(var match in matches){Progress("Found nexa "+match.Version+" — "+match.Path+"; portable preserved");yield return match;}
             }
         }
     }
@@ -67,16 +73,38 @@ internal static class InstallerMaintenance
         Directory.CreateDirectory(Path.GetDirectoryName(destination)!);File.Copy(source,destination,false);
         if(UpdateTransaction.Hash(source)!=UpdateTransaction.Hash(destination))throw new IOException("Migration backup checksum mismatch.");
     }
-    internal static async Task<Plan> Prepare(string planPath,string dataRoot,string installRoot,IEnumerable<string> roots)
+    internal static async Task<Plan> Prepare(string planPath,string dataRoot,string installRoot,IEnumerable<string> roots,bool isolatedFixture=false)
     {
         dataRoot=Path.GetFullPath(dataRoot);installRoot=Path.GetFullPath(installRoot);
+        if(isolatedFixture)
+        {
+            var fixture=Path.GetDirectoryName(dataRoot)!;
+            if(Path.GetFileName(dataRoot)!="data" || !Path.GetFullPath(installRoot).Equals(Path.Combine(fixture,"app"),StringComparison.OrdinalIgnoreCase) || !File.Exists(Path.Combine(fixture,".nexa-installer-fixture")) || UpdateTransaction.IsWithin(NexaData.Root,fixture))throw new InvalidDataException("Invalid installer fixture scope.");
+            UpdateTransaction.RejectLinks(fixture);
+        }
+        if(!isolatedFixture)
         using(var running=new System.Threading.Mutex(false,"Local\\Nexa.SessionDashboard."+System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value))
         {if(!running.WaitOne(0))throw new IOException("Close nexa before installing so all saves can be backed up safely.");running.ReleaseMutex();}
         if(UpdateTransaction.IsWithin(installRoot,dataRoot)||UpdateTransaction.IsWithin(dataRoot,installRoot))throw new InvalidDataException("Application and data folders must be separate.");
+        Progress("Checking workspace ownership and preparing verified backups");
+        if(dataRoot.Equals(NexaData.Root,StringComparison.OrdinalIgnoreCase) && !File.Exists(Path.Combine(dataRoot,"Backups","migration-inventory.json")) && !File.Exists(Path.Combine(dataRoot,"Settings","legacy-import-disabled")))
+            NexaData.Migrate(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"SessionDashboard"),Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),"nexa"),dataRoot);
         var plan=new Plan{UserId=System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value,DataRoot=dataRoot,InstallRoot=installRoot,Backup=Path.Combine(dataRoot,"migration-backups",DateTimeOffset.UtcNow.ToString("yyyyMMdd-HHmmss")+"-"+Guid.NewGuid().ToString("N"))};
         Directory.CreateDirectory(plan.Backup);
         var store=new StateStore(Path.Combine(dataRoot,"state.json"));
         await UpdateTransaction.BackupData(store,plan.Backup);
+        Progress("Workspace backup verified");
+        var installedExecutable=Path.Combine(installRoot,"Nexa.exe");
+        if(File.Exists(installedExecutable))CopyVerified(installedExecutable,Path.Combine(plan.Backup,"application","Nexa.exe"));
+        foreach(var relative in new[]{"installation.json","installer-integrity.json","setup-cache/NexaSetup.exe"})
+        {var original=Path.Combine(installRoot,relative);if(File.Exists(original))CopyVerified(original,Path.Combine(plan.Backup,"application",relative));}
+        if(isolatedFixture || File.Exists(Path.Combine(installRoot,"installation.json")) || installRoot.Equals(Path.GetDirectoryName(InstallerUpdates.InstallTarget()),StringComparison.OrdinalIgnoreCase))
+        foreach(var id in new[]{NexaInstallation.AppId,NexaInstallation.TestAppId})
+        {
+            using var key=Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\"+id+"_is1");
+            if(key?.GetValue("InstallLocation") is string location && Path.TrimEndingDirectorySeparator(Path.GetFullPath(location)).Equals(installRoot,StringComparison.OrdinalIgnoreCase))
+            {plan.RegistrationId=id;plan.PreviousVersion=key.GetValue("DisplayVersion") as string??"";break;}
+        }
         var search=roots.ToArray();plan.Copies=Discover(search.Where(Directory.Exists),installRoot).ToList();
         foreach(var source in search.Where(File.Exists))
         {
@@ -221,9 +249,29 @@ internal static class InstallerMaintenance
     {
         try
         {
-            if(args[0]=="--installer-prepare" && args.Length>=5)
+            if(args[0] is "--installer-prepare" or "--installer-prepare-fixture" && args.Length>=5)
             {
-                var roots=args.Skip(4).ToArray();await Prepare(args[1],args[2],args[3],roots);return 0;
+                var roots=args.Skip(4).ToArray();var plan=await Prepare(args[1],args[2],args[3],roots,args[0]=="--installer-prepare-fixture");
+                File.WriteAllText(args[1]+".report.txt","Existing portable copies are preserved.\r\n"+string.Join("\r\n",plan.Copies.Select(c=>"nexa "+c.Version+" — "+c.Path+" — "+(c.VerifiedRelease?"known release":"identity found; unverified package")+"; preserved"))+"\r\n"+string.Join("\r\n",plan.Messages));
+                File.WriteAllText(args[1]+".backup-path",plan.Backup);Progress("Preparation complete; portable copies will be kept");return 0;
+            }
+            if(args[0]=="--installer-rollback" && args.Length==2)
+            {
+                var plan=JsonSerializer.Deserialize<Plan>(File.ReadAllText(args[1]))??throw new InvalidDataException("Missing repair rollback.");
+                if(plan.UserId!=System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value || !UpdateTransaction.IsWithin(Path.Combine(plan.DataRoot,"migration-backups"),plan.Backup))throw new InvalidDataException("Invalid rollback scope.");
+                var original=Path.Combine(plan.Backup,"application","Nexa.exe");var target=Path.Combine(plan.InstallRoot,"Nexa.exe");UpdateTransaction.RejectLinks(original);UpdateTransaction.RejectLinks(target);
+                if(File.Exists(original)){File.Copy(original,target,true);if(UpdateTransaction.Hash(original)!=UpdateTransaction.Hash(target))throw new IOException("Repair rollback verification failed.");}
+                foreach(var relative in new[]{"installation.json","installer-integrity.json","setup-cache/NexaSetup.exe"})
+                {
+                    var before=Path.Combine(plan.Backup,"application",relative);var after=Path.Combine(plan.InstallRoot,relative);UpdateTransaction.RejectLinks(before);UpdateTransaction.RejectLinks(after);
+                    if(File.Exists(before) && (!File.Exists(after)||UpdateTransaction.Hash(before)!=UpdateTransaction.Hash(after)))File.Copy(before,after,true);
+                }
+                if(plan.RegistrationId is NexaInstallation.AppId or NexaInstallation.TestAppId)
+                {
+                    using var key=Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\"+plan.RegistrationId+"_is1",true);
+                    if(key?.GetValue("InstallLocation") is string location && Path.TrimEndingDirectorySeparator(Path.GetFullPath(location)).Equals(Path.GetFullPath(plan.InstallRoot),StringComparison.OrdinalIgnoreCase))key.SetValue("DisplayVersion",plan.PreviousVersion);
+                }
+                return 0;
             }
             if(args[0]=="--installer-complete" && args.Length==3){await Complete(args[1],args[2]=="remove");return 0;}
             return 2;

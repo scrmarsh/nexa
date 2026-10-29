@@ -7,12 +7,12 @@ namespace SessionDashboard;
 
 internal static class NexaFiles
 {
-    private static string StandardStatePath=>Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"SessionDashboard","state.json");
+    private static string StandardStatePath=>Path.Combine(NexaData.Root,"state.json");
     internal static string StatePath=>NexaInstallation.FixtureDataRoot is {} fixture?Path.Combine(fixture,"state.json"):StandardStatePath;
     internal static string Data(StateStore store)=>Path.GetDirectoryName(Path.GetFullPath(store.FilePath))!;
-    internal static string Documents(StateStore store)=>Path.Combine(Path.GetFullPath(store.FilePath).Equals(Path.GetFullPath(StandardStatePath),StringComparison.OrdinalIgnoreCase)?Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments):Path.Combine(Data(store),"documents"),"nexa");
-    internal static string Spaces(StateStore store)=>Path.Combine(Documents(store),"Spaces");
-    internal static string History(StateStore store)=>Path.Combine(Documents(store),"History");
+    internal static string Documents(StateStore store)=>Data(store);
+    internal static string Spaces(StateStore store)=>Path.Combine(Data(store),"Spaces");
+    internal static string History(StateStore store)=>Path.Combine(Data(store),"History");
     internal static void Open(string folder)
     {Directory.CreateDirectory(folder);Process.Start(new ProcessStartInfo(folder){UseShellExecute=true})?.Dispose();}
     internal static int WriteHistory(StateStore store)
@@ -36,7 +36,7 @@ internal sealed partial class SettingsDialog
 {
     private UIElement BuildFiles()
     {
-        var page=Page("Files & sharing","Private saves stay in your Windows account. Exported Spaces and readable history documents are easy to find in Documents → nexa.");
+        var page=Page("Files & sharing","Private saves stay in your Windows account. Spaces, history and backups have their own folders under LocalAppData → Nexa.");
         var status=new TextBlock{TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,0)};
         void Action(string label,Action run)
         {
@@ -47,6 +47,6 @@ internal sealed partial class SettingsDialog
         Action("Open Spaces Folder",()=>NexaFiles.Open(NexaFiles.Spaces(store)));
         Action("Open History Folder",()=>{var count=NexaFiles.WriteHistory(store);status.Text=$"Updated {count} readable history documents.";NexaFiles.Open(NexaFiles.History(store));});
         page.Children.Add(new TextBlock{Text="To copy or send a Space, open its menu → Export Space. Configuration only is the default; include session notes only when you intend to share them. Integration credentials are excluded. History documents may contain private notes and transcripts.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,18,0,0)});
-        page.Children.Add(status);return new ScrollViewer{Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto};
+        page.Children.Add(status);page.Children.Add(DataActions());return new ScrollViewer{Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto};
     }
 }

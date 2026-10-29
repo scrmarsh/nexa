@@ -26,17 +26,9 @@ internal sealed record EcosystemOptions
     public BugAnimationQuality Quality { get; init; } = BugAnimationQuality.Balanced;
     public bool Costumes { get; init; } = true;
     [System.Text.Json.Serialization.JsonIgnore] public BugAppearance EffectiveAppearance => !MatchAppearance ? Appearance : Behavior switch { BugBehavior.Cozy => BugAppearance.Cozy, BugBehavior.Creepy => BugAppearance.Creepy, _ => BugAppearance.Normal };
-    internal EcosystemOptions ForSeason(bool active)
-    {
-        if (!MatchAppearance) return this with { LastSeasonalActive = active };
-        if(LastSeasonalActive==active)return this;
-        var normal=NonSeasonalBehavior;var seasonal=SeasonalBehavior;
-        if(LastSeasonalActive==true)seasonal=Behavior;else if(LastSeasonalActive==false)normal=Behavior;
-        var selected=active?seasonal ?? BugBehavior.Cozy:normal ?? BugBehavior.Classic;
-        return this with {Behavior=selected,NonSeasonalBehavior=normal,SeasonalBehavior=seasonal,LastSeasonalActive=active,Adorable=active && seasonal==null?true:Adorable};
-    }
-    internal EcosystemOptions ChooseBehavior(BugBehavior behavior,bool seasonal)=>this with {Behavior=behavior,LastSeasonalActive=seasonal,NonSeasonalBehavior=seasonal?NonSeasonalBehavior:behavior,SeasonalBehavior=seasonal?behavior:SeasonalBehavior};
-    internal static EcosystemOptions Existing(EcosystemOptions value)=>value.LastSeasonalActive==null && value.NonSeasonalBehavior==null && value.SeasonalBehavior==null?value with {NonSeasonalBehavior=value.Behavior,SeasonalBehavior=value.Behavior}:value;
+    internal EcosystemOptions ForSeason(bool active)=>this with {LastSeasonalActive=active,Behavior=Behavior==BugBehavior.Creepy?BugBehavior.Classic:Behavior};
+    internal EcosystemOptions ChooseBehavior(BugBehavior behavior,bool seasonal)=>this with {Behavior=behavior==BugBehavior.Creepy?BugBehavior.Classic:behavior,LastSeasonalActive=seasonal,NonSeasonalBehavior=null,SeasonalBehavior=null};
+    internal static EcosystemOptions Existing(EcosystemOptions value)=>value with {Behavior=value.Behavior==BugBehavior.Creepy?BugBehavior.Classic:value.Behavior,NonSeasonalBehavior=null,SeasonalBehavior=null};
     internal EcosystemOptions Safe() => this with
     {
         Behavior = Enum.IsDefined(Behavior) ? Behavior : BugBehavior.Classic,

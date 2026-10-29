@@ -9,30 +9,35 @@ internal sealed partial class SettingsDialog
 {
     private UIElement BuildProfile()
     {
-        var profile=store.LoadProfile(); var page=Page("Profile","Your preferences stay on this PC. No nexa account is needed.");
-        var overview=new TextBlock { TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,12) };
-        overview.Loaded+=(_,_)=> { var current=store.LoadProfile(); overview.Text=$"Theme: {current.Theme} / {current.ThemeMode}\nSounds: {(current.Sounds?"On":"Off")} / volume {current.Volume:P0}\nFocus reminders: {(current.FocusNudges?"On":"Off")}\nConnections: {(current.ConnectedIntegrations.Count==0?"None":string.Join(", ",current.ConnectedIntegrations))}"; }; page.Children.Add(overview);
-        var name=new TextBox { Text=profile.DisplayName,MaxLength=80 }; Field(page,"Display name (optional)",name);
-        var uses=new WrapPanel();
-        foreach(var use in GuidedSetup.UseCases) uses.Children.Add(new CheckBox { Content=use,IsChecked=profile.UseCases.Contains(use),Margin=new Thickness(0,8,12,8) }); Field(page,"I use nexa for",uses);
-        var type=new ComboBox { ItemsSource=GuidedSetup.Types,SelectedItem=profile.PreferredDashboard }; Field(page,"Preferred space type",type);
-        var timed=new CheckBox { Content="Start guided spaces with a timed session",IsChecked=profile.TimedSessions,Margin=new Thickness(0,12,0,8) }; page.Children.Add(timed);
-        var minutes=new TextBox { Text=profile.DefaultMinutes.ToString(),MaxLength=5 }; Field(page,"Default session minutes",minutes);
-        var tools=new WrapPanel();
-        foreach(var tool in new[] { "Pixel timer","Notes","Clock","Task List","Focus Reset","Bible","Scripture pins","Calendar","Flashcards","Session timeline" }) tools.Children.Add(new CheckBox { Content=tool,IsChecked=profile.PreferredWidgets.Contains(tool) || (tool=="Task List" && (profile.PreferredWidgets.Contains("Tasks") || profile.PreferredWidgets.Contains("Agenda"))),Margin=new Thickness(0,8,12,8) }); Field(page,"Preferred tools",tools);
-        var status=new TextBlock { Text="Setup: "+(profile.OnboardingCompleted?"Completed":"Not completed"),Margin=new Thickness(0,12,0,12),TextWrapping=TextWrapping.Wrap }; page.Children.Add(status);
-        void SaveProfile() => QueueSave("profile", () =>
+        var profile=store.LoadProfile();var page=Page("Profile","Your recorded activity across Spaces. Everything stays in your Windows account.");
+        var name=new TextBox{Text=profile.DisplayName,MaxLength=80};Field(page,"Display name",name);
+        name.TextChanged+=(_,_)=>QueueSave("profile",()=>{var current=store.LoadProfile();current.DisplayName=name.Text.Trim();store.SaveProfile(current);});
+        var sessions=(state.Workspace?.Dashboards??[]).SelectMany(d=>d.History.Append(d.Current)).ToArray();
+        var events=sessions.SelectMany(s=>s.Data.Productivity.Events).Concat(state.Productivity.Events).DistinctBy(e=>e.Id).ToArray();
+        var completed=sessions.Where(s=>s.Recap!=null).GroupBy(s=>(s.Recap!.StartedAt,s.Recap.EndedAt)).Select(g=>g.First().Recap!).ToArray();
+        var days=completed.Select(s=>s.EndedAt.LocalDateTime.Date).Distinct().OrderDescending().ToArray();var streak=0;var expected=DateTime.Today;
+        if(days.FirstOrDefault()==expected.AddDays(-1))expected=expected.AddDays(-1);
+        foreach(var day in days){if(day!=expected)break;streak++;expected=expected.AddDays(-1);}
+        var tasks=events.Count(e=>e.Category=="Task completed");
+        var metrics=new System.Windows.Controls.Primitives.UniformGrid{Columns=2,Margin=new Thickness(0,20,0,16)};
+        void Metric(string title,string value,string color)
         {
-            if(!int.TryParse(minutes.Text,out var duration) || duration is <1 or >10080) { status.Text="Choose a duration from 1 to 10080 minutes."; return; }
-            profile.DisplayName=name.Text.Trim(); profile.UseCases=uses.Children.OfType<CheckBox>().Where(c=>c.IsChecked==true).Select(c=>(string)c.Content).ToList(); profile.PreferredDashboard=(string)type.SelectedItem;
-            profile.PreferredWidgets=tools.Children.OfType<CheckBox>().Where(c=>c.IsChecked==true).Select(c=>(string)c.Content).ToList(); profile.TimedSessions=timed.IsChecked==true; profile.DefaultMinutes=duration;
-            profile.Theme=store.LoadAppTheme(); profile.ThemeMode=store.LoadThemeMode(); store.LoadInteractionPreferences(state); profile.Sounds=state.InterfaceSoundsEnabled; profile.Volume=state.InterfaceSoundVolume; profile.FocusNudges=state.FocusNudgesEnabled;
-            store.SaveProfile(profile); status.Text="Profile saved. Sounds and theme can be changed under Appearance.";
-        });
-        name.TextChanged += (_, _) => SaveProfile(); minutes.TextChanged += (_, _) => SaveProfile(); type.SelectionChanged += (_, _) => SaveProfile(); timed.Click += (_, _) => SaveProfile();
-        foreach (var box in uses.Children.OfType<CheckBox>().Concat(tools.Children.OfType<CheckBox>())) box.Click += (_, _) => SaveProfile();
-        var setup=new Button { Content="Run welcome setup again",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,14,0,0) }; setup.Click+=(_,_)=> { if (!FlushPendingChanges()) return; var owner=Owner; Close(); try { SetupNavigation.Run(owner,store,space); } catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) { MessageBox.Show(owner,"Setup could not be saved. Existing spaces have been retained.","nexa setup"); } }; page.Children.Add(setup);
-        return new ScrollViewer { Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto };
+            var stack=new StackPanel{Margin=new Thickness(14)};stack.Children.Add(new TextBlock{Text=value,FontSize=30,FontWeight=FontWeights.SemiBold,Foreground=BugVisuals.B(color),TextAlignment=TextAlignment.Center});stack.Children.Add(new TextBlock{Text=title,TextAlignment=TextAlignment.Center,TextWrapping=TextWrapping.Wrap});
+            metrics.Children.Add(new Border{Child=stack,BorderBrush=BugVisuals.B(color),BorderThickness=new Thickness(1),CornerRadius=new CornerRadius(10),Margin=new Thickness(5)});
+        }
+        Metric("Recorded productivity score",events.Sum(e=>(long)e.BasePoints+e.BonusPoints).ToString("N0"),"#5B7CFF");
+        Metric("Completed focus time",TimeSpan.FromSeconds(completed.Sum(s=>s.ActualSeconds)).TotalHours.ToString("0.0")+" h","#7F77DD");
+        Metric("Completed sessions",completed.Length.ToString("N0"),"#14B8A6");Metric("Completed-session streak",streak+" days","#F59E0B");
+        Metric("Verified task actions",tasks.ToString("N0"),"#69ACFF");
+        var achievements=new List<string>();if(completed.Length>0)achievements.Add("First session");if(completed.Length>=10)achievements.Add("10 sessions");if(tasks>=10)achievements.Add("10 task actions");
+        Metric("Activity milestones",achievements.Count==0?"None yet":string.Join(" · ",achievements),"#A855F7");page.Children.Add(metrics);
+        page.Children.Add(new TextBlock{Text="Score sums unique recorded action awards, including bonuses and penalties. Focus time counts finalized session recaps, not time with nexa open. Streak counts consecutive local days with a completed recap. Older activity without a recap is not estimated. Task actions can include a task completed again after reopening.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,18)});
+        var summaries=new System.Windows.Controls.Primitives.UniformGrid{Columns=2};
+        foreach(var item in new[]{("Theme",AppearancePalettes.Name(profile.Theme)+" / "+profile.ThemeMode),("Sounds",profile.Sounds?"On · "+profile.Volume.ToString("P0"):"Off"),("Focus reminders",profile.FocusNudges?"On":"Off"),("Connections",profile.ConnectedIntegrations.Count==0?"None":string.Join(", ",profile.ConnectedIntegrations))})
+            summaries.Children.Add(new TextBlock{Text=item.Item1+"\n"+item.Item2,FontSize=18,TextAlignment=TextAlignment.Center,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(8,14,8,14)});
+        page.Children.Add(summaries);
+        var setup=new Button { Content="Run welcome setup again",HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(0,24,0,0) }; setup.Click+=(_,_)=> { if (!FlushPendingChanges()) return; var owner=Owner; Close(); try { SetupNavigation.Run(owner,store,space); } catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) { MessageBox.Show(owner,"Setup could not be saved. Existing spaces have been retained.","nexa setup"); } }; page.Children.Add(setup);
+        return new ScrollViewer { Tag="HiddenPageScroll",Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Hidden,PanningMode=PanningMode.VerticalOnly };
     }
     private UIElement BuildIntegrations(bool future=false)
     {
@@ -86,6 +91,6 @@ internal sealed partial class SettingsDialog
         page.Children.Add(new TextBlock { Text="Google and Microsoft require registered desktop/public apps. See docs/INTEGRATIONS.md. Calendar access is read-only. Disconnect removes locally saved authorization; revoke permission in the provider account if needed.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,12,0,0) });
         }
         hedySettingsSection=new Border { Child=BuildHedy(),Margin=new Thickness(0,28,0,0),Focusable=true }; if(!future)page.Children.Add(new Expander{Header="Hedy recording notes",Content=hedySettingsSection});
-        return new ScrollViewer { Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto };
+        return new ScrollViewer { Tag="HiddenPageScroll",Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Hidden,PanningMode=PanningMode.VerticalOnly };
     }
 }
