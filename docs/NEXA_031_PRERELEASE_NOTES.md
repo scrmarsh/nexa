@@ -35,7 +35,7 @@ Download **Nexa.exe** and **SHA256SUMS.txt** from Assets. This is a self-contain
 - Release build: **zero warnings, zero errors**.
 - Executable source: `938f5185f6a752ab6a8ee68bfdf5d97256d4f267`. Release tag also includes documentation/evidence updates; application source is unchanged.
 - Executable SHA-256: `a4af062cfba9ab946568e6f823b0bc8cf06ff68ceb9a95e9b2cc909ca60681f8`.
-- [Publication evidence](https://github.com/scrmarsh/nexa/blob/main/docs/NEXA_031_PUBLICATION.md).
+- [Publication evidence](https://github.com/scrmarsh/nexa/blob/v0.0.31-alpha/docs/NEXA_031_PUBLICATION.md).
 
 ## Remaining Alpha limitations
 
