@@ -2,17 +2,17 @@
 
 ![nexa · latest — a space for whatever comes next](docs/media/nexa-banner.svg)
 
-![version: latest](https://img.shields.io/badge/version-latest-7F77DD?style=flat-square&labelColor=111827)
+![version: 0.0.31 Alpha](https://img.shields.io/badge/version-0.0.31%20Alpha-84CC16?style=flat-square&labelColor=111827)
 ![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-185FA5?style=flat-square&labelColor=111827)
 ![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-7F77DD?style=flat-square&labelColor=111827)
 
 **a space for whatever comes next**
 
-[Download nexa](https://github.com/scrmarsh/nexa/releases) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Verification report](docs/TESTING-0.1.26-alpha.md)
+[Download nexa](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha) · [What's new](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha) · [Build from source](#build-from-source) · [Verification report](https://github.com/scrmarsh/nexa/blob/v0.0.31-alpha/docs/NEXA_031_PUBLICATION.md)
 
 </div>
 
-> **Latest alpha: [v0.1.26 — Spaces in Motion](https://github.com/scrmarsh/nexa/releases/tag/v0.1.26-alpha).** Cumulative productivity, collectible candy, session recaps, guided setup and seasonal artwork. See the [release notes](docs/releases/0.1.26-alpha.md) for verification and known alpha limitations.
+> **Latest Alpha: [nexa v0.0.31 — nexaween: Interface Polish & Release Integrity](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha).** Lowercase branding, refined Space cards and icon editing, readable timer status, improved update discovery and progressive spider webs. This is an **Alpha prerelease**. See the [release notes](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha) and [verification report](https://github.com/scrmarsh/nexa/blob/v0.0.31-alpha/docs/NEXA_031_PUBLICATION.md).
 
 
 nexa is a local Windows productivity dashboard for classes, study, meetings and everyday work. Arrange movable widgets into a Space, follow your recurring sessions, and keep your notes, tasks and progress together.
@@ -27,7 +27,7 @@ Real screenshots of the published Windows build, using sample notes and tasks. S
 
 ## Get nexa
 
-1. Open the [releases page](https://github.com/scrmarsh/nexa/releases).
+1. Open the [v0.0.31 Alpha prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha).
 2. Download **Nexa.exe** from **Assets** and place it in a folder you control.
 3. Run it. The self-contained Windows x64 build includes its .NET runtime; no installer or separate .NET installation is required.
 
@@ -50,13 +50,15 @@ Compare the result with `SHA256SUMS.txt`. User data stays in the existing Window
 
 ## What’s new
 
-Release-specific features, seasonal artwork and update notes live in the [changelog](CHANGELOG.md). The [verification report](docs/IMPLEMENTATION-0.1.24.md) records testing and known limitations.
+The [v0.0.31 release notes](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha) describe the latest interface, updater and seasonal changes. The [publication report](https://github.com/scrmarsh/nexa/blob/v0.0.31-alpha/docs/NEXA_031_PUBLICATION.md) records **21 regression routes / 883 assertions**, **17 packaged-update checks**, the exact executable checksum and remaining Alpha limitations.
 
 ## Build from source
 
-Use Windows and the **.NET 10 SDK** with Windows desktop support:
+Use Windows and the **.NET 10 SDK** with Windows desktop support. To build the published .31 source from an existing checkout, select its release tag first:
 
 ```powershell
+git fetch origin tag v0.0.31-alpha
+git switch --detach v0.0.31-alpha
 dotnet build .\SessionDashboard.csproj -c Release
 .\bin\Release\net10.0-windows\Nexa.exe
 ```
@@ -76,7 +78,7 @@ The historical project filename and save-data namespace remain for compatibility
 .\tools\Verify.ps1
 ```
 
-The fifteen-route suite checks timing, layout, scrolling, saving, history, controls, the ecosystem and animations using isolated data stores. Generated logs and captures stay in the ignored `verification/` directory. See [development notes](docs/DEVELOPMENT.md) and the [root audit](docs/ROOT-AUDIT.md).
+The release-tag suite checks timing, layout, scrolling, saving, history, controls, the ecosystem and animations using isolated data stores. Generated logs and captures stay in the ignored `verification/` directory. See [development notes](docs/DEVELOPMENT.md) and the [root audit](docs/ROOT-AUDIT.md).
 
 | Location | Purpose |
 | --- | --- |
