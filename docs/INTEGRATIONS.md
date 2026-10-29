@@ -55,7 +55,7 @@ Nexa renews expired access with the refresh token kept in Windows protected stor
 
 Automated validation uses synthetic credentials and mocked HTTP responses. No real Todoist or Google account was connected during release validation.
 
-## Nexa 0.1.8 Alpha local recording and Hedy
+## Nexa 0.0.8 Alpha local recording and Hedy
 
 Hedy settings are under Integrations. Existing DPAPI-protected credentials remain in the account credential store, outside dashboard data and exports. Hedy Notes is a separate integration-dependent widget; Session Timeline also works with manual local notes.
 

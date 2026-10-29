@@ -1,0 +1,51 @@
+PASS: Ants has the correct number of legs
+PASS: Ants has finite articulated joints and a moving gait
+PASS: Ants has the correct functional flight wings
+PASS: Ants reuses frozen body and habitat artwork
+PASS: Roaches has the correct number of legs
+PASS: Roaches has finite articulated joints and a moving gait
+PASS: Roaches has the correct functional flight wings
+PASS: Roaches reuses frozen body and habitat artwork
+PASS: Flies has the correct number of legs
+PASS: Flies has finite articulated joints and a moving gait
+PASS: Flies has the correct functional flight wings
+PASS: Flies reuses frozen body and habitat artwork
+PASS: Spiders has the correct number of legs
+PASS: Spiders has finite articulated joints and a moving gait
+PASS: Spiders has the correct functional flight wings
+PASS: Spiders reuses frozen body and habitat artwork
+PASS: Ladybugs has the correct number of legs
+PASS: Ladybugs has finite articulated joints and a moving gait
+PASS: Ladybugs has the correct functional flight wings
+PASS: Ladybugs reuses frozen body and habitat artwork
+PASS: Centipedes has the correct number of legs
+PASS: Centipedes has finite articulated joints and a moving gait
+PASS: Centipedes has the correct functional flight wings
+PASS: Centipedes reuses frozen body and habitat artwork
+PASS: Insect gait alternates coordinated tripods
+PASS: All eight spider legs attach to the cephalothorax
+PASS: Every spider leg lifts and plants on its own distinct walking schedule
+PASS: Staggered spider steps retain at least five planted feet throughout a walking cycle
+PASS: Sleeping spider feet stay still despite independent walking phases
+PASS: Centipede ultimate legs trail as specialized appendages
+PASS: Turning crosses the angle boundary by the shortest route
+PASS: Orientation changes are bounded by elapsed time
+PASS: Eye tracking eases toward a bounded pupil offset
+PASS: Zero elapsed time does not jump eye position
+PASS: Sleeping creatures keep cartoon eyes closed
+PASS: Resting centipede uses an open curve rather than a millipede spiral
+PASS: Celebrations cap effects and particles without intercepting controls
+PASS: Reduced motion clears celebrations and stops their timer immediately
+PASS: Disposed feedback cannot restart its animation timer
+PASS: Autosave rotation starts for the actual saving state
+PASS: Success replaces the saving notification and stops the old rotation
+PASS: Save failure remains visible until resolved or acknowledged
+PASS: Reduced motion removes running notification clocks
+PASS: Seasonal decorations remain bounded and do not animate while unloaded
+PASS: Disposing seasonal art stops its timer
+PASS: Nearby ants form a real cooperative candy-carrying pair
+PASS: Cooperative carrying conserves the shared candy load
+PASS: Cooperative carrying links survive world save and restore
+PASS: Flies land to feed and groom instead of hauling food like ants
+PASS: All six species render across 48 walking and flight preview frames
+PASS: 50 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-185858

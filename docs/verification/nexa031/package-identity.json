@@ -1,0 +1,9 @@
+{
+  "File": "verification/package031/Nexa.exe",
+  "Published": false,
+  "Length": 72660057,
+  "SHA256": "47C3B56503AC185E5F6E33642E8CBB4D1097376C4C8605D4DAE704520A06C24B",
+  "FileVersion": "0.0.31.0",
+  "ProductVersion": "0.0.31-alpha+c1145c8fa3e1f37470712f8646ea76e91444216f",
+  "SourceCommit": "c1145c8fa3e1f37470712f8646ea76e91444216f"
+}

@@ -1,0 +1,33 @@
+PASS: Shared release model owns current label/tag
+PASS: Explicit legacy Alpha map never rewrites genuine Beta
+PASS: Unconfirmed legacy-looking versions are not silently remapped
+PASS: Captured real unsorted GitHub releases offer .29 to a legacy .26 installation using corrected comparator
+PASS: Incomplete newer package cannot become a false up-to-date result
+HOME maximize window=2560x1392; corners=2556x1344; visible=True; fruit=2024,885.3333333333333,520,346.6666666666667
+PASS: Maximized Home retains a visible seasonal pumpkin surface
+PASS: Space name is independently centered across its card despite left icon
+PASS: Recent Space uses larger left-side icon
+PASS: Pumpkin remains present in separate F11 fullscreen mode
+PASS: Session Settings exposes Space Appearance → Change Icon
+PASS: Icon choice previews without altering saved Space before Save
+PASS: Cancel preserves original Space icon
+PASS: Cap and gown saves through existing persistence and header refresh
+PASS: Permanent Updates page has no Experimental subtitle
+PASS: Test Sound is directly underneath the Sound Style dropdown
+PASS: Sound style selection controls the previewed positive cue
+PASS: Pixel Timer fresh-session status wraps and centers without scheduling changes
+PASS: Ordinary application restart/crash recovery preserves the current live world
+PASS: Explicit same-session load commits a fresh ecosystem generation
+PASS: Session load clears bugs/webs while retaining world identity
+PASS: Live reset does not erase notes or rewrite session identity
+PASS: An in-flight original-session award survives the live reset
+PASS: Pending direct-squash award is committed once through reset
+PASS: Delayed persistence cannot resurrect previous-generation web geometry
+PASS: Reconciling an already-current generation is idempotent
+PASS: Shared spider has four front-body leg roots per side
+PASS: Eight evenly spaced roots follow the rounded front-body boundary
+PASS: Fresh orb contains empty supports/radials/spiral, never a precompleted picture
+PASS: Physical spider movement gradually lays actual silk progress
+PASS: Spider construction movement does not teleport between attachment points
+PASS: A nonexistent spider cannot continue weaving its web
+PASS: 31 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-183300

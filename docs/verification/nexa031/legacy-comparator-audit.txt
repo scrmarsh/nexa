@@ -1,0 +1,14 @@
+legacy24
+    internal static readonly Uri ReleasesUri = new("https://api.github.com/repos/scrmarsh/nexa/releases?per_page=30");
+    internal static bool IsNewer(Version candidate, string channel, Version current, string currentChannel = "Alpha") =>
+        candidate > current || candidate == current && ChannelRank(channel) > ChannelRank(currentChannel);
+        using var request = new HttpRequestMessage(HttpMethod.Get, ReleasesUri);
+            if (ChannelRank(channel) < 0 || ChannelRank(channel) > ChannelRank(currentChannel) || !IsNewer(version, channel, current, currentChannel) || latest != null && !IsNewer(version, channel, latest.Version, latest.Channel)) continue;
+
+legacy26
+    internal static readonly Uri ReleasesUri = new("https://api.github.com/repos/scrmarsh/nexa/releases?per_page=30");
+    internal static bool IsNewer(Version candidate, string channel, Version current, string currentChannel = "Alpha") =>
+        candidate > current || candidate == current && ChannelRank(channel) > ChannelRank(currentChannel);
+        return latest != null && IsNewer(latest.Version, latest.Channel, current, currentChannel) ? latest : null;
+        using var request = new HttpRequestMessage(HttpMethod.Get, page == 1 ? ReleasesUri : new Uri(ReleasesUri.AbsoluteUri + "&page=" + page));
+            if (ChannelRank(channel) < 0 || ChannelRank(channel) < ChannelRank(currentChannel) || latest != null && !IsNewer(version, channel, latest.Version, latest.Channel)) continue;

@@ -1,0 +1,7 @@
+PASS: Genuine cached .29 executable matches the live GitHub asset digest
+PASS: Failed .31 startup rolls the genuine .29 executable back byte-for-byte
+PASS: Rollback preserves committed workspace bytes
+System.IO.IOException: The installed application failed its startup health check.
+   at SessionDashboard.UpdateTransaction.Apply(String path, Func`2 health, Action`1 restart, Boolean waitForParent) in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\UpdateTransaction.cs:line 111
+   at Program.CheckPackaged031(String candidate) in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\Nexa031Checks.cs:line 140
+   at Program.Main(String[] args) in C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\tests\Nexa024Runner.cs:line 34

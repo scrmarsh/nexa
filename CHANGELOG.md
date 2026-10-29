@@ -105,7 +105,7 @@ Additional **unpublished handoff candidate** work: full seasonal visibility/hit-
 
 This candidate is not the final Nexaween release. See [verification and outstanding acceptance](docs/FINAL-0.1.24-STATUS.md). No production release was overwritten.
 
-## Previously published baseline â€” nexa 0.0.24 Alpha â€” Getting Candy for Trick-or-Treaters
+## Previously published baseline â€” nexa 0.0.24 Alpha â€” NEXAWEEN
 
 A space for whatever haunts you next.
 

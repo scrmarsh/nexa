@@ -1,0 +1,68 @@
+PASS: Current refinement uses shared lowercase Alpha identity
+PASS: New active note preserves released .29 history
+PASS: Legacy and invalid hit tolerance safely default to 1.5
+PASS: Saved hit tolerance cannot create enormous invisible regions
+PASS: Ants receives a hit over a protected widget after scroll/projection
+PASS: Ants rotated small silhouette has padding and bounded reach
+PASS: Roaches receives a hit over a protected widget after scroll/projection
+PASS: Roaches rotated small silhouette has padding and bounded reach
+PASS: Flies receives a hit over a protected widget after scroll/projection
+PASS: Flies rotated small silhouette has padding and bounded reach
+PASS: Spiders receives a hit over a protected widget after scroll/projection
+PASS: Spiders rotated small silhouette has padding and bounded reach
+PASS: Ladybugs receives a hit over a protected widget after scroll/projection
+PASS: Ladybugs rotated small silhouette has padding and bounded reach
+PASS: Centipedes receives a hit over a protected widget after scroll/projection
+PASS: Centipedes rotated small silhouette has padding and bounded reach
+PASS: Last drawn eligible bug wins overlapping hits deterministically
+PASS: Hidden bug cannot steal a visible bug hit
+PASS: Native WPF hit routing chooses bug overlay before underlying button
+PASS: Fatal state and recovery registration finish in the same input turn
+PASS: Valid hit captures pointer through movement and release
+PASS: Pointer release is consumed and one death callback is delivered
+PASS: Outside all bug hit regions leaves ordinary widgets available
+MEASURE fatal pointer handler: 10.949 ms; durable snapshots deferred until dispatcher background turn.
+PASS: Input queues recovery before snapshots, ledger changes or disk writes
+PASS: Background write-ahead squash persistence completes
+PASS: Squash count reaches durable workspace exactly once
+PASS: Repeated squash event persistence completes
+PASS: Repeated death event cannot duplicate score or species totals
+PASS: Locked workspace returns without blocking dispatcher or losing pending event
+PASS: Write-ahead ecosystem event survives workspace save failure
+PASS: Recovery retries failed event without duplicating already-applied ledger
+PASS: Successfully committed history clears durable pending events
+PASS: Rapid fatal events serialize background persistence safely
+PASS: Rapid hits preserve every award and final durable count
+MEASURE background squash protocol (including two ecosystem writes and workspace write): 48.980 ms.
+PASS: Home honors disabled F11 preference
+PASS: Home respects disabled Escape exit preference
+PASS: Escape exits Home fullscreen without closing Home
+PASS: F11 enters shared fullscreen on Home
+PASS: Standalone fullscreen-host preview leaves host size and fullscreen untouched
+PASS: Closing preview restores existing fullscreen Home immediately
+PASS: Home to dashboard navigation finishes in fullscreen
+PASS: Dashboard inherits shared fullscreen and hides caption controls
+PASS: Dashboard to Home navigation finishes in fullscreen
+PASS: Return Home retains fullscreen in same navigation chain
+PASS: Home can open another dashboard while fullscreen
+PASS: Leaving fullscreen restores original chain bounds and window state
+PASS: Windowed standalone preview leaves host bounds and fullscreen unchanged
+PASS: Windowed preview can close without changing the current session
+PASS: Dashboard captions use vector strokes with accessible names
+PASS: Maximize changes vector icon to overlapping restore squares
+PASS: Fresh restart remains windowed by default
+PASS: Twenty simulated minutes keep spider and candy inside territory and outside controls
+PASS: Home companion independently wanders, rests, grooms and physically reaches candy
+MEASURE Home companion simulation: 48 decorative pickups across 1,200 simulated seconds; no persistent rewards.
+PASS: Home candlelight visibly varies smoothly without flashing
+PASS: Multiple pumpkins have independent flicker phase
+PASS: Home contains the shared seasonal companion renderer
+PASS: Visible seasonal Home starts its limited animation timer
+PASS: Reduced motion stops the corner animation timer
+PASS: Hidden Home stops companion and candle timer
+PASS: Small Home pumpkin stays above footer controls
+PASS: Seasonal Off removes artwork and stops its timer immediately
+PASS: Classic Windows icon remains stable after seasonal toggle
+PASS: Classic splash uses exact animated tagline text
+WPF previews: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\docs\media\nexa030
+PASS: 63 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-185556

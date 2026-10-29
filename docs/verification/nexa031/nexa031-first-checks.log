@@ -1,0 +1,8 @@
+PASS: Shared release model owns current label/tag
+PASS: Explicit legacy Alpha map never rewrites genuine Beta
+PASS: Unconfirmed legacy-looking versions are not silently remapped
+PASS: Captured real unsorted GitHub releases offer .29 to a legacy .26 installation using corrected comparator
+PASS: Incomplete newer package cannot become a false up-to-date result
+HOME maximize window=2560x1392; corners=2556x1344; visible=True; fruit=2024,885.3333333333333,520,346.6666666666667
+PASS: Maximized Home retains a visible seasonal pumpkin surface
+PASS: 6 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-182231
