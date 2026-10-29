@@ -1,0 +1,34 @@
+[
+  {
+    "Name": "nexa-portable.exe",
+    "URL": "https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/nexa-portable.exe",
+    "Status": 200,
+    "Bytes": 72781913,
+    "Digest": "sha256:000641adde33ed75f3d55ea32703393036a6da339bff2af10e8b7d0142cc08ba",
+    "Authenticated": false
+  },
+  {
+    "Name": "Nexa.exe",
+    "URL": "https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/Nexa.exe",
+    "Status": 200,
+    "Bytes": 105075336,
+    "Digest": "sha256:12127689a9a1f083b39498100ba0477d55f4e08452f9af9206f18abb4c5f8447",
+    "Authenticated": false
+  },
+  {
+    "Name": "NexaSetup.exe",
+    "URL": "https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/NexaSetup.exe",
+    "Status": 200,
+    "Bytes": 67506973,
+    "Digest": "sha256:f6aab11ccbffa3cc74467d47a646be35971af08f864f35be6e2ffc541254796c",
+    "Authenticated": false
+  },
+  {
+    "Name": "SHA256SUMS.txt",
+    "URL": "https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/SHA256SUMS.txt",
+    "Status": 200,
+    "Bytes": 242,
+    "Digest": "sha256:3a24c35a443f3c688c32ac6830eb18b005c7ffd1ea6d996038f1d4f9fca8b8b0",
+    "Authenticated": false
+  }
+]

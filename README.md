@@ -48,7 +48,7 @@ Real screenshots of the published Windows build, using sample notes and tasks. S
 
 ## Install for Windows
 
-Use the **[recommended Windows installer](https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/NexaSetup.exe)**. It preserves existing saves and adds normal Windows shortcuts, repair and uninstall. Portable and source downloads are in the collapsed section above. This is an Alpha prerelease; physical device and live-provider acceptance remains open.
+Close nexa before running Setup. Use the **[recommended Windows installer](https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/NexaSetup.exe)**. It preserves existing saves and adds normal Windows shortcuts, repair and uninstall. Portable and source downloads are in the collapsed section above. This is an Alpha prerelease; physical device and live-provider acceptance remains open.
 Self-contained Windows x64 packages include their .NET runtime; framework-dependent
 builds require the .NET 10 Desktop Runtime.
 

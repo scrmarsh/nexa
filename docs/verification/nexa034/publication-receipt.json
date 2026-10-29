@@ -1,0 +1,47 @@
+{
+  "Id": 427935037,
+  "URL": "https://github.com/scrmarsh/nexa/releases/tag/v0.0.34-alpha",
+  "Name": "nexa v0.0.34 alpha — Interface Refinement, Data Safety & Installer Repair",
+  "Tag": "v0.0.34-alpha",
+  "TagCommit": "92b2beef20f0c5aeea2439162b6bfadfcfac7595",
+  "ApplicationSourceCommit": "66f6bbceb9ce2218ff3bc36bb47aeb2fadd2fd9d",
+  "Draft": false,
+  "Prerelease": true,
+  "PublishedAt": "2026-10-29T14:04:19Z",
+  "HistoricalReleasesPreserved": true,
+  "HistoricalReleaseCount": 5,
+  "Assets": [
+    {
+      "id": 688736978,
+      "name": "nexa-portable.exe",
+      "label": "Portable app (advanced download)",
+      "size": 72781913,
+      "digest": "sha256:000641adde33ed75f3d55ea32703393036a6da339bff2af10e8b7d0142cc08ba",
+      "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/nexa-portable.exe"
+    },
+    {
+      "id": 688741794,
+      "name": "Nexa.exe",
+      "label": "Legacy updater installer launcher",
+      "size": 105075336,
+      "digest": "sha256:12127689a9a1f083b39498100ba0477d55f4e08452f9af9206f18abb4c5f8447",
+      "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/Nexa.exe"
+    },
+    {
+      "id": 688732334,
+      "name": "NexaSetup.exe",
+      "label": "Recommended Windows installer",
+      "size": 67506973,
+      "digest": "sha256:f6aab11ccbffa3cc74467d47a646be35971af08f864f35be6e2ffc541254796c",
+      "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/NexaSetup.exe"
+    },
+    {
+      "id": 688748123,
+      "name": "SHA256SUMS.txt",
+      "label": "SHA-256 checksums",
+      "size": 242,
+      "digest": "sha256:3a24c35a443f3c688c32ac6830eb18b005c7ffd1ea6d996038f1d4f9fca8b8b0",
+      "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/SHA256SUMS.txt"
+    }
+  ]
+}

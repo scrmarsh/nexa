@@ -11,8 +11,9 @@
   "AllRequestedAcceptanceComplete": false,
   "BetaReady": false,
   "PublicReleaseApproved": true,
-  "Published": false,
+  "Published": true,
   "NuGetVulnerabilityFeedAvailable": false,
   "CompletedUtc": "2026-10-29T08:49:32.735367-05:00",
-  "PublicationApproval": "User explicitly requested release of the latest update to test the installer."
+  "PublicationApproval": "User explicitly requested release of the latest update to test the installer.",
+  "PublicationURL": "https://github.com/scrmarsh/nexa/releases/tag/v0.0.34-alpha"
 }
