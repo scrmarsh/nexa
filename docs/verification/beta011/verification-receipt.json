@@ -3,7 +3,7 @@
   "BuiltSourceCommit": "75a2558e1e53ae8fdc9a14d457dacd06c8e514a2",
   "BaselineCommit": "e37fdb1ab552c3b1b1017dc59a551aafec5063f7",
   "Branch": "codex/nexa-011-beta",
-  "CompletedUtc": "2026-10-29T18:52:34.4876632+00:00",
+  "CompletedUtc": "2026-10-29T13:52:34.4876632-05:00",
   "Published": false,
   "Pushed": false,
   "NativeTokenAdministrator": false,
@@ -43,5 +43,6 @@
       "SHA256": "BEFB6CEE442D3667BC95FE82156E36D1B4D978673AAE38D61A2A60593DCCEC39"
     }
   ],
-  "PreservedBeta010PayloadSHA256": "67081BDD1415A38B5FEFB277FF8996440616963CED058A125F3CAA35FEF18F5C"
+  "PreservedBeta010PayloadSHA256": "67081BDD1415A38B5FEFB277FF8996440616963CED058A125F3CAA35FEF18F5C",
+  "LogNormalization": "Durable log copies remove trailing whitespace; raw outputs remain in verification/beta011 and the acceptance folder."
 }
