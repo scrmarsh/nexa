@@ -42,6 +42,7 @@ internal static class NexaFullscreen
         else
         {
             session.Active=false;window.WindowState=WindowState.Normal;
+            NexaWindowBounds.RefreshSafety(window);
             WindowChrome.SetWindowChrome(window,host.Chrome);window.ResizeMode=host.Resize;
             window.Left=session.Bounds.Left;window.Top=session.Bounds.Top;window.Width=session.Bounds.Width;window.Height=session.Bounds.Height;
             window.Topmost=session.Topmost;window.WindowState=session.State;
@@ -50,6 +51,7 @@ internal static class NexaFullscreen
     }
     private static void Enter(Window window,Host host)
     {
+        NexaWindowBounds.RefreshSafety(window);
         host.Chrome=WindowChrome.GetWindowChrome(window);host.Resize=window.ResizeMode;
         window.WindowState=WindowState.Normal;WindowChrome.SetWindowChrome(window,null);
         window.ResizeMode=ResizeMode.NoResize;window.Topmost=true;window.WindowState=WindowState.Maximized;

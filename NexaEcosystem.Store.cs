@@ -18,13 +18,15 @@ internal sealed partial class NexaEcosystem : IDisposable
     }
     internal static void FlushAll()
     { foreach (var world in worlds.Values.ToArray()) world.Dispose(); worlds.Clear(); }
+    internal static void CheckpointAll()
+    {foreach(var world in worlds.Values.ToArray())if(!world.Save())throw new IOException("The live ecosystem could not be saved before restarting.");}
     internal static void UpdateSeason(StateStore store, NexaOptions options)
     { if (worlds.TryGetValue(Path.GetFullPath(store.FilePath), out var world)) world.ApplySeason(options); }
     private readonly StateStore store;
     private readonly Dictionary<object, Func<bool>> views = [];
     private readonly DispatcherTimer timer = new(DispatcherPriority.Background);
     private readonly Stopwatch clock = new();
-    private double previous, checkpoint, scoreRetry;
+    private double previous, checkpoint;
     private readonly List<EcosystemSquash> pendingSquashes = [];
     private Guid lastSessionId;
     private string? scoreWarning;
@@ -115,21 +117,12 @@ internal sealed partial class NexaEcosystem : IDisposable
     private void Tick(object? sender, EventArgs e)
     {
         var current = clock.Elapsed.TotalSeconds; var dt = Math.Clamp(current - previous, 0, .1); previous = current;
-        scoreRetry += dt;
-        if(!responsiveSaving && pendingSquashes.Count > 0 && scoreRetry >= 5)
-        {
-            scoreRetry=0;
-            var owner=Application.Current?.Windows.OfType<MainWindow>().FirstOrDefault(w=>w.IsLoaded && w.SettingsStore.FilePath==store.FilePath);
-            if(owner!=null)
-                foreach(var squash in pendingSquashes.ToArray())
-                    _=RecordSquashResponsive(new BugEntity{InteractionId=squash.BugId,Species=squash.Species},owner);
-        }
         if (!views.Values.Any(v => v()) || blocked || Manager.WorldPaused) return;
         var began = Stopwatch.GetTimestamp();
         if (!blocked) Manager.Advance(dt);
         LastStepMilliseconds = Stopwatch.GetElapsedTime(began).TotalMilliseconds;
         Manager.ObserveFrameCost(LastStepMilliseconds);
-        checkpoint += dt; if (checkpoint >= 30 && !responsiveSaving) { checkpoint = 0; Save(); }
+        checkpoint += dt; if (checkpoint >= 30 && !responsiveSaving) { checkpoint = 0; _=CheckpointAsync(); }
         Changed?.Invoke();
     }
     internal bool Save()
@@ -189,7 +182,6 @@ internal sealed partial class NexaEcosystem : IDisposable
         FlushScores(owner); Interaction();
     }
     private Task diskWrite=Task.CompletedTask;
-    private Task responsiveTail=Task.CompletedTask;
     private bool responsiveSaving;
     internal double LastSquashPersistenceMilliseconds {get;private set;}
     internal Task RecordSquashResponsive(BugEntity bug,MainWindow? owner)
@@ -204,35 +196,32 @@ internal sealed partial class NexaEcosystem : IDisposable
             if(pendingSquashes.Count>=500){Status="The pending squash history is full. Resolve the save error before squashing more creatures.";Changed?.Invoke();return Task.CompletedTask;}
             squash=new(){BugId=bug.InteractionId,Species=bug.Species,SessionId=session,At=DateTimeOffset.UtcNow};pendingSquashes.Add(squash);
         }
-        var previous=responsiveTail;
-        return responsiveTail=Run();
-        async Task Run()
-        {
-            await previous;
-            var operation=await timer.Dispatcher.InvokeAsync(()=>RunOnDispatcher(),DispatcherPriority.Background);
-            await operation;
-        }
-        async Task RunOnDispatcher()
-        {
-            responsiveSaving=true;var watch=Stopwatch.StartNew();
-            try
-            {
-                if(!CanSave)return;
-                // Write-ahead event survives interruption; ledger event IDs make replay idempotent.
-                await SaveSnapshotAsync();
-                if(owner!=null)
-                {
-                    if(!await timer.Dispatcher.InvokeAsync(()=>owner.ApplyPendingSquash(bug,squash.At,squash.SessionId)))return;
-                    if(!await owner.PersistSquashAsync())return;
-                    await timer.Dispatcher.InvokeAsync(()=>pendingSquashes.Remove(squash));await SaveSnapshotAsync();
-                }
-                // Ownerless ecosystem view retains the durable event for existing history recovery.
-                await timer.Dispatcher.InvokeAsync(()=>Changed?.Invoke());
-            }
-            catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or InvalidDataException or JsonException or InvalidOperationException)
-            {await timer.Dispatcher.InvokeAsync(()=>{scoreWarning="A squash is awaiting its session-history save. It is kept with the ecosystem and will retry.";Status=scoreWarning;});}
-            finally{await timer.Dispatcher.InvokeAsync(()=>{responsiveSaving=false;LastSquashPersistenceMilliseconds=watch.Elapsed.TotalMilliseconds;});}
-        }
+        var watch=Stopwatch.StartNew();
+        owner?.ApplyPendingSquash(bug,squash.At,squash.SessionId);
+        LastSquashPersistenceMilliseconds=watch.Elapsed.TotalMilliseconds;
+        Changed?.Invoke();
+        // Score immediately in memory. Regular autosave, explicit saves/navigation and
+        // ecosystem checkpoints persist the batch; a kill never starts a workspace save.
+        return Task.CompletedTask;
+    }
+    internal int PendingSquashCount=>pendingSquashes.Count;
+    internal Guid[] CapturedAwardIds(WorkspaceDocument workspace)
+    {
+        if(pendingSquashes.Count==0)return [];
+        var keys=workspace.Dashboards.SelectMany(d=>d.History.Append(d.Current)).SelectMany(s=>s.Data.Productivity.Events).Select(e=>e.Key).ToHashSet(StringComparer.Ordinal);
+        return pendingSquashes.Where(s=>keys.Contains("squash:"+s.BugId)).Select(s=>s.BugId).ToArray();
+    }
+    internal void AcknowledgeWorkspaceAwards(IEnumerable<Guid> ids)
+    {
+        var saved=ids.ToHashSet();pendingSquashes.RemoveAll(s=>saved.Contains(s.BugId));
+    }
+    private async Task CheckpointAsync()
+    {
+        responsiveSaving=true;
+        try{await SaveSnapshotAsync();}
+        catch(Exception ex)when(ex is IOException or UnauthorizedAccessException or InvalidDataException or JsonException)
+        {Status="The ecosystem could not be saved. Its latest live state is retained; saving will retry.";}
+        finally{responsiveSaving=false;}
     }
     private async Task SaveSnapshotAsync()
     {
@@ -248,35 +237,36 @@ internal sealed partial class NexaEcosystem : IDisposable
     }
     private void FlushScores(MainWindow? owner = null)
     {
-        if(blocked) return;
+        if(blocked || pendingSquashes.Count==0)return;
         owner ??= Application.Current?.Windows.OfType<MainWindow>().FirstOrDefault(w=>w.IsLoaded && w.SettingsStore.FilePath==store.FilePath);
-        foreach(var squash in pendingSquashes.OrderBy(s=>s.At).ToArray())
+        var batch=pendingSquashes.OrderBy(s=>s.At).ToArray();
+        try
         {
-            try
+            if(owner is {IsLoaded:true})
             {
-                if(owner?.state.Workspace is { } active && (squash.SessionId==Guid.Empty || Continuity.Current(active,store.UserId).Current.SessionId==squash.SessionId))
+                foreach(var squash in batch)
+                    if(!owner.ApplyPendingSquash(new BugEntity{InteractionId=squash.BugId,Species=squash.Species},squash.At,squash.SessionId))throw new IOException("The original session record is unavailable.");
+                if(!owner.SaveNow())throw new IOException("Session save failed.");
+            }
+            else
+            {
+                var state=store.Load();
+                if(state.Workspace==null || store.Warning?.Contains("could not be read",StringComparison.OrdinalIgnoreCase)==true)throw new IOException("The session record is unavailable.");
+                var current=Continuity.Current(state.Workspace,store.UserId).Current;lastSessionId=current.SessionId;
+                foreach(var squash in batch)
                 {
-                    if(!owner.RecordEcosystemSquash(new BugEntity {InteractionId=squash.BugId,Species=squash.Species},squash.At)) throw new IOException("Session save failed.");
-                }
-                else
-                {
-                    var state = store.Load();
-                    if(state.Workspace==null || store.Warning?.Contains("could not be read",StringComparison.OrdinalIgnoreCase)==true) throw new IOException("The session record is unavailable.");
-                    var current = Continuity.Current(state.Workspace,store.UserId).Current; lastSessionId=current.SessionId;
-                    var target = squash.SessionId==Guid.Empty ? current : state.Workspace.Dashboards.SelectMany(d=>d.History.Append(d.Current)).FirstOrDefault(s=>s.SessionId==squash.SessionId);
-                    if(target==null) throw new IOException("The original session record is unavailable.");
-                    var ledger = target.SessionId==current.SessionId ? state.Productivity : target.Data.Productivity;
-                    var score=ledger.Score;
+                    var target=squash.SessionId==Guid.Empty?current:state.Workspace.Dashboards.SelectMany(d=>d.History.Append(d.Current)).FirstOrDefault(s=>s.SessionId==squash.SessionId);
+                    if(target==null)throw new IOException("The original session record is unavailable.");
+                    var ledger=target.SessionId==current.SessionId?state.Productivity:target.Data.Productivity;var score=ledger.Score;
                     if(ProductivityScoring.DirectSquash(ledger,squash.BugId.ToString(),squash.At,state.Workspace.Settings.StreakMultiplierCap,squash.Species.ToString()))
                     {state.Workspace.AllTimeSquashes++;var key=squash.Species.ToString();state.Workspace.AllTimeSquashesBySpecies[key]=state.Workspace.AllTimeSquashesBySpecies.GetValueOrDefault(key)+1;if(target.SessionId!=current.SessionId)state.Workspace.AllTimeProductivityScore+=ledger.Score-score;}
-                    store.Save(state);
                 }
-                pendingSquashes.Remove(squash);
+                store.Save(state);
             }
-            catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or InvalidDataException or InvalidOperationException)
-            {scoreWarning="A squash is awaiting its session-history save. It is kept with the ecosystem and will retry.";Status=scoreWarning;return;}
+            var saved=batch.Select(s=>s.BugId).ToHashSet();pendingSquashes.RemoveAll(s=>saved.Contains(s.BugId));scoreWarning=null;
         }
-        scoreWarning=null;
+        catch(Exception ex)when(ex is IOException or UnauthorizedAccessException or InvalidDataException or InvalidOperationException)
+        {scoreWarning="Squashes are awaiting their session-history save. They are kept with the ecosystem and will retry.";Status=scoreWarning;}
     }
     public void Dispose()
     { if (disposed) return; FlushScores(); Save(); disposed = true; timer.Stop(); timer.Tick -= Tick; views.Clear(); clock.Stop(); }

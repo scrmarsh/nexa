@@ -11,13 +11,14 @@ namespace SessionDashboard;
 internal sealed partial class HomeWindow : NexaDialog
 {
     private readonly StateStore store;
+    internal StateStore SettingsStore=>store;
     internal AppState Saved { get; private set; }
     internal readonly StackPanel Recent = new() { Orientation = Orientation.Vertical, HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly Button recentChevron = new() { Content = ">", Width = 27, Height = 54, VerticalAlignment = VerticalAlignment.Center, Padding = new Thickness(0), Margin = new Thickness(0, 0, 7, 0), Opacity = .55, ToolTip = "Show older spaces" };
     private readonly TextBlock feedback = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 20, 0, 0) };
     internal HomeWindow(StateStore store,AppState? loadedState=null)
     {
-        this.store = store; Saved = loadedState ?? store.Load();
+        this.store = store; Saved = loadedState ?? store.Load(); store.LoadInteractionPreferences(Saved);
         Theme.SetSeasonalEnabled(NexaSeason.Active(Saved.Workspace?.Settings ?? new NexaOptions(), DateTimeOffset.UtcNow));
         Closing += (_, e) => { if (settingsWindow?.FlushPendingChanges() == false) e.Cancel = true; };
         Theme.Apply(Application.Current.Resources, store.LoadThemeMode(), store.LoadAppTheme());

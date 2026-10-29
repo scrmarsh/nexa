@@ -20,7 +20,7 @@ public partial class MainWindow
             var ledger=Continuity.Clone(state.Productivity);
             if(!ProductivityScoring.CollectCandy(ledger,id.Value,DateTimeOffset.UtcNow,Options.StreakMultiplierCap))return;
             if(!seasonalArtwork.TryCollect(id.Value))return;
-            state.Productivity=ledger;bugsOverlay?.Manager.BindCandy([]);Changed();SaveNow();e.Handled=true;
+            state.Productivity=ledger;bugsOverlay?.Manager.BindCandy([]);if(NexaEffectsAudio.Allowed(NexaSoundEffect.Candy,state,Options,IsActive))NexaEffectsAudio.Play(NexaSoundEffect.Candy,state.InterfaceSoundVolume);Changed();SaveNow();e.Handled=true;
         };
         Loaded+=(_,_)=>streakRefresh.Start();
         if (state.Workspace != null) feedbackOverlay.Observe(Continuity.Current(state.Workspace, store.UserId).Current, state.Productivity.Events);
@@ -52,7 +52,7 @@ public partial class MainWindow
         var current = Continuity.Current(state.Workspace, store.UserId).Current;
         if (soundSessionId != current.SessionId) { soundSessionId = current.SessionId; soundedEvents.Clear(); foreach (var item in state.Productivity.Events) soundedEvents.Add(item.Id); return; }
         foreach (var item in state.Productivity.Events)
-            if (soundedEvents.Add(item.Id) && state.InterfaceSoundsEnabled && item.BasePoints + item.BonusPoints != 0 && item.Category != "Bug squash")
+            if (soundedEvents.Add(item.Id) && state.InterfaceSoundsEnabled && item.BasePoints + item.BonusPoints != 0 && item.Category != "Bug squash" && !(item.Key.StartsWith("candy:",StringComparison.Ordinal) && NexaEffectsAudio.Allowed(NexaSoundEffect.Candy,state,Options,IsActive)))
                 InterfaceAudio.PreviewCue(state.InterfaceSoundVolume, item.BasePoints + item.BonusPoints > 0 ? "positive" : "negative",item.BasePoints+item.BonusPoints>0?state.PositiveFeedbackSound:state.NegativeFeedbackSound);
     }
     private void UpdateFrenzyFeedback()

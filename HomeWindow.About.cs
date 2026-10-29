@@ -12,8 +12,8 @@ internal sealed partial class HomeWindow
     internal void RefreshBranding()=>refreshBranding?.Invoke();
     private void BuildHomeHeader(StackPanel panel)
     {
-        var header = new Grid{HorizontalAlignment=HorizontalAlignment.Center,MaxWidth=900}; header.ColumnDefinitions.Add(new() { Width = new GridLength(300) }); header.ColumnDefinitions.Add(new() { Width = new GridLength(32) }); header.ColumnDefinitions.Add(new(){Width=new GridLength(1,GridUnitType.Star)});
-        var brand=new NexaWordmark(300);header.Children.Add(brand);
+        var header = new Grid{HorizontalAlignment=HorizontalAlignment.Stretch,MaxWidth=900,Height=150}; header.ColumnDefinitions.Add(new() { Width = new GridLength(1,GridUnitType.Star) }); header.ColumnDefinitions.Add(new() { Width = new GridLength(32) }); header.ColumnDefinitions.Add(new(){Width=new GridLength(1,GridUnitType.Star)});
+        var brand=new System.Windows.Controls.Viewbox{Stretch=Stretch.Uniform,StretchDirection=StretchDirection.DownOnly,HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center,Child=new NexaWordmark(300)};header.Children.Add(brand);
         var tagline = new TextBlock { Text = "", FontSize = 24, TextWrapping = TextWrapping.Wrap, TextAlignment=TextAlignment.Center, Foreground = (Brush)FindResource("TextBrush"), VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 0, 0), MinHeight = 64 };
         System.Windows.Automation.AutomationProperties.SetName(tagline, "Home tagline"); Grid.SetColumn(tagline, 2); header.Children.Add(tagline); panel.Children.Add(header);
 

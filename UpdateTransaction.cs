@@ -70,7 +70,7 @@ internal static class UpdateTransaction
     {
         var directory = Path.GetDirectoryName(planPath)!; var helper = Path.Combine(directory, "Nexa.UpdateHelper.exe");
         File.Copy(Environment.ProcessPath!, helper, true);
-        Process.Start(new ProcessStartInfo(helper) { UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden, ArgumentList = { "--apply-update", planPath } })?.Dispose();
+        using var process=Process.Start(new ProcessStartInfo(helper) { UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden, ArgumentList = { "--apply-update", planPath } }) ?? throw new IOException("The update helper could not be started. nexa will remain open.");
     }
     internal static void Save(string path, UpdatePlan plan) => StateStore.AtomicWrite(path, JsonSerializer.Serialize(plan, new JsonSerializerOptions { WriteIndented = true }), false);
     internal static bool IsWithin(string root, string path) => Path.GetFullPath(path).StartsWith(Path.TrimEndingDirectorySeparator(Path.GetFullPath(root)) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) || Path.GetFullPath(path).Equals(Path.GetFullPath(root), StringComparison.OrdinalIgnoreCase);

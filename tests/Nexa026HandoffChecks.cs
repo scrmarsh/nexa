@@ -82,9 +82,9 @@ internal static partial class Program
         Assert(store.Load().Workspace!.Settings.TimeZoneId=="Central Standard Time" && search.Text=="","Choosing a result synchronizes and persistently saves the real selection");
         var chicago=TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");Assert(chicago.GetUtcOffset(new DateTime(2026,1,15))!=chicago.GetUtcOffset(new DateTime(2026,7,15)),"Selected authoritative Chicago zone retains daylight saving rules");
         settings.SelectSection("Sounds");var sounds=Descendants(settings).OfType<ComboBox>().ToArray();
-        Assert(sounds.Length==3 && sounds.All(c=>c.Items.Count==5),"Sounds exposes five styles and five independent choices for each feedback direction");
+        Assert(sounds.Count(c=>c.Items.Count==5)==3 && sounds.Any(c=>c.Items.Count==9),"Sounds exposes five styles and five independent choices for each feedback direction");
         sounds[0].SelectedIndex=3;sounds[1].SelectedIndex=1;sounds[2].SelectedIndex=2;settings.FlushPendingChanges();var audio=store.Load();store.LoadInteractionPreferences(audio);
-        Assert(audio.PositiveFeedbackSound=="Bells" && audio.NegativeFeedbackSound=="Wood","Independent sound choices persist without being overwritten by the style selector");
+        Assert(audio.PositiveFeedbackSound=="Bells" && audio.NegativeFeedbackSound=="Tap","Independent sound choices persist without being overwritten by the style selector");
         Assert(InterfaceAudio.PositiveChoices.Select(s=>Convert.ToHexString(SHA256.HashData(InterfaceAudio.CreateCue(.25,"positive",s).ToArray()))).Distinct().Count()==5 && InterfaceAudio.NegativeChoices.Select(s=>Convert.ToHexString(SHA256.HashData(InterfaceAudio.CreateCue(.25,"negative",s).ToArray()))).Distinct().Count()==5,"All five positive and negative original PCM cues are distinct");
         settings.Close();home.Close();
         home=OffscreenHandoff(new HomeWindow(store));home.Show();Pump(TimeSpan.FromMilliseconds(60));Assert(CardsHandoff(home).Length==6 && Descendants(home).OfType<SeasonalCorners>().Single().Visibility==Visibility.Collapsed,"Reopening Home resets expansion and preserves normal appearance");home.Close();

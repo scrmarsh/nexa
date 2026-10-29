@@ -292,12 +292,11 @@ public partial class MainWindow
         ColorsClick(PixelColorPicker, new RoutedEventArgs()); SaveNow();
     }
 
-    private void Changed(string? message = null)
+    private void Changed(string? message = null, bool scheduleSave = true)
     {
         if (!ready) return;
         dirty = true; revision++;
-        saveDelay.Stop();
-        saveDelay.Start();
+        if(scheduleSave){saveDelay.Stop();saveDelay.Start();}
         if (message != null) Feedback.Text = message;
     }
 
@@ -309,8 +308,8 @@ public partial class MainWindow
         {
             // Await only worker I/O here; its completion does not depend on the dispatcher.
             try { pendingWrite?.GetAwaiter().GetResult(); } catch (Exception ex) when (SaveException(ex)) { }
-            CaptureDraft(); ShowSaveStatus("Auto-saving...");
-            store.Save(state); dirty = false;
+            CaptureDraft(); var payload=store.Prepare(state); var awards=ecosystem?.CapturedAwardIds(payload.Workspace); ShowSaveStatus("Auto-saving...");
+            store.Write(payload); ecosystem?.AcknowledgeWorkspaceAwards(awards??[]); dirty = false;
             ShowSaveStatus("saved"); return true;
         }
         catch (Exception ex) when (SaveException(ex))

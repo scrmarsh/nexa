@@ -84,6 +84,7 @@ internal sealed class PixelSwarmGame
     internal double SpawnInterval => SwarmBalance.SpawnInterval(Stage);
     internal double AimAngle { get; private set; }
     internal bool NewBest { get; set; }
+    internal Action<NexaSoundEffect>? Sound { get; set; }
     private double spawnClock, reliefClock, weaponClock, multiplyClock, shotCooldown, moveBonus;
     private int damageBonus, extraShots, pierceBonus, healthUpgrade, lastBossStage;
     private Vector aim = new(0, -1);
@@ -92,7 +93,7 @@ internal sealed class PixelSwarmGame
 
     internal void Resize(Size size)
     {
-        if (size.Width < 20 || size.Height < 20 || size == Bounds) return;
+        if (!double.IsFinite(size.Width) || !double.IsFinite(size.Height) || size.Width < 20 || size.Height < 20 || size == Bounds) return;
         var old = Bounds; Bounds = size;
         if (old.Width == 0) { Player = new Point(size.Width / 2, size.Height / 2); SeedTimerPixels(); return; }
         Point Scale(Point p) => new(p.X * size.Width / old.Width, p.Y * size.Height / old.Height);
@@ -129,24 +130,27 @@ internal sealed class PixelSwarmGame
     {
         if (Phase != SwarmPhase.Playing || Bounds.Width < 20 || shotCooldown > 0 || Shots.Count >= SwarmBalance.ProjectileCap) return;
         Aim(pointer); var weapon = SwarmBalance.Definition(Weapon); var count = 1 + extraShots;
-        for (var i = 0; i < count; i++)
+        for (var i = 0; i < count && Shots.Count < SwarmBalance.ProjectileCap; i++)
         {
             var angle = AimAngle + (i - (count - 1) / 2d) * .15; var vector = new Vector(Math.Cos(angle), Math.Sin(angle));
             Shots.Add(new Shot { Position = Player, Previous = Player, Velocity = vector * weapon.Speed,
                 Damage = weapon.Damage + damageBonus, Radius = weapon.Radius, Explosion = weapon.Explosion, Pierces = 1 + pierceBonus });
         }
         shotCooldown = Math.Max(.045, weapon.Cooldown * (RapidRemaining > 0 ? .58 : 1));
+        Sound?.Invoke(NexaSoundEffect.Shoot);
         if (Weapon != SwarmWeaponKind.PixelBlaster && --Ammo <= 0) { Weapon = SwarmWeaponKind.PixelBlaster; Ammo = int.MaxValue; }
     }
     private void Aim(Point pointer)
     {
+        if (!double.IsFinite(pointer.X) || !double.IsFinite(pointer.Y)) return;
         var direction = pointer - Player; if (direction.Length <= .01) return;
         direction.Normalize(); aim = direction; AimAngle = Math.Atan2(aim.Y, aim.X);
     }
     internal void Advance(double seconds, Point target, bool firing = false) => Advance(seconds, new Vector(), target, firing);
     internal void Advance(double seconds, Vector movement, Point pointer, bool firing = false)
     {
-        if (Phase != SwarmPhase.Playing || Bounds.Width < 20 || Bounds.Height < 20 || seconds <= 0) return;
+        if (Phase != SwarmPhase.Playing || Bounds.Width < 20 || Bounds.Height < 20 || !double.IsFinite(seconds) || seconds <= 0) return;
+        if (!double.IsFinite(movement.X) || !double.IsFinite(movement.Y)) movement = new();
         if (movement.LengthSquared > 1) movement.Normalize(); seconds = Math.Min(seconds, .1);
         while (seconds > 0 && Phase == SwarmPhase.Playing)
         {
@@ -169,7 +173,9 @@ internal sealed class PixelSwarmGame
             }
             if (Stage >= 5 && Stage % 5 == 0 && lastBossStage != Stage)
             { lastBossStage = Stage; if (Pixels.Count >= SwarmBalance.EnemyCap(Stage)) Pixels.RemoveAt(0); Spawn(SwarmEnemyKind.Boss); }
-            MoveEnemies(dt); MoveShots(dt); MovePickups(dt, previousPlayer); MoveParticles(dt);
+            MoveEnemies(dt); MoveShots(dt);
+            if (Phase != SwarmPhase.Playing) break;
+            MovePickups(dt, previousPlayer); MoveParticles(dt);
             if (GraceRemaining <= 0 && InvulnerableRemaining <= 0 && ShieldRemaining <= 0 &&
                 Pixels.Any(p => Touches(previousPlayer - p.Previous, Player - p.Position, p.HalfWidth + PlayerRadius, p.HalfHeight + PlayerRadius))) DamagePlayer();
         }
@@ -202,7 +208,7 @@ internal sealed class PixelSwarmGame
             if (shot.Hostile)
             {
                 if (InvulnerableRemaining <= 0 && ShieldRemaining <= 0 && Touches(shot.Previous - Player, shot.Position - Player, PlayerRadius + shot.Radius, PlayerRadius + shot.Radius))
-                { DamagePlayer(); Shots.RemoveAt(i); continue; }
+                { DamagePlayer(); if (GameOver) return; Shots.RemoveAt(i); continue; }
             }
             else for (var j = Pixels.Count - 1; j >= 0 && shot.Pierces > 0; j--)
             {
@@ -213,6 +219,7 @@ internal sealed class PixelSwarmGame
             }
             if (shot.Pierces <= 0 || shot.Age > 2.3 || shot.Position.X < 0 || shot.Position.X > Bounds.Width || shot.Position.Y < 0 || shot.Position.Y > Bounds.Height)
                 Shots.RemoveAt(i);
+            if (Phase != SwarmPhase.Playing) return;
         }
     }
     private void MovePickups(double dt, Point previousPlayer)
@@ -228,6 +235,7 @@ internal sealed class PixelSwarmGame
             if (Touches(previousPlayer - pickup.Position, Player - pickup.Position, 13, 13))
             {
                 Collected++;
+                Sound?.Invoke(NexaSoundEffect.PowerUp);
                 switch (pickup.Kind)
                 {
                     case SwarmPickupKind.Relief: PowerRemaining = SwarmBalance.ReliefSeconds; break;
@@ -262,7 +270,7 @@ internal sealed class PixelSwarmGame
     {
         if (Phase != SwarmPhase.Playing || GraceRemaining > 0 || InvulnerableRemaining > 0 || ShieldRemaining > 0) return;
         Health--; InvulnerableRemaining = SwarmBalance.InvulnerabilitySeconds; Burst(Player, Colors.White);
-        if (Health <= 0) { Phase = SwarmPhase.GameOver; Shots.Clear(); }
+        if (Health <= 0) { Phase = SwarmPhase.GameOver; Shots.Clear(); Sound?.Invoke(NexaSoundEffect.Death); }
     }
     private void OfferUpgrades()
     {

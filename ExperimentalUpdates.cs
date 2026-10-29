@@ -8,7 +8,9 @@ namespace SessionDashboard;
 
 internal sealed class UpdatePreferences
 {
-    public bool CheckOnStartup { get; set; }
+    public bool CheckOnStartup { get; set; } = true; // Legacy field: discovery is always enabled.
+    public bool AutomaticUpdates { get; set; } = true;
+    public bool UpdateChoiceMade { get; set; }
     public string Channel {get;set;}="Automatic";
     public string LastCheckError {get;set;}="";
     public DateTimeOffset? LastSuccessfulCheckUtc { get; set; }

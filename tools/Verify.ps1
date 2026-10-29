@@ -8,7 +8,7 @@ try {
  $runner=Join-Path $repoRoot (Join-Path 'tests' (Join-Path $OutputBase 'Release/net10.0-windows/SessionDashboard.Checks.exe'))
  $logs=Join-Path $repoRoot ('verification\acceptance-'+(Get-Date -Format 'yyyyMMdd-HHmmss'))
  New-Item -ItemType Directory -Force -Path $logs | Out-Null
- foreach($route in @('nexa031','nexa030','nexa029','nexaween028','nexaween027','handoff026','pass026','alpha026','arrivals','audit025','final','followup-design','followup','master','reliability','core','continuity','shared','menus','ecosystem','animation')){
+ foreach($route in @('laptop-audio','update-automation','nexa031','nexa030','nexa029','nexaween028','nexaween027','handoff026','pass026','alpha026','arrivals','audit025','final','followup-design','followup','master','reliability','core','continuity','shared','menus','ecosystem','animation')){
   $ErrorActionPreference='Continue'
   if($route -eq 'master'){$result=& $runner 2>&1}else{$routeArgument="--$route";$result=& $runner $routeArgument 2>&1}
   $exitCode=$LASTEXITCODE;$ErrorActionPreference='Stop';$result | Set-Content -LiteralPath (Join-Path $logs ($route+'.log')) -Encoding utf8

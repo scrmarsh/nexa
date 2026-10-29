@@ -42,7 +42,7 @@ public partial class MainWindow
     internal bool RecordEcosystemSquash(BugEntity bug, DateTimeOffset? at = null,bool persist=true)
     {
         if (ProductivityScoring.DirectSquash(state.Productivity, bug.InteractionId.ToString(), at ?? DateTimeOffset.UtcNow,Options.StreakMultiplierCap,bug.Species.ToString()))
-        { state.Workspace!.AllTimeSquashes++;RecordSpeciesTotal(bug.Species); Changed(); }
+        { state.Workspace!.AllTimeSquashes++;RecordSpeciesTotal(bug.Species); Continuity.Current(state.Workspace,store.UserId).Current.Data.Productivity=state.Productivity; Changed(scheduleSave:false); }
         return !persist || SaveNow();
     }
     internal bool ApplyPendingSquash(BugEntity bug,DateTimeOffset at,Guid sessionId)
@@ -54,21 +54,8 @@ public partial class MainWindow
         if(target==null)return false;
         var ledger=target.Data.Productivity;var score=ledger.Score;
         if(ProductivityScoring.DirectSquash(ledger,bug.InteractionId.ToString(),at,Options.StreakMultiplierCap,bug.Species.ToString()))
-        {workspace.AllTimeSquashes++;RecordSpeciesTotal(bug.Species);workspace.AllTimeProductivityScore+=ledger.Score-score;Changed();}
+        {workspace.AllTimeSquashes++;RecordSpeciesTotal(bug.Species);workspace.AllTimeProductivityScore+=ledger.Score-score;Changed(scheduleSave:false);}
         return true;
-    }
-    internal async Task<bool> PersistSquashAsync()
-    {
-        try
-        {
-            try{if(pendingWrite!=null)await pendingWrite;}catch(Exception ex)when(SaveException(ex)){}
-            var write=await Dispatcher.InvokeAsync(()=>
-            {if(closing || !IsLoaded)throw new InvalidOperationException("The original window has closed; the durable event will replay in its saved session.");CaptureDraft();var payload=store.Prepare(state);return pendingWrite=Task.Run(()=>store.Write(payload));});
-            await write;
-            return true;
-        }
-        catch(Exception ex) when(SaveException(ex))
-        {await Dispatcher.InvokeAsync(()=>{dirty=true;Feedback.Text="A squash is awaiting its session-history save: "+ex.Message;});return false;}
     }
     private void UpdateBugActivity()
     {
@@ -97,10 +84,21 @@ public partial class MainWindow
             bugsOverlay.Manager.VisibleBounds = new Rect(visible.X * scaleX, visible.Y * scaleY, visible.Width * scaleX, visible.Height * scaleY);
         }
     }
+    private Guid audibleBug;
+    private System.Windows.Point? audibleBugPosition;
+    private void PlayCrawling()
+    {
+        var bug=ecosystem?.Manager.Bugs.FirstOrDefault(b=>b.Health>0 && b.State is BugState.Edge or BugState.Crossing or BugState.Landed);
+        if(bug==null){audibleBugPosition=null;return;}
+        var moved=audibleBug==bug.InteractionId && audibleBugPosition is {} previous && (previous-bug.Position).LengthSquared>.01;
+        audibleBug=bug.InteractionId;audibleBugPosition=bug.Position;
+        if(moved && NexaEffectsAudio.Allowed(NexaSoundEffect.Crawl,state,Options,IsActive && IsVisible && WindowState!=WindowState.Minimized && DashboardShell.IsVisible && bugsOverlay?.IsVisible==true && ecosystem?.Manager.WorldPaused==false))
+            NexaEffectsAudio.Play(NexaSoundEffect.Crawl,state.InterfaceSoundVolume);
+    }
     private void EcosystemChanged()
     {
         if (bugsOverlay == null || ecosystem == null) return;
-        ReconcileVisibleCandy();UpdateBugGeometry(); bugsOverlay.RefreshFrame(); BugFrameCount++;
+        ReconcileVisibleCandy();UpdateBugGeometry(); bugsOverlay.RefreshFrame(); BugFrameCount++;PlayCrawling();
         if (ecosystem.Status != ecosystemWarning)
         {
             ecosystemWarning = ecosystem.Status;

@@ -56,17 +56,18 @@ internal static partial class Program
         var world=NexaEcosystem.For(store);world.Manager.WorldPaused=true;
         var first=new BugEntity{Species=BugSpecies.Ants};var before=main.state.Workspace.AllTimeSquashes;
         var task=world.RecordSquashResponsive(first,main);
-        Assert(!task.IsCompleted && main.state.Workspace.AllTimeSquashes==before,"Input queues recovery before snapshots, ledger changes or disk writes");
-        WaitHandoff(()=>task.IsCompleted,"Background write-ahead squash persistence completes");task.GetAwaiter().GetResult();
-        Assert(main.state.Workspace.AllTimeSquashes==before+1 && store.Load().Workspace!.AllTimeSquashes==before+1,"Squash count reaches durable workspace exactly once");
+        Assert(task.IsCompleted && main.state.Workspace.AllTimeSquashes==before+1,"Input credits a queued kill immediately without a forced save");
+        WaitHandoff(()=>task.IsCompleted,"In-memory queued scoring completes");task.GetAwaiter().GetResult();
+        Assert(main.SaveNow() && main.state.Workspace.AllTimeSquashes==before+1 && store.Load().Workspace!.AllTimeSquashes==before+1,"Squash count reaches durable workspace exactly once");
         var twice=world.RecordSquashResponsive(first,main);WaitHandoff(()=>twice.IsCompleted,"Repeated squash event persistence completes");twice.GetAwaiter().GetResult();
         Assert(main.state.Workspace.AllTimeSquashes==before+1,"Repeated death event cannot duplicate score or species totals");
         var failed=new BugEntity{Species=BugSpecies.Spiders};
         using(var locked=new FileStream(store.FilePath,FileMode.Open,FileAccess.Read,FileShare.None))
         {
             var retry=world.RecordSquashResponsive(failed,main);WaitHandoff(()=>retry.IsCompleted,"Locked workspace returns without blocking dispatcher or losing pending event");retry.GetAwaiter().GetResult();
+            world.Save(); // Explicit checkpoint, not a save on every hit.
             var pending=JsonSerializer.Deserialize<EcosystemDocument>(File.ReadAllText(world.FilePath))!;
-            Assert(pending.PendingSquashes.Any(p=>p.BugId==failed.InteractionId),"Write-ahead ecosystem event survives workspace save failure");
+            Assert(pending.PendingSquashes.Any(p=>p.BugId==failed.InteractionId),"Checkpointed ecosystem event survives workspace save failure");
         }
         world.RetryHistory();
         Assert(main.state.Workspace.AllTimeSquashes==before+2 && store.Load().Workspace!.AllTimeSquashes==before+2,"Recovery retries failed event without duplicating already-applied ledger");
@@ -74,8 +75,8 @@ internal static partial class Program
         Assert(doc.PendingSquashes.Count==0,"Successfully committed history clears durable pending events");
         var simultaneous=Enumerable.Range(0,3).Select(_=>world.RecordSquashResponsive(new BugEntity{Species=BugSpecies.Ladybugs},main)).ToArray();
         WaitHandoff(()=>simultaneous.All(t=>t.IsCompleted),"Rapid fatal events serialize background persistence safely");foreach(var write in simultaneous)write.GetAwaiter().GetResult();
-        Assert(main.state.Workspace.AllTimeSquashes==before+5 && store.Load().Workspace!.AllTimeSquashes==before+5,"Rapid hits preserve every award and final durable count");
-        Console.WriteLine($"MEASURE background squash protocol (including two ecosystem writes and workspace write): {world.LastSquashPersistenceMilliseconds:F3} ms.");main.Close();
+        Assert(main.SaveNow() && main.state.Workspace.AllTimeSquashes==before+5 && store.Load().Workspace!.AllTimeSquashes==before+5,"Rapid hits preserve every award and final durable count");
+        Console.WriteLine($"MEASURE queued in-memory squash scoring (no per-hit disk writes): {world.LastSquashPersistenceMilliseconds:F3} ms.");main.Close();
     }
     private static void CheckFullscreen030()
     {

@@ -80,6 +80,8 @@ public class DashboardData
     public bool FocusNudgesEnabled { get; set; }
     public bool InitialViewPending { get; set; }
     public bool InterfaceSoundsEnabled { get; set; }
+    public bool GameSoundsEnabled { get; set; } = true;
+    public bool BugSoundsEnabled { get; set; } = true;
     public string PositiveFeedbackSound {get;set;}="Chime";
     public string NegativeFeedbackSound {get;set;}="Eerie";
     public double InterfaceSoundVolume { get; set; } = .25;
@@ -164,7 +166,8 @@ public sealed partial class StateStore
             var preferences = JsonSerializer.Deserialize<InteractionPreferences>(File.ReadAllText(InteractionPreferencesPath), Options);
             if (preferences == null) return;
             state.PositiveFeedbackSound=InterfaceAudio.PositiveChoices.Contains(preferences.Positive)?preferences.Positive:"Chime";
-            state.NegativeFeedbackSound=InterfaceAudio.NegativeChoices.Contains(preferences.Negative)?preferences.Negative:"Eerie";
+            state.NegativeFeedbackSound=preferences.Negative=="Wood"?"Tap":InterfaceAudio.NegativeChoices.Contains(preferences.Negative)?preferences.Negative:"Eerie";
+            state.GameSoundsEnabled=preferences.GameSounds; state.BugSoundsEnabled=preferences.BugSounds;
             state.InterfaceSoundsEnabled=preferences.Sounds; state.FocusNudgesEnabled=preferences.Nudges;
             state.InterfaceSoundVolume=double.IsFinite(preferences.Volume) ? Math.Clamp(preferences.Volume,0,1) : .25;
             state.PixelShape=preferences.PixelShape == "Circle" ? "Circle" : "Square";
@@ -177,13 +180,15 @@ public sealed partial class StateStore
     internal void SaveInteractionPreferences(DashboardData state)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(InteractionPreferencesPath)!);
-        AtomicWrite(InteractionPreferencesPath,JsonSerializer.Serialize(new InteractionPreferences { Positive=state.PositiveFeedbackSound,Negative=state.NegativeFeedbackSound,Sounds=state.InterfaceSoundsEnabled,Nudges=state.FocusNudgesEnabled,Volume=state.InterfaceSoundVolume,PixelShape=state.PixelShape,DistractionEscalation=state.DistractionEscalationEnabled,FocusPulse=state.FocusPulseEnabled,PulseIntensity=state.FocusPulseIntensity },Options),false);
+        AtomicWrite(InteractionPreferencesPath,JsonSerializer.Serialize(new InteractionPreferences { Positive=state.PositiveFeedbackSound,Negative=state.NegativeFeedbackSound,Sounds=state.InterfaceSoundsEnabled,GameSounds=state.GameSoundsEnabled,BugSounds=state.BugSoundsEnabled,Nudges=state.FocusNudgesEnabled,Volume=state.InterfaceSoundVolume,PixelShape=state.PixelShape,DistractionEscalation=state.DistractionEscalationEnabled,FocusPulse=state.FocusPulseEnabled,PulseIntensity=state.FocusPulseIntensity },Options),false);
     }
     private sealed class InteractionPreferences
     {
         public string Positive {get;set;}="Chime";
         public string Negative {get;set;}="Eerie";
         public bool Sounds { get; set; }
+        public bool GameSounds { get; set; } = true;
+        public bool BugSounds { get; set; } = true;
         public bool Nudges { get; set; }
         public double Volume { get; set; } = .25;
         public string PixelShape { get; set; } = "Square";

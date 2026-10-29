@@ -4,7 +4,7 @@ using System.Windows.Interop;
 
 namespace SessionDashboard;
 
-internal static class NexaWindowBounds
+internal static partial class NexaWindowBounds
 {
     [StructLayout(LayoutKind.Sequential)] private struct Point { public int X, Y; }
     [StructLayout(LayoutKind.Sequential)] private struct Rectangle { public int Left, Top, Right, Bottom; }
@@ -43,6 +43,7 @@ internal static class NexaWindowBounds
     }
     internal static void Attach(Window window)
     {
+        AttachSafety(window);
         HwndSource? source = null;
         nint Hook(nint hwnd, int message, nint wParam, nint lParam, ref bool handled)
         {
@@ -54,6 +55,9 @@ internal static class NexaWindowBounds
             var size = Marshal.PtrToStructure<MinMax>(lParam);
             size.MaxPosition = new Point { X = area.Left - info.Monitor.Left, Y = area.Top - info.Monitor.Top };
             size.MaxSize = new Point { X = area.Right - area.Left, Y = area.Bottom - area.Top };
+            size.MaxTrack = size.MaxSize;
+            size.MinTrack.X = Math.Min(size.MinTrack.X, size.MaxSize.X);
+            size.MinTrack.Y = Math.Min(size.MinTrack.Y, size.MaxSize.Y);
             Marshal.StructureToPtr(size, lParam, false);
             handled = true;
             return nint.Zero;

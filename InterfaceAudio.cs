@@ -6,7 +6,7 @@ namespace SessionDashboard;
 internal static class InterfaceAudio
 {
     internal static readonly string[] PositiveChoices=["Chime","Bells","Marimba","Crystal","Pop"];
-    internal static readonly string[] NegativeChoices=["Eerie","Low bell","Wood","Glass","Dip"];
+    internal static readonly string[] NegativeChoices=["Eerie","Low bell","Tap","Glass","Dip"];
     internal static MemoryStream Create(double volume)
     {
         const int rate=22050,count=4410;

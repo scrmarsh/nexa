@@ -13,7 +13,7 @@ internal sealed partial class NexaEcosystem
         var fresh=Manager.CaptureEcosystem(store.UserId);fresh.SessionGeneration=generation;fresh.WorldId=world;fresh.CombatDeaths=deaths;fresh.NaturalEncounters=encounters;
         fresh.Resources.RemoveAll(r=>r.Kind==BugResourceKind.Candy);
         Manager.RestoreEcosystem(fresh);Manager.Configure(preferences);Manager.BeginDashboardArrival();
-        checkpoint=scoreRetry=0;lastSessionId=Guid.Empty;
+        checkpoint=0;lastSessionId=Guid.Empty;
         // Pending original-session awards are deliberately retained and replayed once.
         Save();Changed?.Invoke();
     }

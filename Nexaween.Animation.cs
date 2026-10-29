@@ -69,7 +69,9 @@ internal sealed partial class NexaweenDecorations : IDisposable
         var surprise = (int)(elapsed.Elapsed.TotalSeconds / 53);
         if (surprise != lastSurprise)
         {
-            if (lastSurprise >= 0 && animationOptions.SeasonalSounds && host?.IsActive == true) InterfaceAudio.PreviewSeasonal(host is MainWindow main ? main.SettingsState.InterfaceSoundVolume : host is HomeWindow home ? home.Saved.InterfaceSoundVolume : .25);
+            var soundState=host is MainWindow main?main.SettingsState:host is HomeWindow home?home.Saved:null;
+            var effect=(surprise%4) switch {0=>NexaSoundEffect.Ghost,1=>NexaSoundEffect.Bat,2=>NexaSoundEffect.WitchBell,_=>NexaSoundEffect.Pumpkin};
+            if(lastSurprise>=0 && soundState!=null && NexaEffectsAudio.Allowed(effect,soundState,animationOptions,host?.IsActive==true)) NexaEffectsAudio.Play(effect,soundState.InterfaceSoundVolume);
             lastSurprise = surprise;
         }
         RecycleCandyActors();

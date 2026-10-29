@@ -69,7 +69,7 @@ internal static partial class Program
         settings=new SettingsDialog(main,store,main.state,main,"Sounds");settings.Show();Pump(TimeSpan.FromMilliseconds(30));
         var style=Descendants(settings).OfType<ComboBox>().Single(c=>c.Items.OfType<string>().Contains("Bell garden"));var sound=Descendants(settings).OfType<Button>().Single(b=>Equals(b.Content,"Test Sound"));
         Assert(style.Parent==sound.Parent && style.Parent is Panel panel && panel.Children.IndexOf(sound)==panel.Children.IndexOf(style)+1,"Test Sound is directly underneath the Sound Style dropdown");
-        style.SelectedIndex=2;Assert(main.state.PositiveFeedbackSound==InterfaceAudio.PositiveChoices[2],"Sound style selection controls the previewed positive cue");Capture031(settings,"sounds");settings.Close();
+        style.SelectedIndex=2;Descendants(settings).OfType<Button>().Single(b=>Equals(b.Content,"Apply preset to both feedback sounds")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Assert(main.state.PositiveFeedbackSound==InterfaceAudio.PositiveChoices[2],"Sound style selection controls the previewed positive cue");Capture031(settings,"sounds");settings.Close();
         var status=(TextBlock)main.FindName("ElapsedLabel");main.UpdateClock();main.UpdateLayout();
         Assert(status.Text=="Ready for a fresh session" && status.TextWrapping==TextWrapping.Wrap && status.TextAlignment==TextAlignment.Center,"Pixel Timer fresh-session status wraps and centers without scheduling changes");Capture031(main,"pixel-status");main.Close();
     }

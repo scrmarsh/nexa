@@ -40,11 +40,16 @@ public partial class MainWindow
             SwarmGameZone.Background = DashboardBrush("BackgroundBrush");
             swarmStats = store.LoadSwarmStats();
         }
-        swarmGame?.Clear(); swarmGame = new PixelSwarmGame(timerPixels: swarmSeeds);
+        swarmGame?.Clear(); swarmGame = new PixelSwarmGame(timerPixels: swarmSeeds) { Sound = PlayGameEffect };
         swarmRecorded = false; swarmControlsPage = swarmStatsPage = false; swarmLastStage = 1;
         storyOpen = true; PixelArea.Visibility = Visibility.Collapsed; StoryArea.Visibility = Visibility.Visible;
         StoryButton.Content = "Return to nexa"; UpdateClock(); RenderStory();
         swarmFrameClock.Restart(); boredomTicker.Start();
+    }
+    private void PlayGameEffect(NexaSoundEffect effect)
+    {
+        if (NexaEffectsAudio.Allowed(effect,state,Options,IsActive && IsVisible && WindowState != WindowState.Minimized && storyOpen))
+            NexaEffectsAudio.Play(effect,state.InterfaceSoundVolume);
     }
     private void BeginSwarmRun()
     {

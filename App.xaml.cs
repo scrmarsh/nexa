@@ -62,7 +62,7 @@ public partial class App : Application
                         store.Save(Continuity.Activate(workspace,store.UserId)); store.SaveProfile(welcome.Profile); Theme.Apply(Resources,welcome.Profile.ThemeMode,welcome.Profile.Theme); next=new MainWindow(store);
                     }
                     else next=new HomeWindow(store);
-                    MainWindow=next; next.Show(); splash.Close();
+                    MainWindow=next; next.Show(); splash.Close(); _=CheckStartupUpdatesAsync(store,next);
                 }
                 catch (Exception ex) { MessageBox.Show("nexa could not open your workspace. No data was overwritten.\n\n" + ex.Message, "nexa"); Shutdown(1); }
             };
@@ -90,24 +90,7 @@ public partial class App : Application
         catch (Exception ex) when (HistoryArchive.Recoverable(ex) || ex is TimeoutException or System.ComponentModel.Win32Exception) { Shutdown(1); }
     }
     protected override void OnExit(ExitEventArgs e) { NexaEcosystem.FlushAll(); workspaceMutex?.Dispose(); base.OnExit(e); }
-    private static async Task CheckStartupUpdatesAsync(StateStore store, Window home)
-    {
-        if (!store.LoadUpdatePreferences().CheckOnStartup) return;
-        try
-        {
-            using var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(12) };
-            var initialPreferences=store.LoadUpdatePreferences();
-            var release = await new ExperimentalUpdater(client).CheckAsync(new Version(AppVersion),currentChannel:NexaReleaseIdentity.Current.Stage,channelPreference:initialPreferences.Channel);
-            var preferences = store.LoadUpdatePreferences();
-            var offered = release == null ? "" : release.Version.ToString(3) + " " + release.Channel;
-            var alreadyOffered = preferences.LastOfferedVersion == offered;
-            preferences.LastSuccessfulCheckUtc = DateTimeOffset.UtcNow;preferences.LastCheckError="";
-            preferences.LastOfferedVersion = offered;
-            store.SaveUpdatePreferences(preferences);
-            if (release != null && !alreadyOffered && home.IsVisible) home.Title += $" · {release.Name} available in Settings → Updates";
-        }
-        catch (Exception ex) when (ex is System.Net.Http.HttpRequestException or TaskCanceledException or System.Text.Json.JsonException or InvalidDataException or UnauthorizedAccessException or IOException or KeyNotFoundException or InvalidOperationException or FormatException) { try{var preferences=store.LoadUpdatePreferences();preferences.LastCheckError=ExperimentalUpdater.DescribeFailure(ex);store.SaveUpdatePreferences(preferences);}catch(Exception saved)when(saved is IOException or UnauthorizedAccessException){} }
-    }
+    private static Task CheckStartupUpdatesAsync(StateStore store,Window home)=>AutomaticUpdates.For(store).StartAsync(home);
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
     {
         if (MainWindow is MainWindow window && !window.SaveForClose()) e.Cancel = true;

@@ -94,12 +94,14 @@ public partial class MainWindow
         {
             CaptureDraft();
             var payload = store.Prepare(state);
+            var awards = ecosystem?.CapturedAwardIds(payload.Workspace);
             ShowSaveStatus("Auto-saving...");
             pendingWrite = Task.Run(() => store.Write(payload));
             await pendingWrite.ConfigureAwait(false);
             await Dispatcher.InvokeAsync(() =>
             {
                 if (closing || ticket != saveTicket) return;
+                ecosystem?.AcknowledgeWorkspaceAwards(awards??[]);
                 if (version == revision) dirty = false;
                 ShowSaveStatus("saved");
             });
