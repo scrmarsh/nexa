@@ -1,0 +1,41 @@
+{
+  "id": 428352691,
+  "tag_name": "v0.1.2-beta",
+  "name": "Nexa Beta 0.1.2 — A Smoother Space",
+  "draft": false,
+  "prerelease": true,
+  "html_url": "https://github.com/scrmarsh/nexa/releases/tag/v0.1.2-beta",
+  "published_at": "2026-10-29T20:24:46Z",
+  "source_commit": "20331a66ffb542f1d17c9e988cb22658222441de",
+  "verified_build_source": "d821f2b34a93e33f8a2cf0f6a4fd6eb710a0f5d9",
+  "assets": [
+    {
+      "name": "nexa-portable.exe",
+      "size": 72834647,
+      "digest": "sha256:6eabfa61ca24edbbc05ec90fdb0748eee93862613e5e99e94fa4e52d15accaf7",
+      "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.2-beta/nexa-portable.exe"
+    },
+    {
+      "name": "Nexa.exe",
+      "size": 105303686,
+      "digest": "sha256:9c9d5bd757aa93cd8ea2a58d06d5cb541a7e953cf6fa6f95a8116f5239e1388e",
+      "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.2-beta/Nexa.exe"
+    },
+    {
+      "name": "NexaSetup.exe",
+      "size": 67735396,
+      "digest": "sha256:6e773109b23cc73428bf15ac7174f931609d7d8f602f707d992288e36d915da3",
+      "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.2-beta/NexaSetup.exe"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 242,
+      "digest": "sha256:9211f5b3f944a509dc3338a62ea1bd1bd70c354e26fd4bb737f868fe85337564",
+      "browser_download_url": "https://github.com/scrmarsh/nexa/releases/download/v0.1.2-beta/SHA256SUMS.txt"
+    }
+  ],
+  "prior_beta010_preserved": true,
+  "public_unauthenticated_api_verified": true,
+  "updater_asset_metadata_verified": true,
+  "verified_at_utc": "2026-10-29T20:25:29.1806119+00:00"
+}

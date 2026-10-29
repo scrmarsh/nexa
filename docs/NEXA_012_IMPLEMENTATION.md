@@ -1,5 +1,8 @@
 # Nexa Beta 0.1.2 — implementation and verification
 
+> **Publication follow-up — October 29, 2026:** [Beta 0.1.2 is now published](https://github.com/scrmarsh/nexa/releases/tag/v0.1.2-beta). The four uploaded assets match the verified local build. [Publication receipt](verification/beta012/publication-receipt.json). The original build report and verification receipt below record their pre-publication state.
+
+
 Local development on `codex/nexa-012-beta`, based on Beta 0.1.1 `bdb9084` (application source `75a2558`). The initial working tree was clean. No push, upload or publication is authorized. Public Beta 0.1.0 and local Beta 0.1.1 artifacts remain intact.
 
 ## Application changes
@@ -67,6 +70,6 @@ Native visual acceptance above used the earlier isolated candidate. The final co
 
 Full physical coverage across multiple mixed-DPI monitors, every Windows scaling setting, and every modal/unsaved-work combination remains manual acceptance. One existing junction fixture could not be created under the restricted token; its unverified result is retained in the junction log. Live external-provider credentials were not used; HEDY behavior and Bug Battle implementation were not changed.
 
-Beta 0.1.2 is not published, so downloading a matching 0.1.2 installer from the live public feed cannot yet complete. The missing-release case reports failure; trusted feed/URL/redirect/size/hash checks and matching-version selection are covered with fixtures. Builds emitted NU1900 when the NuGet vulnerability feed was unreachable; compilation/publishing succeeded, and an online dependency-vulnerability audit is not claimed. Packages are unsigned, as in the existing local workflow.
+At the time of the build verification, Beta 0.1.2 was not published, so a matching live-feed download was unavailable. Publication subsequently verified the public installer URL, size and SHA256 metadata; an end-user download/install acceptance run is still separate. The missing-release case reports failure; trusted feed/URL/redirect/size/hash checks and matching-version selection are covered with fixtures. Builds emitted NU1900 when the NuGet vulnerability feed was unreachable; compilation/publishing succeeded, and an online dependency-vulnerability audit is not claimed. Packages are unsigned, as in the existing local workflow.
 
 No commits were pushed, no assets were uploaded, and no GitHub release was created or modified. Beta 0.1.0 and Beta 0.1.1 artifacts remain preserved. Bug Battle expansions and Nexy were not implemented in this release.
