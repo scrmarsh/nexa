@@ -1,0 +1,8 @@
+{
+  "Assertions": 45,
+  "Setup": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\installer011-native-completion\\NexaSetup.exe",
+  "Fixture": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\native011-installer-completion",
+  "CurrentTokenIsAdministrator": false,
+  "OS": "Microsoft Windows NT 10.0.26300.0",
+  "CompletedUtc": "2026-10-29T18:47:07.2712971+00:00"
+}

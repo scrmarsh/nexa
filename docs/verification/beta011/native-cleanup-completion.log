@@ -1,0 +1,16 @@
+PASS: Packaged cleanup-only scan exits successfully
+PASS: Native scan finds both obsolete copies including the nondefault reference
+PASS: Packaged cleanup removal returns truthful status 0
+PASS: Both obsolete binaries are verified removed
+PASS: Cleanup-only preserves the current application bytes
+PASS: Cleanup-only preserves adjacent private content and unrelated binaries
+PASS: Cleanup-only does not install or register an application
+PASS: Packaged cleanup-only scan exits successfully
+PASS: Packaged cleanup removal returns truthful status 0
+PASS: Repeated cleanup remains safe
+PASS: Packaged cleanup-only scan exits successfully
+PASS: Packaged cleanup removal returns truthful status 1
+PASS: Locked removal is reported as a failure
+PASS: Packaged cleanup removal returns truthful status 0
+PASS: Retry succeeds after the locked file is released
+PASS: 15 native cleanup-only checks

@@ -1,0 +1,47 @@
+{
+  "Version": "0.1.1-beta",
+  "BuiltSourceCommit": "75a2558e1e53ae8fdc9a14d457dacd06c8e514a2",
+  "BaselineCommit": "e37fdb1ab552c3b1b1017dc59a551aafec5063f7",
+  "Branch": "codex/nexa-011-beta",
+  "CompletedUtc": "2026-10-29T18:52:34.4876632+00:00",
+  "Published": false,
+  "Pushed": false,
+  "NativeTokenAdministrator": false,
+  "Checks": {
+    "EarlierBroadRoutes": 28,
+    "EarlierBroadAssertions": 1454,
+    "FinalFocused": 153,
+    "FinalPackaged": 17,
+    "FinalNativeInstaller": 45,
+    "FinalNativeBlockedCleanup": 5,
+    "FinalNativeCleanupOnly": 15
+  },
+  "EarlierBroadScope": "Broad regression preceded final cleanup alias and recovery-metadata hardening; final focused and native runs cover completion source/binaries.",
+  "Packages": [
+    {
+      "File": "Application/Nexa.exe",
+      "Version": "0.1.1.0",
+      "Product": "0.1.1-beta+75a2558e1e53ae8fdc9a14d457dacd06c8e514a2",
+      "SHA256": "17C919C04A3BED4D11880490002CB71FFB8FF47C2E77F30EE9BEBB683DCBDAB9"
+    },
+    {
+      "File": "NexaSetup.exe",
+      "Version": "0.1.1.0",
+      "Product": "0.1.1.0",
+      "SHA256": "B841057ED209CAA70088BE2D9278EFB127DD474939C71C20EB3480C6D94293C9"
+    },
+    {
+      "File": "nexa-portable.exe",
+      "Version": "0.1.1.0",
+      "Product": "0.1.1-beta+75a2558e1e53ae8fdc9a14d457dacd06c8e514a2",
+      "SHA256": "17C919C04A3BED4D11880490002CB71FFB8FF47C2E77F30EE9BEBB683DCBDAB9"
+    },
+    {
+      "File": "Nexa.exe",
+      "Version": "0.1.1.0",
+      "Product": "0.1.1-beta+75a2558e1e53ae8fdc9a14d457dacd06c8e514a2",
+      "SHA256": "BEFB6CEE442D3667BC95FE82156E36D1B4D978673AAE38D61A2A60593DCCEC39"
+    }
+  ],
+  "PreservedBeta010PayloadSHA256": "67081BDD1415A38B5FEFB277FF8996440616963CED058A125F3CAA35FEF18F5C"
+}
