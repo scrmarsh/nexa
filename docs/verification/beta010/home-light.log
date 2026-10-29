@@ -1,0 +1,12 @@
+PASS: Light Home starts with the app's pale default background
+PASS: Actual Home logo renders dark lettering in Light mode
+PASS: Switching back to Dark restores charcoal Home
+PASS: Dark Home restores the original white lettering
+Logo sizes: light 290x92; dark 290x92
+PASS: Light mode changes logo lettering without changing the colored logo icon
+PASS: Light mode preserves the user's custom background color
+PASS: Returning to Nexa Default immediately restores dark Home lettering
+PASS: Nexaween Default Home also respects Light mode without replacing seasonal artwork
+PASS: Home mode changes preserve the app and title-bar icon
+PASS: Shared logo consumers keep their existing behavior outside Home
+Home Light verification passed
