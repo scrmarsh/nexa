@@ -1,0 +1,34 @@
+[
+  {
+    "Name": "nexa-portable.exe",
+    "URL": "https://github.com/scrmarsh/nexa/releases/download/v0.0.33-alpha/nexa-portable.exe",
+    "Status": 200,
+    "Length": 72729689,
+    "FinalHost": "release-assets.githubusercontent.com",
+    "Digest": "sha256:5b2fb16b603a4cba7d0fc4b1c6cf7a8efc4631dda87648a5f46f4aad27a1b6d4"
+  },
+  {
+    "Name": "Nexa.exe",
+    "URL": "https://github.com/scrmarsh/nexa/releases/download/v0.0.33-alpha/Nexa.exe",
+    "Status": 200,
+    "Length": 104802952,
+    "FinalHost": "release-assets.githubusercontent.com",
+    "Digest": "sha256:e57de0c2f7b4da1d7b719ae916d185d1a4e81d718fe4c7426527b6e455965c5f"
+  },
+  {
+    "Name": "NexaSetup.exe",
+    "URL": "https://github.com/scrmarsh/nexa/releases/download/v0.0.33-alpha/NexaSetup.exe",
+    "Status": 200,
+    "Length": 67234759,
+    "FinalHost": "release-assets.githubusercontent.com",
+    "Digest": "sha256:f872aaecd538471b62781ad0d62b1a386c8c78d9707f924f8b050a1363bbc1f4"
+  },
+  {
+    "Name": "SHA256SUMS.txt",
+    "URL": "https://github.com/scrmarsh/nexa/releases/download/v0.0.33-alpha/SHA256SUMS.txt",
+    "Status": 200,
+    "Length": 242,
+    "FinalHost": "release-assets.githubusercontent.com",
+    "Digest": "sha256:40e65cb56447d40c16c94ee05a32781afbd00f092ff41ce07b2c563b13c7a432"
+  }
+]

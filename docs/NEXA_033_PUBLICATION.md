@@ -20,3 +20,5 @@ All four upload digests and sizes were verified through GitHub before publicatio
 Known limits: real precision-trackpad feel and the complete monitor/DPI hardware matrix remain unverified. Windows packages are unsigned. Old .24/.26 executables need one direct installer download because their immutable comparison logic can reject canonical .33. Genuine published .29/.31 helpers and current portable conversion/rollback were exercised with isolated data. Historical metadata/alias cleanup remains a separate prepared operation; no destructive historical edits were performed.
 
 The later main-branch documentation checkpoint records this receipt and corrects all secondary README download/build/test instructions. The audited source tag remains unchanged.
+
+Unauthenticated public HEAD requests succeeded for all four download URLs with HTTP 200 and exact expected lengths. [Public-link verification](verification/nexa033/public-downloads.json). Independent connector reads confirmed the published prerelease, four asset digests and the repository About download URL.
