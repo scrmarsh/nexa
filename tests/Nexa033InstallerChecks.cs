@@ -53,5 +53,23 @@ internal static partial class Program
         }
         Setup033(Directory.GetFiles(Path.Combine(root,"app"),"unins*.exe").Single(),root);
         Assert(Registered033()==null && File.Exists(store.FilePath),"Final fixture uninstall clears registration and keeps saves");
+        var resolver=InstallerUpdates.InstallTarget;InstallerUpdates.InstallTarget=()=>target;
+        try
+        {
+            var source=Path.Combine(root,"portable-current","nexa-portable.exe");Directory.CreateDirectory(Path.GetDirectoryName(source)!);File.Copy(Path.Combine(Path.GetDirectoryName(typeof(App).Assembly.Location)!,"Nexa.exe"),source);var portableHash=UpdateTransaction.Hash(source);
+            plan=InstallerUpdates.Prepare(store,source,candidate,UpdateTransaction.Hash(candidate),"0.0.33").GetAwaiter().GetResult();
+            Assert(JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.MigratePortable,"Current portable mode stages a real installer migration with recovery data");
+            rejected=false;try{UpdateTransaction.Apply(plan,_=>Task.FromResult(false),waitForParent:false).GetAwaiter().GetResult();}catch(IOException){rejected=true;}
+            Assert(rejected && Registered033()==null && UpdateTransaction.Hash(source)==portableHash && JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.State=="RolledBack","Failed first installer migration removes only the new test installation and restores the exact portable executable");
+            Assert(File.ReadAllText(store.FilePath)==bytes,"Failed first migration preserves exact private data bytes");
+            plan=InstallerUpdates.Prepare(store,source,candidate,UpdateTransaction.Hash(candidate),"0.0.33").GetAwaiter().GetResult();
+            UpdateTransaction.Apply(plan,p=>UpdateTransaction.Health(p,Path.Combine(root,"portable-migration-health")),waitForParent:false).GetAwaiter().GetResult();
+            Assert(Registered033()=="0.0.33" && !File.Exists(source) && JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.State=="Installed","Current portable migration installs registered nexa and cleans its backed-up old source");
+            Assert(File.ReadAllText(store.FilePath)==bytes,"Successful current portable migration preserves user data");
+            Setup033(Directory.GetFiles(Path.Combine(root,"app"),"unins*.exe").Single(),root);
+            Assert(Registered033()==null,"Current portable migration fixture removes its test registration afterward");
+        }
+        finally{InstallerUpdates.InstallTarget=resolver;}
+
     }
 }

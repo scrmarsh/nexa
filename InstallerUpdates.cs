@@ -6,13 +6,14 @@ namespace SessionDashboard;
 
 internal static class InstallerUpdates
 {
+    internal static Func<string> InstallTarget=()=>Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Programs","nexa","Nexa.exe");
     internal static async Task<string> Prepare(StateStore store,string target,string candidate,string hash,string version)
     {
         var migrate=!NexaInstallation.IsInstalled(target);
         var portableSource=migrate?Path.GetFullPath(target):"";
         UpdateTransaction.ValidateBinary(target,UpdateTransaction.Hash(target));
-        if(migrate && NexaInstallation.IsInstalled(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Programs","nexa","Nexa.exe")))throw new IOException("An installed nexa already exists. Open it from the Start menu to update; the portable copy was preserved.");
-        if(migrate)target=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Programs","nexa","Nexa.exe");
+        if(migrate && NexaInstallation.IsInstalled(InstallTarget()))throw new IOException("An installed nexa already exists. Open it from the Start menu to update; the portable copy was preserved.");
+        if(migrate){target=InstallTarget();if(File.Exists(target))throw new IOException("An unregistered application occupies the install location. Run Setup manually to review it.");}
         UpdateTransaction.ValidateBinary(candidate,hash,version,"nexa installer");
         var root=Path.GetDirectoryName(Path.GetFullPath(target))!;
         var rollback=Path.Combine(root,"setup-cache","NexaSetup.exe");
@@ -43,7 +44,7 @@ internal static class InstallerUpdates
         var directory=Path.GetDirectoryName(Path.GetFullPath(path))!;
         if(plan.UserId!=System.Security.Principal.WindowsIdentity.GetCurrent().User!.Value || !plan.MigratePortable && !NexaInstallation.IsInstalled(plan.Target) || !Path.GetFullPath(plan.Candidate).Equals(Path.Combine(directory,"candidate.exe"),StringComparison.OrdinalIgnoreCase))throw new UnauthorizedAccessException("Invalid installer-update ownership or target.");
         UpdateTransaction.RejectLinks(path);UpdateTransaction.RejectLinks(plan.Candidate);if(File.Exists(plan.Target))UpdateTransaction.RejectLinks(plan.Target);
-        if(plan.MigratePortable && !Path.GetFullPath(plan.Target).Equals(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Programs","nexa","Nexa.exe"),StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("Unexpected migration install location.");
+        if(plan.MigratePortable && !Path.GetFullPath(plan.Target).Equals(Path.GetFullPath(InstallTarget()),StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("Unexpected migration install location.");
         if(plan.State=="Installed")return;
         if(plan.State is not ("Prepared" or "Installing"))throw new InvalidDataException("Installer update is no longer pending.");
         using var gate=new FileStream(Path.Combine(directory,".nexa-update.lock"),FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None);
@@ -72,13 +73,27 @@ internal static class InstallerUpdates
                 {
                     if(plan.MigratePortable && !File.Exists(previous))
                     {
-                        InstallerMaintenance.CopyVerified(Path.Combine(directory,"previous.exe"),plan.PortableSource+".recovered.exe");
-                        plan.State="RecoveryRequired";plan.Error+=" Previous portable preserved in the update backup. Rerun Setup to repair the installation.";UpdateTransaction.Save(path,plan);throw new IOException(plan.Error);
+                        UpdateTransaction.ValidateBinary(Path.Combine(directory,"previous.exe"),plan.PreviousHash);
+                        if(NexaInstallation.IsInstalled(plan.Target))
+                        {
+                            var uninstaller=Directory.GetFiles(Path.GetDirectoryName(plan.Target)!,"unins*.exe").Single();
+                            var remove=new ProcessStartInfo(uninstaller){UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden,ArgumentList={"/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART"}};
+                            using var uninstall=Process.Start(remove)??throw new IOException("Could not roll back the new installation.");
+                            await uninstall.WaitForExitAsync().WaitAsync(TimeSpan.FromMinutes(3));
+                            if(uninstall.ExitCode!=0 || NexaInstallation.IsInstalled(plan.Target))throw new IOException("The new installation could not be rolled back.");
+                        }
+                        if(File.Exists(plan.PortableSource))UpdateTransaction.ValidateBinary(plan.PortableSource,plan.PreviousHash);
+                        else InstallerMaintenance.CopyVerified(Path.Combine(directory,"previous.exe"),plan.PortableSource);
+                        plan.State="RolledBack";
                     }
-                    await Install(previous,plan.Target,Path.Combine(directory,"rollback.log"));
-                    UpdateTransaction.ValidateBinary(plan.Target,plan.PreviousHash);
-                    if(!NexaInstallation.IsInstalled(plan.Target))throw new IOException("Previous installer registration was not restored.");
-                    plan.State="RolledBack";
+                    else
+                    {
+                        await Install(previous,plan.Target,Path.Combine(directory,"rollback.log"));
+                        UpdateTransaction.ValidateBinary(plan.Target,plan.PreviousHash);
+                        if(!NexaInstallation.IsInstalled(plan.Target))throw new IOException("Previous installer registration was not restored.");
+                        plan.State="RolledBack";
+                    }
+
                 }
                 catch(Exception rollback){plan.State="RecoveryRequired";plan.Error+=" Rollback: "+rollback.Message;UpdateTransaction.Save(path,plan);throw;}
             }
