@@ -1,6 +1,6 @@
 # nexa .34 verification
 
-Local candidate only. The final audited application source is `66f6bbceb9ce2218ff3bc36bb47aeb2fadd2fd9d`. No .34 release, remote push or Beta promotion was performed. See the [31-section implementation status](NEXA_034_STATUS.md) and [data/installer policy](NEXA_034_DATA_AND_INSTALLER.md).
+The user has authorized Alpha publication for installer testing. The final audited application source is `66f6bbceb9ce2218ff3bc36bb47aeb2fadd2fd9d`. The audit preceded publication; the separate publication receipt records final release state. No Beta promotion was performed. See the [31-section implementation status](NEXA_034_STATUS.md) and [data/installer policy](NEXA_034_DATA_AND_INSTALLER.md).
 
 ## Results
 

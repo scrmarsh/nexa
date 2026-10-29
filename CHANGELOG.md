@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.0.34 Alpha — Interface Refinement, Data Safety & Installer Repair
+
+- Refine Home branding, independent backgrounds, official palettes, nexaween toggle, settings scrolling/sounds and permanent Pixel Timer controls.
+- Keep complete content visible during session handoffs. Physical flicker acceptance remains open and blocks Beta.
+- Add larger circular communal webs, one authoritative behavior selector and fresh transient ecosystems while retaining permanent history and scores.
+- Redesign Profile around actual recorded activity and durable completed-session identities; preserve onboarding answers and genuine Hedy/Hevy provider identities.
+- Consolidate private saves under LocalAppData/Nexa using verified legacy copies and preserved originals. Add sanitized ZIP backup and explicitly confirmed local reset with a durable no-reimport guard.
+- Simplify approved-release discovery; add verified Rerun Installer, bounded discovery, repair, independent shortcuts, integrity checks and rollback. Wait for Inno cleanup before retrying an installation.
+- Verified: 26 routes / 1,202 assertions, 75 native data/UI, 40 installer lifecycle, 32 upgrade/migration and 17 packaged checks. Physical trackpad/mixed-DPI/wizard acceptance remains open; packages are unsigned.
+
 ## 0.0.33 Alpha — Windows Installer, Release Integrity & Appearance Finalization
 
 - Add a current-user Windows installer with Installed Apps registration, Start menu and optional desktop shortcuts, repair and data-preserving uninstall. Removing private data requires explicit confirmation.

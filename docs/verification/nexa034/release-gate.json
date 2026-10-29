@@ -10,8 +10,9 @@
   "PhysicalFlickerVerified": false,
   "AllRequestedAcceptanceComplete": false,
   "BetaReady": false,
-  "PublicReleaseApproved": false,
+  "PublicReleaseApproved": true,
   "Published": false,
   "NuGetVulnerabilityFeedAvailable": false,
-  "CompletedUtc": "2026-10-29T13:49:32.735367+00:00"
+  "CompletedUtc": "2026-10-29T08:49:32.735367-05:00",
+  "PublicationApproval": "User explicitly requested release of the latest update to test the installer."
 }

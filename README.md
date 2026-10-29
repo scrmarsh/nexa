@@ -2,30 +2,30 @@
 
 ![nexa · latest — a space for whatever comes next](docs/media/nexa-banner.svg)
 
-![version: 0.0.33 Alpha](https://img.shields.io/badge/version-0.0.33%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
+![version: 0.0.34 Alpha](https://img.shields.io/badge/version-0.0.34%20Alpha-84CC16?style=flat-square&labelColor=1C102A)
 ![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-185FA5?style=flat-square&labelColor=111827)
 ![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-7F77DD?style=flat-square&labelColor=111827)
 
 **a space for whatever comes next**
 
-[**Download nexa for Windows — installer**](https://github.com/scrmarsh/nexa/releases/download/v0.0.33-alpha/NexaSetup.exe) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Development status](docs/NEXA_033_STATUS.md)
+[**Download nexa for Windows — installer**](https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/NexaSetup.exe) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Development status](docs/NEXA_034_STATUS.md)
 
 </div>
 
-> **nexa v0.0.33 alpha — Windows Installer, Release Integrity & Appearance Finalization.** The recommended installer adds nexa to Windows Installed Apps and the Start menu, offers a desktop shortcut, preserves existing saves and supports repair and uninstall. One app, with updates retained in both installed and portable use. [Installer and data guide](docs/NEXA_033_INSTALLER.md) · [Verification](docs/NEXA_033_TEST_RESULTS.md).
+> **nexa v0.0.34 alpha — Interface Refinement, Data Safety & Installer Repair.** Refined Home and settings, cooperative webs, permanent Pixel Timer controls and recorded Profile activity. Verified migration, credential-free backup, confirmed reset and installer repair preserve your workspace. One app, with updates retained in both installed and portable use. [Installer and data guide](docs/NEXA_034_DATA_AND_INSTALLER.md) · [Verification](docs/NEXA_034_TEST_RESULTS.md).
 
 <details>
 <summary>Portable download, checksums, source and technical documentation</summary>
 
-- [Portable nexa executable](https://github.com/scrmarsh/nexa/releases/download/v0.0.33-alpha/nexa-portable.exe) — the same application as the installer payload, with update support.
-- [Checksums](https://github.com/scrmarsh/nexa/releases/download/v0.0.33-alpha/SHA256SUMS.txt) and [release notes](https://github.com/scrmarsh/nexa/releases/tag/v0.0.33-alpha).
-- [Source code](https://github.com/scrmarsh/nexa/tree/v0.0.33-alpha), [installer audit](docs/NEXA_033_AUDIT.md), [appearance](docs/NEXA_033_APPEARANCE.md), [historical release audit](docs/NEXA_033_RELEASE_CLEANUP.md).
+- [Portable nexa executable](https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/nexa-portable.exe) — the same application as the installer payload, with update support.
+- [Checksums](https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/SHA256SUMS.txt) and [release notes](https://github.com/scrmarsh/nexa/releases/tag/v0.0.34-alpha).
+- [Source code](https://github.com/scrmarsh/nexa/tree/v0.0.34-alpha), [installer audit](docs/NEXA_034_AUDIT.md), [appearance and implementation](docs/NEXA_034_STATUS.md), [historical release audit](docs/NEXA_033_RELEASE_CLEANUP.md).
 - `Nexa.exe` on the release is a compatibility installer launcher for old updaters; use the installer above or the explicitly labeled portable download.
 
 </details>
 
 Alpha development now uses **v0.0.X Alpha**, Beta will use **v0.1.X Beta**, and
-the first stable release is planned as **v1.0.0**. This Nexaween build is an
+the first stable release is planned as **v1.0.0**. This nexaween build is an
 explicitly marked Alpha prerelease; **v0.1.0 Beta** remains reserved for the first
 approved Beta. Historical legacy-tag aliases and **0.0.26 — Spaces in
 Motion** remain in the release history. Updater comparison recognizes legacy
@@ -48,7 +48,7 @@ Real screenshots of the published Windows build, using sample notes and tasks. S
 
 ## Install for Windows
 
-Use the **[recommended Windows installer](https://github.com/scrmarsh/nexa/releases/download/v0.0.33-alpha/NexaSetup.exe)**. It preserves existing saves and adds normal Windows shortcuts, repair and uninstall. Portable and source downloads are in the collapsed section above. This is an Alpha prerelease; physical device and live-provider acceptance remains open.
+Use the **[recommended Windows installer](https://github.com/scrmarsh/nexa/releases/download/v0.0.34-alpha/NexaSetup.exe)**. It preserves existing saves and adds normal Windows shortcuts, repair and uninstall. Portable and source downloads are in the collapsed section above. This is an Alpha prerelease; physical device and live-provider acceptance remains open.
 Self-contained Windows x64 packages include their .NET runtime; framework-dependent
 builds require the .NET 10 Desktop Runtime.
 
@@ -58,7 +58,7 @@ For a downloaded package with a published `SHA256SUMS.txt`, inspect its checksum
 Get-FileHash .\NexaSetup.exe -Algorithm SHA256
 ```
 
-Compare the result with `SHA256SUMS.txt`. User data stays in the existing Windows LocalAppData `SessionDashboard` location, so upgrading nexa preserves saved Spaces, settings and history. The repository and release downloads are public; no GitHub sign-in is needed.
+Compare the result with `SHA256SUMS.txt`. Private data is consolidated under `%LocalAppData%\Nexa`. Verified migration copies preserve legacy saves and originals; conflicts are retained for review. See the [data guide](docs/NEXA_034_DATA_AND_INSTALLER.md). The repository and release downloads are public; no GitHub sign-in is needed.
 
 ## Inside your Space
 
@@ -71,7 +71,7 @@ Compare the result with `SHA256SUMS.txt`. User data stays in the existing Window
 
 ## What’s new
 
-Release-specific features, seasonal artwork and update notes live in the [changelog](CHANGELOG.md). The [current verification report](docs/NEXA_033_TEST_RESULTS.md) records testing and known limitations.
+Release-specific features, seasonal artwork and update notes live in the [changelog](CHANGELOG.md). The [current verification report](docs/NEXA_034_TEST_RESULTS.md) records testing and known limitations.
 
 ## Build from source
 
@@ -89,7 +89,7 @@ dotnet build .\SessionDashboard.csproj -c Release
 # Use the output path printed by the script.
 ```
 
-To build the installer, portable executable and legacy migration launcher together, run `.\tools\Build-Release.ps1`; outputs stay under `verification/release033` until approved. See the [installer build guide](docs/NEXA_033_INSTALLER.md).
+To build the installer, portable executable and legacy migration launcher together, run `.\tools\Build-Release.ps1`; outputs stay under `verification/release034` until approved. See the [installer build guide](docs/NEXA_034_DATA_AND_INSTALLER.md).
 
 The historical project filename and save-data namespace remain for compatibility; the product is **nexa**.
 
@@ -99,7 +99,7 @@ The historical project filename and save-data namespace remain for compatibility
 .\tools\Verify.ps1
 ```
 
-The 25-route suite checks version compatibility, installer-related models, appearance, settings, splash timing,
+The 26-route suite checks version compatibility, installer-related models, appearance, settings, splash timing,
 layout, scrolling, saving, history, controls, the ecosystem and animations using
 isolated data stores. To run the .28 failure/recovery and behavior route after building the checks project:
 
