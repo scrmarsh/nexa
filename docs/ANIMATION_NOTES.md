@@ -1,6 +1,6 @@
 # Species animation notes
 
-Nexa uses stylized vector animation. The anatomy and gait constraints below guide it; it does not simulate exact joint dynamics, wingbeat aerodynamics or every species within a common-name group. Costumes and Combative gameplay are deliberately fantastical.
+nexa uses stylized vector animation. The anatomy and gait constraints below guide it; it does not simulate exact joint dynamics, wingbeat aerodynamics or every species within a common-name group. Costumes and Combative gameplay are deliberately fantastical.
 
 | Creature | Animation constraints |
 |---|---|
