@@ -1,0 +1,23 @@
+{
+  "v0.1.24-alpha": {
+    "sha": "4562d696f39e181e180d1b3b93fc4d060b941dce",
+    "type": "commit",
+    "url": "https://api.github.com/repos/scrmarsh/nexa/git/commits/4562d696f39e181e180d1b3b93fc4d060b941dce"
+  },
+  "v0.1.26-alpha": {
+    "sha": "a308076fba1264f4bb64e53f4610e52caced3eab",
+    "type": "commit",
+    "url": "https://api.github.com/repos/scrmarsh/nexa/git/commits/a308076fba1264f4bb64e53f4610e52caced3eab"
+  },
+  "v0.0.29-alpha": {
+    "sha": "28f237e13101043855997660a20c03df5e8510e6",
+    "type": "tag",
+    "url": "https://api.github.com/repos/scrmarsh/nexa/git/tags/28f237e13101043855997660a20c03df5e8510e6",
+    "peeledCommit": "496dea2db01d4d59832febe5780dacebadd1e88f"
+  },
+  "v0.0.31-alpha": {
+    "sha": "8f1767dba9dee3ee6c5feb0ef906f5a2d7afa0a7",
+    "type": "commit",
+    "url": "https://api.github.com/repos/scrmarsh/nexa/git/commits/8f1767dba9dee3ee6c5feb0ef906f5a2d7afa0a7"
+  }
+}

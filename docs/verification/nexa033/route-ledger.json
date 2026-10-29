@@ -1,0 +1,131 @@
+{
+  "routes": [
+    {
+      "route": "alpha026",
+      "assertions": 30,
+      "result": "PASS"
+    },
+    {
+      "route": "animation",
+      "assertions": 50,
+      "result": "PASS"
+    },
+    {
+      "route": "arrivals",
+      "assertions": 32,
+      "result": "PASS"
+    },
+    {
+      "route": "audit025",
+      "assertions": 38,
+      "result": "PASS"
+    },
+    {
+      "route": "continuity",
+      "assertions": 43,
+      "result": "PASS"
+    },
+    {
+      "route": "core",
+      "assertions": 64,
+      "result": "PASS"
+    },
+    {
+      "route": "ecosystem",
+      "assertions": 48,
+      "result": "PASS"
+    },
+    {
+      "route": "final",
+      "assertions": 36,
+      "result": "PASS"
+    },
+    {
+      "route": "followup-design",
+      "assertions": 31,
+      "result": "PASS"
+    },
+    {
+      "route": "followup",
+      "assertions": 46,
+      "result": "PASS"
+    },
+    {
+      "route": "handoff026",
+      "assertions": 95,
+      "result": "PASS"
+    },
+    {
+      "route": "laptop-audio",
+      "assertions": 93,
+      "result": "PASS"
+    },
+    {
+      "route": "master",
+      "assertions": 23,
+      "result": "PASS"
+    },
+    {
+      "route": "menus",
+      "assertions": 9,
+      "result": "PASS"
+    },
+    {
+      "route": "nexa029",
+      "assertions": 87,
+      "result": "PASS"
+    },
+    {
+      "route": "nexa030",
+      "assertions": 63,
+      "result": "PASS"
+    },
+    {
+      "route": "nexa031",
+      "assertions": 33,
+      "result": "PASS"
+    },
+    {
+      "route": "nexa032",
+      "assertions": 79,
+      "result": "PASS"
+    },
+    {
+      "route": "nexa033",
+      "assertions": 33,
+      "result": "PASS"
+    },
+    {
+      "route": "nexaween027",
+      "assertions": 51,
+      "result": "PASS"
+    },
+    {
+      "route": "nexaween028",
+      "assertions": 39,
+      "result": "PASS"
+    },
+    {
+      "route": "pass026",
+      "assertions": 36,
+      "result": "PASS"
+    },
+    {
+      "route": "reliability",
+      "assertions": 19,
+      "result": "PASS"
+    },
+    {
+      "route": "shared",
+      "assertions": 10,
+      "result": "PASS"
+    },
+    {
+      "route": "update-automation",
+      "assertions": 48,
+      "result": "PASS"
+    }
+  ],
+  "routeCount": 25,
+  "assertions": 1136
+}

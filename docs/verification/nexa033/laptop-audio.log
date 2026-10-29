@@ -1,0 +1,94 @@
+PASS: Oversized/offscreen startup fits the target work area: 0,0,1366,728
+PASS: Oversized/offscreen startup fits the target work area: 0,40,1280,680
+PASS: Oversized/offscreen startup fits the target work area: -1920,0,1920,1040
+PASS: Oversized/offscreen startup fits the target work area: 0,-900,1600,860
+PASS: Oversized/offscreen startup fits the target work area: 0,0,640,440
+PASS: A reachable window on a negative-origin monitor keeps its position
+PASS: Read actual native monitor/window rectangles
+PASS: Actual oversized native window opens wholly inside its monitor work area
+PASS: Small displays override oversized minimums so the caption stays reachable
+PASS: Fatal hostile shot clears bullets without removing from an already-cleared list or locking the game
+PASS: Death emits exactly one effect
+PASS: Game-over simulation stays stopped
+PASS: Successful fire emits a shot cue, cooldown attempts do not
+PASS: Collecting a real pickup applies it and emits its effect
+PASS: Invalid render size cannot poison the game geometry
+PASS: Non-finite frame durations cannot enter the simulation loop
+PASS: Malformed movement and pointer input cannot reach rendering as NaN
+PASS: Repeated game run respects simulation caps: 0
+PASS: Repeated game run respects simulation caps: 1
+PASS: Repeated game run respects simulation caps: 2
+PASS: Repeated game run respects simulation caps: 3
+PASS: Repeated game run respects simulation caps: 4
+PASS: Repeated game run respects simulation caps: 5
+PASS: Repeated game run respects simulation caps: 6
+PASS: Repeated game run respects simulation caps: 7
+PASS: Repeated game run respects simulation caps: 8
+PASS: Repeated game run respects simulation caps: 9
+PASS: Repeated game run respects simulation caps: 10
+PASS: Repeated game run respects simulation caps: 11
+PASS: Repeated game run respects simulation caps: 12
+PASS: Repeated game run respects simulation caps: 13
+PASS: Repeated game run respects simulation caps: 14
+PASS: Repeated game run respects simulation caps: 15
+PASS: Repeated game run respects simulation caps: 16
+PASS: Repeated game run respects simulation caps: 17
+PASS: Repeated game run respects simulation caps: 18
+PASS: Repeated game run respects simulation caps: 19
+PASS: Repeated game run respects simulation caps: 20
+PASS: Repeated game run respects simulation caps: 21
+PASS: Repeated game run respects simulation caps: 22
+PASS: Repeated game run respects simulation caps: 23
+PASS: Repeated game run respects simulation caps: 24
+PASS: Repeated game run respects simulation caps: 25
+PASS: Repeated game run respects simulation caps: 26
+PASS: Repeated game run respects simulation caps: 27
+PASS: Repeated game run respects simulation caps: 28
+PASS: Repeated game run respects simulation caps: 29
+PASS: Repeated game run respects simulation caps: 30
+PASS: Repeated game run respects simulation caps: 31
+PASS: Repeated game run respects simulation caps: 32
+PASS: Repeated game run respects simulation caps: 33
+PASS: Repeated game run respects simulation caps: 34
+PASS: Repeated game run respects simulation caps: 35
+PASS: Repeated game run respects simulation caps: 36
+PASS: Repeated game run respects simulation caps: 37
+PASS: Repeated game run respects simulation caps: 38
+PASS: Repeated game run respects simulation caps: 39
+PASS: Bounded valid PCM WAV: Shoot
+PASS: Zero-volume cue is silent: Shoot
+PASS: Bounded valid PCM WAV: PowerUp
+PASS: Zero-volume cue is silent: PowerUp
+PASS: Bounded valid PCM WAV: Death
+PASS: Zero-volume cue is silent: Death
+PASS: Bounded valid PCM WAV: Crawl
+PASS: Zero-volume cue is silent: Crawl
+PASS: Bounded valid PCM WAV: Ghost
+PASS: Zero-volume cue is silent: Ghost
+PASS: Bounded valid PCM WAV: Candy
+PASS: Zero-volume cue is silent: Candy
+PASS: Bounded valid PCM WAV: Bat
+PASS: Zero-volume cue is silent: Bat
+PASS: Bounded valid PCM WAV: WitchBell
+PASS: Zero-volume cue is silent: WitchBell
+PASS: Bounded valid PCM WAV: Pumpkin
+PASS: Zero-volume cue is silent: Pumpkin
+PASS: All nine game, crawl and Halloween effects have distinct waveforms
+PASS: Enabled effects are eligible in an active seasonal view
+PASS: Hidden, inactive and minimized views remain silent
+PASS: Master sound preference gates every effect
+PASS: Independent game/crawl switches silence their categories
+PASS: Halloween effects stop outside nexaween
+PASS: New sound preferences round-trip in the existing per-user preference flow
+PASS: Rapid kills credit immediately and mark the workspace dirty
+PASS: Killing bugs never triggers per-hit workspace autosaves or ecosystem writes
+PASS: An unsaved repeated kill remains deduplicated
+PASS: Normal autosave persists the kill batch
+PASS: Ordinary autosave persists every award once and acknowledges only saved events
+PASS: Failed batch save retains its pending event for retry
+PASS: Explicit recovery retries the batch without duplicate credit
+PASS: Logo stays fixed through tagline type/fade/reset layout: 1
+PASS: Logo stays fixed through tagline type/fade/reset layout: 36
+PASS: Logo stays fixed through tagline type/fade/reset layout: 0
+PASS: Tagline occupies the right-hand header region
+PASS: 93 checks. Artifacts: <repo>\verification\20261028-234114

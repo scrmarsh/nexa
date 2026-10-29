@@ -1,0 +1,34 @@
+PASS: .33 application and canonical identity agree
+PASS: Exactly the four original global palettes are officially selectable
+PASS: All four original global palette pairs remain unchanged
+PASS: Unpublished legacy theme enum values have explicit compatible official choices
+PASS: Only Appearance hides its bar while retaining its scroll extent
+PASS: Bottom-most Appearance option is fully reachable: .33 hidden scrollbar
+PASS: Footer does not overlap the final control: .33 hidden scrollbar
+PASS: Official swatches use the requested four visible labels
+PASS: Seasonal override note is hidden in Classic
+PASS: Classic applies the saved Home wallpaper
+PASS: Seasonal Appearance retains one scroll owner without nested competing scrollers
+PASS: Seasonal mode displays the exact required subtle override message
+PASS: Seasonal Home does not display the saved Classic wallpaper
+PASS: Selecting a Classic palette leaves active seasonal colors unchanged
+PASS: Classic choices persist independently while seasonal mode is active
+PASS: Returning to Classic applies the palette chosen during nexaween
+PASS: Returning to Classic restores its wallpaper
+PASS: Seasonal state and saved Classic appearance survive restart independently
+PASS: Seasonal Space keeps its Classic background saved but hidden
+PASS: Switching a Space back to Classic restores its independent wallpaper immediately
+PASS: Returning a Space to seasonal mode preserves its saved Classic background
+PASS: Official installer wins independent of GitHub asset ordering; standalone portable is not an update package
+PASS: Official installer wins independent of GitHub asset ordering; standalone portable is not an update package
+PASS: New and historical installer naming classify explicitly
+PASS: Discovery recognizes a real published duplicate-named portable and rejects filename-only impostors
+PASS: Verified executable and private saves are backed up before cleanup
+PASS: Adjacent portable Spaces merge without overwriting the installed Space or selection
+PASS: Adjacent session history and original source save remain intact
+PASS: Fixture documents remain under isolated test data
+PASS: Readable history documents are accessible without becoming a competing save database
+PASS: Refreshing history documents does not alter the authoritative saves
+PASS: Cleanup removes only a backed-up verified old executable, preserving data and unrelated files
+PASS: Removed portable executable remains recoverable from its verified backup
+PASS: 33 checks. Artifacts: <repo>\verification\20261028-234056

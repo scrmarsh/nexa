@@ -1,0 +1,32 @@
+PASS: Native Setup completes without elevation or restart
+PASS: Fresh install creates the application at the isolated install location
+PASS: Windows Installed Apps records the correct name and version
+PASS: Windows registration points to the actual installation
+PASS: Installed distribution marker exists
+PASS: Repair and rollback installer is retained
+PASS: Requested native shortcut is created
+PASS: Shortcut targets installed nexa rather than a build or portable copy
+PASS: Requested native shortcut is created
+PASS: Shortcut targets installed nexa rather than a build or portable copy
+PASS: Installation preserves existing private save bytes
+PASS: Installed executable completes real Windows startup with isolated state
+PASS: Native Setup completes without elevation or restart
+PASS: Repeated installation does not duplicate desktop shortcuts
+PASS: Native Setup completes without elevation or restart
+PASS: Rerunning Setup repairs a missing application file
+PASS: Repair preserves private saves
+PASS: Native uninstaller exits successfully
+PASS: Installed Apps test registration is removed
+PASS: Installer-created desktop shortcut is removed
+PASS: Installer-created Start menu shortcut is removed
+PASS: Default uninstall keeps Spaces, settings and history
+PASS: Preserve-data uninstall keeps exact save bytes
+PASS: Native Setup completes without elevation or restart
+PASS: Fresh desktop-shortcut opt-out is honored
+PASS: Start menu entry is available after reinstall
+PASS: Native uninstaller exits successfully
+PASS: Installed Apps test registration is removed
+PASS: Installer-created desktop shortcut is removed
+PASS: Installer-created Start menu shortcut is removed
+PASS: Explicit doubly confirmed data removal removes only the fixture data store
+PASS: 31 native installer checks

@@ -1,0 +1,39 @@
+{
+  "SourceCommit": "2f5c5e9bbef49dcfdba509fc10661e5050fc02be",
+  "PackagingCommit": "a46a7cd0fa5f0ae528d71f8aff7d263fa71e74ff",
+  "ApplicationVersion": "0.0.33.0",
+  "ApplicationProductVersion": "0.0.33-alpha+2f5c5e9bbef49dcfdba509fc10661e5050fc02be",
+  "SameApplicationBytes": true,
+  "ProductionInstaller": true,
+  "Signed": false,
+  "Assets": [
+    {
+      "Name": "NexaSetup.exe",
+      "Length": 67234759,
+      "Sha256": "F872AAECD538471B62781AD0D62B1A386C8C78D9707F924F8B050A1363BBC1F4",
+      "FileVersion": "0.0.33.0",
+      "ProductVersion": "0.0.33.0"
+    },
+    {
+      "Name": "nexa-portable.exe",
+      "Length": 72729689,
+      "Sha256": "5B2FB16B603A4CBA7D0FC4B1C6CF7A8EFC4631DDA87648A5F46F4AAD27A1B6D4",
+      "FileVersion": "0.0.33.0",
+      "ProductVersion": "0.0.33-alpha+2f5c5e9bbef49dcfdba509fc10661e5050fc02be"
+    },
+    {
+      "Name": "Nexa.exe",
+      "Length": 104802952,
+      "Sha256": "E57DE0C2F7B4DA1D7B719AE916D185D1A4E81D718FE4C7426527B6E455965C5F",
+      "FileVersion": "0.0.33.0",
+      "ProductVersion": "0.0.33+a46a7cd0fa5f0ae528d71f8aff7d263fa71e74ff"
+    },
+    {
+      "Name": "SHA256SUMS.txt",
+      "Length": 242,
+      "Sha256": "40E65CB56447D40C16C94EE05A32781AFBD00F092FF41CE07B2C563B13C7A432",
+      "FileVersion": "",
+      "ProductVersion": ""
+    }
+  ]
+}

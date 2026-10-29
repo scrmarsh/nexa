@@ -1,0 +1,19 @@
+{
+  "Passed": true,
+  "FullRegression": true,
+  "NativeInstaller": true,
+  "NativeUpgradeRollback": true,
+  "NativePackaged": true,
+  "RegressionRoutes": 25,
+  "RegressionAssertions": 1136,
+  "NativeLifecycleAssertions": 31,
+  "NativeUpgradeMigrationAssertions": 30,
+  "NativePackagedAssertions": 17,
+  "ApplicationSourceCommit": "2f5c5e9bbef49dcfdba509fc10661e5050fc02be",
+  "InstallerRecipeCommit": "a46a7cd0fa5f0ae528d71f8aff7d263fa71e74ff",
+  "NativeHarnessCommit": "2ef5010e98189863f6f591c71bf05991bec27500",
+  "SameApplicationBytes": true,
+  "ProductionInstaller": true,
+  "PhysicalTrackpadAcceptance": "UNVERIFIED",
+  "MultiMonitorDpiAcceptance": "UNVERIFIED"
+}

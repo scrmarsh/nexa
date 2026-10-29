@@ -1,0 +1,8 @@
+  SessionDashboard -> <repo>\bin\Nexa033ReleaseChecks\Release\net10.0-windows\Nexa.dll
+  SessionDashboard.Checks -> <repo>\tests\bin\Nexa033ReleaseChecks\Release\net10.0-windows\SessionDashboard.Checks.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:25.29

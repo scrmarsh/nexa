@@ -1,0 +1,60 @@
+Starting HEAD: a553cdc695bf482878b1b8d075fd77f00d6e6d84
+Application source: 2f5c5e9bbef49dcfdba509fc10661e5050fc02be
+Installer recipe: a46a7cd0fa5f0ae528d71f8aff7d263fa71e74ff
+Final native harness: 2ef5010e98189863f6f591c71bf05991bec27500
+
+M	.gitignore
+M	App.xaml.cs
+M	AppearancePalettes.cs
+M	AutomaticUpdates.cs
+M	CHANGELOG.md
+M	ExperimentalUpdates.cs
+M	HomeWindow.cs
+A	InstallerMaintenance.cs
+A	InstallerUpdates.cs
+M	MainWindow.Continuity.cs
+M	MainWindow.SpaceBackground.cs
+M	MainWindow.xaml.cs
+A	NexaFiles.cs
+A	NexaInstallation.cs
+M	OnboardingWindow.cs
+M	README.md
+M	ReleaseNotes.cs
+M	SessionDashboard.csproj
+M	SessionHistoryWindow.cs
+M	SettingsDialog.Navigation.cs
+M	SettingsDialog.cs
+M	StartupVerification.cs
+M	Theme.cs
+M	UpdateFlow.cs
+M	UpdateTransaction.cs
+M	WallpaperImages.cs
+M	app.manifest
+A	docs/NEXA_033_APPEARANCE.md
+A	docs/NEXA_033_AUDIT.md
+A	docs/NEXA_033_INSTALLER.md
+A	docs/NEXA_033_PRERELEASE_NOTES.md
+A	docs/NEXA_033_RELEASE_CLEANUP.md
+A	docs/NEXA_033_STATUS.md
+A	docs/NEXA_033_TEST_RESULTS.md
+A	installer/bridge/NexaMigrationBridge.csproj
+A	installer/bridge/Program.cs
+A	installer/nexa.iss
+M	tests/Nexa024Runner.cs
+M	tests/Nexa026Checks.cs
+M	tests/Nexa027Checks.cs
+M	tests/Nexa028Checks.cs
+M	tests/Nexa029Checks.cs
+M	tests/Nexa030Checks.cs
+M	tests/Nexa031Checks.cs
+M	tests/Nexa032Checks.cs
+A	tests/Nexa033Checks.cs
+A	tests/Nexa033InstallerChecks.cs
+M	tests/NexaweenMoreChecks.cs
+M	tests/SessionDashboard.Checks.csproj
+A	tools/Build-Installer.ps1
+A	tools/Build-MigrationBridge.ps1
+A	tools/Build-Release.ps1
+A	tools/Get-InstallerCompiler.ps1
+A	tools/Test-Installer.ps1
+M	tools/Verify.ps1

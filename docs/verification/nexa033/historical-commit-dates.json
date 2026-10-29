@@ -1,0 +1,27 @@
+[
+  {
+    "tag": "v0.1.24-alpha",
+    "sha": "4562d696f39e181e180d1b3b93fc4d060b941dce",
+    "authorDate": "2026-10-27T17:08:34Z",
+    "committerDate": "2026-10-27T17:08:34Z"
+  },
+  {
+    "tag": "v0.1.26-alpha",
+    "sha": "a308076fba1264f4bb64e53f4610e52caced3eab",
+    "authorDate": "2026-10-28T13:14:41Z",
+    "committerDate": "2026-10-28T13:14:41Z"
+  },
+  {
+    "tag": "v0.0.31-alpha",
+    "sha": "8f1767dba9dee3ee6c5feb0ef906f5a2d7afa0a7",
+    "authorDate": "2026-10-29T01:23:18Z",
+    "committerDate": "2026-10-29T01:23:18Z"
+  },
+  {
+    "tag": "v0.0.29-alpha",
+    "sha": "496dea2db01d4d59832febe5780dacebadd1e88f",
+    "authorDate": "2026-10-28T21:51:20Z",
+    "committerDate": "2026-10-28T21:51:20Z",
+    "annotatedTagDate": "2026-10-28T21:56:42Z"
+  }
+]

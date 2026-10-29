@@ -1,0 +1,30 @@
+[
+  {
+    "Tag": "v0.0.31-alpha",
+    "SHA256": "A4AF062CFBA9AB946568E6F823B0BC8CF06FF68CEB9A95E9B2CC909CA60681F8",
+    "ExitCode": 0,
+    "HealthReport": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\release-audit033\\v0.0.31-alpha\\health\\startup.json",
+    "Success": true
+  },
+  {
+    "Tag": "v0.1.26-alpha",
+    "SHA256": "1D08B896653932F0470BF09EEF5464887BC9ABB0C539E8E91AC549B227E0868C",
+    "ExitCode": 0,
+    "HealthReport": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\release-audit033\\v0.1.26-alpha\\health\\startup.json",
+    "Success": true
+  },
+  {
+    "Tag": "v0.0.29-alpha",
+    "SHA256": "BADBDB24FC0345CC6ED00C27CC873BB92068F27194CA23F25452CBA0F57CD9CD",
+    "ExitCode": 0,
+    "HealthReport": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\release-audit033\\v0.0.29-alpha\\health\\startup.json",
+    "Success": true
+  },
+  {
+    "Tag": "v0.1.24-alpha",
+    "SHA256": "D836DE09B79E873E232ED6E9FAE67F9E1F73D5D6B2A62EFCCE1AB31C2E75B420",
+    "ExitCode": 0,
+    "HealthReport": "C:\\Users\\Sean Marsh\\Documents\\ChatGPT\\Nexa\\continuation-source\\verification\\release-audit033\\v0.1.24-alpha\\health\\startup.json",
+    "Success": true
+  }
+]

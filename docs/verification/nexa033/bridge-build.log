@@ -1,0 +1,4 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  NexaMigrationBridge -> <repo>\installer\bridge\bin\Release\net10.0-windows\win-x64\Nexa.dll
+  NexaMigrationBridge -> <repo>\verification\release033-final\LegacyBridge\
