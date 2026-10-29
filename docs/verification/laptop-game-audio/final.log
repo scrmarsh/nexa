@@ -1,0 +1,37 @@
+PASS: History reads current and archived sessions from the authoritative store
+PASS: History reports include recorded notes, completed tasks, counters and score data
+PASS: A damaged nested historical record remains viewable without crashing
+PASS: Opening partially corrupted history never rewrites the original file
+PASS: Archive corruption preserves the active Space and keeps the exact damaged record additively
+PASS: The original damaged file is backed up before any recovery save
+PASS: Preserved damaged records remain discoverable after restart and save
+PASS: Malformed history containers preserve readable current data and original recovery fields
+PASS: Missing archives produce an empty state without inventing past events
+PASS: A wholly unreadable workspace cannot be overwritten with fallback defaults
+PASS: Unparseable primary and missing backup files produce safe History feedback
+PASS: The real History window opens a partial archive and communicates recovery
+PASS: The dispatcher remains responsive while a 1,201-record archive loads
+PASS: Debounced background search locates a recorded item in a large archive
+PASS: Opening midway through a scheduled class immediately shows fifty percent
+PASS: Schedule Mode persists with the preset and hides manual Reset
+PASS: Scheduled timers transition into reverse-clearing intersession progress without a reset
+PASS: Manual Mode restores Reset and persists independently of weekly schedules
+PASS: The manual operating mode survives serialization in its preset
+PASS: The actual Pixel Timer editor exposes the two operating modes
+PASS: Settings save confirmation is hidden until an actual change
+PASS: Tab switching preserves position and never creates another Settings window
+PASS: Settings reports success only after persistence completes
+PASS: Successful Settings feedback fades out after approximately two seconds
+PASS: Session settings contain no global clock sidebar or seasonal toggle
+PASS: The bug viewport rejects toolbar-region hits
+PASS: Existing Creepy identities remain readable and use the restored selectable behavior
+PASS: Changing a full single-species population to All Bugs introduces all six species within the density budget
+PASS: Population rebalancing does not manufacture combat deaths or squash credit
+PASS: Generated productivity audio respects a muted volume
+PASS: pop is a short valid generated WAV cue
+PASS: positive is a short valid generated WAV cue
+PASS: negative is a short valid generated WAV cue
+PASS: Applying settings cannot drop fullscreen behind the taskbar
+PASS: Notification work-area projection uses the actual window monitor and client DIPs
+PASS: Enabling the dashboard overlay resumes a legacy paused world without retired controls
+PASS: 36 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-210810

@@ -1,0 +1,52 @@
+PASS: Authoritative seasonal raster is preserved byte for byte
+PASS: Seasonal icon is 16px with transparent rounded corners
+PASS: Seasonal icon is 32px with transparent rounded corners
+PASS: Seasonal icon is 48px with transparent rounded corners
+PASS: Seasonal icon is 64px with transparent rounded corners
+PASS: Seasonal icon is 128px with transparent rounded corners
+PASS: Seasonal icon is 256px with transparent rounded corners
+PASS: Seasonal icon is 1024px with transparent rounded corners
+PASS: Reference green/purple diagonal colors are exact
+PASS: Orange body and lighter diagonal retain exact reference colors
+PASS: Outer perimeter and hourglass silhouette both have black borders
+PASS: Layer crossing has no unwanted internal black seam
+PASS: Windows ICO contains all six native icon sizes
+PASS: nexa-logo-full-dark-seasonal.svg uses the selected quadruple black borders only on the icon perimeter and union silhouette
+PASS: nexa-logo-full-dark-seasonal.svg keeps all wordmark letters borderless and geometry intact
+PASS: nexa-logo-full-dark-seasonal.svg changes only the classic purple X stroke to light orange; every other letter, stroke and layer is unchanged
+PASS: nexa-logo-full-seasonal.svg uses the selected quadruple black borders only on the icon perimeter and union silhouette
+PASS: nexa-logo-full-seasonal.svg keeps all wordmark letters borderless and geometry intact
+PASS: nexa-logo-full-seasonal.svg changes only the classic purple X stroke to light orange; every other letter, stroke and layer is unchanged
+PASS: Actual shared WPF logo renderer displays the classic white/light-orange X contrast
+PASS: Shared current identity uses the Alpha convention
+PASS: Windows file version is numeric and current
+PASS: Product version retains the Alpha stage
+PASS: New changelog retains historical release identity
+PASS: New Alpha can update the legacy Alpha revision
+PASS: Legacy Alpha cannot downgrade new Alpha
+PASS: An unconfirmed legacy-looking Alpha identity is not offered as a new package
+PASS: Unknown legacy identity is not silently normalized for ordering
+PASS: Next Alpha revision is newer
+PASS: First Beta follows even a higher legacy Alpha patch
+PASS: Legacy Alpha cannot downgrade Beta
+PASS: Stable release follows Beta
+PASS: Beta numbering is not normalized as legacy Alpha
+PASS: Empty feed offers no update
+PASS: Assetless newer release reports incomplete metadata rather than a false up-to-date result
+PASS: Release discovery orders mixed Alpha conventions correctly
+PASS: Legacy installation discovers the new Alpha convention
+PASS: Beta feed filtering excludes all Alpha packages
+PASS: Old preferences remain readable and retain their choices
+PASS: Fresh settings enable Adorable and disable Advanced Animations
+PASS: Dashboard window uses shared current identity
+PASS: Adorable and Advanced Animations are adjacent and wrap at narrow widths
+PASS: Settings load existing preferences without resetting them
+PASS: Advanced animation toggle persists without replacing unrelated choices or automatic appearance
+PASS: Explicit Halloween appearance respects costume-off choice
+PASS: Costumes enable independently and persist
+PASS: Reopened settings restore new toggles
+PASS: Reduced-motion standalone preview stays compact through minimum display
+PASS: Five-second compact in-window preview completes
+PASS: Splash minimum duration is measured from display and applies with reduced motion
+PASS: Home title and shared wordmark show current Alpha
+PASS: 51 checks. Artifacts: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\20261028-210718
