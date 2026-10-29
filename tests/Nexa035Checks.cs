@@ -24,7 +24,7 @@ internal static partial class Program
     {yield return root;for(var i=0;i<VisualTreeHelper.GetChildrenCount(root);i++)foreach(var child in Visual035(VisualTreeHelper.GetChild(root,i)))yield return child;}
     private static void Check035()
     {
-        Assert(App.VersionLabel=="nexa v0.1.0 beta" && typeof(App).Assembly.GetName().Version==new Version(0,1,0,0),".35 label and Windows assembly identity agree");
+        Assert(App.VersionLabel=="nexa v0.1.1 beta" && typeof(App).Assembly.GetName().Version==new Version(0,1,1,0),".35 label and Windows assembly identity agree");
         var store=Store035("home");var home=new HomeWindow(store);home.Show();Pump(TimeSpan.FromMilliseconds(100));
         var tagline=Descendants(home).OfType<TextBlock>().Single(t=>System.Windows.Automation.AutomationProperties.GetName(t)=="Home tagline");
         Assert(new System.Windows.Documents.TextRange(tagline.ContentStart,tagline.ContentEnd).Text=="a space for whatever comes next" && tagline.Effect is System.Windows.Media.Effects.DropShadowEffect{ShadowDepth:0,BlurRadius:7},"Exact Classic tagline has a soft glyph-shaped white halo");
@@ -37,8 +37,8 @@ internal static partial class Program
         var original=store.LoadProfile().DisplayName;Capture035(name,"display-name");name.NameInput.Text="Canceled name";Click035(name,"Cancel");Assert(store.LoadProfile().DisplayName==original,"Cancel leaves the saved display name intact");
         name=new DisplayNameDialog(home,store,_=>{});name.Show();name.NameInput.Text="  ";Click035(name,"Save");Assert(name.IsVisible,"Blank name validation keeps the editor open");name.NameInput.Text="Fixture Person";Click035(name,"Save");Assert(store.LoadProfile().DisplayName=="Fixture Person","Display name is durably saved");
         var settings=new SettingsDialog(home,store,home.Saved,null,"Integrations");settings.Show();Pump(TimeSpan.FromMilliseconds(50));
-        Assert(Descendants(settings).OfType<TextBlock>().Count(t=>t.Text=="Hedy")==1 && Descendants(settings).OfType<TextBlock>().Count(t=>t.Text=="Hevy")==1,"Integrations shows one Hedy recording provider and one genuine Hevy workout provider");
-        Assert(Descendants(settings).OfType<Button>().Count(b=>Equals(b.Content,"Connect Hevy"))==1,"Hevy retains its separately labeled connection");
+        Assert(Descendants(settings).OfType<TextBlock>().Count(t=>t.Text=="Hedy")==1 && Descendants(settings).OfType<TextBlock>().Count(t=>t.Text=="Hevy")==0,"Integrations retains Hedy without the retired duplicate provider");
+        Assert(Descendants(settings).OfType<Button>().Count(b=>Equals(b.Content,"Connect Hevy"))==0,"Hevy retains its separately labeled connection");
         Capture035(settings,"integrations");settings.Close();Capture035(home,"home-classic");home.Close();
         CheckStorage035();CheckDashboard035();CheckTransitions035();CheckSeason035();
     }
@@ -187,7 +187,7 @@ internal static partial class Program
     private static void CheckSeason035()
     {
         var spider=new HomeSpider();spider.Configure(new Size(1440,940),[]);Assert(spider.HasRoom && spider.Radius>150,"Roomy Home companion approaches the seasonal pumpkin's leg-span size");
-        for(var i=0;i<8;i++){var p=SpiderAnatomy.Root(i/2,i%2==0?-1:1);Assert(p.X<4 && Math.Pow((p.X-4)/4.5,2)+Math.Pow(p.Y/4.2,2)<1.01,"Spider leg attaches along the cephalothorax behind the face");}
+        for(var i=0;i<8;i++){var p=SpiderAnatomy.Root(i/2,i%2==0?-1:1);Assert(p.X<0 && Math.Pow((p.X+5)/7,2)+Math.Pow(p.Y/6.8,2)<1.01,"Spider leg attaches along the rear body behind the face");}
         var store=Store035("season",true);var home=new HomeWindow(store);home.Show();Pump(TimeSpan.FromMilliseconds(100));var corners=Descendants(home).OfType<SeasonalCorners>().Single();
         bool ContainsImage(Drawing drawing)=>drawing is ImageDrawing || drawing is DrawingGroup group && group.Children.Any(ContainsImage);
         var homeArt=(DrawingGroup)typeof(SeasonalCorners).GetField("staticArt",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(corners)!;

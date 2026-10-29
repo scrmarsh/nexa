@@ -13,7 +13,7 @@
   #define OutputDirPath "..\verification\installer035"
 #endif
 #ifndef AppVersion
-  #define AppVersion "0.1.0"
+  #define AppVersion "0.1.1"
 #endif
 #ifdef TestRoot
   #define ProductId "{B80F06DA-5764-44B7-B632-68ACB4BE0330}"
@@ -100,8 +100,8 @@ Source: "{#FixtureHelper}"; DestDir: "{tmp}"; DestName: "nexa-maintenance.exe"; 
 Source: "{srcexe}"; DestDir: "{app}\setup-cache"; DestName: "NexaSetup.exe"; Flags: external ignoreversion; Check: CacheNeeded
 
 [Icons]
-Name: "{#MenuDir}\nexa"; Filename: "{app}\Nexa.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Nexa.exe"; Tasks: startmenu
-Name: "{#DesktopDir}\nexa"; Filename: "{app}\Nexa.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Nexa.exe"; Tasks: desktopicon
+Name: "{#MenuDir}\nexa"; Filename: "{app}\Nexa.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Nexa.exe"; Tasks: startmenu; Check: AllowShortcuts
+Name: "{#DesktopDir}\nexa"; Filename: "{app}\Nexa.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Nexa.exe"; Tasks: desktopicon; Check: AllowShortcuts
 
 [Run]
 Filename: "{app}\Nexa.exe"; Description: "Launch nexa"; Flags: nowait postinstall skipifsilent
@@ -123,6 +123,9 @@ var
   PreparationError: String;
   DesktopShortcutCheck, StartMenuShortcutCheck: TNewCheckBox;
   UpdatingShortcutChoices: Boolean;
+  CleanupButton: TNewButton;
+  CleanupBusy: Boolean;
+  BlueTrack, BlueFill, InstallBlueTrack, InstallBlueFill: TPanel;
 
 procedure ShortcutChoiceChanged(Sender: TObject);
 var Choices: String;
@@ -177,11 +180,108 @@ begin
   Result := '"' + Value + '"';
 end;
 
-procedure PreparationLog(const S: String; const Error, FirstLine: Boolean);
+procedure SetBlueProgress(Current, Total: Integer);
 begin
-  SearchProgress.SetText(S, 'Checking bounded nexa locations; no full-PC search.');
-  DiscoveryMemo.Lines.Add(S);
+  if Total < 1 then Total := 1;
+  if Current > Total then Current := Total;
+  BlueFill.Width := (BlueTrack.Width * Current) div Total;
+  SearchProgress.SetProgress(Current, Total);
+end;
+
+procedure PreparationLog(const S: String; const Error, FirstLine: Boolean);
+var Rest: String; Separator, Current, Total: Integer;
+begin
+  if Copy(S, 1, 9) = 'PROGRESS|' then begin
+    Rest := Copy(S, 10, Length(S)); Separator := Pos('|', Rest);
+    Current := StrToIntDef(Copy(Rest, 1, Separator - 1), 0); Delete(Rest, 1, Separator);
+    Separator := Pos('|', Rest); Total := StrToIntDef(Copy(Rest, 1, Separator - 1), 1); Delete(Rest, 1, Separator);
+    SetBlueProgress(Current, Total);
+    SearchProgress.SetText(Rest, 'Preserving user data; checking real installation work.');
+  end else begin
+    SearchProgress.SetText(S, 'Preserving Spaces, profiles, recordings and settings.');
+    DiscoveryMemo.Lines.Add(S);
+  end;
   Log(S);
+end;
+
+function ReviewCleanup(const Report: String; ConfirmRemoval: Boolean): Boolean;
+var Form: TSetupForm; Memo: TNewMemo; Accept, Cancel: TNewButton; Hint: TNewStaticText;
+begin
+  Form := CreateCustomForm(ScaleX(580), ScaleY(410), False, False);
+  try
+    Form.Caption := 'Nexa legacy cleanup';
+    Hint := TNewStaticText.Create(Form); Hint.Parent := Form;
+    Hint.SetBounds(ScaleX(20), ScaleY(16), ScaleX(540), ScaleY(44)); Hint.WordWrap := True;
+    Hint.Caption := 'Review identified locations and verified results. User data and the active installation are preserved.';
+    Memo := TNewMemo.Create(Form); Memo.Parent := Form;
+    Memo.SetBounds(ScaleX(20), ScaleY(68), ScaleX(540), ScaleY(278));
+    Memo.ReadOnly := True; Memo.ScrollBars := ssVertical; Memo.WordWrap := True; Memo.Text := Report;
+    Cancel := TNewButton.Create(Form); Cancel.Parent := Form;
+    Cancel.SetBounds(ScaleX(430), ScaleY(364), ScaleX(130), ScaleY(30)); Cancel.Caption := 'Return to Setup'; Cancel.ModalResult := mrCancel; Cancel.Cancel := True; Cancel.Default := True;
+    if ConfirmRemoval then begin
+      Accept := TNewButton.Create(Form); Accept.Parent := Form;
+      Accept.SetBounds(ScaleX(268), ScaleY(364), ScaleX(150), ScaleY(30)); Accept.Caption := 'Remove eligible'; Accept.ModalResult := mrOk;
+    end;
+    Result := Form.ShowModal = mrOk;
+  finally Form.Free; end;
+end;
+
+function RunLegacyCleanup(OnlyScan: Boolean): Boolean;
+var Code: Integer; Args, Roots, Mode, Inventory: String; Report: AnsiString;
+begin
+  Result := False;
+  ExtractTemporaryFile('{#PrepareHelper}');
+  Inventory := ExpandConstant('{tmp}\legacy-cleanup.json');
+#ifdef TestRoot
+  ForceDirectories(ExpandConstant('{#TestRoot}'));
+  SaveStringToFile(ExpandConstant('{#TestRoot}\.nexa-installer-fixture'), 'Isolated test installer only', False);
+  Roots := Quoted(ExpandConstant('{#TestRoot}\legacy'));
+#else
+  Roots := Quoted(ExpandConstant('{userdesktop}')) + ' ' + Quoted(ExpandConstant('{%USERPROFILE}\Downloads')) + ' ' + Quoted(ExpandConstant('{userdocs}\nexa')) + ' ' + Quoted(ExpandConstant('{localappdata}\Programs\nexa')) + ' ' + Quoted(ExpandConstant('{autopf}\nexa'));
+#endif
+  Mode := 'clean';
+  if OnlyScan then Mode := 'cleanup'
+  else if RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#ProductId}_is1', 'InstallLocation', Args) then Mode := 'update';
+  Args := '--installer-legacy-scan ' + Quoted(Inventory) + ' ' + Quoted(DataRoot) + ' ' + Quoted(ExpandConstant('{app}')) + ' ' + Mode;
+#ifdef TestRoot
+  Args := Args + ' fixture ' + Roots;
+#else
+  Args := Args + ' production ' + Roots;
+#endif
+  SearchProgress.SetText('Scanning for old Nexa versions', 'Identifying trusted obsolete installations and preserving unknown files.');
+  SetBlueProgress(0, 1); SearchProgress.Show;
+  try
+    if not ExecAndLogOutput(ExpandConstant('{tmp}\{#PrepareHelper}'), Args, '', SW_HIDE, ewWaitUntilTerminated, Code, @PreparationLog) or (Code <> 0) then Exit;
+    if LoadStringFromFile(Inventory + '.report.txt', Report) then DiscoveryMemo.Lines.Add(Report);
+  finally SearchProgress.Hide; end;
+  if OnlyScan then begin
+    if not ReviewCleanup(Report, True) then begin Result := True; Exit; end;
+  end;
+  SearchProgress.SetText('Removing old Nexa versions', 'Recovery copies are verified before obsolete binaries are removed.');
+  SetBlueProgress(0, 1); SearchProgress.Show;
+  try
+    Result := ExecAndLogOutput(ExpandConstant('{tmp}\{#PrepareHelper}'), '--installer-legacy-remove ' + Quoted(Inventory), '', SW_HIDE, ewWaitUntilTerminated, Code, @PreparationLog) and (Code = 0);
+    if LoadStringFromFile(Inventory + '.report.txt', Report) then DiscoveryMemo.Lines.Add(Report);
+  finally SearchProgress.Hide; end;
+  if OnlyScan then ReviewCleanup(Report, False);
+end;
+
+procedure CleanupClick(Sender: TObject);
+begin
+  if CleanupBusy then Exit;
+  CleanupBusy := True; CleanupButton.Enabled := False; WizardForm.NextButton.Enabled := False;
+  try
+    if not RunLegacyCleanup(True) then MsgBox('Cleanup could not finish. Close running Nexa copies and check access to the reported locations, then scan again. No new application was installed.', mbError, MB_OK);
+  finally CleanupBusy := False; CleanupButton.Enabled := True; WizardForm.NextButton.Enabled := True; end;
+end;
+
+function AllowShortcuts: Boolean;
+begin Result := ModePage.SelectedValueIndex = 0; end;
+
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  Result := (ModePage.SelectedValueIndex = 1) and ((PageID = wpSelectDir) or (PageID = wpSelectTasks) or (PageID = wpReady) or (PageID = DiscoveryPage.ID));
+  if Result then Log('Repair Files: optional page skipped: ' + IntToStr(PageID));
 end;
 
 procedure PrepareInstallation;
@@ -193,8 +293,20 @@ begin
   if Preparing then exit;
   Preparing := True;
   PreparationError := ''; Prepared := False;
+  if ModePage.SelectedValueIndex <> 1 then begin
+    if not RunLegacyCleanup(False) then begin
+      PreparationError := 'Legacy cleanup could not complete. Close old Nexa copies, resolve the reported access problem, and try again. Setup has not installed new application files.';
+      Preparing := False; Exit;
+    end;
+  end;
   ExtractTemporaryFile('{#PrepareHelper}');
   PlanPath := ExpandConstant('{tmp}\migration-plan.json');
+  if ModePage.SelectedValueIndex = 1 then begin
+    if not Exec(ExpandConstant('{tmp}\{#PrepareHelper}'), '--installer-repair-validate ' + Quoted(ExpandConstant('{app}')), '', SW_HIDE, ewWaitUntilTerminated, Code) or (Code <> 0) then begin
+      PreparationError := 'Repair requires a valid registered Nexa installation. Choose Install or update to select a new location.';
+      Preparing := False; Exit;
+    end;
+  end;
 #ifdef TestRoot
   Roots := Quoted(ExpandConstant('{#TestRoot}\legacy'));
 #else
@@ -210,7 +322,7 @@ begin
   StringChangeEx(Args, '--installer-prepare ', '--installer-prepare-fixture ', False);
 #endif
   SearchProgress.SetText('Checking registered installation and saved data', 'Preparing verified backups');
-  SearchProgress.SetProgress(0, 0);
+  SetBlueProgress(0, 1);
   SearchProgress.Show;
   try
     if not ExecAndLogOutput(ExpandConstant('{tmp}\{#PrepareHelper}'), Args, '', SW_HIDE, ewWaitUntilTerminated, Code, @PreparationLog) then
@@ -227,7 +339,7 @@ begin
         else DiscoveryMemo.Lines.Add('Application integrity verified. Existing correct application bytes will be kept.');
       end else DiscoveryMemo.Lines.Add('Application payload is missing. Setup will install the embedded verified payload.');
     end else begin DiscoveryMemo.Lines.Add(PreparationError); Log(PreparationError); end;
-  finally SearchProgress.Hide; Preparing := False; end;
+  finally if Prepared then SetBlueProgress(1, 1); SearchProgress.Hide; Preparing := False; end;
 end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
@@ -244,8 +356,9 @@ begin
   ModePage.Add('Install or update nexa');
   ModePage.Add('Repair Files');
   ModePage.SelectedValueIndex := 0;
+  if ExpandConstant('{param:MAINTENANCE|}') = 'repair' then ModePage.SelectedValueIndex := 1;
   ModePage.CheckListBox.ItemEnabled[1] := RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#ProductId}_is1', 'InstallLocation', Registered);
-  DiscoveryPage := CreateOutputMsgMemoPage(wpSelectTasks, 'Searching for Existing Nexa Installations', 'Review discovered locations and integrity before installing.', 'Only bounded known locations are inspected. Portable copies are preserved.', '');
+  DiscoveryPage := CreateOutputMsgMemoPage(wpSelectDir, 'Searching for Existing Nexa Installations', 'Review discovered locations and integrity before installing.', 'Trusted obsolete versions are cleaned up; user data and ambiguous copies are preserved.', '');
   // A plain read-only memo lets the active Windows-matched style supply all text colors.
   // RichEdit retains black inline character formatting when text is appended at runtime.
   DiscoveryMemo := TNewMemo.Create(WizardForm);
@@ -255,7 +368,24 @@ begin
   DiscoveryMemo.ScrollBars := ssVertical;
   DiscoveryMemo.WordWrap := True;
   DiscoveryPage.RichEditViewer.Visible := False;
-  SearchProgress := CreateOutputProgressPage('Searching for Existing Nexa Installations', 'Checking installations and verifying backups');
+  SearchProgress := CreateOutputProgressPage('Nexa maintenance', 'Scanning, cleaning and verifying installation files');
+  SearchProgress.ProgressBar.Visible := False;
+  BlueTrack := TPanel.Create(WizardForm); BlueTrack.Parent := SearchProgress.Surface;
+  BlueTrack.SetBounds(SearchProgress.ProgressBar.Left, SearchProgress.ProgressBar.Top, SearchProgress.ProgressBar.Width, ScaleY(12));
+  BlueTrack.StyleElements := []; BlueTrack.Color := StrToColor('#30364A'); BlueTrack.BevelOuter := bvNone;
+  BlueFill := TPanel.Create(WizardForm); BlueFill.Parent := BlueTrack; BlueFill.SetBounds(0, 0, 0, BlueTrack.Height);
+  BlueFill.StyleElements := []; BlueFill.Color := StrToColor('#5B7CFF'); BlueFill.BevelOuter := bvNone;
+  WizardForm.ProgressGauge.Visible := False;
+  InstallBlueTrack := TPanel.Create(WizardForm); InstallBlueTrack.Parent := WizardForm.InstallingPage;
+  InstallBlueTrack.SetBounds(WizardForm.ProgressGauge.Left, WizardForm.ProgressGauge.Top, WizardForm.ProgressGauge.Width, WizardForm.ProgressGauge.Height);
+  InstallBlueTrack.StyleElements := []; InstallBlueTrack.Color := StrToColor('#30364A'); InstallBlueTrack.BevelOuter := bvNone;
+  InstallBlueFill := TPanel.Create(WizardForm); InstallBlueFill.Parent := InstallBlueTrack; InstallBlueFill.SetBounds(0, 0, 0, InstallBlueTrack.Height);
+  InstallBlueFill.StyleElements := []; InstallBlueFill.Color := StrToColor('#5B7CFF'); InstallBlueFill.BevelOuter := bvNone;
+  CleanupButton := TNewButton.Create(WizardForm); CleanupButton.Parent := WizardForm.WelcomePage;
+  CleanupButton.SetBounds(WizardForm.WelcomeLabel2.Left, WizardForm.WelcomeLabel2.Top + ScaleY(150), WizardForm.WelcomeLabel2.Width, ScaleY(36));
+  CleanupButton.Caption := 'Scan PC for Old Nexa Versions'; CleanupButton.OnClick := @CleanupClick;
+  WizardForm.WelcomeLabel2.Caption := WizardForm.WelcomeLabel2.Caption + #13#10 + #13#10 + 'Find and remove old Nexa Alpha, Beta, and legacy installations from your computer.';
+  WizardForm.WelcomeLabel2.Height := ScaleY(142);
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
@@ -310,8 +440,8 @@ begin
     if Code <> 0 then RaiseException('Migration did not finish. Old copies were preserved.');
     ForceDirectories(DataRoot + '\installation-reports');
     CopyFile(PlanPath, DataRoot + '\installation-reports\latest-migration.json', False);
-    if not WizardIsTaskSelected('desktopicon') then RemoveOwnedShortcut(ExpandConstant('{#DesktopDir}\nexa.lnk'));
-    if not WizardIsTaskSelected('startmenu') then RemoveOwnedShortcut(ExpandConstant('{#MenuDir}\nexa.lnk'));
+    if AllowShortcuts and not WizardIsTaskSelected('desktopicon') then RemoveOwnedShortcut(ExpandConstant('{#DesktopDir}\nexa.lnk'));
+    if AllowShortcuts and not WizardIsTaskSelected('startmenu') then RemoveOwnedShortcut(ExpandConstant('{#MenuDir}\nexa.lnk'));
     WizardForm.StatusLabel.Caption := 'Application integrity, registration and shortcuts verified';
     except
       Failure := GetExceptionMessage;
@@ -415,4 +545,9 @@ begin
     if not RemoveRegularTree(DataRoot) then
       RaiseException('Some local data could not be removed. Inspect ' + DataRoot);
   end;
+end;
+
+procedure CurInstallProgressChanged(CurProgress, MaxProgress: Integer);
+begin
+  if MaxProgress > 0 then InstallBlueFill.Width := (InstallBlueTrack.Width * CurProgress) div MaxProgress;
 end;

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.1 Beta — UI Restoration, Installer Cleanup & Window Fixes (local, unpublished)
+
+- Centered inline Profile rename with Save/Cancel and keyboard handling; shared Rerun Setup in Profile and Developer Mode.
+- Settings width constraints, wrapping action rows and vertical scrolling across pages.
+- One-time initial work-area fitting; ordinary movement no longer triggers position corrections.
+- Retired HEVY UI and connection code removed; HEDY and other credentials retained.
+- Mandatory verified obsolete-version cleanup before clean installs, welcome-screen cleanup-only review, and repair without shortcut or Additional Tasks prompts.
+- Shared rear-body spider leg geometry across animation and rendering variants.
+
+
+
 ## 0.1.0 Beta — Jump into Nexa for Halloween!
 
 The first public Nexa Beta brings flexible Spaces, saved sessions and a playful Nexaween desktop to Windows.

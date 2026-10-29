@@ -35,7 +35,7 @@ $original='{"Notes":"Keep isolated installer acceptance data","Tasks":[],"Preset
 Install
 Check (Test-Path -LiteralPath (Join-Path $app 'Nexa.exe')) 'Fresh install creates the application at the isolated install location'
 $entry=Get-ItemProperty -LiteralPath $registry
-Check ($entry.DisplayName -eq 'nexa' -and $entry.DisplayVersion -eq '0.1.0') 'Windows Installed Apps records the correct name and version'
+Check ($entry.DisplayName -eq 'nexa' -and $entry.DisplayVersion -eq '0.1.1') 'Windows Installed Apps records the correct name and version'
 Check ([IO.Path]::TrimEndingDirectorySeparator($entry.InstallLocation) -eq $app) 'Windows registration points to the actual installation'
 Check (Test-Path -LiteralPath (Join-Path $app 'installation.json')) 'Installed distribution marker exists'
 Check (Test-Path -LiteralPath (Join-Path $app 'setup-cache/NexaSetup.exe')) 'Repair and rollback installer is retained'
@@ -73,9 +73,9 @@ New-Item -ItemType Directory -Path $app -Force | Out-Null
 $unregisteredCopy=Join-Path $app 'Nexa.exe'
 Copy-Item -LiteralPath $oldPortable -Destination $unregisteredCopy
 $blocked=Start-Process -FilePath $setupPath -ArgumentList @('/CURRENTUSER','/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',('/LOG="'+(Join-Path $fixture 'unregistered-destination.log')+'"')) -WindowStyle Hidden -Wait -PassThru
-Check ($blocked.ExitCode -ne 0) 'Setup refuses to replace an unregistered older portable in the destination'
-Check ((Get-FileHash -LiteralPath $unregisteredCopy -Algorithm SHA256).Hash -eq $oldPortableHash -and -not (Test-Path -LiteralPath $registry)) 'Blocked installation preserves the portable bytes without registering a duplicate'
-Check ([IO.File]::ReadAllText($state) -eq $original) 'Blocked portable replacement preserves private saves'
+Check ($blocked.ExitCode -eq 0) 'Mandatory clean-install cleanup replaces the verified obsolete destination before installing'
+Check ((Get-FileHash -LiteralPath $unregisteredCopy -Algorithm SHA256).Hash -eq $payloadDigest -and (Test-Path -LiteralPath $registry)) 'Cleanup completes before the new payload is installed and registered'
+Check ([IO.File]::ReadAllText($state) -eq $original) 'Mandatory legacy cleanup preserves private saves'
 if([IO.Path]::GetFullPath($unregisteredCopy) -ne (Join-Path $fixture 'app/Nexa.exe')){throw 'Unexpected fixture cleanup target'}
 Remove-Item -LiteralPath $unregisteredCopy
 Check ((Get-FileHash -LiteralPath $oldPortable -Algorithm SHA256).Hash -eq $oldPortableHash) 'Approved .34 source payload remains unchanged'

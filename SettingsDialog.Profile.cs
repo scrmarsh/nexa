@@ -10,8 +10,30 @@ internal sealed partial class SettingsDialog
     private UIElement BuildProfile()
     {
         var profile=store.LoadProfile();var page=Page("Profile","Your recorded activity across Spaces. Everything stays in your Windows account.");
-        var name=new Button{Content=string.IsNullOrWhiteSpace(profile.DisplayName)?"Set display name":profile.DisplayName,HorizontalAlignment=HorizontalAlignment.Left,ToolTip="Edit display name"};Field(page,"Display name",name);
-        name.Click+=(_,_)=>new DisplayNameDialog(this,store,value=>name.Content=value).ShowDismissible();
+        var name=new Button{Content=string.IsNullOrWhiteSpace(profile.DisplayName)?"Set display name":profile.DisplayName,HorizontalAlignment=HorizontalAlignment.Left,ToolTip="Edit display name"};name.FontSize=24;name.FontWeight=FontWeights.SemiBold;name.HorizontalAlignment=HorizontalAlignment.Center;
+        var editor=new StackPanel{MaxWidth=360,HorizontalAlignment=HorizontalAlignment.Center,Visibility=Visibility.Collapsed};
+        var input=new TextBox{Text=profile.DisplayName,MaxLength=80,FontSize=21,TextAlignment=TextAlignment.Center,Tag="InlineProfileName"};
+        System.Windows.Automation.AutomationProperties.SetName(input,"Profile display name");
+        var validation=new TextBlock{TextWrapping=TextWrapping.Wrap,MinHeight=24,Margin=new Thickness(0,6,0,6)};
+        var actions=new WrapPanel{HorizontalAlignment=HorizontalAlignment.Center};
+        var saveName=new Button{Content="Save",MinWidth=90,Margin=new Thickness(0,0,8,0)};
+        var cancelName=new Button{Content="Cancel",MinWidth=90};actions.Children.Add(saveName);actions.Children.Add(cancelName);
+        editor.Children.Add(input);editor.Children.Add(validation);editor.Children.Add(actions);
+        var nameArea=new Grid{MinHeight=112,Margin=new Thickness(12)};nameArea.Children.Add(editor);name.VerticalAlignment=VerticalAlignment.Center;nameArea.Children.Add(name);var nameCard=new Border{Child=nameArea,CornerRadius=new CornerRadius(10),BorderThickness=new Thickness(1)};nameCard.SetResourceReference(Border.BackgroundProperty,"PanelBrush");nameCard.SetResourceReference(Border.BorderBrushProperty,"LineBrush");page.Children.Add(nameCard);
+        void CancelName(){input.Text=store.LoadProfile().DisplayName;validation.Text="";editor.Visibility=Visibility.Collapsed;name.Visibility=Visibility.Visible;name.IsEnabled=true;name.Focus();}
+        void SaveName()
+        {
+            var value=input.Text.Trim();
+            if(value.Length==0 || value.Length>80 || value.Any(char.IsControl)){validation.Text="Enter a name of 1–80 characters without control characters.";input.Focus();return;}
+            try{var current=store.LoadProfile();current.DisplayName=value;store.SaveProfile(current);name.Content=value;CancelName();}
+            catch(Exception ex) when(ex is IOException or UnauthorizedAccessException){validation.Text="Your name could not be saved. Try again.";}
+        }
+        name.Click+=(_,_)=>{input.Text=store.LoadProfile().DisplayName;name.Visibility=Visibility.Collapsed;name.IsEnabled=false;editor.Visibility=Visibility.Visible;input.Focus();input.SelectAll();};
+        saveName.Click+=(_,_)=>SaveName();cancelName.Click+=(_,_)=>CancelName();
+        input.Tag=(Action)CancelName;
+        input.PreviewKeyDown+=(_,e)=>{if(e.Key==System.Windows.Input.Key.Enter){SaveName();e.Handled=true;}};
+        var setup=new Button { Content="Rerun Setup",HorizontalAlignment=HorizontalAlignment.Center,Margin=new Thickness(0,20,0,0) };
+        setup.Click+=(_,_)=>RerunSetup();page.Children.Add(setup);
         var sessions=(state.Workspace?.Dashboards??[]).SelectMany(d=>d.History.Append(d.Current)).ToArray();
         var events=sessions.SelectMany(s=>s.Data.Productivity.Events).Concat(state.Productivity.Events).DistinctBy(e=>e.Id).ToArray();
         var completed=ProfileActivity.Completed(sessions);
@@ -36,22 +58,26 @@ internal sealed partial class SettingsDialog
         foreach(var item in new[]{("Theme",AppearancePalettes.Name(profile.Theme)+" / "+profile.ThemeMode),("Sounds",profile.Sounds?"On · "+profile.Volume.ToString("P0"):"Off"),("Focus reminders",profile.FocusNudges?"On":"Off"),("Connections",profile.ConnectedIntegrations.Count==0?"None":string.Join(", ",profile.ConnectedIntegrations))})
             summaries.Children.Add(new TextBlock{Text=item.Item1+"\n"+item.Item2,FontSize=18,TextAlignment=TextAlignment.Center,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(8,14,8,14)});
         page.Children.Add(summaries);
-        var setup=new Button { Content="Run welcome setup again",HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(0,24,0,0) }; setup.Click+=(_,_)=> { if (!FlushPendingChanges()) return; var owner=Owner; Close(); try { SetupNavigation.Run(owner,store,space); } catch(Exception ex) when(ex is IOException or UnauthorizedAccessException) { MessageBox.Show(owner,"Setup could not be saved. Existing spaces have been retained.","nexa setup"); } }; page.Children.Add(setup);
+
         return new ScrollViewer { Tag="HiddenPageScroll",Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Hidden,PanningMode=PanningMode.VerticalOnly };
+    }
+    internal void RerunSetup()
+    {
+        if(!FlushPendingChanges())return;
+        var owner=Owner;Close();SetupNavigation.TryRun(owner,store,space);
     }
     private UIElement BuildIntegrations(bool future=false)
     {
         var page=Page("Integrations","Optional connections. Your local spaces always work without them.");
         var client=new IntegrationClient(store);
-        foreach(var service in (future?new[] { "Google Tasks","Google Calendar","Outlook Calendar" }:new[] { "Todoist","Hevy" }))
+        foreach(var service in (future?new[] { "Google Tasks","Google Calendar","Outlook Calendar" }:new[] { "Todoist" }))
         {
-            if(service=="Hevy"){page.Children.Add(BuildHevyConnection());continue;}
             var section=new StackPanel { Margin=new Thickness(0,0,0,24) }; page.Children.Add(section);
             section.Children.Add(new TextBlock { Text=service,FontSize=20,FontWeight=FontWeights.SemiBold });
             var status=new TextBlock { Text=client.Vault.Connected(service)?"Saved connection · not verified this session":"Not connected",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,8,0,8) }; section.Children.Add(status);
             PasswordBox? secret=null;
             if(service=="Todoist") { section.Children.Add(new TextBlock { Text="API token from Todoist / Settings / Integrations / Developer",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,6) }); secret=new PasswordBox(); section.Children.Add(secret); }
-            var buttons=new StackPanel { Orientation=Orientation.Horizontal,Margin=new Thickness(0,10,0,0) }; section.Children.Add(buttons);
+            var buttons=new WrapPanel{Orientation=Orientation.Horizontal,Margin=new Thickness(0,10,0,0) }; section.Children.Add(buttons);
             var connect=new Button { Content="Connect",Margin=new Thickness(0,0,8,0) }; var disconnect=new Button { Content="Disconnect",IsEnabled=client.Vault.Connected(service) }; buttons.Children.Add(connect); buttons.Children.Add(disconnect);
             CancellationTokenSource? pending=null;
             Closed+=(_,_)=>pending?.Cancel();

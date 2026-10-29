@@ -75,8 +75,7 @@ internal static partial class Program
         var companion=new HomeSpider();companion.Configure(new Size(1440,940),[]);for(var i=0;i<2000;i++)companion.Step(.05);Assert(companion.Valid(companion.Bug.Position),"Living Home spider remains bounded inside its web territory");
         var world=CreateWorld(BugBehavior.Cozy);world.SetSurfaces([new BugSurface("square",new Rect(100,100,700,500))],new Size(1600,1000));world.WebCoordinateAspect=.25;var bounds=world.WebBounds(new EcosystemWeb{AnchorId="square"});
         Assert(bounds.Width*.25/bounds.Height>=.799 && bounds.Width*.25/bounds.Height<=1.301,"Web geometry compensates for tall Canvas projection");
-        using var hevyHttp=new System.Net.Http.HttpClient(new HevyFixtureHandler());
-        var connection=new HevyConnection(store,hevyHttp);Assert(connection.Connect("00000000-0000-0000-0000-000000000026",CancellationToken.None).GetAwaiter().GetResult()==7 && new IntegrationVault(store).Connected("Hevy"),"Hevy validates the response before saving encrypted connection");
+        Assert(typeof(App).Assembly.GetType("SessionDashboard.HevyConnection")==null,"Retired duplicate provider has no exposed connection implementation");
 
     }
     private sealed class HevyFixtureHandler:System.Net.Http.HttpMessageHandler

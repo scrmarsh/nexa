@@ -60,7 +60,7 @@ internal sealed partial class SettingsDialog
             page.Children.Clear();var deadline=consent.Deadline!.Value;var running=false;var finished=false;
             dialog.Closing+=(_,e)=>{if(running && !finished)e.Cancel=true;else if(finished)Dispatcher.BeginInvoke(new Action(()=>Application.Current.Shutdown()));};
             var text=new TextBlock{FontSize=22,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,8,0,22)};page.Children.Add(text);
-            var actions=new StackPanel{Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right};page.Children.Add(actions);
+            var actions=new WrapPanel{Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right};page.Children.Add(actions);
             var now=new Button{Content="Delete Now",Margin=new Thickness(0,0,10,0)};var cancel=new Button{Content="Cancel"};actions.Children.Add(now);actions.Children.Add(cancel);
             var timer=new DispatcherTimer{Interval=TimeSpan.FromMilliseconds(100)};
             async Task Delete(bool immediate=false)

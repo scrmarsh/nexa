@@ -12,8 +12,8 @@ internal static partial class Program
 {
     private static void Check030()
     {
-        Assert(App.AppVersion=="0.1.0" && App.VersionLabel=="nexa v0.1.0 beta","Current refinement uses shared lowercase Alpha identity");
-        Assert(ReleaseNotes.All[0].Title=="Jump into Nexa for Halloween!" && ReleaseNotes.All.Single(n=>n.Version=="0.0.29").Title=="NEXAWEEN: Interface Polish","New active note preserves released .29 history");
+        Assert(App.AppVersion=="0.1.1" && App.VersionLabel=="nexa v0.1.1 beta","Current refinement uses shared lowercase Alpha identity");
+        Assert(ReleaseNotes.All[0].Title=="UI Restoration, Installer Cleanup & Window Fixes" && ReleaseNotes.All.Single(n=>n.Version=="0.0.29").Title=="NEXAWEEN: Interface Polish","New active note preserves released .29 history");
         Assert(new EcosystemOptions().HitboxExpansion==1.5 && new EcosystemOptions{HitboxExpansion=double.NaN}.Safe().HitboxExpansion==1.5,"Legacy and invalid hit tolerance safely default to 1.5");
         Assert(new EcosystemOptions{HitboxExpansion=100}.Safe().HitboxExpansion==1.6,"Saved hit tolerance cannot create enormous invisible regions");
         CheckInput030();CheckPersistence030();CheckFullscreen030();CheckSpider030();Preview030();

@@ -3,7 +3,7 @@
     <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
     <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>Nexa</AssemblyName><Product>Nexa</Product><Title>nexa installer migration bridge</Title><AssemblyTitle>nexa installer migration bridge</AssemblyTitle>
-    <Description>nexa installer migration bridge</Description><Version>0.1.0</Version><FileVersion>0.1.0.0</FileVersion><AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <Description>nexa installer migration bridge</Description><Version>0.1.1</Version><FileVersion>0.1.1.0</FileVersion><AssemblyVersion>0.1.1.0</AssemblyVersion>
     <InformationalVersion>$(Version)-beta</InformationalVersion>
     <ApplicationIcon>../../assets/nexa-icon.ico</ApplicationIcon><ApplicationManifest>../../app.manifest</ApplicationManifest>
     <PublishSingleFile>true</PublishSingleFile><SelfContained>true</SelfContained><RuntimeIdentifier>win-x64</RuntimeIdentifier>

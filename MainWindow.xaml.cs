@@ -49,6 +49,7 @@ public partial class MainWindow
 
     internal MainWindow(StateStore store, StateStore? previewHomeStore = null,AppState? loadedState=null,bool entryAlreadyPersisted=false)
     {
+        NexaWindowBounds.RequestInitialPlacement(this,!System.IO.File.Exists(store.FilePath) && !System.IO.File.Exists(store.FilePath+".bak"));
         this.store = store;this.entryAlreadyPersisted=entryAlreadyPersisted;
         this.previewHomeStore = previewHomeStore;
         void Measure(string name,Action action){var watch=System.Diagnostics.Stopwatch.StartNew();action();ConstructionProfile[name]=watch.Elapsed.TotalMilliseconds;}
@@ -181,7 +182,10 @@ public partial class MainWindow
         DeveloperSplashButton.Visibility = isDeveloperDashboard ? Visibility.Visible : Visibility.Collapsed;
         DeveloperSoundButton.Visibility = isDeveloperDashboard ? Visibility.Visible : Visibility.Collapsed;
         DeveloperResetButton.Visibility = isDeveloperDashboard ? Visibility.Visible : Visibility.Collapsed;
+        DeveloperSetupButton.Visibility = isDeveloperDashboard ? Visibility.Visible : Visibility.Collapsed;
     }
+
+    private void DeveloperSetupClick(object sender,RoutedEventArgs e){if(DeveloperSetupButton.IsVisible && SaveNow())SetupNavigation.TryRun(this,SettingsStore,this);}
 
     private void DeveloperSoundClick(object sender, RoutedEventArgs e) => PlayInterfaceSound();
 

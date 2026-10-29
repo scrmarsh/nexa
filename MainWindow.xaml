@@ -25,6 +25,7 @@
                     <Button x:Name="AddWidgetButton" Visibility="Collapsed" Content="Add Widget" Click="AddWidgetClick" Padding="14,5" Margin="8,0,0,0"/>
                     <Button x:Name="DeveloperSplashButton" Content="Preview Splash" MinWidth="132" Padding="12,6" Click="DeveloperSplashClick" Visibility="Collapsed"/>
                     <Button x:Name="DeveloperSoundButton" Content="Play Sound" MinWidth="106" Padding="12,6" Margin="8,0,0,0" Click="DeveloperSoundClick" Visibility="Collapsed"/>
+                    <Button x:Name="DeveloperSetupButton" Content="Rerun Setup" Click="DeveloperSetupClick" Visibility="Collapsed" Margin="8,0,8,0"/>
                     <Button x:Name="DeveloperResetButton" Content="Reset dev" Click="DeveloperResetClick" Visibility="Collapsed"/>
                 </StackPanel>
                 </Viewbox>

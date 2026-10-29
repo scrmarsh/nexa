@@ -29,6 +29,7 @@ internal static partial class Program
         }
         var unchanged=new Rect(-1800,100,800,600);Assert(NexaWindowBounds.FitToWorkArea(unchanged,new Rect(-1920,0,1920,1040))==unchanged,"A reachable window on a negative-origin monitor keeps its position");
         var window=new NexaDialog{Title="Screen safety fixture",Width=9000,Height=7000,MinWidth=5000,MinHeight=4000,WindowStartupLocation=WindowStartupLocation.Manual,Left=-400,Top=-900,Content=new TextBlock{Text="Reachable caption"}};
+        NexaWindowBounds.RequestInitialPlacement(window,true);
         window.Show();Pump(TimeSpan.FromMilliseconds(150));
         var hwnd=new WindowInteropHelper(window).Handle;var monitor=new MonitorCheck{Size=Marshal.SizeOf<MonitorCheck>()};
         Assert(GetWindowRectCheck(hwnd,out var rect) && GetMonitorCheck(MonitorCheckFromWindow(hwnd,2),ref monitor),"Read actual native monitor/window rectangles");

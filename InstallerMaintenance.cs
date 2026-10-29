@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
@@ -255,6 +255,16 @@ internal static class InstallerMaintenance
     {
         try
         {
+            if(args[0]=="--installer-repair-validate" && args.Length==2)
+            {
+                var root=Path.TrimEndingDirectorySeparator(Path.GetFullPath(args[1]));UpdateTransaction.RejectLinks(root);
+                var marker=JsonSerializer.Deserialize<NexaInstallation.Marker>(File.ReadAllText(Path.Combine(root,"installation.json")));
+                if(marker?.AppId is not (NexaInstallation.AppId or NexaInstallation.TestAppId))throw new IOException("Repair marker is missing or invalid.");
+                using var key=Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\"+marker.AppId+"_is1");
+                if(key?.GetValue("InstallLocation") is not string location || !Path.TrimEndingDirectorySeparator(Path.GetFullPath(location)).Equals(root,StringComparison.OrdinalIgnoreCase))throw new IOException("Repair registration does not match the installation.");
+                return 0;
+            }
+            if(args[0].StartsWith("--installer-legacy-",StringComparison.Ordinal))return LegacyInstallations.Run(args);
             if(args[0] is "--installer-prepare" or "--installer-prepare-fixture" && args.Length>=5)
             {
                 var roots=args.Skip(4).ToArray();var plan=await Prepare(args[1],args[2],args[3],roots,args[0]=="--installer-prepare-fixture",installerInvocation:true);

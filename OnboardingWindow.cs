@@ -135,6 +135,12 @@ internal sealed class OnboardingWindow : NexaDialog
 
 internal static class SetupNavigation
 {
+    internal static void TryRun(Window owner,StateStore store,MainWindow? space=null)
+    {
+        try{Run(owner,store,space);}
+        catch(Exception ex) when(ex is IOException or UnauthorizedAccessException or InvalidOperationException)
+        {MessageBox.Show(owner,"Setup could not finish. Your existing Spaces and preferences were retained. "+ex.Message,"nexa setup");}
+    }
     internal static void Run(Window owner,StateStore store,MainWindow? space=null)
     {
         var wizard=new OnboardingWindow(store) { Owner=owner };

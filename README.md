@@ -1,3 +1,5 @@
+> **Local development: Nexa Beta 0.1.1 (unpublished).** [Implementation and verification](docs/NEXA_011_IMPLEMENTATION.md). The public downloads below remain Beta 0.1.0.
+
 <div align="center">
 
 ![Nexa Beta 0.1.0 — Nexaween Release](docs/media/releases/nexaween-beta-010-banner.png)

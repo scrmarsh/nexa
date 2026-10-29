@@ -82,6 +82,7 @@ internal static class NexaPanels
     internal static bool HandleEscape(Window window, KeyEventArgs e)
     {
         if (e.Handled || e.Key != Key.Escape || Topmost(window) is not { } panel) return false;
+        if(Keyboard.FocusedElement is TextBox {Tag:Action cancelName}){cancelName();e.Handled=true;return true;}
         // A dropdown/calendar above the panel gets the first Escape.
         if (panel.Body != null && ClosePopup(panel.Body, new HashSet<DependencyObject>())) { e.Handled = true; return true; }
         panel.CloseWithFade(); e.Handled = true; return true;

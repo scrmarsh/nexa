@@ -25,7 +25,7 @@ internal sealed partial class SettingsDialog
         var active = NexaSeason.Active(ReliabilityOptions, DateTimeOffset.UtcNow);
         var page = (StackPanel)BuildAppearance();
         page.Margin=new Thickness(0,0,8,28);
-        var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(12, 0, 0, 14) };
+        var row = new WrapPanel{Orientation=Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(12, 0, 0, 14) };
         row.Children.Add(new TextBlock { Text = "Nexaween", Foreground = active?BugVisuals.B("#84CC16"):Brushes.White, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0), FontWeight = FontWeights.SemiBold });
         row.Children.Add(MakeSeasonSwitch());
         page.Children.Add(BuildWallpaperControls(ReliabilityOptions.HomeWallpaper,true));

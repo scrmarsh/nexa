@@ -13,7 +13,7 @@ internal static partial class Program
 {
     private static void Check031()
     {
-        Assert(App.VersionLabel=="nexa v0.1.0 beta" && NexaReleaseIdentity.Current.Tag=="v0.1.0-beta","Shared release model owns current label/tag");
+        Assert(App.VersionLabel=="nexa v0.1.1 beta" && NexaReleaseIdentity.Current.Tag=="v0.1.1-beta","Shared release model owns current label/tag");
         Assert(NexaReleaseIdentity.Canonicalize(new(0,1,26),"Alpha")==new Version(0,0,26) && NexaReleaseIdentity.Canonicalize(new(0,1,26),"Beta")==new Version(0,1,26),"Explicit legacy Alpha map never rewrites genuine Beta");
         Assert(NexaReleaseIdentity.Canonicalize(new(0,1,99),"Alpha")==new Version(0,1,99),"Unconfirmed legacy-looking versions are not silently remapped");
         Assert(NexaReleaseIdentity.Parse("v0.1.0-alpha",true)==null && NexaReleaseIdentity.Parse("v0.1.0-beta",true)?.Stage=="Beta","First Beta numbering cannot masquerade as an Alpha release");
@@ -95,8 +95,8 @@ internal static partial class Program
     private static void CheckSilk031()
     {
         Span<BugLegPose> poses=stackalloc BugLegPose[8];BugAnimation.FillLegs(BugSpecies.Spiders,.7,false,poses);
-        Assert(poses.Length==8 && poses.ToArray().Count(p=>p.Root.Y<0)==4 && poses.ToArray().Count(p=>p.Root.Y>0)==4,"Shared spider has four front-body leg roots per side");
-        Assert(poses.ToArray().Select(p=>p.Root).Distinct().Count()==8 && poses.ToArray().All(p=>Math.Pow((p.Root.X-4)/4.5,2)+Math.Pow(p.Root.Y/4.2,2)<1.01),"Eight evenly spaced roots follow the rounded front-body boundary");
+        Assert(poses.Length==8 && poses.ToArray().Count(p=>p.Root.Y<0)==4 && poses.ToArray().Count(p=>p.Root.Y>0)==4,"Shared spider has four rear-body leg roots per side");
+        Assert(poses.ToArray().Select(p=>p.Root).Distinct().Count()==8 && poses.ToArray().All(p=>p.Root.X<0 && Math.Pow((p.Root.X+5)/7,2)+Math.Pow(p.Root.Y/6.8,2)<1.01),"Eight evenly spaced roots follow the rounded rear-body boundary");
         var manager=CreateWorld(BugBehavior.Creepy);manager.Bugs.Clear();manager.Webs.Clear();manager.Resources.Clear();
         var bug=new BugEntity{Species=BugSpecies.Spiders,Position=new(510,310),Activity=BugActivity.Nesting,State=BugState.Crossing,Speed=70,Decision=10000,Scale=1};manager.Bugs.Add(bug);
         var web=new EcosystemWeb{Owner=bug.InteractionId,X=600,Y=400};BugManager.EnsureSilk(web);manager.Webs.Add(web);

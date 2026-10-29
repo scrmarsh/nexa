@@ -34,7 +34,9 @@ internal sealed partial class SettingsDialog : NexaPanel
         var navigationDock=new DockPanel();
         var sidebar = new Border { Child = navigationDock, BorderThickness = new Thickness(0, 0, 1, 0) };
         sidebar.SetResourceReference(Border.BackgroundProperty, "PanelBrush"); sidebar.SetResourceReference(Border.BorderBrushProperty, "LineBrush"); root.Children.Add(sidebar);
-        host.Margin = new Thickness(30, 24, 30, 28); Grid.SetColumn(host, 1); root.Children.Add(host);
+        host.HorizontalContentAlignment=HorizontalAlignment.Stretch;
+        host.SizeChanged+=(_,_)=>ConstrainSettingsPage();
+        host.Margin = new Thickness(22, 24, 22, 28); Grid.SetColumn(host, 1); root.Children.Add(host);
         sessionWasActive = HasCurrentSession;
         SessionInterface=initialSection is "Session" or "Tips";
         if(SessionInterface)
@@ -93,11 +95,23 @@ internal sealed partial class SettingsDialog : NexaPanel
         if(!pages.ContainsKey(name) && !pageFactories.ContainsKey(name)) name=SessionInterface?"Session":"Appearance";
         if(!pages.ContainsKey(name) && pageFactories.TryGetValue(name,out var factory)) pages[name]=factory();
         if (!pages.TryGetValue(name, out var page)) return;
-        host.Content = page; NexaMotion.Entrance(host,ReliabilityOptions);
+        host.Content = page; ConstrainSettingsPage(); NexaMotion.Entrance(host,ReliabilityOptions);
         if (name == "Session") sessionStatusPage = page;
         foreach (var pair in tabs) { pair.Value.SetResourceReference(Control.BackgroundProperty, pair.Key == name ? "AccentBrush" : "PanelBrush"); pair.Value.SetResourceReference(Control.ForegroundProperty, pair.Key == name ? "AccentTextBrush" : "TextBrush"); }
         if(tips)FocusTips();
         if(hedy) Dispatcher.BeginInvoke(new Action(()=> { hedySettingsSection?.BringIntoView(); hedySettingsSection?.Focus(); }));
+    }
+    private void ConstrainSettingsPage()
+    {
+        if(host.Content is not FrameworkElement page)return;
+        if(host.ActualWidth>0)page.MaxWidth=host.ActualWidth;
+        void Visit(DependencyObject node)
+        {
+            if(node is ScrollViewer scroll)scroll.HorizontalScrollBarVisibility=ScrollBarVisibility.Disabled;
+            if(node is TextBlock text)text.TextWrapping=TextWrapping.Wrap;
+            foreach(var child in LogicalTreeHelper.GetChildren(node).OfType<DependencyObject>())Visit(child);
+        }
+        Visit(page);
     }
     private StackPanel Page(string title, string hint)
     {
@@ -138,7 +152,7 @@ internal sealed partial class SettingsDialog : NexaPanel
         foreach(var value in Theme.OfficialThemes)
         {
             var color=Theme.AppPalette(value).Accent;
-            var content=new StackPanel{Orientation=Orientation.Horizontal};content.Children.Add(new Border{Width=24,Height=24,CornerRadius=new CornerRadius(5),Background=new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)),Margin=new Thickness(0,0,8,0)});content.Children.Add(new TextBlock{Text=AppearancePalettes.Name(value),VerticalAlignment=VerticalAlignment.Center});
+            var content=new WrapPanel{Orientation=Orientation.Horizontal};content.Children.Add(new Border{Width=24,Height=24,CornerRadius=new CornerRadius(5),Background=new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)),Margin=new Thickness(0,0,8,0)});content.Children.Add(new TextBlock{Text=AppearancePalettes.Name(value),VerticalAlignment=VerticalAlignment.Center});
             var option=new RadioButton{Content=content,Tag=value,GroupName="ThemeColors",IsChecked=value==selectedTheme,Margin=new Thickness(0,0,16,10),Padding=new Thickness(5)};
             System.Windows.Automation.AutomationProperties.SetName(option,AppearancePalettes.Name(value));option.ToolTip=color;option.Checked+=(_,_)=>{selectedTheme=value;SaveAppearance();};themes.Children.Add(option);choices[value]=option;
         }

@@ -24,6 +24,8 @@ internal static partial class NexaWindowBounds
         return new(Math.Clamp(x, work.Left, work.Right - width), Math.Clamp(y, work.Top, work.Bottom - height), width, height);
     }
 
+    private static readonly DependencyProperty InitialFitProperty=DependencyProperty.RegisterAttached("InitialFit",typeof(bool),typeof(NexaWindowBounds),new PropertyMetadata(false));
+    internal static void RequestInitialPlacement(Window window,bool required)=>window.SetValue(InitialFitProperty,required);
     private static void AttachSafety(Window window)
     {
         HwndSource? source = null;
@@ -47,7 +49,8 @@ internal static partial class NexaWindowBounds
             {
                 window.MinWidth = Math.Min(minWidth, width); window.MinHeight = Math.Min(minHeight, height);
                 window.MaxWidth = Math.Min(maxWidth, width); window.MaxHeight = Math.Min(maxHeight, height);
-                if (full || window.WindowState != WindowState.Normal || !GetWindowRect(hwnd, out var rect)) return;
+                if (!(bool)window.GetValue(InitialFitProperty) || !window.IsLoaded || full || window.WindowState != WindowState.Normal || !GetWindowRect(hwnd, out var rect)) return;
+                window.SetValue(InitialFitProperty,false);
                 var current = new Rect(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
                 var fitted = FitToWorkArea(current, new Rect(area.Left, area.Top, area.Right - area.Left, area.Bottom - area.Top));
                 if (current != fitted)
@@ -72,7 +75,8 @@ internal static partial class NexaWindowBounds
             initialized = true; source = HwndSource.FromHwnd(new WindowInteropHelper(window).Handle); source?.AddHook(Hook); Apply();
         };
         window.Loaded += (_, _) => Apply();
-        window.LocationChanged += (_, _) => Queue(); window.SizeChanged += (_, _) => Queue(); window.StateChanged += (_, _) => Queue();
+        // Position and size changes belong to the user/native move loop. Never clamp them.
+        window.StateChanged += (_, _) => Queue();
         window.Closed += (_, _) => { closed = true; source?.RemoveHook(Hook); source = null; };
     }
 }

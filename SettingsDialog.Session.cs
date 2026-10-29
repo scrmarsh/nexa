@@ -23,7 +23,7 @@ internal sealed partial class SettingsDialog
         spaceAppearance.Children.Add(new TextBlock { Text = "Space appearance", FontSize = 20, FontWeight = FontWeights.SemiBold });
         if(space!=null)
         {
-            var iconRow=new StackPanel{Orientation=Orientation.Horizontal,Margin=new Thickness(0,12,0,12)};
+            var iconRow=new WrapPanel{Orientation=Orientation.Horizontal,Margin=new Thickness(0,12,0,12)};
             var previewIcon=new ContentControl{Content=SpaceIcons.Create(SpaceIcons.Resolve(state.SpaceIcon,Continuity.Current(state.Workspace!,store.UserId).PresetOrigin),36),Margin=new Thickness(0,0,14,0)};
             var changeIcon=new Button{Content="Change Icon",ToolTip="Space Icon",VerticalAlignment=VerticalAlignment.Center};
             System.Windows.Automation.AutomationProperties.SetName(changeIcon,"Change Space Icon");

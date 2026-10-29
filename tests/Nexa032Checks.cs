@@ -35,7 +35,7 @@ internal static partial class Program
     }
     private static void Check032()
     {
-        Assert(App.VersionLabel=="nexa v0.1.0 beta" && NexaReleaseIdentity.Current.Tag=="v0.1.0-beta",".32 uses shared lowercase Alpha metadata");
+        Assert(App.VersionLabel=="nexa v0.1.1 beta" && NexaReleaseIdentity.Current.Tag=="v0.1.1-beta",".32 uses shared lowercase Alpha metadata");
         CheckAppearance032();CheckWallpaper032();CheckScrolling032();
     }
     private static void Bottom032(SettingsDialog settings,string label)

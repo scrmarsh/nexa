@@ -18,6 +18,7 @@ internal sealed partial class HomeWindow : NexaDialog
     private readonly TextBlock feedback = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 20, 0, 0) };
     internal HomeWindow(StateStore store,AppState? loadedState=null)
     {
+        NexaWindowBounds.RequestInitialPlacement(this,!File.Exists(store.FilePath) && !File.Exists(store.FilePath+".bak"));
         this.store = store; Saved = loadedState ?? store.Load(); store.LoadInteractionPreferences(Saved);
         Theme.SetSeasonalEnabled(NexaSeason.Active(Saved.Workspace?.Settings ?? new NexaOptions(), DateTimeOffset.UtcNow));
         Closing += (_, e) => { if (settingsWindow?.FlushPendingChanges() == false) e.Cancel = true; };

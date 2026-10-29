@@ -79,7 +79,7 @@ public partial class MainWindow
         var step=Math.Clamp(Options.QuickStartStep,0,6);Options.QuickStartStep=step;
         guideBaseline=Continuity.Clone(state.Widgets.FirstOrDefault(w=>w.Id==Options.QuickStartWidget)??new WidgetInstance());
         var panel=new StackPanel();string[] headings=["Welcome to nexa!","Add your first widget","Move your widget","Try resizing","Make it yours","Connect your apps","You're ready!"];
-        string[] messages=["Your own little corner of productivity. Capture notes, tackle tasks, manage time, track progress and stay hydrated. Arrange your tools your way.","Click the highlighted Add Widget button and choose any movable widget. Your preset tools will stay where they are.","Drag the dotted grip on your new widget to an open area. This step advances when its saved position changes.","Drag the highlighted corner to change the widget's size. Try growing it wider or taller.","Click the widget title and give it a new name.","Todoist brings your tasks into your Space. Hevy connects your workout account. Both are optional, and Hedy recording notes remain a separate service.","Your Space is ready. Make it yours!"];
+        string[] messages=["Your own little corner of productivity. Capture notes, tackle tasks, manage time, track progress and stay hydrated. Arrange your tools your way.","Click the highlighted Add Widget button and choose any movable widget. Your preset tools will stay where they are.","Drag the dotted grip on your new widget to an open area. This step advances when its saved position changes.","Drag the highlighted corner to change the widget's size. Try growing it wider or taller.","Click the widget title and give it a new name.","Todoist brings your tasks into your Space. Hedy provides recording notes. Both connections are optional.","Your Space is ready. Make it yours!"];
         panel.Children.Add(new TextBlock{Text=headings[step],FontSize=23,FontWeight=FontWeights.Bold});
         panel.Children.Add(new TextBlock{Text=messages[step],TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,10,0,15),FontSize=15});
         if(step==0)
@@ -93,7 +93,7 @@ public partial class MainWindow
         }
         if(step==5)
         {
-            foreach(var service in new[]{"Todoist","Hedy","Hevy"}){var connect=new Button{Content="Connect "+service,Margin=new Thickness(0,0,8,6),HorizontalAlignment=HorizontalAlignment.Left};connect.Click+=(_,_)=>OpenMainSettings(service=="Hedy"?"Hedy":"Integrations");panel.Children.Add(connect);}
+            foreach(var service in new[]{"Todoist","Hedy"}){var connect=new Button{Content="Connect "+service,Margin=new Thickness(0,0,8,6),HorizontalAlignment=HorizontalAlignment.Left};connect.Click+=(_,_)=>OpenMainSettings(service=="Hedy"?"Hedy":"Integrations");panel.Children.Add(connect);}
         }
         if(step==6)panel.Children.Add(SpaceIcons.Create(SpaceIcons.Resolve(state.SpaceIcon,""),34));
         var controls=new Grid();controls.ColumnDefinitions.Add(new());controls.ColumnDefinitions.Add(new(){Width=GridLength.Auto});panel.Children.Add(controls);

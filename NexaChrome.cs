@@ -131,6 +131,7 @@ internal class NexaDialog : Window
             var overlay=NexaPanels.Topmost(this);
             if (e.Handled || overlay!=null && !ReferenceEquals(overlay,this) || NexaFullscreen.IsFullscreen(this) || e.ClickCount != 1 || Mouse.LeftButton != MouseButtonState.Pressed ||
                 !BlankPanelDragTarget(e.OriginalSource as DependencyObject, this)) return;
+            if(!IsPanel)return;
             DragMove(); e.Handled = true;
         };
         SourceInitialized += (_, _) => { if (panel && Owner != null) NexaPanels.FitOwner(this); };

@@ -65,7 +65,7 @@ public sealed partial class StateStore
     }
     private List<string> ConnectedServices()
     {
-        var services=new[]{"Todoist","Google Tasks","Google Calendar","Outlook Calendar","Hevy"}.Where(new IntegrationVault(this).Connected).ToList();
+        var services=new[]{"Todoist","Google Tasks","Google Calendar","Outlook Calendar"}.Where(new IntegrationVault(this).Connected).ToList();
         var credentials=new AppState();LoadCredentials(credentials);if(!string.IsNullOrWhiteSpace(credentials.HedyProtectedKey))services.Add("Hedy");return services;
     }
     internal void SaveProfile(UserProfile profile)

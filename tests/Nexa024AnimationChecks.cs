@@ -26,7 +26,7 @@ internal static partial class Program
         BugAnimation.FillLegs(BugSpecies.Ants, 1.2, false, a);
         Assert(a[0].Stance == a[3].Stance && a[3].Stance == a[4].Stance && a[1].Stance == a[2].Stance && a[2].Stance == a[5].Stance && a[0].Stance != a[1].Stance, "Insect gait alternates coordinated tripods");
         BugAnimation.FillLegs(BugSpecies.Spiders, .7, false, a);
-        Assert(a.Take(8).All(p => p.Root.X < 4 && Math.Pow((p.Root.X-4)/4.5,2)+Math.Pow(p.Root.Y/4.2,2)<=1), "All eight spider legs attach to the cephalothorax");
+        Assert(a.Take(8).All(p => p.Root.X < 0 && Math.Pow((p.Root.X+5)/7,2)+Math.Pow(p.Root.Y/6.8,2)<=1.01), "All eight spider legs attach to the rear body");
         var spiderSteps = new string[8];
         var supported = true;
         for (var frame = 0; frame < 64; frame++)
