@@ -1,0 +1,13 @@
+{
+  "verifiedAt": "2026-10-29",
+  "historicalReleases": 4,
+  "comparedFields": [
+    "tag_name",
+    "published_at",
+    "name",
+    "body",
+    "prerelease",
+    "asset id/name/size/digest/browser_download_url"
+  ],
+  "differences": []
+}

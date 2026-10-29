@@ -46,19 +46,19 @@ Real screenshots of the published Windows build, using sample notes and tasks. S
 | --- | --- |
 | [![Study dashboard with a Pixel Timer, notes, checklist, clock and water counter](docs/media/screenshots/study-space-dark.png)](docs/media/screenshots/study-space-dark.png) | [![Meeting dashboard with a session timer, meeting notes, action items, clock and decision counter](docs/media/screenshots/meeting-space-dark.png)](docs/media/screenshots/meeting-space-dark.png) |
 
-## Development builds and historical downloads
+## Install for Windows
 
-Download **Nexa.exe** from the [Nexaween Alpha prerelease](https://github.com/scrmarsh/nexa/releases/tag/v0.0.31-alpha), or build from source below. The release is explicitly marked as a prerelease; physical and live-provider acceptance remains open.
+Use the **[recommended Windows installer](https://github.com/scrmarsh/nexa/releases/download/v0.0.33-alpha/NexaSetup.exe)**. It preserves existing saves and adds normal Windows shortcuts, repair and uninstall. Portable and source downloads are in the collapsed section above. This is an Alpha prerelease; physical device and live-provider acceptance remains open.
 Self-contained Windows x64 packages include their .NET runtime; framework-dependent
 builds require the .NET 10 Desktop Runtime.
 
 For a downloaded package with a published `SHA256SUMS.txt`, inspect its checksum:
 
 ```powershell
-Get-FileHash .\Nexa.exe -Algorithm SHA256
+Get-FileHash .\NexaSetup.exe -Algorithm SHA256
 ```
 
-Compare the result with `SHA256SUMS.txt`. User data stays in the existing Windows LocalAppData `SessionDashboard` location, so replacing the executable preserves saved Spaces, settings and history. The repository and release downloads are public; no GitHub sign-in is needed.
+Compare the result with `SHA256SUMS.txt`. User data stays in the existing Windows LocalAppData `SessionDashboard` location, so upgrading nexa preserves saved Spaces, settings and history. The repository and release downloads are public; no GitHub sign-in is needed.
 
 ## Inside your Space
 
@@ -69,9 +69,9 @@ Compare the result with `SHA256SUMS.txt`. User data stays in the existing Window
 | Session history, automatic checkpoints and save-before-reset protection | Combined Productivity view, score breakdowns and squash streaks |
 | Time zone settings and precise linked or independent progress bars | Optional decorative bugs with independent behavior and appearance |
 
-## Whatâ€™s new
+## What’s new
 
-Release-specific features, seasonal artwork and update notes live in the [changelog](CHANGELOG.md). The [verification report](docs/IMPLEMENTATION-0.1.24.md) records testing and known limitations.
+Release-specific features, seasonal artwork and update notes live in the [changelog](CHANGELOG.md). The [current verification report](docs/NEXA_033_TEST_RESULTS.md) records testing and known limitations.
 
 ## Build from source
 
@@ -86,10 +86,12 @@ dotnet build .\SessionDashboard.csproj -c Release
 
 ```powershell
 .\Publish-Exe.ps1
-.\Builds\Testing\Nexa.exe
+# Use the output path printed by the script.
 ```
 
-The historical project filename and save-data namespace remain for compatibility; the product and executable are **nexa**.
+To build the installer, portable executable and legacy migration launcher together, run `.\tools\Build-Release.ps1`; outputs stay under `verification/release033` until approved. See the [installer build guide](docs/NEXA_033_INSTALLER.md).
+
+The historical project filename and save-data namespace remain for compatibility; the product is **nexa**.
 
 ## Verify and contribute
 
@@ -97,7 +99,7 @@ The historical project filename and save-data namespace remain for compatibility
 .\tools\Verify.ps1
 ```
 
-The nineteen-route suite checks version compatibility, settings, splash timing,
+The 25-route suite checks version compatibility, installer-related models, appearance, settings, splash timing,
 layout, scrolling, saving, history, controls, the ecosystem and animations using
 isolated data stores. To run the .28 failure/recovery and behavior route after building the checks project:
 
