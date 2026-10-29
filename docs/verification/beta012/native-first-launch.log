@@ -1,0 +1,5 @@
+PASS: Fresh isolated Setup completes for first-launch verification
+PASS: First-launch application uses only the isolated TestAppId data root
+PASS: Setup has not created a completed workspace before onboarding
+PASS: First normal packaged launch shows Welcome to Nexa
+First-launch fixture is ready for native visual acceptance.

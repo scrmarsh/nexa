@@ -1,0 +1,154 @@
+PASS: Application identifies as Beta 0.1.2
+PASS: Beta .1.1 is offered after .1.0 without Alpha remapping
+PASS: Profile rename opens inline without creating a window
+PASS: Invalid inline name leaves the persisted profile unchanged
+PASS: Cancel closes the inline editor without saving
+PASS: Inline Save trims and persists through the existing profile store
+PASS: Profile exposes Rerun Setup
+PASS: Settings Profile fits 700 DIP without right-edge control clipping:
+PASS: Settings Integrations fits 700 DIP without right-edge control clipping:
+PASS: Settings Appearance fits 700 DIP without right-edge control clipping:
+PASS: Settings Sounds fits 700 DIP without right-edge control clipping:
+PASS: Settings Time Zone & Clock fits 700 DIP without right-edge control clipping:
+PASS: Settings Widgets fits 700 DIP without right-edge control clipping:
+PASS: Settings Updates fits 700 DIP without right-edge control clipping:
+PASS: Settings Files & sharing fits 700 DIP without right-edge control clipping:
+PASS: Settings Add Bugs fits 700 DIP without right-edge control clipping:
+PASS: Settings Experimental Features fits 700 DIP without right-edge control clipping:
+PASS: Settings Profile fits 900 DIP without right-edge control clipping:
+PASS: Settings Integrations fits 900 DIP without right-edge control clipping:
+PASS: Settings Appearance fits 900 DIP without right-edge control clipping:
+PASS: Settings Sounds fits 900 DIP without right-edge control clipping:
+PASS: Settings Time Zone & Clock fits 900 DIP without right-edge control clipping:
+PASS: Settings Widgets fits 900 DIP without right-edge control clipping:
+PASS: Settings Updates fits 900 DIP without right-edge control clipping:
+PASS: Settings Files & sharing fits 900 DIP without right-edge control clipping:
+PASS: Settings Add Bugs fits 900 DIP without right-edge control clipping:
+PASS: Settings Experimental Features fits 900 DIP without right-edge control clipping:
+PASS: Integrations exposes no retired provider tile
+PASS: Hedy settings remain available
+PASS: Escape cancels inline rename and keeps Settings open
+PASS: Enter safely saves an unchanged display name without duplicating the profile
+PASS: Profile Rerun Setup opens the existing wizard and cancellation preserves profile and Spaces
+PASS: Developer Mode exposes the same Rerun Setup action
+PASS: Developer Rerun Setup uses the same cancel-safe wizard
+PASS: Fresh initial placement fits the actual monitor work area and taskbar
+PASS: Even the first-run safeguard is consumed once and never clamps later movement
+PASS: Subsequent user positioning stays outside the screen without repeated clamping
+PASS: Spider keeps eight legs in gait frame 0
+PASS: Every leg remains attached to rear-body ellipse in gait frame 0
+PASS: Spider retains four legs per side in gait frame 0
+PASS: Spider keeps eight legs in gait frame 1
+PASS: Every leg remains attached to rear-body ellipse in gait frame 1
+PASS: Spider retains four legs per side in gait frame 1
+PASS: Spider keeps eight legs in gait frame 2
+PASS: Every leg remains attached to rear-body ellipse in gait frame 2
+PASS: Spider retains four legs per side in gait frame 2
+PASS: Spider keeps eight legs in gait frame 3
+PASS: Every leg remains attached to rear-body ellipse in gait frame 3
+PASS: Spider retains four legs per side in gait frame 3
+PASS: Spider keeps eight legs in gait frame 4
+PASS: Every leg remains attached to rear-body ellipse in gait frame 4
+PASS: Spider retains four legs per side in gait frame 4
+PASS: Spider keeps eight legs in gait frame 5
+PASS: Every leg remains attached to rear-body ellipse in gait frame 5
+PASS: Spider retains four legs per side in gait frame 5
+PASS: Spider keeps eight legs in gait frame 6
+PASS: Every leg remains attached to rear-body ellipse in gait frame 6
+PASS: Spider retains four legs per side in gait frame 6
+PASS: Spider keeps eight legs in gait frame 7
+PASS: Every leg remains attached to rear-body ellipse in gait frame 7
+PASS: Spider retains four legs per side in gait frame 7
+PASS: Spider keeps eight legs in gait frame 8
+PASS: Every leg remains attached to rear-body ellipse in gait frame 8
+PASS: Spider retains four legs per side in gait frame 8
+PASS: Spider keeps eight legs in gait frame 9
+PASS: Every leg remains attached to rear-body ellipse in gait frame 9
+PASS: Spider retains four legs per side in gait frame 9
+PASS: Spider keeps eight legs in gait frame 10
+PASS: Every leg remains attached to rear-body ellipse in gait frame 10
+PASS: Spider retains four legs per side in gait frame 10
+PASS: Spider keeps eight legs in gait frame 11
+PASS: Every leg remains attached to rear-body ellipse in gait frame 11
+PASS: Spider retains four legs per side in gait frame 11
+PASS: Spider keeps eight legs in gait frame 12
+PASS: Every leg remains attached to rear-body ellipse in gait frame 12
+PASS: Spider retains four legs per side in gait frame 12
+PASS: Spider keeps eight legs in gait frame 13
+PASS: Every leg remains attached to rear-body ellipse in gait frame 13
+PASS: Spider retains four legs per side in gait frame 13
+PASS: Spider keeps eight legs in gait frame 14
+PASS: Every leg remains attached to rear-body ellipse in gait frame 14
+PASS: Spider retains four legs per side in gait frame 14
+PASS: Spider keeps eight legs in gait frame 15
+PASS: Every leg remains attached to rear-body ellipse in gait frame 15
+PASS: Spider retains four legs per side in gait frame 15
+PASS: Spider keeps eight legs in gait frame 16
+PASS: Every leg remains attached to rear-body ellipse in gait frame 16
+PASS: Spider retains four legs per side in gait frame 16
+PASS: Spider keeps eight legs in gait frame 17
+PASS: Every leg remains attached to rear-body ellipse in gait frame 17
+PASS: Spider retains four legs per side in gait frame 17
+PASS: Spider keeps eight legs in gait frame 18
+PASS: Every leg remains attached to rear-body ellipse in gait frame 18
+PASS: Spider retains four legs per side in gait frame 18
+PASS: Spider keeps eight legs in gait frame 19
+PASS: Every leg remains attached to rear-body ellipse in gait frame 19
+PASS: Spider retains four legs per side in gait frame 19
+PASS: Spider keeps eight legs in gait frame 20
+PASS: Every leg remains attached to rear-body ellipse in gait frame 20
+PASS: Spider retains four legs per side in gait frame 20
+PASS: Spider keeps eight legs in gait frame 21
+PASS: Every leg remains attached to rear-body ellipse in gait frame 21
+PASS: Spider retains four legs per side in gait frame 21
+PASS: Spider keeps eight legs in gait frame 22
+PASS: Every leg remains attached to rear-body ellipse in gait frame 22
+PASS: Spider retains four legs per side in gait frame 22
+PASS: Spider keeps eight legs in gait frame 23
+PASS: Every leg remains attached to rear-body ellipse in gait frame 23
+PASS: Spider retains four legs per side in gait frame 23
+PASS: Spider keeps eight legs in gait frame 24
+PASS: Every leg remains attached to rear-body ellipse in gait frame 24
+PASS: Spider retains four legs per side in gait frame 24
+PASS: Spider keeps eight legs in gait frame 25
+PASS: Every leg remains attached to rear-body ellipse in gait frame 25
+PASS: Spider retains four legs per side in gait frame 25
+PASS: Spider keeps eight legs in gait frame 26
+PASS: Every leg remains attached to rear-body ellipse in gait frame 26
+PASS: Spider retains four legs per side in gait frame 26
+PASS: Spider keeps eight legs in gait frame 27
+PASS: Every leg remains attached to rear-body ellipse in gait frame 27
+PASS: Spider retains four legs per side in gait frame 27
+PASS: Spider keeps eight legs in gait frame 28
+PASS: Every leg remains attached to rear-body ellipse in gait frame 28
+PASS: Spider retains four legs per side in gait frame 28
+PASS: Spider keeps eight legs in gait frame 29
+PASS: Every leg remains attached to rear-body ellipse in gait frame 29
+PASS: Spider retains four legs per side in gait frame 29
+PASS: Spider keeps eight legs in gait frame 30
+PASS: Every leg remains attached to rear-body ellipse in gait frame 30
+PASS: Spider retains four legs per side in gait frame 30
+PASS: Spider keeps eight legs in gait frame 31
+PASS: Every leg remains attached to rear-body ellipse in gait frame 31
+PASS: Spider retains four legs per side in gait frame 31
+PASS: Legacy Alpha numeric aliases are correctly classified for cleanup
+PASS: Genuine Beta versions never use the legacy Alpha map
+PASS: A future Beta remains newer and ineligible for obsolete cleanup
+PASS: One scan identifies multiple copies including a nondefault reference and preserves the active installation
+PASS: Cleanup progress uses real bounded work counts
+PASS: Cleanup progress uses real bounded work counts
+PASS: Cleanup progress uses real bounded work counts
+PASS: Cleanup progress uses real bounded work counts
+PASS: Cleanup-only removes both obsolete binaries and preserves the active app
+PASS: Cleanup leaves adjacent saves and unrelated executables untouched
+PASS: Repeated cleanup is idempotent and reports already absent copies
+PASS: Clean-install mode includes an obsolete unregistered target without an opt-out
+PASS: A locked obsolete binary produces a verified failure and is not claimed removed
+PASS: Changed cleanup identity is rejected before deletion
+PASS: Canceled scanning does not remove binaries
+PASS: Mandatory clean-install cleanup removes the old target while preserving its adjacent save
+PASS: Cleanup summary reports actual verified outcomes
+PASS: Same-version installations with different metadata keep independent verified recovery copies
+PASS: Both distinct installation markers have verified recoverable bytes
+PASS: Metadata cleanup preserves private content beside both installations
+PASS: 153 Beta011 checks

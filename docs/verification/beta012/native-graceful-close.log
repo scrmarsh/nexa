@@ -1,0 +1,7 @@
+PASS: Acceptance process still belongs to the isolated application path
+PASS: Packaged helper identifies the verified running application
+PASS: Process inventory names only the requested application, excluding Setup and helper processes
+PASS: Read-only process detection leaves the application running until closure is confirmed
+PASS: Verified Close Nexa sends graceful shutdown and confirms exit
+PASS: Repeated detection reports no application after verified exit
+PASS: Data-preserving fixture uninstall removes only TestAppId registration

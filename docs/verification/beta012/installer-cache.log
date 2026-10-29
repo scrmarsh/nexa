@@ -1,0 +1,4 @@
+PASS: Rerun Installer resolves the exact verified official cache without downloading
+PASS: An altered cached installer is rejected before it can run
+PASS: A missing official installer returns the download-prompt path
+PASS: 3 installer-cache checks

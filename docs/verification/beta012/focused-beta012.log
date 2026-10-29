@@ -1,0 +1,41 @@
+PASS: Beta 0.1.2 numeric and displayed identities agree
+PASS: Repair discovery selects the matching official installer even when a newer release exists
+PASS: Clock assignment emits exactly one final hour/minute/AM-PM value
+PASS: Writing the same clock value does not trigger save loops
+PASS: Monday/Wednesday 9:30 AM to 12:30 PM is 180 minutes
+PASS: 9:30 PM to 12:30 PM deliberately spans midnight for 900 minutes
+PASS: Light-mode shared icon brush is dark and visible
+PASS: Pixel shape persists: Square
+PASS: Pixel shape persists: Circle
+PASS: Pixel shape persists: Triangle
+PASS: Pixel geometry is cached and recognizable: Triangle
+PASS: Pixel shape persists: Octagon
+PASS: Pixel geometry is cached and recognizable: Octagon
+PASS: Pixel shape persists: Hearts
+PASS: Pixel geometry is cached and recognizable: Hearts
+PASS: Create Space has a centered, themed text label
+PASS: Create Space gives wrapping widget rows a bounded viewport
+PASS: Space icons use one compact anchored popup
+PASS: Profile keeps the outer card and removes the inner name border
+PASS: Welcome advances to Space type, with no unused use-case page
+PASS: Pick Your Tools includes every registered widget exactly once
+PASS: Featured widgets have the requested canonical order
+PASS: Onboarding Light Mode previews immediately using shared resources
+PASS: Onboarding omits sound preview UI
+PASS: Final Nexaween confirmation No Thanks retains Light Mode
+PASS: Nexaween acceptance immediately applies dark seasonal resources
+PASS: Final page reuses existing seasonal decorations
+PASS: Seasonal final-page artwork has visible layout actors
+PASS: Canceling rerun restores the original application appearance
+PASS: Session Settings draft autosave succeeds without recursive writes: Changes saved.
+PASS: Applying Session Settings immediately updates and persists the active Pixel Timer
+PASS: A locked save retains pending edits and displays the real storage error
+PASS: Canceling failed-save closure keeps Settings open and committed bytes intact
+PASS: Retry succeeds after storage becomes writable without reopening Settings
+PASS: Second locked Settings edit remains pending for explicit discard
+PASS: Explicit Discard closes Settings and restores the saved draft after a failed save
+PASS: The checks/installer host is never identified by a broad Nexa name match
+PASS: Released application identity is independently hash verified
+PASS: The first dashboard retains the chosen Space/session title instead of replacing it with the first preset
+PASS: First-launch update preferences wrap inside the dialog instead of hiding actions offscreen
+PASS: 40 Beta012 checks

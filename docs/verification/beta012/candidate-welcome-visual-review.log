@@ -1,0 +1,44 @@
+2026-10-29 14:54:24.801   Log opened. (Time zone: UTC-05:00)
+2026-10-29 14:54:24.802   Setup version: Inno Setup version 7.1.1 (64-bit)
+2026-10-29 14:54:24.802   Original Setup EXE: C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\installer012-native\NexaSetup.exe
+2026-10-29 14:54:24.802   Setup command line: /SL5="$FB16A6,65767365,1325568,C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\installer012-native\NexaSetup.exe" /CURRENTUSER /LOG="C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\native012-installer\welcome-ui.log"
+2026-10-29 14:54:24.802   Windows version: 10.0.26300
+2026-10-29 14:54:24.802   Windows architecture: x64 (64-bit)
+2026-10-29 14:54:24.802   Machine types supported by system: x86 x64
+2026-10-29 14:54:24.802   User privileges: None
+2026-10-29 14:54:24.873   Administrative install mode: No
+2026-10-29 14:54:24.873   Install mode root key: HKEY_CURRENT_USER
+2026-10-29 14:54:24.873   64-bit install mode: Yes
+2026-10-29 14:54:24.873   RedirectionGuard status for current process: Enabled in enforcing mode
+2026-10-29 14:54:24.876   Created temporary directory: C:\Users\SEANMA~1\AppData\Local\Temp\is-UN0MGITVS9.tmp
+2026-10-29 14:54:24.881   -- DLL function import --
+2026-10-29 14:54:24.881   Function and DLL name: GetFileAttributesW@kernel32.dll
+2026-10-29 14:54:24.881   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-29 14:54:24.881   Successfully imported the DLL function. Delay loaded? No
+2026-10-29 14:54:24.881   -- DLL function import --
+2026-10-29 14:54:24.881   Function and DLL name: DeleteFileW@kernel32.dll
+2026-10-29 14:54:24.881   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-29 14:54:24.881   Successfully imported the DLL function. Delay loaded? No
+2026-10-29 14:54:24.881   -- DLL function import --
+2026-10-29 14:54:24.881   Function and DLL name: RemoveDirectoryW@kernel32.dll
+2026-10-29 14:54:24.881   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-29 14:54:24.881   Successfully imported the DLL function. Delay loaded? No
+2026-10-29 14:54:24.881   -- DLL function import --
+2026-10-29 14:54:24.881   Function and DLL name: SetFileAttributesW@kernel32.dll
+2026-10-29 14:54:24.881   Importing the DLL function. Dest DLL name: kernel32.dll
+2026-10-29 14:54:24.881   Successfully imported the DLL function. Delay loaded? No
+2026-10-29 14:55:02.095   Extracting temporary file: C:\Users\SEANMA~1\AppData\Local\Temp\is-UN0MGITVS9.tmp\Nexa.exe
+2026-10-29 14:55:05.148   PROGRESS|1|2|Scanning C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\native012-installer\legacy
+2026-10-29 14:55:05.149   PROGRESS|2|4|Scanning C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\native012-installer\app
+2026-10-29 14:55:05.153   PROGRESS|3|4|Scanning C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\native012-installer\legacy\repair-preserved
+2026-10-29 14:55:05.156   PROGRESS|4|4|Scanning C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\native012-installer\legacy\welcome-review
+2026-10-29 14:55:05.157   PROGRESS|1|1|Identifying C:\Users\Sean Marsh\Documents\ChatGPT\Nexa\continuation-source\verification\native012-installer\legacy\welcome-review\Nexa.exe
+2026-10-29 14:56:17.602   Message box (Yes/No):
+                          Setup is not complete. If you exit now, the program will not be installed.
+
+                          You may run Setup again at another time to complete the installation.
+
+                          Exit Setup?
+2026-10-29 14:56:26.536   User chose Yes.
+2026-10-29 14:56:26.537   Deinitializing Setup.
+2026-10-29 14:56:26.611   Log closed.

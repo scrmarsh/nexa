@@ -1,0 +1,67 @@
+{
+  "Version": "0.1.2-beta",
+  "BuiltSourceCommit": "d821f2b34a93e33f8a2cf0f6a4fd6eb710a0f5d9",
+  "BaselineCommit": "bdb9084",
+  "Branch": "codex/nexa-012-beta",
+  "CompletedUtc": "2026-10-29T20:14:05.0685239+00:00",
+  "Published": false,
+  "Pushed": false,
+  "NativeTokenAdministrator": false,
+  "Checks": {
+    "FinalBroadRoutes": 29,
+    "FinalBroadAssertions": 1500,
+    "IncludedBeta012Assertions": 40,
+    "IncludedBeta011Assertions": 153,
+    "FinalPackagedNative": 17,
+    "FinalInstallerCache": 3,
+    "FinalNativeInstaller": 45,
+    "FinalNativeBlockedCleanup": 5,
+    "FinalNativeCleanupOnly": 15,
+    "FinalNativeFirstLaunchAndGracefulClose": 11
+  },
+  "ProductionAndNativePayloadsMatch": true,
+  "Packages": [
+    {
+      "File": "Application/Nexa.exe",
+      "FileVersion": "0.1.2.0",
+      "ProductVersion": "0.1.2-beta+d821f2b34a93e33f8a2cf0f6a4fd6eb710a0f5d9",
+      "SHA256": "6EABFA61CA24EDBBC05EC90FDB0748EEE93862613E5E99E94FA4E52D15ACCAF7",
+      "Bytes": 72834647
+    },
+    {
+      "File": "NexaSetup.exe",
+      "FileVersion": "0.1.2.0",
+      "ProductVersion": "0.1.2.0",
+      "SHA256": "6E773109B23CC73428BF15AC7174F931609D7D8F602F707D992288E36D915DA3",
+      "Bytes": 67735396
+    },
+    {
+      "File": "nexa-portable.exe",
+      "FileVersion": "0.1.2.0",
+      "ProductVersion": "0.1.2-beta+d821f2b34a93e33f8a2cf0f6a4fd6eb710a0f5d9",
+      "SHA256": "6EABFA61CA24EDBBC05EC90FDB0748EEE93862613E5E99E94FA4E52D15ACCAF7",
+      "Bytes": 72834647
+    },
+    {
+      "File": "Nexa.exe",
+      "FileVersion": "0.1.2.0",
+      "ProductVersion": "0.1.2-beta+d821f2b34a93e33f8a2cf0f6a4fd6eb710a0f5d9",
+      "SHA256": "9C9D5BD757AA93CD8EA2A58D06D5CB541A7E953CF6FA6F95A8116F5239E1388E",
+      "Bytes": 105303686
+    }
+  ],
+  "PreservedHistory": {
+    "Beta010PayloadSHA256": "67081BDD1415A38B5FEFB277FF8996440616963CED058A125F3CAA35FEF18F5C",
+    "Beta011PayloadSHA256": "17C919C04A3BED4D11880490002CB71FFB8FF47C2E77F30EE9BEBB683DCBDAB9"
+  },
+  "ManualVisualCandidateSHA256": "C8F1C923F724DB50E7A8FE2B1E7A2CB241C4C5BFE048525B430116192F80BEC5",
+  "FinalFirstLaunchWindowObserved": "Welcome to Nexa, only application window",
+  "LogNormalization": "Durable logs remove trailing whitespace; originals remain under verification.",
+  "Limitations": [
+    "Physical mixed-DPI/scaling and all modal/unsaved-work combinations remain manual acceptance.",
+    "Existing NTFS junction fixture was unverified under this token.",
+    "No live matching Beta 0.1.2 download before publication; trust and selection use fixtures.",
+    "NuGet vulnerability feed unreachable during release builds; no online audit claimed.",
+    "Unsigned local packages; no publication or production data changes."
+  ]
+}

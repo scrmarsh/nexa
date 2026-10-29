@@ -25,10 +25,48 @@ Local development on `codex/nexa-012-beta`, based on Beta 0.1.1 `bdb9084` (appli
 
 ## Components
 
-`App.xaml.cs`, `App.xaml`, `NexaChrome`, `Theme`, `SpaceIcons`, `DashboardCreation`, `OnboardingWindow`, `SettingsDialog.Profile/Autosave/Updates/Widgets`, `ClockPicker`, `MainWindow.ClassSchedule`, `MainWindow.xaml.cs`, `Models`, `PixelShapes`, `NexaChoices`, `NexaProcesses`, `InstallerRepair`, `InstallerMaintenance`, `ExperimentalUpdates`, `LegacyInstallations`, `installer/nexa.iss`, version/build scripts and regression checks.
+`App.xaml.cs`, `App.xaml`, `AutomaticUpdates`, `UserProfile/GuidedSetup`, `NexaChrome`, `Theme`, `SpaceIcons`, `DashboardCreation`, `OnboardingWindow`, `SettingsDialog.Profile/Autosave/Updates/Widgets`, `ClockPicker`, `MainWindow.ClassSchedule`, `MainWindow.xaml.cs`, `Models`, `PixelShapes`, `NexaChoices`, `NexaProcesses`, `InstallerRepair`, `InstallerMaintenance`, `ExperimentalUpdates`, `LegacyInstallations`, `installer/nexa.iss`, version/build scripts and regression checks.
 
 Application, assembly, installer and compatibility launcher target **0.1.2 Beta**, numeric version **0.1.2.0**. Beta 0.1.0/0.1.1 history remains in release notes. Bug Battle expansions and Nexy are deferred; their existing code is preserved.
 
 ## Verification
 
-Results and delivery hashes will be added after the final source/package checks. Test activity uses separate verification folders and the existing TestAppId, never the installed production app or real user saves.
+Final source: `d821f2b34a93e33f8a2cf0f6a4fd6eb710a0f5d9`. Logs and identities are retained in [docs/verification/beta012](verification/beta012/verification-receipt.json).
+
+| Check | Result |
+| --- | --- |
+| Final broad regression | 29 routes, 1,500 assertions passed |
+| Beta 0.1.2 focused coverage within that run | 40 assertions passed |
+| Beta 0.1.1 regression within that run | 153 assertions passed |
+| Final packaged real-process startup/update/rollback | 17 checks passed |
+| Official installer cache, tamper rejection and missing-cache path | 3 checks passed |
+| Final native installer lifecycle | 45 checks passed |
+| Locked obsolete binary blocks new installation | 5 checks passed |
+| Final packaged cleanup-only, failure and retry | 15 checks passed |
+| Final packaged first launch, verified process detection and graceful close | 11 checks passed |
+| App, production Setup, portable and compatibility launcher | Built; numeric version 0.1.2.0 verified |
+
+The final broad run was serialized away from native TestAppId installation. Earlier exploratory runs caught a stale numeric-version assertion and a fixture-registration collision; the corrected clean final run passed all 29 routes. Actual locked-file tests verified retained pending edits, unchanged committed bytes, Cancel, retry after unlock, and explicit Discard. Schedule tests cover 180-minute daytime and 900-minute overnight recurrence. Exact-version repair discovery is tested against an official-shaped feed containing a newer release.
+
+The final native installer uses the same source commit and application SHA256 as production Setup, with a separate TestAppId and verification root. Fresh/repeated installation, explicit repair without shortcut prompts, correct/corrupt/missing payload repair, mandatory obsolete-destination cleanup, shortcut opt-out, save-preserving uninstall and fixture-only doubly confirmed data removal passed. A locked obsolete binary returned a failure before new payload/registration writes; cleanup-only retry succeeded after unlocking. The final packaged first launch again showed only Welcome to Nexa; verified normal closure exited safely. The token was not an administrator. All installation/removal activity used separate verification folders and the TestAppId, never the installed production app or real user saves.
+
+## Native visual acceptance
+
+The isolated packaged candidate opened only Welcome to Nexa. Native review walked through the full widget registry, Light Mode preview, final Nexaween prompt, No Thanks, compact icon-grid keyboard selection, completion, and the resulting saved Space. The saved fixture contained the selected Briefcase icon, Pixel timer/Notes/Clock widgets, completed onboarding and Light appearance. Process detection identified only the requested verified path. Closure refused while a blocking modal was open, then normal window closure succeeded after that modal was dismissed; there was no forced termination.
+
+The isolated welcome-screen scan ran while only Setup was open. Its progress page showed one bottom-anchored track beneath readable status text, with no duplicate bar. Review showed the verified obsolete fixture and returned to Welcome without entering installation or Additional Tasks. The existing update-preference dialog exposed unbounded horizontal measurement during this review; that dialog now wraps its text and shows its save action. Theme palette choices and the sound enable toggle are retained; only the onboarding sound-preview UI was removed.
+
+Native visual acceptance above used the earlier isolated candidate. The final compiled source is separately covered by the 1,500 assertions and final packaged/native results, including rendered [appearance](media/beta012/onboarding-appearance-light.png), [Nexaween ready page](media/beta012/onboarding-ready-nexaween.png), [Create Space action area](media/beta012/create-space-actions-light.png), [Profile](media/beta012/profile-light.png), and [update preferences](media/beta012/update-preference-light.png).
+
+## Local delivery and limits
+
+- Setup: `verification/release012-final/NexaSetup.exe`
+- Portable: `verification/release012-final/nexa-portable.exe`
+- Compatibility launcher: `verification/release012-final/Nexa.exe`
+- [SHA256 values](verification/beta012/SHA256SUMS.txt)
+
+Full physical coverage across multiple mixed-DPI monitors, every Windows scaling setting, and every modal/unsaved-work combination remains manual acceptance. One existing junction fixture could not be created under the restricted token; its unverified result is retained in the junction log. Live external-provider credentials were not used; HEDY behavior and Bug Battle implementation were not changed.
+
+Beta 0.1.2 is not published, so downloading a matching 0.1.2 installer from the live public feed cannot yet complete. The missing-release case reports failure; trusted feed/URL/redirect/size/hash checks and matching-version selection are covered with fixtures. Builds emitted NU1900 when the NuGet vulnerability feed was unreachable; compilation/publishing succeeded, and an online dependency-vulnerability audit is not claimed. Packages are unsigned, as in the existing local workflow.
+
+No commits were pushed, no assets were uploaded, and no GitHub release was created or modified. Beta 0.1.0 and Beta 0.1.1 artifacts remain preserved. Bug Battle expansions and Nexy were not implemented in this release.

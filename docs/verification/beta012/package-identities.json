@@ -1,0 +1,30 @@
+[
+  {
+    "File": "Application/Nexa.exe",
+    "FileVersion": "0.1.2.0",
+    "ProductVersion": "0.1.2-beta+d821f2b34a93e33f8a2cf0f6a4fd6eb710a0f5d9",
+    "SHA256": "6EABFA61CA24EDBBC05EC90FDB0748EEE93862613E5E99E94FA4E52D15ACCAF7",
+    "Bytes": 72834647
+  },
+  {
+    "File": "NexaSetup.exe",
+    "FileVersion": "0.1.2.0",
+    "ProductVersion": "0.1.2.0",
+    "SHA256": "6E773109B23CC73428BF15AC7174F931609D7D8F602F707D992288E36D915DA3",
+    "Bytes": 67735396
+  },
+  {
+    "File": "nexa-portable.exe",
+    "FileVersion": "0.1.2.0",
+    "ProductVersion": "0.1.2-beta+d821f2b34a93e33f8a2cf0f6a4fd6eb710a0f5d9",
+    "SHA256": "6EABFA61CA24EDBBC05EC90FDB0748EEE93862613E5E99E94FA4E52D15ACCAF7",
+    "Bytes": 72834647
+  },
+  {
+    "File": "Nexa.exe",
+    "FileVersion": "0.1.2.0",
+    "ProductVersion": "0.1.2-beta+d821f2b34a93e33f8a2cf0f6a4fd6eb710a0f5d9",
+    "SHA256": "9C9D5BD757AA93CD8EA2A58D06D5CB541A7E953CF6FA6F95A8116F5239E1388E",
+    "Bytes": 105303686
+  }
+]
