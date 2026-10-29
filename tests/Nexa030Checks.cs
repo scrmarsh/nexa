@@ -12,7 +12,7 @@ internal static partial class Program
 {
     private static void Check030()
     {
-        Assert(App.AppVersion=="0.0.35" && App.VersionLabel=="nexa v0.0.35 alpha","Current refinement uses shared lowercase Alpha identity");
+        Assert(App.AppVersion=="0.1.0" && App.VersionLabel=="nexa v0.1.0 beta","Current refinement uses shared lowercase Alpha identity");
         Assert(ReleaseNotes.All[0].Title=="UI Polish, Session Flow & Nexaween Refinements" && ReleaseNotes.All.Single(n=>n.Version=="0.0.29").Title=="NEXAWEEN: Interface Polish","New active note preserves released .29 history");
         Assert(new EcosystemOptions().HitboxExpansion==1.5 && new EcosystemOptions{HitboxExpansion=double.NaN}.Safe().HitboxExpansion==1.5,"Legacy and invalid hit tolerance safely default to 1.5");
         Assert(new EcosystemOptions{HitboxExpansion=100}.Safe().HitboxExpansion==1.6,"Saved hit tolerance cannot create enormous invisible regions");

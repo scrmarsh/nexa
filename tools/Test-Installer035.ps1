@@ -1,4 +1,4 @@
-﻿param([Parameter(Mandatory=$true)][string]$Setup,[Parameter(Mandatory=$true)][string]$FixtureRoot)
+param([Parameter(Mandatory=$true)][string]$Setup,[Parameter(Mandatory=$true)][string]$FixtureRoot)
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
 $verification=[IO.Path]::GetFullPath((Join-Path $repoRoot 'verification'))+[IO.Path]::DirectorySeparatorChar
@@ -35,7 +35,7 @@ $original='{"Notes":"Keep isolated installer acceptance data","Tasks":[],"Preset
 Install
 Check (Test-Path -LiteralPath (Join-Path $app 'Nexa.exe')) 'Fresh install creates the application at the isolated install location'
 $entry=Get-ItemProperty -LiteralPath $registry
-Check ($entry.DisplayName -eq 'nexa' -and $entry.DisplayVersion -eq '0.0.35') 'Windows Installed Apps records the correct name and version'
+Check ($entry.DisplayName -eq 'nexa' -and $entry.DisplayVersion -eq '0.1.0') 'Windows Installed Apps records the correct name and version'
 Check ([IO.Path]::TrimEndingDirectorySeparator($entry.InstallLocation) -eq $app) 'Windows registration points to the actual installation'
 Check (Test-Path -LiteralPath (Join-Path $app 'installation.json')) 'Installed distribution marker exists'
 Check (Test-Path -LiteralPath (Join-Path $app 'setup-cache/NexaSetup.exe')) 'Repair and rollback installer is retained'

@@ -1,4 +1,4 @@
-param([string]$OutputDirectory='verification/release035',[string]$Compiler)
+param([string]$OutputDirectory='verification/release010-beta',[string]$Compiler)
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot

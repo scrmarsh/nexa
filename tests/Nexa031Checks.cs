@@ -13,7 +13,7 @@ internal static partial class Program
 {
     private static void Check031()
     {
-        Assert(App.VersionLabel=="nexa v0.0.35 alpha" && NexaReleaseIdentity.Current.Tag=="v0.0.35-alpha","Shared release model owns current label/tag");
+        Assert(App.VersionLabel=="nexa v0.1.0 beta" && NexaReleaseIdentity.Current.Tag=="v0.1.0-beta","Shared release model owns current label/tag");
         Assert(NexaReleaseIdentity.Canonicalize(new(0,1,26),"Alpha")==new Version(0,0,26) && NexaReleaseIdentity.Canonicalize(new(0,1,26),"Beta")==new Version(0,1,26),"Explicit legacy Alpha map never rewrites genuine Beta");
         Assert(NexaReleaseIdentity.Canonicalize(new(0,1,99),"Alpha")==new Version(0,1,99),"Unconfirmed legacy-looking versions are not silently remapped");
         Assert(NexaReleaseIdentity.Parse("v0.1.0-alpha",true)==null && NexaReleaseIdentity.Parse("v0.1.0-beta",true)?.Stage=="Beta","First Beta numbering cannot masquerade as an Alpha release");

@@ -10,7 +10,7 @@ internal static partial class Program
 {
     private static void Check034()
     {
-        Assert(App.AppVersion=="0.0.35" && NexaReleaseIdentity.Current.Stage=="Alpha",".34 assembly and Alpha identity agree");
+        Assert(App.AppVersion=="0.1.0" && NexaReleaseIdentity.Current.Stage=="Beta",".34 assembly and Alpha identity agree");
         CheckInstallerWait034();CheckData034();CheckProfile034();CheckUi034();
     }
     private static void CheckProfile034()

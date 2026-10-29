@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.0 Beta — Jump into Nexa for Halloween!
+
+The first public Nexa Beta brings flexible Spaces, saved sessions and a playful Nexaween desktop to Windows.
+
+- Seasonal visuals and companions, with appearance and motion controls; the detailed Home pumpkin remains intact.
+- Nexa Default Home now supports Light mode with a pale background and dark logo lettering; icons and splash remain unchanged.
+- A sharper Windows installer follows Windows light/dark appearance, offers separate shortcut checkboxes, and preserves local saves during repair and migration.
+- Refined session completion and saved recaps, dashboard scrolling, timelines and fullscreen controls.
+- Self-contained Windows x64 installer, portable application and compatibility updater launcher, all labeled 0.1.0 Beta.
+
+[Full release notes](docs/RELEASE_0.1.0_BETA.md) · [Verification](docs/NEXA_010_BETA_VERIFICATION.md)
+
+
 ## 0.0.35 Alpha — UI Polish, Session Flow, Homepage & Nexaween Refinements (local, unpublished)
 
 - Darker frameless Classic Home with a subtle white tagline halo; centered display-name editor with explicit Save/Cancel.

@@ -4,7 +4,7 @@ param(
  [string]$OutputDirectory='verification/installer035',
  [string]$TestRoot,
  [string]$FixtureMaintenanceHelper,
- [string]$Version='0.0.35'
+ [string]$Version='0.1.0'
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot

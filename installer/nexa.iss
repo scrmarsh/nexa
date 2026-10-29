@@ -13,7 +13,7 @@
   #define OutputDirPath "..\verification\installer035"
 #endif
 #ifndef AppVersion
-  #define AppVersion "0.0.35"
+  #define AppVersion "0.1.0"
 #endif
 #ifdef TestRoot
   #define ProductId "{B80F06DA-5764-44B7-B632-68ACB4BE0330}"
@@ -33,7 +33,7 @@
 AppId={{#ProductId}
 AppName=nexa
 AppVersion={#AppVersion}
-AppVerName=nexa v{#AppVersion} alpha
+AppVerName=nexa v{#AppVersion} beta
 AppPublisher=scrmarsh
 AppPublisherURL=https://github.com/scrmarsh/nexa
 AppSupportURL=https://github.com/scrmarsh/nexa/issues

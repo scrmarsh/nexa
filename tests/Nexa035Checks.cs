@@ -24,7 +24,7 @@ internal static partial class Program
     {yield return root;for(var i=0;i<VisualTreeHelper.GetChildrenCount(root);i++)foreach(var child in Visual035(VisualTreeHelper.GetChild(root,i)))yield return child;}
     private static void Check035()
     {
-        Assert(App.VersionLabel=="nexa v0.0.35 alpha" && typeof(App).Assembly.GetName().Version==new Version(0,0,35,0),".35 label and Windows assembly identity agree");
+        Assert(App.VersionLabel=="nexa v0.1.0 beta" && typeof(App).Assembly.GetName().Version==new Version(0,1,0,0),".35 label and Windows assembly identity agree");
         var store=Store035("home");var home=new HomeWindow(store);home.Show();Pump(TimeSpan.FromMilliseconds(100));
         var tagline=Descendants(home).OfType<TextBlock>().Single(t=>System.Windows.Automation.AutomationProperties.GetName(t)=="Home tagline");
         Assert(new System.Windows.Documents.TextRange(tagline.ContentStart,tagline.ContentEnd).Text=="a space for whatever comes next" && tagline.Effect is System.Windows.Media.Effects.DropShadowEffect{ShadowDepth:0,BlurRadius:7},"Exact Classic tagline has a soft glyph-shaped white halo");

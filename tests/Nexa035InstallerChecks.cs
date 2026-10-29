@@ -37,15 +37,15 @@ internal static partial class Program
         Setup035(baseline,root);
         var target=Path.Combine(root,"app","Nexa.exe");var store=new StateStore(Path.Combine(root,"data","state.json"));store.Save(new AppState{Notes="Preserve actual installer update data"});var bytes=File.ReadAllText(store.FilePath);
         Assert(NexaInstallation.IsInstalled(target) && Registered035()=="0.0.34","Prior-version fixture has genuine .34 registration and binary metadata");
-        var previousHash=UpdateTransaction.Hash(target);var plan=InstallerUpdates.Prepare(store,target,candidate,UpdateTransaction.Hash(candidate),"0.0.35").GetAwaiter().GetResult();
+        var previousHash=UpdateTransaction.Hash(target);var plan=InstallerUpdates.Prepare(store,target,candidate,UpdateTransaction.Hash(candidate),"0.1.0").GetAwaiter().GetResult();
         Assert(JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.Installer && File.Exists(Path.Combine(Path.GetDirectoryName(plan)!,"previous-setup.exe")),"Installer update stages the verified candidate and rollback Setup");
         var rejected=false;try{UpdateTransaction.Apply(plan,_=>Task.FromResult(false),waitForParent:false).GetAwaiter().GetResult();}catch(IOException){rejected=true;}
         Assert(rejected && JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.State=="RolledBack","Failed installed-app health runs the prior Setup and records rollback");
         Assert(UpdateTransaction.Hash(target)==previousHash && Registered035()=="0.0.34","Rollback restores exact application bytes and Installed Apps version");
         Assert(File.ReadAllText(store.FilePath)==bytes,"Failed installer upgrade preserves exact user-data bytes");
-        plan=InstallerUpdates.Prepare(store,target,candidate,UpdateTransaction.Hash(candidate),"0.0.35").GetAwaiter().GetResult();
+        plan=InstallerUpdates.Prepare(store,target,candidate,UpdateTransaction.Hash(candidate),"0.1.0").GetAwaiter().GetResult();
         UpdateTransaction.Apply(plan,p=>UpdateTransaction.Health(p,Path.Combine(root,"upgraded-health")),waitForParent:false).GetAwaiter().GetResult();
-        Assert(Registered035()=="0.0.35" && FileVersionInfo.GetVersionInfo(target).FileVersion=="0.0.35.0","Successful upgrade advances registered and executable versions together");
+        Assert(Registered035()=="0.1.0" && FileVersionInfo.GetVersionInfo(target).FileVersion=="0.1.0.0","Successful upgrade advances registered and executable versions together");
         Assert(File.ReadAllText(store.FilePath)==bytes && NexaInstallation.IsInstalled(target),"Successful upgrade preserves data and registered installation identity");
         var cached=InstallerRepair.Cached(target);Assert(cached!=null && File.Exists(cached),"Rerun Installer resolves the installed digest-verified cache");
         var cachedBytes=File.ReadAllBytes(cached!);try{File.WriteAllText(cached!,"corrupt fixture cache");var refused=false;try{InstallerRepair.Cached(target);}catch(Exception ex)when(ex is IOException or InvalidDataException){refused=true;}Assert(refused,"Rerun Installer refuses a corrupt cached Setup");}finally{File.WriteAllBytes(cached!,cachedBytes);}
@@ -58,12 +58,12 @@ internal static partial class Program
             var old=Path.GetFullPath(Path.Combine("verification","release-audit033",tag,"Nexa.exe"));
             var portableRoot=Path.Combine(root,"legacy",tag);Directory.CreateDirectory(portableRoot);var portable=Path.Combine(portableRoot,"Nexa.exe");File.Copy(old,portable,true);
             var helper=Path.Combine(root,"legacy-helper-"+tag+"-"+Guid.NewGuid().ToString("N")+".exe");File.Copy(old,helper);
-            var legacyPlan=UpdateTransaction.Prepare(store,portable,bridge,UpdateTransaction.Hash(bridge),"0.0.35").GetAwaiter().GetResult();
+            var legacyPlan=UpdateTransaction.Prepare(store,portable,bridge,UpdateTransaction.Hash(bridge),"0.1.0").GetAwaiter().GetResult();
             var prepared=JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(legacyPlan))!;prepared.ParentPid=int.MaxValue;UpdateTransaction.Save(legacyPlan,prepared);
             var info=new ProcessStartInfo(helper){UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden,ArgumentList={"--apply-update",legacyPlan}};
             using(var child=Process.Start(info)!){if(!child.WaitForExit(180000))throw new TimeoutException("Legacy helper did not finish.");Assert(child.ExitCode==0,"Unmodified "+tag+" helper accepts the migration bridge");}
-            var watch=Stopwatch.StartNew();while((Registered035()!="0.0.35") && watch.Elapsed<TimeSpan.FromMinutes(3))Thread.Sleep(200);
-            Assert(Registered035()=="0.0.35" && File.Exists(portable),"Legacy "+tag+" restart installs nexa while retaining the standalone migration copy");
+            var watch=Stopwatch.StartNew();while((Registered035()!="0.1.0") && watch.Elapsed<TimeSpan.FromMinutes(3))Thread.Sleep(200);
+            Assert(Registered035()=="0.1.0" && File.Exists(portable),"Legacy "+tag+" restart installs nexa while retaining the standalone migration copy");
             Assert(File.ReadAllText(store.FilePath)==bytes,"Legacy "+tag+" migration preserves user data");
             Assert(JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(legacyPlan))!.State=="Installed","Legacy "+tag+" helper records a durable installed checkpoint");
         }
@@ -73,14 +73,14 @@ internal static partial class Program
         try
         {
             var source=Path.Combine(root,"portable-current","nexa-portable.exe");Directory.CreateDirectory(Path.GetDirectoryName(source)!);File.Copy(Path.GetFullPath("verification/release035-final/Application/Nexa.exe"),source,true);var portableHash=UpdateTransaction.Hash(source);
-            plan=InstallerUpdates.Prepare(store,source,candidate,UpdateTransaction.Hash(candidate),"0.0.35").GetAwaiter().GetResult();
+            plan=InstallerUpdates.Prepare(store,source,candidate,UpdateTransaction.Hash(candidate),"0.1.0").GetAwaiter().GetResult();
             Assert(JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.MigratePortable,"Current portable mode stages a real installer migration with recovery data");
             rejected=false;try{UpdateTransaction.Apply(plan,_=>Task.FromResult(false),waitForParent:false).GetAwaiter().GetResult();}catch(IOException){rejected=true;}
             Assert(rejected && Registered035()==null && UpdateTransaction.Hash(source)==portableHash && JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.State=="RolledBack","Failed first installer migration removes only the new test installation and restores the exact portable executable");
             Assert(File.ReadAllText(store.FilePath)==bytes,"Failed first migration preserves exact private data bytes");
-            plan=InstallerUpdates.Prepare(store,source,candidate,UpdateTransaction.Hash(candidate),"0.0.35").GetAwaiter().GetResult();
+            plan=InstallerUpdates.Prepare(store,source,candidate,UpdateTransaction.Hash(candidate),"0.1.0").GetAwaiter().GetResult();
             UpdateTransaction.Apply(plan,p=>UpdateTransaction.Health(p,Path.Combine(root,"portable-migration-health")),waitForParent:false).GetAwaiter().GetResult();
-            Assert(Registered035()=="0.0.35" && File.Exists(source) && JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.State=="Installed","Current portable migration installs registered nexa and preserves its portable source");
+            Assert(Registered035()=="0.1.0" && File.Exists(source) && JsonSerializer.Deserialize<UpdatePlan>(File.ReadAllText(plan))!.State=="Installed","Current portable migration installs registered nexa and preserves its portable source");
             Assert(File.ReadAllText(store.FilePath)==bytes,"Successful current portable migration preserves user data");
             Setup035(Directory.GetFiles(Path.Combine(root,"app"),"unins*.exe").Single(),root);
             Assert(Registered035()==null,"Current portable migration fixture removes its test registration afterward");
