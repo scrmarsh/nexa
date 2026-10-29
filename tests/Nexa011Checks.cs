@@ -98,5 +98,17 @@ internal static partial class Program
         using var canceled=new CancellationTokenSource();canceled.Cancel();var stopped=false;try{LegacyInstallations.Scan(data,app,"clean",roots,true,cancel:canceled.Token);}catch(OperationCanceledException){stopped=true;}Assert(stopped && File.Exists(Path.Combine(app,"Nexa.exe")),"Canceled scanning does not remove binaries");
         clean=LegacyInstallations.Scan(data,app,"clean",roots,true);LegacyInstallations.Remove(clean);Assert(clean.Removed==1 && File.Exists(Path.Combine(app,"state.json")),"Mandatory clean-install cleanup removes the old target while preserving its adjacent save");
         Assert(LegacyInstallations.Report(clean).Contains("Removed: 1"),"Cleanup summary reports actual verified outcomes");
+        foreach(var name in new[]{"registered-a","registered-b"})
+        {
+            var directory=Path.Combine(root,"custom",name);Directory.CreateDirectory(directory);File.Copy(old,Path.Combine(directory,"Nexa.exe"));
+            File.WriteAllText(Path.Combine(directory,"installation.json"),System.Text.Json.JsonSerializer.Serialize(new{AppId=NexaInstallation.TestAppId,DataRoot=directory}));
+            File.WriteAllText(Path.Combine(directory,"installer-integrity.json"),"{}");File.WriteAllText(Path.Combine(directory,"private.txt"),name);
+        }
+        var copies=LegacyInstallations.Scan(data,app,"clean",roots,true);
+        foreach(var candidate in copies.Candidates)candidate.Registrations.Add(new("CurrentUser","Registry64",@"Software\Microsoft\Windows\CurrentVersion\Uninstall\"+NexaInstallation.TestAppId+"_is1",Path.GetDirectoryName(candidate.Executable)!));
+        LegacyInstallations.Remove(copies);
+        Assert(copies.Removed==2 && copies.Failed==0,"Same-version installations with different metadata keep independent verified recovery copies");
+        Assert(Directory.GetFiles(Path.Combine(data,"installer-cleanup-backups"),"installation.json",SearchOption.AllDirectories).Length==2,"Both distinct installation markers have verified recoverable bytes");
+        Assert(File.Exists(Path.Combine(root,"custom/registered-a/private.txt")) && File.Exists(Path.Combine(root,"custom/registered-b/private.txt")),"Metadata cleanup preserves private content beside both installations");
     }
 }

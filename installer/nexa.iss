@@ -119,7 +119,8 @@ var
   DiscoveryMemo: TNewMemo;
   SearchProgress: TOutputProgressWizardPage;
   ModePage: TInputOptionWizardPage;
-  Prepared, Preparing: Boolean;
+  Prepared, Preparing, PostInstallFailed: Boolean;
+  PostInstallError: String;
   PreparationError: String;
   DesktopShortcutCheck, StartMenuShortcutCheck: TNewCheckBox;
   UpdatingShortcutChoices: Boolean;
@@ -239,7 +240,7 @@ function RunLegacyCleanup(OnlyScan: Boolean): Boolean;
 var Code: Integer; Args, Roots, Mode, Inventory, Target, Report: String;
 begin
   Result := False;
-  ExtractTemporaryFile('{#PrepareHelper}');
+  if not FileExists(ExpandConstant('{tmp}\{#PrepareHelper}')) then ExtractTemporaryFile('{#PrepareHelper}');
   Inventory := ExpandConstant('{tmp}\legacy-cleanup.json');
 #ifdef TestRoot
   ForceDirectories(ExpandConstant('{#TestRoot}'));
@@ -312,7 +313,7 @@ begin
       Preparing := False; Exit;
     end;
   end;
-  ExtractTemporaryFile('{#PrepareHelper}');
+  if not FileExists(ExpandConstant('{tmp}\{#PrepareHelper}')) then ExtractTemporaryFile('{#PrepareHelper}');
   PlanPath := ExpandConstant('{tmp}\migration-plan.json');
   if ModePage.SelectedValueIndex = 1 then begin
     if not Exec(ExpandConstant('{tmp}\{#PrepareHelper}'), '--installer-repair-validate ' + Quoted(ExpandConstant('{app}')), '', SW_HIDE, ewWaitUntilTerminated, Code) or (Code <> 0) then begin
@@ -357,8 +358,21 @@ end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
-  if not Prepared then PrepareInstallation;
-  Result := PreparationError;
+  try
+    if not Prepared then PrepareInstallation;
+    Result := PreparationError;
+    if (Result = '') and ((not Prepared) or (not FileExists(PlanPath))) then
+      Result := 'Installation checks did not finish. No new application files were installed. Please retry.';
+  except
+    Preparing := False; Prepared := False;
+    Result := 'Installation checks failed before installing application files: ' + GetExceptionMessage;
+    Log(Result);
+  end;
+end;
+
+function GetCustomSetupExitCode: Integer;
+begin
+  if PostInstallFailed then Result := 1 else Result := 0;
 end;
 
 procedure InitializeWizard;
@@ -403,6 +417,10 @@ end;
 
 procedure CurPageChanged(CurPageID: Integer);
 begin
+  if (CurPageID = wpFinished) and PostInstallFailed then begin
+    WizardForm.FinishedHeadingLabel.Caption := 'Nexa Setup needs attention';
+    WizardForm.FinishedLabel.Caption := PostInstallError + ' Existing data and recovery copies were preserved. Inspect the installation report and rerun Setup.';
+  end;
   if CurPageID = wpSelectTasks then begin
     UpdatingShortcutChoices := True;
     DesktopShortcutCheck.Checked := WizardIsTaskSelected('desktopicon');
@@ -458,6 +476,7 @@ begin
     WizardForm.StatusLabel.Caption := 'Application integrity, registration and shortcuts verified';
     except
       Failure := GetExceptionMessage;
+      PostInstallFailed := True; PostInstallError := Failure;
       Exec(ExpandConstant('{tmp}\{#PrepareHelper}'), '--installer-rollback ' + Quoted(PlanPath), '', SW_HIDE, ewWaitUntilTerminated, Code);
       RaiseException(Failure + ' Previous executable restoration was requested; inspect the installation report before retrying.');
     end;

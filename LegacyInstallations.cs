@@ -218,7 +218,7 @@ internal static class LegacyInstallations
                 foreach(var file in disposable.Where(File.Exists))
                 {
                     RejectLinks(file);
-                    var recovery=Path.Combine(plan.DataRoot,"installer-cleanup-backups",candidate.Hash,"installation-files",Path.GetRelativePath(directory,file));
+                    var recovery=Path.Combine(plan.DataRoot,"installer-cleanup-backups",candidate.Hash,"installation-files",UpdateTransaction.Hash(file),Path.GetFileName(file));
                     if(!File.Exists(recovery))InstallerMaintenance.CopyVerified(file,recovery);
                     if(UpdateTransaction.Hash(file)!=UpdateTransaction.Hash(recovery))throw new IOException("Installation-file recovery verification failed.");
                     File.Delete(file);if(File.Exists(file))throw new IOException("Installation file could not be removed: "+file);

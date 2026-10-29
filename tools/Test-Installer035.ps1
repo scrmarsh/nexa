@@ -90,7 +90,7 @@ if([IO.Path]::GetFullPath($unregisteredCopy) -ne (Join-Path $fixture 'app/Nexa.e
 Remove-Item -LiteralPath $unregisteredCopy
 Check ((Get-FileHash -LiteralPath $oldPortable -Algorithm SHA256).Hash -eq $oldPortableHash) 'Approved .34 source payload remains unchanged'
 Install 'startmenu'
-Check (-not (Test-Path -LiteralPath (Join-Path $fixture 'desktop/nexa.lnk'))) 'Fresh desktop-shortcut opt-out is honored'
+Check (-not (Test-Path -LiteralPath (Join-Path $fixture 'desktop/nexa.lnk'))) 'Desktop-shortcut opt-out is honored on reinstall'
 Check (Test-Path -LiteralPath (Join-Path $fixture 'start-menu/nexa.lnk')) 'Start menu entry is available after reinstall'
 Uninstall -RemoveData
 Check (-not (Test-Path -LiteralPath $data)) 'Explicit doubly confirmed data removal removes only the fixture data store'
