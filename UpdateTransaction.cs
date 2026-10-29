@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -59,7 +59,7 @@ internal static class UpdateTransaction
             foreach (var child in Directory.EnumerateDirectories(current))
             {
                 var name = Path.GetFileName(child);
-                if ((File.GetAttributes(child) & FileAttributes.ReparsePoint) != 0 || name.Equals("migration-backups", StringComparison.OrdinalIgnoreCase) || name.Equals("updates", StringComparison.OrdinalIgnoreCase) || name.Equals("bin", StringComparison.OrdinalIgnoreCase) || name.Equals("obj", StringComparison.OrdinalIgnoreCase) || IsWithin(backup, child)) continue;
+                if ((File.GetAttributes(child) & FileAttributes.ReparsePoint) != 0 || name.Equals("migration-backups", StringComparison.OrdinalIgnoreCase) || name.Equals("Backups",StringComparison.OrdinalIgnoreCase) || name.Equals("updates", StringComparison.OrdinalIgnoreCase) || name.Equals("bin", StringComparison.OrdinalIgnoreCase) || name.Equals("obj", StringComparison.OrdinalIgnoreCase) || IsWithin(backup, child)) continue;
                 pending.Push(child);
             }
             foreach (var file in Directory.EnumerateFiles(current))

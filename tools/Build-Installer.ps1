@@ -1,8 +1,9 @@
-param(
+﻿param(
  [Parameter(Mandatory=$true)][string]$PublishDir,
  [Parameter(Mandatory=$true)][string]$Compiler,
  [string]$OutputDirectory='verification/installer034',
  [string]$TestRoot,
+ [string]$FixtureMaintenanceHelper,
  [string]$Version='0.0.34'
 )
 $ErrorActionPreference='Stop'
@@ -22,8 +23,16 @@ if($TestRoot){
  if(-not $testPath.StartsWith($verificationRoot,[StringComparison]::OrdinalIgnoreCase)){throw 'Native fixture root must remain under verification'}
  $arguments+="/DTestRoot=$testPath"
 }
+if($FixtureMaintenanceHelper){
+ if(-not $TestRoot){throw 'A separate preparation helper is allowed only for isolated test installers'}
+ $helperPath=(Resolve-Path -LiteralPath $FixtureMaintenanceHelper).Path
+ if((Get-Item -LiteralPath $helperPath).VersionInfo.ProductName -ne 'Nexa'){throw 'Invalid fixture preparation helper identity'}
+ $arguments+="/DFixtureHelper=$helperPath"
+}
 & $compilerPath @arguments (Join-Path $repoRoot 'installer/nexa.iss')
 if($LASTEXITCODE -ne 0){throw 'Installer compilation failed'}
 $setup=Get-Item -LiteralPath (Join-Path $outputPath 'NexaSetup.exe')
-[ordered]@{Version=$Version;Framework='Inno Setup 7.1.1';SourceCommit=(& git -C $repoRoot rev-parse HEAD);PayloadSHA256=(Get-FileHash -LiteralPath $binary -Algorithm SHA256).Hash;InstallerSHA256=(Get-FileHash -LiteralPath $setup.FullName -Algorithm SHA256).Hash;NativeFixture=[bool]$TestRoot;Signed=$false} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $outputPath 'build-identity.json')
+$identity=[ordered]@{Version=$Version;Framework='Inno Setup 7.1.1';SourceCommit=(& git -C $repoRoot rev-parse HEAD);PayloadSHA256=(Get-FileHash -LiteralPath $binary -Algorithm SHA256).Hash;InstallerSHA256=(Get-FileHash -LiteralPath $setup.FullName -Algorithm SHA256).Hash;NativeFixture=[bool]$TestRoot;Signed=$false}
+if($FixtureMaintenanceHelper){$identity.FixturePreparationHelperSHA256=(Get-FileHash -LiteralPath $helperPath -Algorithm SHA256).Hash}
+$identity | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $outputPath 'build-identity.json')
 $setup.FullName

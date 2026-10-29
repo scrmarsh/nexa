@@ -117,7 +117,7 @@ internal static partial class Program
         Assert(!Descendants(settings).OfType<Button>().Any(b=>Equals(b.Content,"Restore default theme color")),"Redundant restore theme action is removed");
         Assert(Descendants(settings).OfType<RadioButton>().Count(r=>r.Tag is AppTheme)==4,"The original four official palette choices remain");
         var wallpaperField=typeof(HomeWindow).GetField("homeWallpaper",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!;
-        foreach(var mode in new[]{ThemeMode.Light,ThemeMode.Dark})foreach(var palette in Theme.OfficialThemes)
+        foreach(var mode in new[]{SessionDashboard.ThemeMode.Light,SessionDashboard.ThemeMode.Dark})foreach(var palette in Theme.OfficialThemes)
         {
             store.SavePreferences(mode,palette);Theme.Apply(Application.Current.Resources,mode,palette);home.RefreshWallpaper();
             Assert(((Border)wallpaperField.GetValue(home)!).Background is SolidColorBrush brush && brush.Color==Color.FromRgb(23,27,38),"Default Home stays charcoal under "+mode+" / "+palette);

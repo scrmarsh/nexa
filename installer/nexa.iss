@@ -1,6 +1,14 @@
 #ifndef PublishDir
   #error PublishDir must point to the approved installed-distribution publish output
 #endif
+#ifdef FixtureHelper
+  #ifndef TestRoot
+    #error A separate maintenance helper is permitted only for a test-root fixture
+  #endif
+  #define PrepareHelper "nexa-maintenance.exe"
+#else
+  #define PrepareHelper "Nexa.exe"
+#endif
 #ifndef OutputDirPath
   #define OutputDirPath "..\verification\installer033"
 #endif
@@ -73,6 +81,9 @@ Name: startmenu; Description: "Add to Start Menu"; GroupDescription: "Shortcuts:
 
 [Files]
 Source: "{#PublishDir}\Nexa.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: PayloadNeeded
+#ifdef FixtureHelper
+Source: "{#FixtureHelper}"; DestDir: "{tmp}"; DestName: "nexa-maintenance.exe"; Flags: dontcopy
+#endif
 Source: "{srcexe}"; DestDir: "{app}\setup-cache"; DestName: "NexaSetup.exe"; Flags: external ignoreversion; Check: CacheNeeded
 
 [Icons]
@@ -139,7 +150,7 @@ begin
   if Preparing then exit;
   Preparing := True;
   PreparationError := ''; Prepared := False;
-  ExtractTemporaryFile('Nexa.exe');
+  ExtractTemporaryFile('{#PrepareHelper}');
   PlanPath := ExpandConstant('{tmp}\migration-plan.json');
 #ifdef TestRoot
   Roots := Quoted(ExpandConstant('{#TestRoot}\legacy'));
@@ -159,7 +170,7 @@ begin
   SearchProgress.SetProgress(0, 0);
   SearchProgress.Show;
   try
-    if not ExecAndLogOutput(ExpandConstant('{tmp}\Nexa.exe'), Args, '', SW_HIDE, ewWaitUntilTerminated, Code, @PreparationLog) then
+    if not ExecAndLogOutput(ExpandConstant('{tmp}\{#PrepareHelper}'), Args, '', SW_HIDE, ewWaitUntilTerminated, Code, @PreparationLog) then
       PreparationError := 'Could not start installation checks. Existing saves and portable copies are unchanged.'
     else if Code <> 0 then begin
       LoadStringFromFile(PlanPath + '.error', Report);
@@ -245,7 +256,7 @@ begin
     WizardForm.StatusLabel.Caption := 'Application integrity, registration and shortcuts verified';
     except
       Failure := GetExceptionMessage;
-      Exec(ExpandConstant('{tmp}\Nexa.exe'), '--installer-rollback ' + Quoted(PlanPath), '', SW_HIDE, ewWaitUntilTerminated, Code);
+      Exec(ExpandConstant('{tmp}\{#PrepareHelper}'), '--installer-rollback ' + Quoted(PlanPath), '', SW_HIDE, ewWaitUntilTerminated, Code);
       RaiseException(Failure + ' Previous executable restoration was requested; inspect the installation report before retrying.');
     end;
   end;

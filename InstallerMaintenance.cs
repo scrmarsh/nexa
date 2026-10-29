@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
@@ -73,7 +73,7 @@ internal static class InstallerMaintenance
         Directory.CreateDirectory(Path.GetDirectoryName(destination)!);File.Copy(source,destination,false);
         if(UpdateTransaction.Hash(source)!=UpdateTransaction.Hash(destination))throw new IOException("Migration backup checksum mismatch.");
     }
-    internal static async Task<Plan> Prepare(string planPath,string dataRoot,string installRoot,IEnumerable<string> roots,bool isolatedFixture=false)
+    internal static async Task<Plan> Prepare(string planPath,string dataRoot,string installRoot,IEnumerable<string> roots,bool isolatedFixture=false,bool installerInvocation=false)
     {
         dataRoot=Path.GetFullPath(dataRoot);installRoot=Path.GetFullPath(installRoot);
         if(isolatedFixture)
@@ -98,13 +98,19 @@ internal static class InstallerMaintenance
         if(File.Exists(installedExecutable))CopyVerified(installedExecutable,Path.Combine(plan.Backup,"application","Nexa.exe"));
         foreach(var relative in new[]{"installation.json","installer-integrity.json","setup-cache/NexaSetup.exe"})
         {var original=Path.Combine(installRoot,relative);if(File.Exists(original))CopyVerified(original,Path.Combine(plan.Backup,"application",relative));}
-        if(isolatedFixture || File.Exists(Path.Combine(installRoot,"installation.json")) || installRoot.Equals(Path.GetDirectoryName(InstallerUpdates.InstallTarget()),StringComparison.OrdinalIgnoreCase))
+        if(installerInvocation || isolatedFixture || File.Exists(Path.Combine(installRoot,"installation.json")) || installRoot.Equals(Path.GetDirectoryName(InstallerUpdates.InstallTarget()),StringComparison.OrdinalIgnoreCase))
         foreach(var id in new[]{NexaInstallation.AppId,NexaInstallation.TestAppId})
         {
             using var key=Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\"+id+"_is1");
             if(key?.GetValue("InstallLocation") is string location && Path.TrimEndingDirectorySeparator(Path.GetFullPath(location)).Equals(installRoot,StringComparison.OrdinalIgnoreCase))
             {plan.RegistrationId=id;plan.PreviousVersion=key.GetValue("DisplayVersion") as string??"";break;}
         }
+        if(installerInvocation && File.Exists(installedExecutable) && string.IsNullOrEmpty(plan.RegistrationId))
+        {
+            if(UpdateTransaction.Hash(installedExecutable)!=UpdateTransaction.Hash(Environment.ProcessPath!))throw new IOException("This destination contains an unregistered application or portable copy. It was preserved. Choose a different installation folder.");
+            plan.Messages.Add("An identical unregistered payload will be registered without replacing its bytes.");
+        }
+        if(!string.IsNullOrEmpty(plan.RegistrationId))Progress("Registered nexa "+plan.PreviousVersion+" — "+installRoot+"; user data preserved");
         var search=roots.ToArray();plan.Copies=Discover(search.Where(Directory.Exists),installRoot).ToList();
         foreach(var source in search.Where(File.Exists))
         {
@@ -251,7 +257,7 @@ internal static class InstallerMaintenance
         {
             if(args[0] is "--installer-prepare" or "--installer-prepare-fixture" && args.Length>=5)
             {
-                var roots=args.Skip(4).ToArray();var plan=await Prepare(args[1],args[2],args[3],roots,args[0]=="--installer-prepare-fixture");
+                var roots=args.Skip(4).ToArray();var plan=await Prepare(args[1],args[2],args[3],roots,args[0]=="--installer-prepare-fixture",installerInvocation:true);
                 File.WriteAllText(args[1]+".report.txt","Existing portable copies are preserved.\r\n"+string.Join("\r\n",plan.Copies.Select(c=>"nexa "+c.Version+" — "+c.Path+" — "+(c.VerifiedRelease?"known release":"identity found; unverified package")+"; preserved"))+"\r\n"+string.Join("\r\n",plan.Messages));
                 File.WriteAllText(args[1]+".backup-path",plan.Backup);Progress("Preparation complete; portable copies will be kept");return 0;
             }

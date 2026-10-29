@@ -67,6 +67,18 @@ Check ([IO.File]::ReadAllText($state) -eq $original) 'Repair preserves private s
 Uninstall
 Check (Test-Path -LiteralPath $state) 'Default uninstall keeps Spaces, settings and history'
 Check ([IO.File]::ReadAllText($state) -eq $original) 'Preserve-data uninstall keeps exact save bytes'
+$oldPortable=Join-Path $repoRoot 'verification/release033-final/Application/Nexa.exe'
+$oldPortableHash=(Get-FileHash -LiteralPath $oldPortable -Algorithm SHA256).Hash
+New-Item -ItemType Directory -Path $app -Force | Out-Null
+$unregisteredCopy=Join-Path $app 'Nexa.exe'
+Copy-Item -LiteralPath $oldPortable -Destination $unregisteredCopy
+$blocked=Start-Process -FilePath $setupPath -ArgumentList @('/CURRENTUSER','/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',('/LOG="'+(Join-Path $fixture 'unregistered-destination.log')+'"')) -WindowStyle Hidden -Wait -PassThru
+Check ($blocked.ExitCode -ne 0) 'Setup refuses to replace an unregistered older portable in the destination'
+Check ((Get-FileHash -LiteralPath $unregisteredCopy -Algorithm SHA256).Hash -eq $oldPortableHash -and -not (Test-Path -LiteralPath $registry)) 'Blocked installation preserves the portable bytes without registering a duplicate'
+Check ([IO.File]::ReadAllText($state) -eq $original) 'Blocked portable replacement preserves private saves'
+if([IO.Path]::GetFullPath($unregisteredCopy) -ne (Join-Path $fixture 'app/Nexa.exe')){throw 'Unexpected fixture cleanup target'}
+Remove-Item -LiteralPath $unregisteredCopy
+Check ((Get-FileHash -LiteralPath $oldPortable -Algorithm SHA256).Hash -eq $oldPortableHash) 'Approved .33 source payload remains unchanged'
 Install 'startmenu'
 Check (-not (Test-Path -LiteralPath (Join-Path $fixture 'desktop/nexa.lnk'))) 'Fresh desktop-shortcut opt-out is honored'
 Check (Test-Path -LiteralPath (Join-Path $fixture 'start-menu/nexa.lnk')) 'Start menu entry is available after reinstall'
