@@ -1,32 +1,35 @@
-> **Local development: Nexa Beta 0.1.2 (unpublished).** [Implementation and verification](docs/NEXA_012_IMPLEMENTATION.md). The public downloads below remain Beta 0.1.0.
+> **Nexa Beta 0.1.2** — [Release highlights](docs/RELEASE_0.1.2_BETA.md) · [Implementation and verification](docs/NEXA_012_IMPLEMENTATION.md).
 
 <div align="center">
 
-![Nexa Beta 0.1.0 — Nexaween Release](docs/media/releases/nexaween-beta-010-banner.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/nexa-logo-full-dark-seasonal.svg">
+  <img src="assets/nexa-logo-full-seasonal.svg" alt="nexa" width="500">
+</picture>
 
-![version: 0.1.0 Beta](https://img.shields.io/badge/version-0.1.0%20Beta-84CC16?style=flat-square&labelColor=1C102A)
+![version: 0.1.2 Beta](https://img.shields.io/badge/version-0.1.2%20Beta-84CC16?style=flat-square&labelColor=1C102A)
 ![Platform: Windows x64](https://img.shields.io/badge/platform-Windows%20x64-185FA5?style=flat-square&labelColor=111827)
 ![Built with .NET 10 and WPF](https://img.shields.io/badge/built%20with-.NET%2010%20%2B%20WPF-7F77DD?style=flat-square&labelColor=111827)
 
 **a space for whatever comes next**
 
-[**Download nexa for Windows — installer**](https://github.com/scrmarsh/nexa/releases/download/v0.1.0-beta/NexaSetup.exe) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Beta release notes](docs/RELEASE_0.1.0_BETA.md)
+[**Download nexa for Windows — installer**](https://github.com/scrmarsh/nexa/releases/download/v0.1.2-beta/NexaSetup.exe) · [What's new](CHANGELOG.md) · [Build from source](#build-from-source) · [Beta release notes](docs/RELEASE_0.1.2_BETA.md)
 
 </div>
 
-> **Jump into Nexa for Halloween!** Nexa Beta 0.1.0 is our first public Beta: flexible Spaces, saved sessions and a playful Nexaween desktop. [Release highlights](docs/RELEASE_0.1.0_BETA.md) · [Verification](docs/NEXA_010_BETA_VERIFICATION.md).
+> **Jump into Nexa for Halloween!** Beta 0.1.2 brings a clearer welcome, reliable Session Settings, new pixel shapes and a smoother installer. [Release highlights](docs/RELEASE_0.1.2_BETA.md) · [Verification](docs/NEXA_012_IMPLEMENTATION.md). The [first public Beta](docs/RELEASE_0.1.0_BETA.md) remains in the release history.
 
 <details>
 <summary>Portable download, checksums, source and technical documentation</summary>
 
-- [Portable nexa executable](https://github.com/scrmarsh/nexa/releases/download/v0.1.0-beta/nexa-portable.exe) — the same application as the installer payload, with update support.
-- [Checksums](https://github.com/scrmarsh/nexa/releases/download/v0.1.0-beta/SHA256SUMS.txt) and [release notes](https://github.com/scrmarsh/nexa/releases/tag/v0.1.0-beta).
-- [Source code](https://github.com/scrmarsh/nexa/tree/v0.1.0-beta), [installer audit](docs/NEXA_034_AUDIT.md), [appearance and implementation](docs/NEXA_034_STATUS.md), [historical release audit](docs/NEXA_033_RELEASE_CLEANUP.md).
+- [Portable nexa executable](https://github.com/scrmarsh/nexa/releases/download/v0.1.2-beta/nexa-portable.exe) — the same application as the installer payload, with update support.
+- [Checksums](https://github.com/scrmarsh/nexa/releases/download/v0.1.2-beta/SHA256SUMS.txt) and [release notes](https://github.com/scrmarsh/nexa/releases/tag/v0.1.2-beta).
+- [Source code](https://github.com/scrmarsh/nexa/tree/v0.1.2-beta), [installer audit](docs/NEXA_034_AUDIT.md), [appearance and implementation](docs/NEXA_034_STATUS.md), [historical release audit](docs/NEXA_033_RELEASE_CLEANUP.md).
 - `Nexa.exe` on the release is a compatibility installer launcher for old updaters; use the installer above or the explicitly labeled portable download.
 
 </details>
 
-**Nexa Beta 0.1.0 is here.** Beta releases use **v0.1.X Beta**; the first stable release is planned as **v1.0.0**. Earlier Alpha releases remain available in the release history.
+**Nexa Beta 0.1.2 is here.** Beta releases use **v0.1.X Beta**; the first stable release is planned as **v1.0.0**. Earlier Alpha releases remain available in the release history.
 
 Already-distributed older Alpha executables retain their original comparison
 logic. Installing a newer approved build manually may be necessary to bootstrap
@@ -45,7 +48,7 @@ Real screenshots of the published Windows build, using sample notes and tasks. S
 
 ## Install for Windows
 
-Close nexa before running Setup. Use the **[recommended Windows installer](https://github.com/scrmarsh/nexa/releases/download/v0.1.0-beta/NexaSetup.exe)**. It preserves existing saves and adds normal Windows shortcuts, repair and uninstall. Portable and source downloads are in the collapsed section above. This is a Beta prerelease; real-device and live-provider feedback will guide further improvements.
+Close nexa before running Setup. Use the **[recommended Windows installer](https://github.com/scrmarsh/nexa/releases/download/v0.1.2-beta/NexaSetup.exe)**. It preserves existing saves and adds normal Windows shortcuts, repair and uninstall. Portable and source downloads are in the collapsed section above. This is a Beta prerelease; real-device and live-provider feedback will guide further improvements.
 Self-contained Windows x64 packages include their .NET runtime; framework-dependent
 builds require the .NET 10 Desktop Runtime.
 
