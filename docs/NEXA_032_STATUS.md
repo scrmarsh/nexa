@@ -1,6 +1,6 @@
 # nexa v0.0.32 alpha â€” local implementation status
 
-October 28, 2026. Starting commit `6f729f4633c64b70a804cbf103e54adea0b3d3a0`; ending application/test commit `3262017b0d164058c22359f8c071e952757f276b` on `codex/nexa-032-appearance-scrolling`. Documentation and captured evidence follow in a separate commit. [Audit](NEXA_032_AUDIT.md), [verification](NEXA_032_TEST_RESULTS.md), [scrolling details](NEXA_032_SCROLLING.md), [modified source inventory](verification/nexa032/source-inventory.txt).
+October 28, 2026. Starting commit `6f729f4633c64b70a804cbf103e54adea0b3d3a0`; ending application/test commit `3262017b0d164058c22359f8c071e952757f276b` on `codex/nexa-032-appearance-scrolling`. Final verification: **24 routes / 1,107 assertions and 17 native packaged checks passed**. Documentation and captured evidence follow in a separate commit. [Audit](NEXA_032_AUDIT.md), [verification](NEXA_032_TEST_RESULTS.md), [scrolling details](NEXA_032_SCROLLING.md), [modified source inventory](verification/nexa032/source-inventory.txt).
 
 | Area | Result |
 |---|---|

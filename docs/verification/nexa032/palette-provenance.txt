@@ -1,6 +1,6 @@
 5fba224:Theme.cs lines 1-13
 1: namespace SessionDashboard;
-2: 
+2:
 3: public static class Theme
 4: {
 5:     public static (string Accent, string Pixel) ForName(string name) => name.ToLowerInvariant() switch
@@ -20,7 +20,7 @@
 111:                             </ComboBox>
 
 7d3e3f5:Theme.cs lines 14-21
-14: 
+14:
 15: public enum AppTheme
 16: {
 17:     Nexa,

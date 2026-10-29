@@ -6,6 +6,10 @@ Final application/test source: `3262017b0d164058c22359f8c071e952757f276b`. Start
 
 The inherited `--packaged031` route name and a few historical assertion descriptions still say .31; this run uses the exact .32 executable and its health report explicitly records `0.0.32`. It verifies a genuine cached .29 upgrade, exact failed-health rollback, notes/scores/workspace preservation, idempotence, interrupted installation, tamper rejection, separate helper installation/restart and native startup. The approved .29 cache remains unchanged. Native startup reports PerMonitorV2 and current-host DPI scale 1.5; that is not full Appearance acceptance across physical DPI configurations.
 
+**Final results: 24 routes / 1,107 assertions passed, plus 17 separate native packaged assertions.** Application/checks build: zero warnings/errors. Compressed self-contained Windows x64 publish succeeded. [Route ledger](verification/nexa032/route-ledger.json), [suite summary](verification/nexa032/suite-summary.log), [build](verification/nexa032/build.log), [publish](verification/nexa032/publish.log), [native package checks](verification/nexa032/packaged.log), [startup health](verification/nexa032/startup.json), [package identity and SHA-256](verification/nexa032/package-identity.json).
+
+The inherited `--packaged031` route name and a few historical assertion descriptions still say .31; this run uses the exact .32 executable and its health report explicitly records `0.0.32`. It verifies a genuine cached .29 upgrade, exact failed-health rollback, notes/scores/workspace preservation, idempotence, interrupted installation, tamper rejection, separate helper installation/restart and native startup. The approved .29 cache remains unchanged. Native startup reports PerMonitorV2 and current-host DPI scale 1.5; that is not full Appearance acceptance across physical DPI configurations.
+
 ## Commands
 
 From `continuation-source`:
