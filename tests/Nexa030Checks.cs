@@ -152,7 +152,7 @@ internal static partial class Program
         }
         var splash=OffscreenHandoff(new SplashWindow(new NexaOptions{ReduceMotion=true}));splash.Show();Pump(TimeSpan.FromMilliseconds(150));Save(splash,"splash-seasonal");splash.Close();
         home.Width=800;home.Height=600;Pump(TimeSpan.FromMilliseconds(50));Save(home,"home-seasonal-small");
-        var footer=Descendants(home).OfType<Button>().Single(b=>Equals(b.Content,"About Nexa"));
+        var footer=Descendants(home).OfType<Button>().Single(b=>Equals(b.Content,"About nexa"));
         var corners=Descendants(home).OfType<SeasonalCorners>().Single();var fruit=SeasonalCorners.PumpkinBounds(corners.RenderSize);
         var footerBounds=footer.TransformToVisual(corners).TransformBounds(new Rect(footer.RenderSize));
         Assert(!fruit.IntersectsWith(footerBounds),"Small Home pumpkin stays above footer controls");

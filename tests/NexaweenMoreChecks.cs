@@ -39,7 +39,7 @@ internal static partial class Program
         var originalNotes = window.state.Notes;
         window.ShowNotesHistory();
         Pump(TimeSpan.FromMilliseconds(70));
-        var history = Application.Current.Windows.OfType<Window>().Single(w => w.Title == "Nexa · Notes & History");
+        var history = Application.Current.Windows.OfType<Window>().Single(w => w.Title == "nexa · Notes & History");
         var list = Descendants(history).OfType<ListBox>().Single();
         AwaitFinal(() => list.Items.Count >= 2, "The asynchronous History snapshot did not load");
         Assert(list.Items.Count >= 2 && window.state.Notes == originalNotes && Continuity.Current(window.state.Workspace!, store.UserId).Current.SessionId == originalId, "Opening readable history includes live and archived records without replaying a session");
