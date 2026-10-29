@@ -1,6 +1,7 @@
 namespace SessionDashboard;
 public sealed class SessionRecap
 {
+    public Guid CompletionId {get;set;}
     public DateTimeOffset StartedAt {get;set;}
     public DateTimeOffset EndedAt {get;set;}
     public DateTimeOffset ScheduledEnd {get;set;}
@@ -74,7 +75,7 @@ public static class SessionFinalization
         Add("Timers completed",events.Count(e=>e.Category=="Timer"));
         Add("Candy collected",events.Count(e=>e.Category=="Candy"));
         Add("Bugs squashed",record.Current.Data.Productivity.BugsSquashed);
-        recap=new SessionRecap{StartedAt=start,EndedAt=actualEnd,ScheduledEnd=end,ActualSeconds=Math.Max(0,(actualEnd-start).TotalSeconds),ScoreStart=record.Current.ScoreAtStart??0,ScoreEnd=record.SpaceProductivityScore,MeaningfulActions=events.Count,Accomplishments=highlights};
+        recap=new SessionRecap{CompletionId=Guid.NewGuid(),StartedAt=start,EndedAt=actualEnd,ScheduledEnd=end,ActualSeconds=Math.Max(0,(actualEnd-start).TotalSeconds),ScoreStart=record.Current.ScoreAtStart??0,ScoreEnd=record.SpaceProductivityScore,MeaningfulActions=events.Count,Accomplishments=highlights};
         record.Current.Recap=recap;record.Current.ScoreAtEnd=recap.ScoreEnd;record.Current.IsActive=false;record.Current.CompletedCheckpointAt=actualEnd;
         return recap;
     }

@@ -14,7 +14,7 @@ internal sealed partial class SettingsDialog
         name.TextChanged+=(_,_)=>QueueSave("profile",()=>{var current=store.LoadProfile();current.DisplayName=name.Text.Trim();store.SaveProfile(current);});
         var sessions=(state.Workspace?.Dashboards??[]).SelectMany(d=>d.History.Append(d.Current)).ToArray();
         var events=sessions.SelectMany(s=>s.Data.Productivity.Events).Concat(state.Productivity.Events).DistinctBy(e=>e.Id).ToArray();
-        var completed=sessions.Where(s=>s.Recap!=null).GroupBy(s=>(s.Recap!.StartedAt,s.Recap.EndedAt)).Select(g=>g.First().Recap!).ToArray();
+        var completed=ProfileActivity.Completed(sessions);
         var days=completed.Select(s=>s.EndedAt.LocalDateTime.Date).Distinct().OrderDescending().ToArray();var streak=0;var expected=DateTime.Today;
         if(days.FirstOrDefault()==expected.AddDays(-1))expected=expected.AddDays(-1);
         foreach(var day in days){if(day!=expected)break;streak++;expected=expected.AddDays(-1);}
@@ -22,7 +22,7 @@ internal sealed partial class SettingsDialog
         var metrics=new System.Windows.Controls.Primitives.UniformGrid{Columns=2,Margin=new Thickness(0,20,0,16)};
         void Metric(string title,string value,string color)
         {
-            var stack=new StackPanel{Margin=new Thickness(14)};stack.Children.Add(new TextBlock{Text=value,FontSize=30,FontWeight=FontWeights.SemiBold,Foreground=BugVisuals.B(color),TextAlignment=TextAlignment.Center});stack.Children.Add(new TextBlock{Text=title,TextAlignment=TextAlignment.Center,TextWrapping=TextWrapping.Wrap});
+            var stack=new StackPanel{Margin=new Thickness(14)};stack.Children.Add(new TextBlock{Text=value,FontSize=value.Length>24?18:30,TextWrapping=TextWrapping.Wrap,FontWeight=FontWeights.SemiBold,Foreground=BugVisuals.B(color),TextAlignment=TextAlignment.Center});stack.Children.Add(new TextBlock{Text=title,TextAlignment=TextAlignment.Center,TextWrapping=TextWrapping.Wrap});
             metrics.Children.Add(new Border{Child=stack,BorderBrush=BugVisuals.B(color),BorderThickness=new Thickness(1),CornerRadius=new CornerRadius(10),Margin=new Thickness(5)});
         }
         Metric("Recorded productivity score",events.Sum(e=>(long)e.BasePoints+e.BonusPoints).ToString("N0"),"#5B7CFF");

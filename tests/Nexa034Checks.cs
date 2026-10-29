@@ -11,7 +11,18 @@ internal static partial class Program
     private static void Check034()
     {
         Assert(App.AppVersion=="0.0.34" && NexaReleaseIdentity.Current.Stage=="Alpha",".34 assembly and Alpha identity agree");
-        CheckData034();CheckUi034();
+        CheckData034();CheckProfile034();CheckUi034();
+    }
+    private static void CheckProfile034()
+    {
+        var now=DateTimeOffset.UtcNow;
+        DashboardRecord Space()=>Continuity.NewDashboard("Fixture","Focus",new(){Session=new(){Title="Same-time completed session",Start=now.AddMinutes(-10),End=now}},"profile-fixture");
+        var first=Space();var second=Space();var a=SessionFinalization.ArchiveAndReset(first,now);var b=SessionFinalization.Complete(second,now);
+        Assert(a.CompletionId!=Guid.Empty && b.CompletionId!=Guid.Empty && a.CompletionId!=b.CompletionId,"Independent completed sessions have stable distinct recap identities even at identical times");
+        var activity=ProfileActivity.Completed(first.History.Append(first.Current).Concat(second.History.Append(second.Current)));
+        Assert(activity.Length==2 && activity.Sum(r=>r.ActualSeconds)==1200,"Profile counts simultaneous completed sessions separately and excludes the reset copy");
+        foreach(var session in first.History.Append(first.Current))session.Recap!.CompletionId=Guid.Empty;
+        Assert(ProfileActivity.Completed(first.History.Append(first.Current)).Length==1,"Legacy recaps use reset provenance to avoid duplicate completed-session statistics");
     }
     private sealed class InlineProgress034(Action<string> action):IProgress<string>{public void Report(string value)=>action(value);}
     private static void CheckData034()
