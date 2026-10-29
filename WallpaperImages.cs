@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -59,7 +59,7 @@ internal sealed partial class SettingsDialog
         if(home)return BuildHomeBackground(source);
         var settings=Continuity.Clone(source??new());var syncing=false;
         var page=new StackPanel{Margin=new Thickness(0,18,0,0),Tag=home?"HomeWallpaperControls":"SpaceWallpaperControls"};
-        page.Children.Add(new TextBlock{Text=home?"Home Background Presets":"Space Background Presets",FontSize=20,FontWeight=FontWeights.SemiBold});
+        page.Children.Add(new TextBlock{Text=home?"Home Background":"Space Background",FontSize=20,FontWeight=FontWeights.SemiBold});
         var tiles=new WrapPanel();page.Children.Add(tiles);var swatches=new List<(Button Button,AppearancePalettes.Preset Preset)>();
         var modes=new ComboBox{ItemsSource=new[]{"Default","Custom image","Solid color"},Margin=new Thickness(0,10,0,8)};page.Children.Add(modes);
         var layer=new Border{IsHitTestVisible=false};var shadeLayer=new Border{Background=Brushes.Black,IsHitTestVisible=false};
@@ -80,7 +80,7 @@ internal sealed partial class SettingsDialog
                 blur.IsChecked=settings.Blur;strength.Value=Math.Clamp(settings.BlurStrength,0,40);shade.Value=Math.Clamp(settings.Overlay,.2,.9);
                 WallpaperImages.Apply(layer,settings);shadeLayer.Opacity=WallpaperImages.Shade(settings,home,layer.Background!=null);
                 if(layer.Background==null)layer.SetResourceReference(Border.BackgroundProperty,"BackgroundBrush");
-                status.Text=settings.Mode==SpaceBackgroundMode.CustomImage?(layer.Background is not ImageBrush?"Image unavailable. Your stored choice is kept; the theme default is shown.":Path.GetFileName(settings.ImagePath)):settings.Mode==SpaceBackgroundMode.SolidColor?"Color background: "+settings.SolidColor:"Theme default background";
+                status.Text=settings.Mode==SpaceBackgroundMode.CustomImage?(layer.Background is not ImageBrush?"Image unavailable. Your stored choice is kept; the theme default is shown.":Path.GetFileName(settings.ImagePath)):settings.Mode==SpaceBackgroundMode.SolidColor?"Solid color background":"Theme default background";
                 foreach(var (button,preset) in swatches){var selected=settings.Mode==SpaceBackgroundMode.SolidColor && settings.SolidColor.Equals(preset.Hex,StringComparison.OrdinalIgnoreCase);button.BorderThickness=new Thickness(selected?3:1);button.ToolTip=selected?"Selected — "+preset.Hex:preset.Hex;}
             }
             finally{syncing=false;}
@@ -96,11 +96,6 @@ internal sealed partial class SettingsDialog
             }
             else {state.Background=captured;space?.ApplySpaceBackground();}
             QueueSave(home?"home-wallpaper":"space-wallpaper",SaveState);Refresh();
-        }
-        foreach(var preset in AppearancePalettes.Backgrounds)
-        {
-            var content=new StackPanel();content.Children.Add(new Border{Width=90,Height=30,CornerRadius=new CornerRadius(5),Background=new SolidColorBrush((Color)ColorConverter.ConvertFromString(preset.Hex)),Margin=new Thickness(0,0,0,6)});content.Children.Add(new TextBlock{Text=preset.Name,TextAlignment=TextAlignment.Center});
-            var button=new Button{Content=content,Tag=preset,Margin=new Thickness(0,10,8,4),Padding=new Thickness(8)};System.Windows.Automation.AutomationProperties.SetName(button,preset.Name+" background");button.Click+=(_,_)=>{settings.Mode=SpaceBackgroundMode.SolidColor;settings.SolidColor=preset.Hex;Save();};swatches.Add((button,preset));tiles.Children.Add(button);
         }
         var choose=new Button{Content="Choose Image",Margin=new Thickness(0,0,8,0)};actions.Children.Add(choose);
         choose.Click+=(_,_)=>
