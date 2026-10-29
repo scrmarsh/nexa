@@ -84,6 +84,10 @@ internal static partial class Program
         Assert(main.bugsOverlay?.ScrollTarget==main.WidgetScroller && NexaScrolling.ScrollFrom(main.bugsOverlay,-120),"Wheel input on the sibling bug overlay routes into the dashboard scroller");Pump(TimeSpan.FromMilliseconds(30));Assert(main.WidgetScroller.VerticalOffset>0,"Scrolling over a bug moves the dashboard");
         Invoke035(main,"HomeClick");var confirmation=main.OwnedWindows.OfType<NexaDialog>().Single(w=>w.Title=="nexa · End session");
         var id=Continuity.Current(main.state.Workspace!,store.UserId).Current.SessionId;Click035(confirmation,"Cancel");Assert(main.state.Session!.FinalizedAt==null && Continuity.Current(main.state.Workspace!,store.UserId).Current.SessionId==id,"Cancel keeps the same active session");
+        Invoke035(main,"HomeClick");confirmation=main.OwnedWindows.OfType<NexaDialog>().Single(w=>w.Title=="nexa · End session");
+        var switching=main.CopyWorkspaceState().Workspace!;var other=Continuity.NewDashboard("Switched fixture","Focus",Continuity.Capture(main.state),store.UserId);switching.Dashboards.Add(other);switching.ActiveDashboardId=other.DashboardId;
+        Assert(main.CommitWorkspace(switching,sessionLoad:true),"Switching Space with a pending end confirmation commits normally");
+        Assert(!confirmation.IsVisible && main.state.Session!.FinalizedAt==null,"A Space switch dismisses the stale confirmation without ending the newly active session");
         Invoke035(main,"HomeClick");Invoke035(main,"HomeClick");Assert(main.OwnedWindows.OfType<Window>().Count(w=>w.Title=="nexa · End session")==1,"Repeated Home clicks open only one confirmation");
         confirmation=main.OwnedWindows.OfType<NexaDialog>().Single(w=>w.Title=="nexa · End session");Click035(confirmation,"End Session");Pump(TimeSpan.FromMilliseconds(80));
         var recap=main.OwnedWindows.OfType<SessionRecapWindow>().Single();Assert(main.state.Session!.FinalizedAt!=null,"End Session finalizes before opening its saved recap");

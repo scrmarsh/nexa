@@ -1152,12 +1152,19 @@ public partial class MainWindow
             if(endSessionConfirmation!=null){endSessionConfirmation.Activate();return;}
             var dialog=new NexaDialog{Owner=this,Title="nexa · End session",Width=460,Height=240,MinWidth=320,MinHeight=200,WindowStartupLocation=WindowStartupLocation.CenterOwner};
             endSessionConfirmation=dialog;
+            var confirmedSession=Continuity.Current(state.Workspace!,store.UserId).Current.SessionId;
             var body=new StackPanel{Margin=new Thickness(26)};
             body.Children.Add(new TextBlock{Text="Do you want to end your session?",FontSize=22,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,24)});
             var buttons=new Grid();buttons.ColumnDefinitions.Add(new());buttons.ColumnDefinitions.Add(new());
             var cancel=new Button{Content="Cancel",HorizontalAlignment=HorizontalAlignment.Left};cancel.Click+=(_,_)=>dialog.Close();buttons.Children.Add(cancel);
             var end=new Button{Content="End Session",HorizontalAlignment=HorizontalAlignment.Right};Grid.SetColumn(end,1);buttons.Children.Add(end);body.Children.Add(buttons);
-            end.Click+=(_,_)=>{end.IsEnabled=false;dialog.Close();if(!FinalizeSession())Error("Session could not be ended. Your session remains available; check the save error and try again.");};
+            end.Click+=(_,_)=>
+            {
+                end.IsEnabled=false;
+                if(Continuity.Current(state.Workspace!,store.UserId).Current.SessionId!=confirmedSession)
+                {dialog.Close();notifications?.Show("session-changed","The session changed. Review the active Space before ending it.",seconds:8);return;}
+                dialog.Close();if(!FinalizeSession())Error("Session could not be ended. Your session remains available; check the save error and try again.");
+            };
             dialog.Content=body;dialog.Closed+=(_,_)=>endSessionConfirmation=null;
             dialog.PreviewKeyDown+=(_,key)=>{if(key.Key==Key.Escape){dialog.Close();key.Handled=true;}};
             dialog.ShowDismissible();cancel.Focus();return;

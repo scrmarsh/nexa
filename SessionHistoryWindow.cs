@@ -147,7 +147,7 @@ internal sealed class SessionHistoryWindow : NexaPanel
         foreach (var button in mutationButtons) button.IsEnabled = mutationsAllowed && entry?.Editable == true;
         summary.Children.Clear();
         if (entry == null) return;
-        if(entry.Session is {} session)summary.Children.Add(SessionRecapWindow.Compact(entry.Space,session,store.Load().Workspace?.Settings??new()));
+        if(entry.Session is {} session)summary.Children.Add(SessionRecapWindow.Compact(entry.Space,session,new NexaOptions{TimeZoneId=session.TimeZoneId}));
         report.Text = "Loading session report…";
         try { var text = await Task.Run(() => entry.Report); await OnUi(() => { if (token == selection) report.Text = text; }); }
         catch (Exception ex) when (HistoryArchive.Recoverable(ex)) { Fail(ex); }

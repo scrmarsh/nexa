@@ -176,6 +176,7 @@ public partial class MainWindow
             WidgetLibrary.EnsureLayout(next);
             try { pendingWrite?.GetAwaiter().GetResult(); } catch (Exception ex) when (SaveException(ex)) { }
             store.Save(next);
+            if(transition)endSessionConfirmation?.Close();
             settingsWindow?.Close();
             if (storyOpen) ExitBoredomMode();
             CloseNoteEditors(); PauseHedySync();
