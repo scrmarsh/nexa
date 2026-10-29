@@ -18,7 +18,7 @@ internal sealed partial class SettingsDialog
     private async Task ExportAll(Window? backupOwner=null)
     {
         try{await ExportAllCore(backupOwner??this);}
-        catch(Exception ex)when(ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException or InvalidOperationException or System.ComponentModel.Win32Exception)
+        catch(Exception ex)when(ex is IOException or InvalidDataException or UnauthorizedAccessException or System.Text.Json.JsonException or InvalidOperationException or System.ComponentModel.Win32Exception)
         {MessageBox.Show(backupOwner??this,"The backup could not start. Your existing data is unchanged.\n\n"+ex.Message,"nexa backup",MessageBoxButton.OK,MessageBoxImage.Warning);}
     }
     private async Task ExportAllCore(Window backupOwner)
@@ -40,7 +40,7 @@ internal sealed partial class SettingsDialog
             status.Text=$"Backup verified: {count} files. Integration credentials were excluded. Reconnect integrations after recovery.";
         }
         catch(OperationCanceledException){status.Text="Export canceled. No backup was published.";}
-        catch(Exception ex)when(ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException){status.Text="Export failed: "+ex.Message;}
+        catch(Exception ex)when(ex is IOException or InvalidDataException or UnauthorizedAccessException or System.Text.Json.JsonException){status.Text="Export failed: "+ex.Message;}
         cancel.Content="Close";cancel.Click+=(_,_)=>dialog.Close();
     }
     private void ConfirmDelete()
@@ -76,7 +76,7 @@ internal sealed partial class SettingsDialog
                     text.Text=errors.Length==0?"Local data deleted. Close nexa and launch it again for a fresh workspace.":"Some data could not be deleted. Close nexa before retrying.\n"+string.Join("\n",errors.Take(5));
                     finished=true;cancel.Content="Close nexa";cancel.IsEnabled=true;cancel.Click+=(_,_)=>Application.Current.Shutdown();
                 }
-                catch(Exception ex)when(ex is IOException or UnauthorizedAccessException or System.Text.Json.JsonException){text.Text="Deletion stopped: "+ex.Message;finished=true;cancel.Content="Close nexa";cancel.IsEnabled=true;cancel.Click+=(_,_)=>Application.Current.Shutdown();}
+                catch(Exception ex)when(ex is IOException or InvalidDataException or UnauthorizedAccessException or System.Text.Json.JsonException){text.Text="Deletion stopped: "+ex.Message;finished=true;cancel.Content="Close nexa";cancel.IsEnabled=true;cancel.Click+=(_,_)=>Application.Current.Shutdown();}
             }
             void Tick(){var seconds=Math.Max(0,(int)Math.Ceiling((deadline-DateTimeOffset.UtcNow).TotalSeconds));text.Text=$"Nexa will delete your local data in {seconds} seconds.";if(seconds==0)_=Delete();}
             timer.Tick+=(_,_)=>Tick();dialog.Closed+=(_,_)=>timer.Stop();now.Click+=async(_,_)=>await Delete(true);cancel.Click+=(_,_)=>{if(!running)dialog.Close();};Tick();timer.Start();

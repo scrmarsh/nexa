@@ -22,7 +22,7 @@ internal static class InstallerRepair
     {
         string? cached=null;
         try{cached=Cached(Environment.ProcessPath??throw new IOException("Application path unavailable."));}
-        catch(Exception ex)when(ex is IOException or UnauthorizedAccessException or JsonException){/* Fetch a digest-verified published installer when the local cache is unusable. */}
+        catch(Exception ex)when(ex is IOException or InvalidDataException or UnauthorizedAccessException or JsonException){/* Fetch a digest-verified published installer when the local cache is unusable. */}
         if(cached!=null)return cached;
         using var client=new HttpClient{Timeout=TimeSpan.FromMinutes(10)};
         var updater=new ExperimentalUpdater(client);var release=await updater.DiscoverAsync(token,"Alpha");

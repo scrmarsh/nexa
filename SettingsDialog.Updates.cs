@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 namespace SessionDashboard;
 internal sealed partial class SettingsDialog
@@ -14,7 +14,7 @@ internal sealed partial class SettingsDialog
         automatic.Click+=(_,_)=>
         {
             try{var latest=store.LoadUpdatePreferences();latest.AutomaticUpdates=automatic.IsChecked==true;latest.UpdateChoiceMade=true;latest.CheckOnStartup=true;store.SaveUpdatePreferences(latest);if(!latest.AutomaticUpdates)flow.AutomaticDisabled();}
-            catch(Exception ex)when(ex is System.IO.IOException or UnauthorizedAccessException){error.Text="Could not save update choice: "+ex.Message;}
+            catch(Exception ex)when(ex is System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException){error.Text="Could not save update choice: "+ex.Message;}
         };
         var check=new Button{Content="Check for updates",HorizontalAlignment=HorizontalAlignment.Left,Margin=new Thickness(0,12,0,0)};page.Children.Add(check);
         var status=new TextBlock{Text=string.IsNullOrWhiteSpace(preferences.LastCheckError)?flow.Status:"Last check: "+preferences.LastCheckError,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,14,0,10)};page.Children.Add(status);
@@ -49,7 +49,7 @@ internal sealed partial class SettingsDialog
                 using var process=System.Diagnostics.Process.Start(start)??throw new System.IO.IOException("The installer could not start.");
                 Application.Current.Shutdown();
             }
-            catch(Exception ex)when(ex is System.IO.IOException or UnauthorizedAccessException or System.Net.Http.HttpRequestException or System.Text.Json.JsonException or System.ComponentModel.Win32Exception or InvalidOperationException){status.Text="Could not rerun the installer: "+ex.Message;}
+            catch(Exception ex)when(ex is System.IO.IOException or System.IO.InvalidDataException or UnauthorizedAccessException or System.Net.Http.HttpRequestException or System.Text.Json.JsonException or System.ComponentModel.Win32Exception or InvalidOperationException){status.Text="Could not rerun the installer: "+ex.Message;}
             finally{launching=false;repair.IsEnabled=true;}
         };
         return new ScrollViewer{Content=page,VerticalScrollBarVisibility=ScrollBarVisibility.Auto};

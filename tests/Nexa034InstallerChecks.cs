@@ -35,7 +35,7 @@ internal static partial class Program
         Assert(Registered034()=="0.0.34" && FileVersionInfo.GetVersionInfo(target).FileVersion=="0.0.34.0","Successful upgrade advances registered and executable versions together");
         Assert(File.ReadAllText(store.FilePath)==bytes && NexaInstallation.IsInstalled(target),"Successful upgrade preserves data and registered installation identity");
         var cached=InstallerRepair.Cached(target);Assert(cached!=null && File.Exists(cached),"Rerun Installer resolves the installed digest-verified cache");
-        var cachedBytes=File.ReadAllBytes(cached!);try{File.WriteAllText(cached!,"corrupt fixture cache");var refused=false;try{InstallerRepair.Cached(target);}catch(IOException){refused=true;}Assert(refused,"Rerun Installer refuses a corrupt cached Setup");}finally{File.WriteAllBytes(cached!,cachedBytes);}
+        var cachedBytes=File.ReadAllBytes(cached!);try{File.WriteAllText(cached!,"corrupt fixture cache");var refused=false;try{InstallerRepair.Cached(target);}catch(Exception ex)when(ex is IOException or InvalidDataException){refused=true;}Assert(refused,"Rerun Installer refuses a corrupt cached Setup");}finally{File.WriteAllBytes(cached!,cachedBytes);}
 
         Assert(File.Exists(Path.Combine(root,"desktop","nexa.lnk")) && File.Exists(Path.Combine(root,"start-menu","nexa.lnk")),"Installer upgrade retains desktop and Start menu shortcuts");
         UpdateTransaction.Apply(plan,_=>throw new InvalidOperationException("Must not replay"),waitForParent:false).GetAwaiter().GetResult();Assert(true,"Completed installer upgrade is idempotent");

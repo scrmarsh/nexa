@@ -161,41 +161,71 @@ internal static class NexaData
         }
         Scrub(node);return Encoding.UTF8.GetBytes(node.ToJsonString());
     }
+    private static string CopyAndHash(Stream input,Stream? output,CancellationToken cancel)
+    {
+        using var hash=IncrementalHash.CreateHash(HashAlgorithmName.SHA256);var buffer=new byte[81920];int count;
+        while((count=input.Read(buffer,0,buffer.Length))>0){cancel.ThrowIfCancellationRequested();hash.AppendData(buffer,0,count);output?.Write(buffer,0,count);}
+        return Convert.ToHexString(hash.GetHashAndReset());
+    }
     internal static int Export(string root,string destination,CancellationToken cancel,IProgress<string>? progress=null)
     {
         Regular(root);Regular(destination);
         if(File.Exists(destination))throw new IOException("Choose a new backup filename; existing files are preserved.");
         var temporary=destination+"."+Guid.NewGuid().ToString("N")+".tmp";
+        var snapshot=Path.Combine(Path.GetDirectoryName(Path.GetFullPath(destination))!,".nexa-backup-stage-"+Guid.NewGuid().ToString("N"));
+        var entries=new List<Entry>();
         try
         {
             lock(SnapshotGate)
             {
-                progress?.Report("Inventorying local dataâ€¦");
+                progress?.Report("Inventorying local data…");
                 var files=Files(root).Where(f=>!f.Equals(temporary,StringComparison.OrdinalIgnoreCase)&&!f.Equals(destination,StringComparison.OrdinalIgnoreCase))
-                    .Where(f=>!Path.GetRelativePath(root,f).Split(Path.DirectorySeparatorChar).Any(part=>SecretName(part)||part.Equals("Backups",StringComparison.OrdinalIgnoreCase)||part.Equals("updates",StringComparison.OrdinalIgnoreCase)||part.Equals("installer-cache",StringComparison.OrdinalIgnoreCase)||part.Equals("migration-backups",StringComparison.OrdinalIgnoreCase)))
-                    .Where(f=>Path.GetExtension(f).ToLowerInvariant() is not (".exe" or ".dll" or ".tmp" or ".zip") && !Path.GetFileName(f).Contains("vault",StringComparison.OrdinalIgnoreCase)).ToArray();
-                var entries=new List<Entry>();
-                using(var archive=ZipFile.Open(temporary,ZipArchiveMode.Create))
+                    .Where(f=>!Path.GetRelativePath(root,f).Split(Path.DirectorySeparatorChar).Any(part=>SecretName(part)||part.StartsWith(".nexa-backup-stage-",StringComparison.OrdinalIgnoreCase)||part.Equals("Backups",StringComparison.OrdinalIgnoreCase)||part.Equals("updates",StringComparison.OrdinalIgnoreCase)||part.Equals("installer-cache",StringComparison.OrdinalIgnoreCase)||part.Equals("migration-backups",StringComparison.OrdinalIgnoreCase)))
+                    .Where(f=>Path.GetExtension(f).ToLowerInvariant() is not (".exe" or ".dll" or ".tmp" or ".zip") && !Path.GetFileName(f).Contains("vault",StringComparison.OrdinalIgnoreCase) && !Path.GetRelativePath(root,f).Equals("nexa-backup-manifest.json",StringComparison.OrdinalIgnoreCase)).ToArray();
+                cancel.ThrowIfCancellationRequested();Directory.CreateDirectory(snapshot);
+                foreach(var file in files)
                 {
-                    foreach(var file in files)
+                    cancel.ThrowIfCancellationRequested();var relative=Path.GetRelativePath(root,file).Replace('\\','/');Inside(root,relative);
+                    progress?.Report("Checkpointing "+relative);var staged=Inside(snapshot,relative);Directory.CreateDirectory(Path.GetDirectoryName(staged)!);
+                    string digest;
+                    if(Path.GetFileName(file).Contains(".json",StringComparison.OrdinalIgnoreCase))
                     {
-                        cancel.ThrowIfCancellationRequested();var relative=Path.GetRelativePath(root,file).Replace('\\','/');Inside(root,relative);
-                        progress?.Report("Archiving "+relative);var bytes=ExportBytes(file);
-                        var entry=archive.CreateEntry(relative,CompressionLevel.Optimal);using(var output=entry.Open())output.Write(bytes);
-                        entries.Add(new(relative,bytes.LongLength,Convert.ToHexString(SHA256.HashData(bytes))));
+                        if(new FileInfo(file).Length>128_000_000)throw new InvalidDataException("Structured save exceeds the supported backup size: "+relative);
+                        var bytes=ExportBytes(file);File.WriteAllBytes(staged,bytes);digest=Convert.ToHexString(SHA256.HashData(bytes));
                     }
-                    using var manifest=archive.CreateEntry("nexa-backup-manifest.json").Open();
-                    JsonSerializer.Serialize(manifest,new{Schema=1,AppVersion=App.VersionLabel,CreatedUtc=DateTimeOffset.UtcNow,Compatibility="nexa 0.0.34 Alpha; manual recovery only",Credentials="Excluded. Reconnect integrations after recovery.",Files=entries});
+                    else
+                    {
+                        using var input=File.OpenRead(file);using var output=new FileStream(staged,FileMode.CreateNew,FileAccess.Write,FileShare.None);
+                        digest=CopyAndHash(input,output,cancel);output.Flush(true);
+                    }
+                    entries.Add(new(relative,new FileInfo(staged).Length,digest));
                 }
-                cancel.ThrowIfCancellationRequested();progress?.Report("Verifying archive hashesâ€¦");
-                using(var archive=ZipFile.OpenRead(temporary))foreach(var expected in entries)
-                {
-                    cancel.ThrowIfCancellationRequested();var entry=archive.GetEntry(expected.Path)??throw new InvalidDataException("Missing archived file.");
-                    using var input=entry.Open();if(entry.Length!=expected.Size || Convert.ToHexString(SHA256.HashData(input))!=expected.SHA256)throw new InvalidDataException("Backup verification failed.");
-                }
-                cancel.ThrowIfCancellationRequested();File.Move(temporary,destination);progress?.Report("Backup verified. Integration credentials were excluded; reconnect after recovery.");return entries.Count;
             }
+            // The save lock protects only checkpoint construction. Compression and verification
+            // use immutable sanitized copies, so application saves can continue during a large ZIP.
+            using(var archive=ZipFile.Open(temporary,ZipArchiveMode.Create))
+            {
+                foreach(var expected in entries)
+                {
+                    cancel.ThrowIfCancellationRequested();progress?.Report("Archiving "+expected.Path);
+                    using var input=File.OpenRead(Inside(snapshot,expected.Path));using var output=archive.CreateEntry(expected.Path,CompressionLevel.Optimal).Open();
+                    if(CopyAndHash(input,output,cancel)!=expected.SHA256)throw new InvalidDataException("Checkpoint changed during export.");
+                }
+                using var manifest=archive.CreateEntry("nexa-backup-manifest.json").Open();
+                JsonSerializer.Serialize(manifest,new{Schema=1,AppVersion=App.VersionLabel,CreatedUtc=DateTimeOffset.UtcNow,Compatibility="nexa 0.0.34 Alpha; manual recovery only",Credentials="Excluded. Reconnect integrations after recovery.",Files=entries});
+            }
+            cancel.ThrowIfCancellationRequested();progress?.Report("Verifying archive hashes…");
+            using(var archive=ZipFile.OpenRead(temporary))foreach(var expected in entries)
+            {
+                cancel.ThrowIfCancellationRequested();var entry=archive.GetEntry(expected.Path)??throw new InvalidDataException("Missing archived file.");
+                using var input=entry.Open();if(entry.Length!=expected.Size || CopyAndHash(input,null,cancel)!=expected.SHA256)throw new InvalidDataException("Backup verification failed.");
+            }
+            cancel.ThrowIfCancellationRequested();File.Move(temporary,destination);progress?.Report("Backup verified. Integration credentials were excluded; reconnect after recovery.");return entries.Count;
         }
-        finally{if(File.Exists(temporary))File.Delete(temporary);}
+        finally
+        {
+            if(File.Exists(temporary))File.Delete(temporary);
+            if(Directory.Exists(snapshot)){Regular(snapshot);foreach(var file in Files(snapshot).ToArray())Regular(file);Directory.Delete(snapshot,true);}
+        }
     }
 }
