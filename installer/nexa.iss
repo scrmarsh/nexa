@@ -226,8 +226,17 @@ begin
   finally Form.Free; end;
 end;
 
+function ReadCleanupReport(const FileName: String): String;
+var Raw: AnsiString;
+begin
+  Result := 'Report could not be read. Inspect the Setup log before retrying.';
+  if LoadStringFromFile(FileName, Raw) then Result := Utf8Decode(Raw);
+  StringChangeEx(Result, #13#10, #10, True);
+  StringChangeEx(Result, #10, #13#10, True);
+end;
+
 function RunLegacyCleanup(OnlyScan: Boolean): Boolean;
-var Code: Integer; Args, Roots, Mode, Inventory: String; Report: AnsiString;
+var Code: Integer; Args, Roots, Mode, Inventory, Target, Report: String;
 begin
   Result := False;
   ExtractTemporaryFile('{#PrepareHelper}');
@@ -242,26 +251,30 @@ begin
   Mode := 'clean';
   if OnlyScan then Mode := 'cleanup'
   else if RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#ProductId}_is1', 'InstallLocation', Args) then Mode := 'update';
-  Args := '--installer-legacy-scan ' + Quoted(Inventory) + ' ' + Quoted(DataRoot) + ' ' + Quoted(ExpandConstant('{app}')) + ' ' + Mode;
+  // Welcome is earlier than Inno's initialization of {app}.
+  if OnlyScan then begin
+    if not RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#ProductId}_is1', 'InstallLocation', Target) then Target := ExpandConstant('{#InstallDir}');
+  end else Target := ExpandConstant('{app}');
+  Args := '--installer-legacy-scan ' + Quoted(Inventory) + ' ' + Quoted(DataRoot) + ' ' + Quoted(Target) + ' ' + Mode;
 #ifdef TestRoot
   Args := Args + ' fixture ' + Roots;
 #else
   Args := Args + ' production ' + Roots;
 #endif
   SearchProgress.SetText('Scanning for old Nexa versions', 'Identifying trusted obsolete installations and preserving unknown files.');
-  SetBlueProgress(0, 1); SearchProgress.Show;
+  SetBlueProgress(0, 1); SearchProgress.Show; SearchProgress.ProgressBar.Visible := False;
   try
     if not ExecAndLogOutput(ExpandConstant('{tmp}\{#PrepareHelper}'), Args, '', SW_HIDE, ewWaitUntilTerminated, Code, @PreparationLog) or (Code <> 0) then Exit;
-    if LoadStringFromFile(Inventory + '.report.txt', Report) then DiscoveryMemo.Lines.Add(Report);
+    Report := ReadCleanupReport(Inventory + '.report.txt'); DiscoveryMemo.Lines.Add(Report);
   finally SearchProgress.Hide; end;
   if OnlyScan then begin
     if not ReviewCleanup(Report, True) then begin Result := True; Exit; end;
   end;
   SearchProgress.SetText('Removing old Nexa versions', 'Recovery copies are verified before obsolete binaries are removed.');
-  SetBlueProgress(0, 1); SearchProgress.Show;
+  SetBlueProgress(0, 1); SearchProgress.Show; SearchProgress.ProgressBar.Visible := False;
   try
     Result := ExecAndLogOutput(ExpandConstant('{tmp}\{#PrepareHelper}'), '--installer-legacy-remove ' + Quoted(Inventory), '', SW_HIDE, ewWaitUntilTerminated, Code, @PreparationLog) and (Code = 0);
-    if LoadStringFromFile(Inventory + '.report.txt', Report) then DiscoveryMemo.Lines.Add(Report);
+    Report := ReadCleanupReport(Inventory + '.report.txt'); DiscoveryMemo.Lines.Add(Report);
   finally SearchProgress.Hide; end;
   if OnlyScan then ReviewCleanup(Report, False);
 end;
@@ -323,7 +336,7 @@ begin
 #endif
   SearchProgress.SetText('Checking registered installation and saved data', 'Preparing verified backups');
   SetBlueProgress(0, 1);
-  SearchProgress.Show;
+  SearchProgress.Show; SearchProgress.ProgressBar.Visible := False;
   try
     if not ExecAndLogOutput(ExpandConstant('{tmp}\{#PrepareHelper}'), Args, '', SW_HIDE, ewWaitUntilTerminated, Code, @PreparationLog) then
       PreparationError := 'Could not start installation checks. Existing saves and portable copies are unchanged.'
@@ -333,7 +346,7 @@ begin
     end;
     Prepared := PreparationError = '';
     if Prepared then begin
-      if LoadStringFromFile(PlanPath + '.report.txt', Report) then DiscoveryMemo.Lines.Add(Report);
+      if LoadStringFromFile(PlanPath + '.report.txt', Report) then DiscoveryMemo.Lines.Add(Utf8Decode(Report));
       if FileExists(ExpandConstant('{app}\Nexa.exe')) then begin
         if PayloadNeeded then DiscoveryMemo.Lines.Add('Installed application is missing expected bytes or differs from this package. Setup will replace it from the embedded verified payload.')
         else DiscoveryMemo.Lines.Add('Application integrity verified. Existing correct application bytes will be kept.');
