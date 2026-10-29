@@ -38,14 +38,30 @@ internal sealed partial class HomeWindow
     {if(source.FilePath!=store.FilePath || Saved.Workspace==null)return;Saved.Workspace.Settings.HomeWallpaper=Continuity.Clone(settings);RefreshWallpaper();}
     internal void RefreshWallpaper()
     {
-        // The fixed charcoal Home needs a readable dark shell even when the rest of the app uses Light.
-        foreach(var pair in new[]{("TextBrush","#F0F2FF"),("MutedBrush","#B8C0D8"),("PanelBrush","#151824"),("SurfaceBrush","#1B1E2C"),("InputBrush","#10131D"),("LineBrush","#30364A")})
-            if(!Theme.SeasonalEnabled)Resources[pair.Item1]=BugVisuals.B(pair.Item2);else Resources.Remove(pair.Item1);
         var settings=Saved.Workspace?.Settings.HomeWallpaper;
-        var isDefault=!Theme.SeasonalEnabled && ((settings?.Mode??SpaceBackgroundMode.Default)==SpaceBackgroundMode.Default || settings?.Mode==SpaceBackgroundMode.CustomImage && WallpaperImages.Load(settings)==null);
-        if(Theme.SeasonalEnabled){homeWallpaper.Background=null;homeWallpaper.Effect=null;homeWallpaperShade.Opacity=0;return;}
+        var isDefault=(settings?.Mode??SpaceBackgroundMode.Default)==SpaceBackgroundMode.Default || settings?.Mode==SpaceBackgroundMode.CustomImage && WallpaperImages.Load(settings)==null;
+        var lightDefault=isDefault && Theme.IsLightMode;
+        // Use the selected mode, not a brush partway through its theme transition.
+        // Keep custom backgrounds and the existing dark/seasonal presentation intact.
+        var replacements=new Dictionary<Brush,Brush>();
+        foreach(var pair in new[]{("TextBrush","#F0F2FF","#1D2732"),("MutedBrush","#B8C0D8","#425263"),("PanelBrush","#151824","#FFFFFF"),("SurfaceBrush","#1B1E2C","#DEE7F0"),("InputBrush","#10131D","#FAFCFE"),("LineBrush","#30364A","#B9C6D4"),("BackgroundBrush","#121620","#EFF3F8")})
+        {
+            var previous=TryFindResource(pair.Item1) as Brush;
+            if(lightDefault)Resources[pair.Item1]=BugVisuals.B(pair.Item3);
+            else if(!Theme.SeasonalEnabled && pair.Item1!="BackgroundBrush")Resources[pair.Item1]=BugVisuals.B(pair.Item2);
+            else Resources.Remove(pair.Item1);
+            if(previous!=null && TryFindResource(pair.Item1) is Brush next && previous!=next)replacements[previous]=next;
+        }
+        Theme.Retarget(this,replacements);
+        void RefreshLogo(DependencyObject node)
+        {
+            if(node is NexaLogo logo){logo.LightLettering=lightDefault;logo.InvalidateVisual();}
+            for(var i=0;i<VisualTreeHelper.GetChildrenCount(node);i++)RefreshLogo(VisualTreeHelper.GetChild(node,i));
+        }
+        RefreshLogo(this);
+        if(Theme.SeasonalEnabled && !lightDefault){homeWallpaper.Background=null;homeWallpaper.Effect=null;homeWallpaperShade.Opacity=0;return;}
         WallpaperImages.Apply(homeWallpaper,settings);
-        if(homeWallpaper.Background==null)homeWallpaper.Background=BugVisuals.B("#121620");
+        if(homeWallpaper.Background==null)homeWallpaper.Background=lightDefault?(Brush)FindResource("BackgroundBrush"):BugVisuals.B("#121620");
         homeWallpaperShade.Opacity=isDefault?0:WallpaperImages.Shade(settings,true,homeWallpaper.Background!=null);
     }
 }
@@ -132,7 +148,7 @@ internal sealed partial class SettingsDialog
         var shade=new Slider{Minimum=0,Maximum=.9,Value=settings.Overlay};Field(imageControls,"Contrast overlay",shade);
         void Refresh()
         {
-            WallpaperImages.Apply(previewLayer,settings);if(previewLayer.Background==null)previewLayer.Background=BugVisuals.B("#121620");
+            WallpaperImages.Apply(previewLayer,settings);if(previewLayer.Background==null)previewLayer.Background=BugVisuals.B(Theme.IsLightMode?"#EFF3F8":"#121620");
             previewShade.Opacity=settings.Mode==SpaceBackgroundMode.CustomImage?WallpaperImages.Shade(settings,true,previewLayer.Background is ImageBrush):0;
             imageControls.Visibility=settings.Mode==SpaceBackgroundMode.CustomImage?Visibility.Visible:Visibility.Collapsed;
             status.Text=settings.Mode switch{SpaceBackgroundMode.SolidColor=>"Solid color",SpaceBackgroundMode.CustomImage=>WallpaperImages.Load(settings)==null?"Image unavailable. nexa Default is shown; your image selection is retained.":Path.GetFileName(settings.ImagePath),_=>"nexa Default"};

@@ -10,6 +10,8 @@ internal sealed class NexaLogo : FrameworkElement
 {
     private static readonly DependencyProperty BlendProperty=DependencyProperty.Register("Blend",typeof(double),typeof(NexaLogo),new FrameworkPropertyMetadata(0d,FrameworkPropertyMetadataOptions.AffectsRender));
     private bool? renderedSeason;
+    // Home opts in explicitly; splash and other shared-logo consumers retain their existing behavior.
+    internal bool? LightLettering { get; set; }
     private readonly DrawingImage normalLogo,seasonalLogo,normalLight,seasonalLight;
     internal NexaLogo()
     {
@@ -61,7 +63,7 @@ internal sealed class NexaLogo : FrameworkElement
         var scale = Math.Min(ActualWidth / 1140, ActualHeight / 360);
         dc.PushTransform(new TranslateTransform((ActualWidth - 1140 * scale) / 2, (ActualHeight - 360 * scale) / 2)); dc.PushTransform(new ScaleTransform(scale, scale));
         var text = TryFindResource("TextBrush") as SolidColorBrush;
-        var light = text != null && text.Color.R + text.Color.G + text.Color.B < 360;
+        var light = LightLettering ?? (text != null && text.Color.R + text.Color.G + text.Color.B < 360);
         var normal=light?normalLight:normalLogo;var seasonal=light?seasonalLight:seasonalLogo;var blend=(double)GetValue(BlendProperty);
         if(blend<1){dc.PushOpacity(1-blend);dc.DrawImage(normal,normal.Drawing.Bounds);dc.Pop();}
         if(blend>0){dc.PushOpacity(blend);dc.DrawImage(seasonal,seasonal.Drawing.Bounds);dc.Pop();}

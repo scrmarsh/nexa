@@ -42,6 +42,66 @@ internal static partial class Program
         Capture035(settings,"integrations");settings.Close();Capture035(home,"home-classic");home.Close();
         CheckStorage035();CheckDashboard035();CheckTransitions035();CheckSeason035();
     }
+    private static void CheckHomeLight035()
+    {
+        var store=Store035("home-light");store.SavePreferences(SessionDashboard.ThemeMode.Light,AppTheme.Nexa);
+        var home=new HomeWindow(store);home.Show();Pump(TimeSpan.FromMilliseconds(120));
+        var wall=(Border)typeof(HomeWindow).GetField("homeWallpaper",BindingFlags.Instance|BindingFlags.NonPublic)!.GetValue(home)!;
+        var logo=Visual035(home).OfType<NexaLogo>().Single();var originalIcon=home.Icon;
+        BitmapSource RenderLogo(){var bitmap=new RenderTargetBitmap((int)Math.Ceiling(logo.ActualWidth),(int)Math.Ceiling(logo.ActualHeight),96,96,PixelFormats.Pbgra32);bitmap.Render(logo);return bitmap;}
+        int Letters(BitmapSource bitmap,Color color)
+        {
+            var stride=bitmap.PixelWidth*4;var bytes=new byte[stride*bitmap.PixelHeight];bitmap.CopyPixels(bytes,stride,0);var count=0;
+            for(var y=0;y<bitmap.PixelHeight;y++)for(var x=bitmap.PixelWidth*2/5;x<bitmap.PixelWidth;x++){var i=y*stride+x*4;if(bytes[i]==color.B && bytes[i+1]==color.G && bytes[i+2]==color.R && bytes[i+3]==255)count++;}return count;
+        }
+        byte[] IconPixels(BitmapSource bitmap){var width=bitmap.PixelWidth*29/100;var bytes=new byte[width*bitmap.PixelHeight*4];bitmap.CopyPixels(new Int32Rect(0,0,width,bitmap.PixelHeight),bytes,width*4,0);return bytes;}
+        Assert(wall.Background is SolidColorBrush light && light.Color==Color.FromRgb(239,243,248),"Light Home starts with the app's pale default background");
+        var lightLogo=RenderLogo();Assert(Letters(lightLogo,Color.FromRgb(23,27,38))>80 && Letters(lightLogo,Colors.White)==0,"Actual Home logo renders dark lettering in Light mode");Capture035(home,"home-light");
+        store.SavePreferences(SessionDashboard.ThemeMode.Dark,AppTheme.Nexa);Theme.Apply(Application.Current.Resources,SessionDashboard.ThemeMode.Dark,AppTheme.Nexa);Pump(TimeSpan.FromMilliseconds(350));
+        Assert(wall.Background is SolidColorBrush dark && dark.Color==Color.FromRgb(18,22,32),"Switching back to Dark restores charcoal Home");
+        var darkLogo=RenderLogo();Assert(Letters(darkLogo,Colors.White)>80,"Dark Home restores the original white lettering");
+        foreach(var pair in new[]{("light",lightLogo),("dark",darkLogo)}){var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(pair.Item2));using var file=File.Create(Path.Combine(output,"logo-"+pair.Item1+".png"));encoder.Save(file);}
+        Console.WriteLine($"Logo sizes: light {lightLogo.PixelWidth}x{lightLogo.PixelHeight}; dark {darkLogo.PixelWidth}x{darkLogo.PixelHeight}");
+        Assert(IconPixels(lightLogo).SequenceEqual(IconPixels(darkLogo)),"Light mode changes logo lettering without changing the colored logo icon");
+        store.SavePreferences(SessionDashboard.ThemeMode.Light,AppTheme.Nexa);Theme.Apply(Application.Current.Resources,SessionDashboard.ThemeMode.Light,AppTheme.Nexa);Pump(TimeSpan.FromMilliseconds(350));
+        home.PreviewHomeWallpaper(store,new(){Mode=SpaceBackgroundMode.SolidColor,SolidColor="#345678"});
+        Assert(wall.Background is SolidColorBrush custom && custom.Color==Color.FromRgb(52,86,120),"Light mode preserves the user's custom background color");
+        home.PreviewHomeWallpaper(store,new());Pump(TimeSpan.FromMilliseconds(30));Assert(Letters(RenderLogo(),Color.FromRgb(23,27,38))>80,"Returning to Nexa Default immediately restores dark Home lettering");
+        Theme.SetSeasonalEnabled(true);home.RefreshWallpaper();Pump(TimeSpan.FromMilliseconds(30));
+        Assert(wall.Background is SolidColorBrush seasonalLight && seasonalLight.Color==Color.FromRgb(239,243,248) && Letters(RenderLogo(),Color.FromRgb(23,27,38))>80,"Nexaween Default Home also respects Light mode without replacing seasonal artwork");
+        Assert(ReferenceEquals(originalIcon,home.Icon),"Home mode changes preserve the app and title-bar icon");
+        var splashLogo=new NexaLogo();Assert(splashLogo.LightLettering==null,"Shared logo consumers keep their existing behavior outside Home");
+        Capture035(home,"home-light-nexaween");home.Close();Theme.SetSeasonalEnabled(false);Theme.Apply(Application.Current.Resources,SessionDashboard.ThemeMode.Dark,AppTheme.Nexa);
+        Console.WriteLine("Home Light verification passed");
+    }
+    private static void InstallerArtwork035()
+    {
+        foreach(var light in new[]{true,false})foreach(var small in new[]{false,true})
+        {
+            var logo=(DrawingImage)typeof(NexaLogo).GetMethod("Load",BindingFlags.Static|BindingFlags.NonPublic)!.Invoke(null,new object[]{"nexa-logo-full-dark.svg",light})!;
+            var width=small?55:164;var height=small?55:314;const int scale=6;
+            var visual=new DrawingVisual();
+            using(var dc=visual.RenderOpen())
+            {
+                dc.PushTransform(new ScaleTransform(scale,scale));
+                dc.DrawRectangle(BugVisuals.B(light?"#EFF3F8":"#080B16"),null,new Rect(0,0,width,height));
+                if(small)dc.DrawImage(new DrawingImage(((DrawingGroup)logo.Drawing).Children[0]),new Rect(3,3,49,49));
+                else
+                {
+                    dc.DrawRectangle(BugVisuals.B("#5B7CFF"),null,new Rect(0,0,width,4));
+                    dc.DrawRectangle(BugVisuals.B("#8B5CF6"),null,new Rect(0,height-4,width,4));
+                    dc.DrawImage(logo,new Rect(10,102,144,144*logo.Height/logo.Width));
+                    void Text(string text,double y,double size)=>dc.DrawText(new FormattedText(text,System.Globalization.CultureInfo.InvariantCulture,FlowDirection.LeftToRight,new Typeface("Segoe UI"),size,BugVisuals.B(light?"#1D2732":"#F0F2FF"),scale){MaxTextWidth=144,TextAlignment=TextAlignment.Center},new Point(10,y));
+                    Text("a space for whatever",162,12);Text("comes next",180,12);Text("Setup",247,17);
+                }
+                dc.Pop();
+            }
+            var bitmap=new RenderTargetBitmap(width*scale,height*scale,96,96,PixelFormats.Pbgra32);bitmap.Render(visual);
+            var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            var path=(small?"assets/nexa-setup-small":"assets/nexa-setup-classic")+(light?"":"-dark")+".png";
+            using var file=File.Create(path);encoder.Save(file);Console.WriteLine($"Vector artwork: {path} ({bitmap.PixelWidth}x{bitmap.PixelHeight})");
+        }
+    }
     private static void CheckStorage035()
     {
         var root=Path.Combine(output,"migration035");var legacy=Path.Combine(root,"legacy");var docs=Path.Combine(root,"documents");var target=Path.Combine(root,"Nexa");

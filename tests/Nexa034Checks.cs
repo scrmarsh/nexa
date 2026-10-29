@@ -144,7 +144,7 @@ internal static partial class Program
         foreach(var mode in new[]{SessionDashboard.ThemeMode.Light,SessionDashboard.ThemeMode.Dark})foreach(var palette in Theme.OfficialThemes)
         {
             store.SavePreferences(mode,palette);Theme.Apply(Application.Current.Resources,mode,palette);home.RefreshWallpaper();
-            Assert(((Border)wallpaperField.GetValue(home)!).Background is SolidColorBrush brush && brush.Color==Color.FromRgb(18,22,32),"Default Home stays charcoal under "+mode+" / "+palette);
+            Assert(((Border)wallpaperField.GetValue(home)!).Background is SolidColorBrush brush && brush.Color==(mode==SessionDashboard.ThemeMode.Light?Color.FromRgb(239,243,248):Color.FromRgb(18,22,32)),"Default Home follows Light/Dark under "+mode+" / "+palette);
         }
         Assert(home.FindResource("TextBrush") is SolidColorBrush textBrush && textBrush.Color==Color.FromRgb(240,242,255),"The fixed charcoal Home retains readable text independently of the application mode");
         store.SavePreferences(SessionDashboard.ThemeMode.System,AppTheme.Nexa);Theme.Apply(Application.Current.Resources,SessionDashboard.ThemeMode.System,AppTheme.Nexa);

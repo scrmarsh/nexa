@@ -18,6 +18,8 @@ internal static partial class Program
             var app=new App{ShutdownMode=ShutdownMode.OnExplicitShutdown,SuppressNormalStartup=true};app.InitializeComponent();
             Theme.Apply(app.Resources,SessionDashboard.ThemeMode.Dark,AppTheme.Nexa);
             if(args.Contains("--installer-art034")){InstallerArtwork034();return 0;}
+            if(args.Contains("--installer-art035")){InstallerArtwork035();return 0;}
+            if(args.Contains("--home-light035")){CheckHomeLight035();return 0;}
             if(args.Contains("--ui034"))
             {
                 var fixture=new StateStore(Path.Combine(output,"native034-ui","state.json"));var saved=fixture.Load();saved.Workspace=Continuity.Migrate(saved,fixture.UserId);saved.Workspace.Settings.SeasonalMode="Off";saved.Workspace.Settings.ReduceMotion=true;fixture.Save(saved);

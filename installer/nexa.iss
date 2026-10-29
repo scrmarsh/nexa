@@ -46,12 +46,19 @@ SetupArchitecture=x64
 MinVersion=10.0
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
-WizardStyle=modern
-WizardBackColor=$261B17
-WizardBackColorDynamicDark=$261B17
+; Follow Windows appearance at launch, including controls, dialogs and title bars.
+WizardStyle=modern dynamic polar includetitlebar hidebevels
+WizardBackColor=#EFF3F8
+WizardBackColorDynamicDark=#080B16
+WizardImageBackColor=#EFF3F8
+WizardImageBackColorDynamicDark=#080B16
+WizardSmallImageBackColor=#EFF3F8
+WizardSmallImageBackColorDynamicDark=#080B16
 SetupIconFile=..\assets\nexa-icon.ico
-WizardImageFile=..\assets\nexa-setup-classic.bmp
-WizardSmallImageFile=..\assets\nexa-setup-small.bmp
+WizardImageFile=..\assets\nexa-setup-classic.png
+WizardImageFileDynamicDark=..\assets\nexa-setup-classic-dark.png
+WizardSmallImageFile=..\assets\nexa-setup-small.png
+WizardSmallImageFileDynamicDark=..\assets\nexa-setup-small-dark.png
 UninstallDisplayIcon={app}\Nexa.exe
 UninstallDisplayName=nexa
 OutputDir={#OutputDirPath}
@@ -74,6 +81,12 @@ ChangesAssociations=no
 [Messages]
 WelcomeLabel1=Welcome to the Nexa Setup Wizard
 InstallingLabel=Installing Nexa
+
+[LangOptions]
+DialogFontName=Segoe UI
+DialogFontSize=10
+WelcomeFontName=Segoe UI
+WelcomeFontSize=16
 
 [Tasks]
 Name: desktopicon; Description: "Create Desktop Shortcut"; GroupDescription: "Shortcuts:"
@@ -103,10 +116,40 @@ var
   PlanPath: String;
   DeleteUserData: Boolean;
   DiscoveryPage: TOutputMsgMemoWizardPage;
+  DiscoveryMemo: TNewMemo;
   SearchProgress: TOutputProgressWizardPage;
   ModePage: TInputOptionWizardPage;
   Prepared, Preparing: Boolean;
   PreparationError: String;
+  DesktopShortcutCheck, StartMenuShortcutCheck: TNewCheckBox;
+  UpdatingShortcutChoices: Boolean;
+
+procedure ShortcutChoiceChanged(Sender: TObject);
+var Choices: String;
+begin
+  if UpdatingShortcutChoices then Exit;
+  if DesktopShortcutCheck.Checked then Choices := 'desktopicon'
+  else Choices := '!desktopicon';
+  if StartMenuShortcutCheck.Checked then Choices := Choices + ',startmenu'
+  else Choices := Choices + ',!startmenu';
+  WizardSelectTasks(Choices);
+end;
+
+procedure CreateShortcutChoices;
+begin
+  // Native, focusable checkboxes expose each checked state to accessibility tools.
+  DesktopShortcutCheck := TNewCheckBox.Create(WizardForm);
+  DesktopShortcutCheck.Parent := WizardForm.SelectTasksPage;
+  DesktopShortcutCheck.SetBounds(WizardForm.TasksList.Left, WizardForm.TasksList.Top + ScaleY(8), WizardForm.TasksList.Width, ScaleY(32));
+  DesktopShortcutCheck.Caption := 'Add to Desktop';
+  DesktopShortcutCheck.OnClick := @ShortcutChoiceChanged;
+  StartMenuShortcutCheck := TNewCheckBox.Create(WizardForm);
+  StartMenuShortcutCheck.Parent := WizardForm.SelectTasksPage;
+  StartMenuShortcutCheck.SetBounds(WizardForm.TasksList.Left, DesktopShortcutCheck.Top + ScaleY(44), WizardForm.TasksList.Width, ScaleY(32));
+  StartMenuShortcutCheck.Caption := 'Add to Start Menu';
+  StartMenuShortcutCheck.OnClick := @ShortcutChoiceChanged;
+  WizardForm.TasksList.Visible := False;
+end;
 
 function PayloadNeeded: Boolean;
 begin
@@ -137,7 +180,7 @@ end;
 procedure PreparationLog(const S: String; const Error, FirstLine: Boolean);
 begin
   SearchProgress.SetText(S, 'Checking bounded nexa locations; no full-PC search.');
-  DiscoveryPage.RichEditViewer.Lines.Add(S);
+  DiscoveryMemo.Lines.Add(S);
   Log(S);
 end;
 
@@ -178,12 +221,12 @@ begin
     end;
     Prepared := PreparationError = '';
     if Prepared then begin
-      if LoadStringFromFile(PlanPath + '.report.txt', Report) then DiscoveryPage.RichEditViewer.Lines.Add(Report);
+      if LoadStringFromFile(PlanPath + '.report.txt', Report) then DiscoveryMemo.Lines.Add(Report);
       if FileExists(ExpandConstant('{app}\Nexa.exe')) then begin
-        if PayloadNeeded then DiscoveryPage.RichEditViewer.Lines.Add('Installed application is missing expected bytes or differs from this package. Setup will replace it from the embedded verified payload.')
-        else DiscoveryPage.RichEditViewer.Lines.Add('Application integrity verified. Existing correct application bytes will be kept.');
-      end else DiscoveryPage.RichEditViewer.Lines.Add('Application payload is missing. Setup will install the embedded verified payload.');
-    end else begin DiscoveryPage.RichEditViewer.Lines.Add(PreparationError); Log(PreparationError); end;
+        if PayloadNeeded then DiscoveryMemo.Lines.Add('Installed application is missing expected bytes or differs from this package. Setup will replace it from the embedded verified payload.')
+        else DiscoveryMemo.Lines.Add('Application integrity verified. Existing correct application bytes will be kept.');
+      end else DiscoveryMemo.Lines.Add('Application payload is missing. Setup will install the embedded verified payload.');
+    end else begin DiscoveryMemo.Lines.Add(PreparationError); Log(PreparationError); end;
   finally SearchProgress.Hide; Preparing := False; end;
 end;
 
@@ -196,17 +239,33 @@ end;
 procedure InitializeWizard;
 var Registered: String;
 begin
+  CreateShortcutChoices;
   ModePage := CreateInputOptionPage(wpWelcome, 'Install or repair nexa', 'Choose how Setup should maintain this installation.', 'Repair preserves Spaces, recordings, history, settings and connections.', True, False);
   ModePage.Add('Install or update nexa');
   ModePage.Add('Repair Files');
   ModePage.SelectedValueIndex := 0;
   ModePage.CheckListBox.ItemEnabled[1] := RegQueryStringValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#ProductId}_is1', 'InstallLocation', Registered);
   DiscoveryPage := CreateOutputMsgMemoPage(wpSelectTasks, 'Searching for Existing Nexa Installations', 'Review discovered locations and integrity before installing.', 'Only bounded known locations are inspected. Portable copies are preserved.', '');
+  // A plain read-only memo lets the active Windows-matched style supply all text colors.
+  // RichEdit retains black inline character formatting when text is appended at runtime.
+  DiscoveryMemo := TNewMemo.Create(WizardForm);
+  DiscoveryMemo.Parent := DiscoveryPage.Surface;
+  DiscoveryMemo.SetBounds(DiscoveryPage.RichEditViewer.Left, DiscoveryPage.RichEditViewer.Top, DiscoveryPage.RichEditViewer.Width, DiscoveryPage.RichEditViewer.Height);
+  DiscoveryMemo.ReadOnly := True;
+  DiscoveryMemo.ScrollBars := ssVertical;
+  DiscoveryMemo.WordWrap := True;
+  DiscoveryPage.RichEditViewer.Visible := False;
   SearchProgress := CreateOutputProgressPage('Searching for Existing Nexa Installations', 'Checking installations and verifying backups');
 end;
 
 procedure CurPageChanged(CurPageID: Integer);
 begin
+  if CurPageID = wpSelectTasks then begin
+    UpdatingShortcutChoices := True;
+    DesktopShortcutCheck.Checked := WizardIsTaskSelected('desktopicon');
+    StartMenuShortcutCheck.Checked := WizardIsTaskSelected('startmenu');
+    UpdatingShortcutChoices := False;
+  end;
   if (CurPageID = wpSelectDir) or (CurPageID = wpSelectTasks) then Prepared := False;
   if (CurPageID = DiscoveryPage.ID) and not Preparing and not Prepared then begin
     WizardForm.NextButton.Enabled := False;

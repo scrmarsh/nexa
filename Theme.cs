@@ -50,6 +50,7 @@ public static class Theme
         SeasonalChanged?.Invoke(null,EventArgs.Empty);
     }
     private static ThemeMode currentMode = ThemeMode.System;
+    internal static bool IsLightMode => currentMode == ThemeMode.Light || (currentMode == ThemeMode.System && IsWindowsAppThemeLight());
     private static string currentAccent = "#5B7CFF";
     private static string currentPixel = "#8B5CF6";
     private static AppTheme currentTheme = AppTheme.Nexa;
